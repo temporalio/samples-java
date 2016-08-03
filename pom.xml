@@ -2,26 +2,25 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>com.amazonaws</groupId>
-    <artifactId>aws-java-sdk-pom</artifactId>
-    <version>1.11.22-SNAPSHOT</version>
-  </parent>
   <groupId>com.amazonaws</groupId>
   <artifactId>aws-java-sdk-swf-libraries</artifactId>
+  <version>1.11.22-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Java Libraries for Amazon Simple WorkFlow</name>
   <description>This artifact contains the higher level libraries that can be used in Amazon Simple WorkFlow Service</description>
   <url>https://aws.amazon.com/sdkforjava</url>
   <properties>
     <spring.version>3.0.7.RELEASE</spring.version>
+    <freemarker.version>2.3.9</freemarker.version>
+    <aspectj.version>1.8.2</aspectj.version>
+    <jre.version>1.6</jre.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-simpleworkflow</artifactId>
-      <version>1.11.22-SNAPSHOT</version>
+      <version>1.11.22</version>
     </dependency>
     <dependency>
       <groupId>org.freemarker</groupId>
@@ -63,6 +62,7 @@
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
+      <version>4.12</version>
       <scope>compile</scope>
       <optional>true</optional>
     </dependency>
@@ -70,6 +70,17 @@
 
   <build>
     <plugins>
+      <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>2.3</version>
+          <configuration>
+            <source>${jre.version}</source>
+            <target>${jre.version}</target>
+            <encoding>UTF-8</encoding>
+            <forceJavacCompilerUse>true</forceJavacCompilerUse>
+          </configuration>
+        </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>aspectj-maven-plugin</artifactId>
