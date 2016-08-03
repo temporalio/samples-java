@@ -8,7 +8,28 @@
   <packaging>jar</packaging>
   <name>Java Libraries for Amazon Simple WorkFlow</name>
   <description>This artifact contains the higher level libraries that can be used in Amazon Simple WorkFlow Service</description>
-  <url>https://aws.amazon.com/sdkforjava</url>
+  <url>https://github.com/aws/aws-swf-flow-library</url>
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>https://aws.amazon.com/apache2.0</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>amazonwebservices</id>
+      <organization>Amazon Web Services</organization>
+      <organizationUrl>https://aws.amazon.com</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+    </developer>
+  </developers>
+  <scm>
+    <url>https://github.com/aws/aws-swf-flow-library.git</url>
+  </scm>
   <properties>
     <spring.version>3.0.7.RELEASE</spring.version>
     <freemarker.version>2.3.9</freemarker.version>
