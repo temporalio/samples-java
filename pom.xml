@@ -3,11 +3,11 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.amazonaws</groupId>
-  <artifactId>aws-java-sdk-swf-libraries</artifactId>
-  <version>1.11.22-SNAPSHOT</version>
+  <artifactId>swf-flow-samples</artifactId>
+  <version>2.0</version>
   <packaging>jar</packaging>
-  <name>Java Libraries for Amazon Simple WorkFlow</name>
-  <description>This artifact contains the higher level libraries that can be used in Amazon Simple WorkFlow Service</description>
+  <name>Samples for Amazon Simple WorkFlow</name>
+  <description>This artifact contains the Amazon Simple WorkFlow Service Samples</description>
   <url>https://github.com/aws/aws-swf-flow-library</url>
   <licenses>
     <license>
@@ -28,7 +28,7 @@
     </developer>
   </developers>
   <scm>
-    <url>https://github.com/aws/aws-swf-flow-library.git</url>
+    <url>https://github.com/mfateev/swf-flow-library-samples-java.git</url>
   </scm>
   <properties>
     <java.version>1.8</java.version>
@@ -41,6 +41,17 @@
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>swf-flow-library</artifactId>
+      <version>2.0.0</version>
+    </dependency>
+    <dependency>
+     <!-- Flow Framework annotation processor -->
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-swf-build-tools</artifactId>
+      <version>1.1</version>
+    </dependency>
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk</artifactId>
@@ -81,12 +92,6 @@
       <version>${spring.version}</version>
       <optional>true</optional>
     </dependency>
-    <dependency>
-      <groupId>org.aspectj</groupId>
-      <artifactId>aspectjrt</artifactId>
-      <version>${aspectj.version}</version>
-      <optional>true</optional>
-    </dependency>
    <!-- JUnit is needed to compile the support classes for the workflow service -->
     <dependency>
       <groupId>junit</groupId>
@@ -94,6 +99,11 @@
       <version>4.12</version>
       <scope>compile</scope>
       <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.17</version>
     </dependency>
   </dependencies>
 
@@ -104,6 +114,7 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.2</version>
           <configuration>
+             <!--compilerArgument>-proc:none</compilerArgument-->
              <compilerVersion>${java.version}</compilerVersion>
              <source>${java.version}</source>
              <target>${java.version}</target>
@@ -113,26 +124,21 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>aspectj-maven-plugin</artifactId>
         <version>1.9</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-          </execution>
-        </executions>
         <configuration>
                     <complianceLevel>${java.version}</complianceLevel>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                     <showWeaveInfo>true</showWeaveInfo>
-                    <sources>
+                    <!-- Disables annotation procesing by aspectj -->
+                    <proc>none</proc>
+                    <!--sources>
                         <source>
                             <basedir>${source.dir}</basedir>
                             <includes>
                                 <include>**/*.java</include>
                             </includes>
                         </source>
-                    </sources>
+                    </sources-->
                     <aspectLibraries>
                         <aspectLibrary>
                             <groupId>com.amazonaws</groupId>
@@ -140,6 +146,21 @@
                         </aspectLibrary>
                     </aspectLibraries>
         </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjtools</artifactId>
+                        <version>${aspectj.version}</version>
+                    </dependency>
+                </dependencies>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
