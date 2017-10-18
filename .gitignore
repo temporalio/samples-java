@@ -2,3 +2,5 @@ target
 com
 .*.swp
 .*.swo
+*.iml
+.idea
