@@ -1,3 +1,11 @@
+This package was created by Maxim Fateev (original author of the Flow Framework) 
+from aws/aws-swf-flow-library official AWS package.
+It uses standard Maven directory structure and supports invocation of the examples using
+mvn exec as oposed official version that uses ant. 
+
+The package uses AWS Flow Framework from <https://github.com/mfateev/swf-flow-library-java>
+which is not found in global maven repositories yet. 
+
 # AWS Flow Framework Samples
 
 These samples demonstrate how to use AWS Flow Framework. The following samples are included:
