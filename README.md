@@ -120,9 +120,9 @@ you've built them using the preceding instructions.
 The sample has three executables. You should run each command in a separate terminal window, from
 the `samples` directory.
 
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.helloworld.ActivityHost" run
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.helloworld.WorkflowHost" run
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.helloworld.WorkflowExecutionStarter" run
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.helloworld.ActivityHost
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.helloworld.WorkflowHost
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.helloworld.WorkflowExecutionStarter
 
 ### Hello Lambda
 
@@ -171,26 +171,26 @@ The *HelloLambda* sample uses an AWS Lambda task instead of running an activity,
 run the workflow host and workflow starter. Run each command in a separate terminal window from the
 `samples` directory.
 
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.hellolambda.WorkflowHost" run
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.hellolambda.WorkflowExecutionStarter" run
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.hellolambda.WorkflowHost
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.hellolambda.WorkflowExecutionStarter
 
 ### Booking
 
 The sample has three executables. You should run each command in a separate terminal window, from
 the `samples` directory.
 
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.booking.ActivityHost" run
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.booking.WorkflowHost" run
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.booking.WorkflowExecutionStarter" run
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.booking.ActivityHost
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.booking.WorkflowHost
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.booking.WorkflowExecutionStarter
 
 ### Cron
 
 The sample has three executables. You should run each command in a separate terminal window, from
 the `samples` directory.
 
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.cron.ActivityHost" run
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.cron.WorkflowHost" run
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.cron.CronWorkflowExecutionStarter" -Dmain-args="\"*/10 * * * * *\" PST 60" run
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.cron.ActivityHost
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.cron.WorkflowHost
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.cron.CronWorkflowExecutionStarter -Dexec.args="\"*/10 * * * * *\" PST 60"
 
 The workflow starter takes three command line arguments that *must* be specified:
 
@@ -208,9 +208,9 @@ The workflow starter takes three command line arguments that *must* be specified
 The sample has three executables. You should run each command in a separate terminal window, from
 the `samples` directory.
 
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.cronwithretry.ActivityHost" run
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.cronwithretry.WorkflowHost" run
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.cronwithretry.CronWithRetryWorkflowExecutionStarter" -Dmain-args="\"*/10 * * * * *\" PST 60" run
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.cronwithretry.ActivityHost
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.cronwithretry.WorkflowHost
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.cronwithretry.CronWithRetryWorkflowExecutionStarter" -Dmain-args="\"*/10 * * * * *\" PST 60
 
 The workflow starter takes three command line arguments that *must* be specified:
 
@@ -239,25 +239,25 @@ bucket that you want the sample to use:
 The sample has three executables. You should run each command in a separate terminal window, from
 the `samples` directory.
 
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.fileprocessing.ActivityHost" run
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.fileprocessing.WorkflowHost" run
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.fileprocessing.WorkflowExecutionStarter" run
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.fileprocessing.ActivityHost
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.fileprocessing.WorkflowHost
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.fileprocessing.WorkflowExecutionStarter
 
 ### Periodic Workflow
 
 The sample has three executables. You should run each command in a separate terminal window, from
 the `samples` directory.
 
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow.ActivityHost" run
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow.WorkflowHost" run
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow.WorkflowExecutionStarter" run
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow.ActivityHost
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow.WorkflowHost
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow.WorkflowExecutionStarter
 
 ### Split Merge
 
 The sample has three executables. You should run each command in a separate terminal window, from
 the `samples` directory.
 
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.splitmerge.ActivityHost" run
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.splitmerge.WorkflowHost" run
-    ant -f build.xml -Dmain-class="com.amazonaws.services.simpleworkflow.flow.examples.splitmerge.WorkflowExecutionStarter" run
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.splitmerge.ActivityHost
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.splitmerge.WorkflowHost
+    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.splitmerge.WorkflowExecutionStarter
 
