@@ -17,14 +17,14 @@ package com.amazonaws.services.simpleworkflow.flow.examples.booking;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import com.amazonaws.services.simpleworkflow.AmazonSimpleWorkflow;
+import com.uber.cadence.WorkflowService;
 import com.amazonaws.services.simpleworkflow.flow.WorkflowWorker;
 import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
 
 public class WorkflowHost {
-    private static AmazonSimpleWorkflow swfService;
+    private static WorkflowService.Iface swfService;
     private static String domain;
-    private static long domainRetentionPeriodInDays;
+    private static int domainRetentionPeriodInDays;
     private static WorkflowWorker worker;
     private static WorkflowHost host;
 
@@ -72,7 +72,6 @@ public class WorkflowHost {
     private void stopHost() throws InterruptedException {
         System.out.println("Stopping Workflow Host Service...");
         worker.shutdownNow();
-        swfService.shutdown();
         worker.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
         System.out.println("Workflow Host Service Stopped...");
     }
@@ -81,10 +80,10 @@ public class WorkflowHost {
         ConfigHelper configHelper = ConfigHelper.createConfig();
 
         // Create the client for Simple Workflow Service and S3 Service
-        swfService = configHelper.createSWFClient();
+        swfService = configHelper.createWorkflowClient();
         domain = configHelper.getDomain();
         domainRetentionPeriodInDays = configHelper.getDomainRetentionPeriodInDays();
-        configHelper.createS3Client();
+//        configHelper.createS3Client();
         
         return configHelper;
     }

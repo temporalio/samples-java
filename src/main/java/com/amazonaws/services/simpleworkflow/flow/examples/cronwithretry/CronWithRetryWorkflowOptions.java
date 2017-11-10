@@ -18,7 +18,7 @@ import java.util.List;
 
 import com.amazonaws.services.simpleworkflow.flow.common.FlowConstants;
 import com.amazonaws.services.simpleworkflow.flow.interceptors.ExponentialRetryPolicy;
-import com.amazonaws.services.simpleworkflow.model.ActivityType;
+import com.uber.cadence.ActivityType;
 
 /**
  * See {@link ExponentialRetryPolicy} for description of retry related

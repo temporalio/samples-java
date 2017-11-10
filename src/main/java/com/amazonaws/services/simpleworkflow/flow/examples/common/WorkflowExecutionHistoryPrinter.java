@@ -14,9 +14,9 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.common;
 
-import com.amazonaws.services.simpleworkflow.AmazonSimpleWorkflow;
+import com.uber.cadence.WorkflowService;
 import com.amazonaws.services.simpleworkflow.flow.common.WorkflowExecutionUtils;
-import com.amazonaws.services.simpleworkflow.model.WorkflowExecution;
+import com.uber.cadence.WorkflowExecution;
 
 /**
  * Simple example utility to pretty print workflow execution history. 
@@ -31,7 +31,7 @@ public class WorkflowExecutionHistoryPrinter {
             System.exit(1);
         }
         ConfigHelper configHelper = ConfigHelper.createConfig();
-        AmazonSimpleWorkflow swfService = configHelper.createSWFClient();
+        WorkflowService.Iface swfService = configHelper.createWorkflowClient();
         String domain = configHelper.getDomain();
         
         

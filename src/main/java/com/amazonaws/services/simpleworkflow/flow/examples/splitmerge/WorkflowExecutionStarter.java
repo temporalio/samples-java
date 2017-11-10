@@ -14,12 +14,12 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.splitmerge;
 
-import com.amazonaws.services.simpleworkflow.AmazonSimpleWorkflow;
+import com.uber.cadence.WorkflowService;
 import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
-import com.amazonaws.services.simpleworkflow.model.WorkflowExecution;
+import com.uber.cadence.WorkflowExecution;
 
 public class WorkflowExecutionStarter {
-	private static AmazonSimpleWorkflow swfService;
+	private static WorkflowService.Iface swfService;
 	private static String domain;
     
     public static void main(String[] args) throws Exception {
@@ -28,7 +28,7 @@ public class WorkflowExecutionStarter {
     	ConfigHelper configHelper = ConfigHelper.createConfig();
         
         // Create the client for Simple Workflow Service
-        swfService = configHelper.createSWFClient();
+        swfService = configHelper.createWorkflowClient();
         domain = configHelper.getDomain();
         
         // Start Workflow execution

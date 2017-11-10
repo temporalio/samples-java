@@ -17,7 +17,7 @@ package com.amazonaws.services.simpleworkflow.flow.examples.cron;
 import com.amazonaws.services.simpleworkflow.flow.ActivityExecutionContext;
 import com.amazonaws.services.simpleworkflow.flow.ActivityExecutionContextProvider;
 import com.amazonaws.services.simpleworkflow.flow.ActivityExecutionContextProviderImpl;
-import com.amazonaws.services.simpleworkflow.model.ActivityTask;
+import com.amazonaws.services.simpleworkflow.flow.ActivityTask;
 
 public class CronExampleActivitiesImpl implements CronExampleActivities {
 

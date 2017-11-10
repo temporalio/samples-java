@@ -14,15 +14,15 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow;
 
-import com.amazonaws.services.simpleworkflow.AmazonSimpleWorkflow;
+import com.amazonaws.services.simpleworkflow.flow.WorkflowExecutionAlreadyStartedException;
+import com.uber.cadence.WorkflowService;
 import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
-import com.amazonaws.services.simpleworkflow.model.ActivityType;
-import com.amazonaws.services.simpleworkflow.model.WorkflowExecution;
-import com.amazonaws.services.simpleworkflow.model.WorkflowExecutionAlreadyStartedException;
+import com.uber.cadence.ActivityType;
+import com.uber.cadence.WorkflowExecution;
 
 public class WorkflowExecutionStarter {
 
-    private static AmazonSimpleWorkflow swfService;
+    private static WorkflowService.Iface swfService;
 
     private static String domain;
 
@@ -32,7 +32,7 @@ public class WorkflowExecutionStarter {
         ConfigHelper configHelper = ConfigHelper.createConfig();
 
         // Create the client for Simple Workflow Service
-        swfService = configHelper.createSWFClient();
+        swfService = configHelper.createWorkflowClient();
         domain = configHelper.getDomain();
 
         // Start Workflow execution
@@ -54,7 +54,7 @@ public class WorkflowExecutionStarter {
 
         ActivityType activityType = new ActivityType();
         activityType.setName("PeriodicWorkflowActivities.doSomeWork");
-        activityType.setVersion("1.0");
+//        activityType.setVersion("1.0");
         Object[] parameters = new Object[] { "parameter1" };
 
         try {

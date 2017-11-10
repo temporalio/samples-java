@@ -17,8 +17,8 @@ package com.amazonaws.services.simpleworkflow.flow.examples.splitmerge;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.simpleworkflow.AmazonSimpleWorkflow;
+//import com.amazonaws.services.s3.AmazonS3;
+import com.uber.cadence.WorkflowService;
 import com.amazonaws.services.simpleworkflow.flow.ActivityWorker;
 import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
 
@@ -30,43 +30,43 @@ public class ActivityHost {
     private static final String ACTIVITIES_TASK_LIST = "AverageCalculator";
 
     public static void main(String[] args) throws Exception {
-        ConfigHelper configHelper = ConfigHelper.createConfig();
-        AmazonSimpleWorkflow swfService = configHelper.createSWFClient();
-        AmazonS3 s3Client = configHelper.createS3Client();
-        String domain = configHelper.getDomain();
-
-        final ActivityWorker worker = new ActivityWorker(swfService, domain, ACTIVITIES_TASK_LIST);
-
-        // Create activity implementations
-        AverageCalculatorActivitiesImpl avgCalcActivitiesImpl = new AverageCalculatorActivitiesImpl(s3Client);
-        worker.addActivitiesImplementation(avgCalcActivitiesImpl);
-
-        worker.start();
-
-        System.out.println("Activity Worker Started for Task List: " + worker.getTaskListToPoll());
-
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-
-            public void run() {
-                try {
-                    worker.shutdownAndAwaitTermination(1, TimeUnit.MINUTES);
-                    System.out.println("Activity Worker Exited.");
-                }
-                catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        System.out.println("Please press any key to terminate service.");
-
-        try {
-            System.in.read();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.exit(0);
+//        ConfigHelper configHelper = ConfigHelper.createConfig();
+//        WorkflowService.Iface swfService = configHelper.createWorkflowClient();
+//        AmazonS3 s3Client = configHelper.createS3Client();
+//        String domain = configHelper.getDomain();
+//
+//        final ActivityWorker worker = new ActivityWorker(swfService, domain, ACTIVITIES_TASK_LIST);
+//
+//        // Create activity implementations
+//        AverageCalculatorActivitiesImpl avgCalcActivitiesImpl = new AverageCalculatorActivitiesImpl(s3Client);
+//        worker.addActivitiesImplementation(avgCalcActivitiesImpl);
+//
+//        worker.start();
+//
+//        System.out.println("Activity Worker Started for Task List: " + worker.getTaskListToPoll());
+//
+//        Runtime.getRuntime().addShutdownHook(new Thread() {
+//
+//            public void run() {
+//                try {
+//                    worker.shutdownAndAwaitTermination(1, TimeUnit.MINUTES);
+//                    System.out.println("Activity Worker Exited.");
+//                }
+//                catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
+//
+//        System.out.println("Please press any key to terminate service.");
+//
+//        try {
+//            System.in.read();
+//        }
+//        catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        System.exit(0);
 
     }
 

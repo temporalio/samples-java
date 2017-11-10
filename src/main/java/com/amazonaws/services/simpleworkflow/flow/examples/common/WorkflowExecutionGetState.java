@@ -14,10 +14,12 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.common;
 
-import com.amazonaws.services.simpleworkflow.AmazonSimpleWorkflow;
+import com.uber.cadence.WorkflowService;
 import com.amazonaws.services.simpleworkflow.flow.generic.GenericWorkflowClientExternal;
 import com.amazonaws.services.simpleworkflow.flow.worker.GenericWorkflowClientExternalImpl;
-import com.amazonaws.services.simpleworkflow.model.WorkflowExecution;
+import com.uber.cadence.WorkflowExecution;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * Simple example utility to pretty print workflow execution history. 
@@ -32,7 +34,7 @@ public class WorkflowExecutionGetState {
             System.exit(1);
         }
         ConfigHelper configHelper = ConfigHelper.createConfig();
-        AmazonSimpleWorkflow swfService = configHelper.createSWFClient();
+        WorkflowService.Iface swfService = configHelper.createWorkflowClient();
         String domain = configHelper.getDomain();
         
         
@@ -44,10 +46,10 @@ public class WorkflowExecutionGetState {
         
         GenericWorkflowClientExternal client = new GenericWorkflowClientExternalImpl(swfService, domain);
         
-        String state = client.getWorkflowState(workflowExecution);
+        byte[] state = client.getWorkflowState(workflowExecution);
         
         System.out.println("Current state of " + workflowExecution + ":");
-        System.out.println(state);
+        System.out.println(new String(state, StandardCharsets.UTF_8));
     }    
     
 }

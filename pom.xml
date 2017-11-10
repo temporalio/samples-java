@@ -4,11 +4,11 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.amazonaws</groupId>
-  <artifactId>swf-flow-samples</artifactId>
-  <name>Samples for Amazon Simple WorkFlow</name>
-  <version>2.0</version>
-  <description>This artifact contains the Amazon Simple WorkFlow Service Samples</description>
+  <groupId>com.uber</groupId>
+  <artifactId>cadence-flow-samples</artifactId>
+  <name>Samples for Cadence. Based on samples for AWS SWF</name>
+  <version>0.0.1</version>
+  <description>This artifact contains the Cadence Service Samples</description>
   <url>https://github.com/aws/aws-swf-flow-library</url>
   <licenses>
     <license>
@@ -37,15 +37,15 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>swf-flow-library</artifactId>
-      <version>2.0.0</version>
+      <groupId>com.uber</groupId>
+      <artifactId>cadence-flow-library</artifactId>
+      <version>0.0.1</version>
     </dependency>
-    <dependency>
+    <!--dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk</artifactId>
       <version>${aws.java.sdk.version}</version>
-    </dependency>
+    </dependency-->
 
     <dependency>
       <groupId>org.aspectj</groupId>
@@ -53,9 +53,9 @@
       <version>${aspectj.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.amazonaws</groupId>
-      <artifactId>aws-swf-build-tools</artifactId>
-      <version>1.1</version>
+      <groupId>com.uber</groupId>
+      <artifactId>cadence-annotation-processor</artifactId>
+      <version>0.0.1</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -144,8 +144,8 @@
           </sources>
           <aspectLibraries>
             <aspectLibrary>
-              <groupId>com.amazonaws</groupId>
-              <artifactId>swf-flow-library</artifactId>
+              <groupId>com.uber</groupId>
+              <artifactId>cadence-flow-library</artifactId>
             </aspectLibrary>
           </aspectLibraries>
         </configuration>

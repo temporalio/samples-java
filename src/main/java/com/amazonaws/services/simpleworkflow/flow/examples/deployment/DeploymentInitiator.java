@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 
+import com.amazonaws.services.simpleworkflow.flow.WorkflowExecutionAlreadyStartedException;
 import org.apache.log4j.PropertyConfigurator;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -30,7 +31,7 @@ public class DeploymentInitiator {
      * @param args
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, WorkflowExecutionAlreadyStartedException {
         URL pUrl = DeploymentHost.class.getResource("/com/amazonaws/services/simpleworkflow/flow/examples/log4j.properties");
         PropertyConfigurator.configure(pUrl);
 

@@ -17,7 +17,7 @@ package com.amazonaws.services.simpleworkflow.flow.examples.cron;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import com.amazonaws.services.simpleworkflow.AmazonSimpleWorkflow;
+import com.uber.cadence.WorkflowService;
 import com.amazonaws.services.simpleworkflow.flow.ActivityWorker;
 import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
 
@@ -30,7 +30,7 @@ public class ActivityHost {
 
     public static void main(String[] args) throws Exception {
         ConfigHelper configHelper = ConfigHelper.createConfig();
-        AmazonSimpleWorkflow swfService = configHelper.createSWFClient();
+        WorkflowService.Iface swfService = configHelper.createWorkflowClient();
         String domain = configHelper.getDomain();
 
         final ActivityWorker worker = new ActivityWorker(swfService, domain, ACTIVITIES_TASK_LIST);

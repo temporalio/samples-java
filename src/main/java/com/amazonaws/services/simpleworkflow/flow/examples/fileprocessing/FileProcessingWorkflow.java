@@ -19,13 +19,13 @@ import java.io.IOException;
 import com.amazonaws.services.simpleworkflow.flow.annotations.Execute;
 import com.amazonaws.services.simpleworkflow.flow.annotations.GetState;
 import com.amazonaws.services.simpleworkflow.flow.annotations.Workflow;
-import com.amazonaws.services.simpleworkflow.flow.annotations.WorkflowRegistrationOptions;
+//import com.amazonaws.services.simpleworkflow.flow.annotations.WorkflowRegistrationOptions;
 
 /**
  * Contract for file processing workflow
  */
 @Workflow
-@WorkflowRegistrationOptions(defaultExecutionStartToCloseTimeoutSeconds = 300, defaultTaskStartToCloseTimeoutSeconds = 10)
+//@WorkflowRegistrationOptions(defaultExecutionStartToCloseTimeoutSeconds = 300, defaultTaskStartToCloseTimeoutSeconds = 10)
 public interface FileProcessingWorkflow {
 
     @Execute(name = "ProcessFile", version = "1.0")

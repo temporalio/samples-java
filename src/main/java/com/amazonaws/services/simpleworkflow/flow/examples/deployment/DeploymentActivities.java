@@ -17,13 +17,9 @@ package com.amazonaws.services.simpleworkflow.flow.examples.deployment;
 import java.util.List;
 
 import com.amazonaws.services.simpleworkflow.flow.annotations.Activities;
-import com.amazonaws.services.simpleworkflow.flow.annotations.ActivityRegistrationOptions;
 import com.amazonaws.services.simpleworkflow.flow.common.FlowConstants;
 
-@Activities(version = "1.0")
-// NO_DEFAULT_TASK_LIST mandates that task list is specified when activity is called
-@ActivityRegistrationOptions(defaultTaskList = FlowConstants.NO_DEFAULT_TASK_LIST,
-        defaultTaskScheduleToStartTimeoutSeconds = 300, defaultTaskStartToCloseTimeoutSeconds = 300)
+@Activities
 public interface DeploymentActivities {
 
     /**

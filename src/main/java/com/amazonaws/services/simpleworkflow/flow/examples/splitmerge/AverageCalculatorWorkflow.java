@@ -16,12 +16,12 @@ package com.amazonaws.services.simpleworkflow.flow.examples.splitmerge;
 
 import com.amazonaws.services.simpleworkflow.flow.annotations.Execute;
 import com.amazonaws.services.simpleworkflow.flow.annotations.Workflow;
-import com.amazonaws.services.simpleworkflow.flow.annotations.WorkflowRegistrationOptions;
+//import com.amazonaws.services.simpleworkflow.flow.annotations.WorkflowRegistrationOptions;
 
 @Workflow
-@WorkflowRegistrationOptions(
-        defaultExecutionStartToCloseTimeoutSeconds = 300,
-        defaultTaskStartToCloseTimeoutSeconds = 10)
+//@WorkflowRegistrationOptions(
+//        defaultExecutionStartToCloseTimeoutSeconds = 300,
+//        defaultTaskStartToCloseTimeoutSeconds = 10)
 public interface AverageCalculatorWorkflow {
 
     @Execute(name = "SplitMergeWorkflowExample", version = "1.0")

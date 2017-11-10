@@ -18,11 +18,9 @@ import java.io.IOException;
 
 import com.amazonaws.services.simpleworkflow.flow.annotations.Activities;
 import com.amazonaws.services.simpleworkflow.flow.annotations.Activity;
-import com.amazonaws.services.simpleworkflow.flow.annotations.ActivityRegistrationOptions;
 import com.amazonaws.services.simpleworkflow.flow.annotations.ExponentialRetry;
 
-@Activities(version = "1.0")
-@ActivityRegistrationOptions(defaultTaskScheduleToStartTimeoutSeconds = 30, defaultTaskStartToCloseTimeoutSeconds = 30)
+@Activities
 public interface AverageCalculatorActivities {
 
     @Activity(name = "computeDataSize")

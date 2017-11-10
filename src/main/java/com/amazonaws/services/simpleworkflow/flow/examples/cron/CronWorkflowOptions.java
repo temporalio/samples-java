@@ -14,7 +14,7 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.cron;
 
-import com.amazonaws.services.simpleworkflow.model.ActivityType;
+import com.uber.cadence.ActivityType;
 
 /**
  * See {@link ExponentialRetryPolicy} for description of retry related

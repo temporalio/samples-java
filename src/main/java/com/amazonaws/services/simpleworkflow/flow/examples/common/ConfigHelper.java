@@ -20,16 +20,16 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
+import com.uber.cadence.serviceclient.WorkflowServiceTChannel;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.simpleworkflow.AmazonSimpleWorkflow;
-import com.amazonaws.services.simpleworkflow.AmazonSimpleWorkflowClient;
+//import com.amazonaws.auth.AWSCredentials;
+//import com.amazonaws.auth.BasicAWSCredentials;
+//import com.amazonaws.services.s3.AmazonS3;
+//import com.amazonaws.services.s3.AmazonS3Client;
+import com.uber.cadence.WorkflowService;
 
 
 /**
@@ -39,18 +39,14 @@ import com.amazonaws.services.simpleworkflow.AmazonSimpleWorkflowClient;
 public class ConfigHelper {
 	private Properties sampleConfig;
 	
-    private String swfServiceUrl;
-    private String swfAccessId;
-    private String swfSecretKey;
-    private String s3AccessId;
-    private String s3SecretKey;
-    
-    private String swfLambdaRoleArn;
-    private String swfLambdaFunction;
-    private String swfLambdaFunctionInput;
-    
+    private String host;
+    private int port;
+
+//    private String s3AccessId;
+//    private String s3SecretKey;
+
     private String domain;
-    private long domainRetentionPeriodInDays;
+    private int domainRetentionPeriodInDays;
     
     private ConfigHelper(File propertiesFile) throws IOException {
         loadProperties(propertiesFile);
@@ -62,19 +58,26 @@ public class ConfigHelper {
         sampleConfig = new Properties();
         sampleConfig.load(inputStream);
 
-        this.swfServiceUrl = sampleConfig.getProperty(ConfigKeys.SWF_SERVICE_URL_KEY);
-        this.swfAccessId = sampleConfig.getProperty(ConfigKeys.SWF_ACCESS_ID_KEY);
-        this.swfSecretKey = sampleConfig.getProperty(ConfigKeys.SWF_SECRET_KEY_KEY);
+        this.host = sampleConfig.getProperty(ConfigKeys.CADENCE_SERVICE_HOST);
+        if (this.host == null) {
+            throw new IllegalStateException("Missing required value for " + ConfigKeys.CADENCE_SERVICE_HOST + " config key");
+        }
+        String portString = sampleConfig.getProperty(ConfigKeys.CADENCE_SERVICE_PORT);
+        if (portString == null) {
+            throw new IllegalStateException("Missing required value for " + ConfigKeys.CADENCE_SERVICE_PORT + " config key");
+        }
+        try {
+            this.port = Integer.parseInt(portString);
+        } catch (NumberFormatException e) {
+            throw new IllegalStateException("Invalid value " + portString + " for " + ConfigKeys.CADENCE_SERVICE_PORT + " config key");
+        }
 
-        this.s3AccessId = sampleConfig.getProperty(ConfigKeys.S3_ACCESS_ID_KEY);
-        this.s3SecretKey = sampleConfig.getProperty(ConfigKeys.S3_SECRET_KEY_KEY);
+//        this.s3AccessId = sampleConfig.getProperty(ConfigKeys.S3_ACCESS_ID_KEY);
+//        this.s3SecretKey = sampleConfig.getProperty(ConfigKeys.S3_SECRET_KEY_KEY);
         
-        this.swfLambdaRoleArn = sampleConfig.getProperty(ConfigKeys.SWF_LAMBDA_ROLE_ARN);
-        this.swfLambdaFunction = sampleConfig.getProperty(ConfigKeys.SWF_LAMBDA_FUNCTION);
-        this.swfLambdaFunctionInput = sampleConfig.getProperty(ConfigKeys.SWF_LAMBDA_FUNCTION_INPUT);
-        
+
         this.domain = sampleConfig.getProperty(ConfigKeys.DOMAIN_KEY);
-        this.domainRetentionPeriodInDays = Long.parseLong(sampleConfig.getProperty(ConfigKeys.DOMAIN_RETENTION_PERIOD_KEY));
+        this.domainRetentionPeriodInDays = Integer.parseInt(sampleConfig.getProperty(ConfigKeys.DOMAIN_RETENTION_PERIOD_KEY));
     }
 
     public static ConfigHelper createConfig() throws IOException, IllegalArgumentException {
@@ -115,24 +118,22 @@ public class ConfigHelper {
         return configHelper;
     }
 
-    public AmazonSimpleWorkflow createSWFClient() {
-        AWSCredentials awsCredentials = new BasicAWSCredentials(this.swfAccessId, this.swfSecretKey);
-        AmazonSimpleWorkflow client = new AmazonSimpleWorkflowClient(awsCredentials);
-        client.setEndpoint(this.swfServiceUrl);
-        return client;
+    public WorkflowService.Iface createWorkflowClient() {
+        WorkflowServiceTChannel.ClientOptions.Builder optionsBuilder = new WorkflowServiceTChannel.ClientOptions.Builder();
+        return new WorkflowServiceTChannel(host, port, optionsBuilder.build());
     }
 
-    public AmazonS3 createS3Client() {
-        AWSCredentials s3AWSCredentials = new BasicAWSCredentials(this.s3AccessId, this.s3SecretKey);
-        AmazonS3 client = new AmazonS3Client(s3AWSCredentials);
-        return client;
-    }
+//    public AmazonS3 createS3Client() {
+//        AWSCredentials s3AWSCredentials = new BasicAWSCredentials(this.s3AccessId, this.s3SecretKey);
+//        AmazonS3 client = new AmazonS3Client(s3AWSCredentials);
+//        return client;
+//    }
     
     public String getDomain() {
         return domain;
     }
     
-    public long getDomainRetentionPeriodInDays() {
+    public int getDomainRetentionPeriodInDays() {
         return domainRetentionPeriodInDays;
     }
     
@@ -140,16 +141,16 @@ public class ConfigHelper {
     	return sampleConfig.getProperty(key);
     }
 
-    public String getSwfLambdaRoleArn() {
-        return swfLambdaRoleArn;
-    }
-
-    public String getSwfLambdaFunction() {
-        return swfLambdaFunction;
-    }
-
-    public String getSwfLambdaFunctionInput() {
-        return swfLambdaFunctionInput;
-    }
+//    public String getSwfLambdaRoleArn() {
+//        return swfLambdaRoleArn;
+//    }
+//
+//    public String getSwfLambdaFunction() {
+//        return swfLambdaFunction;
+//    }
+//
+//    public String getSwfLambdaFunctionInput() {
+//        return swfLambdaFunctionInput;
+//    }
     
 }

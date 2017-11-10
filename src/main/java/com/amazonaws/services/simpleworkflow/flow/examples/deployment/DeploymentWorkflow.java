@@ -16,11 +16,10 @@ package com.amazonaws.services.simpleworkflow.flow.examples.deployment;
 
 import com.amazonaws.services.simpleworkflow.flow.annotations.Execute;
 import com.amazonaws.services.simpleworkflow.flow.annotations.Workflow;
-import com.amazonaws.services.simpleworkflow.flow.annotations.WorkflowRegistrationOptions;
 import com.amazonaws.services.simpleworkflow.flow.core.Promise;
 
 @Workflow
-@WorkflowRegistrationOptions(defaultExecutionStartToCloseTimeoutSeconds = 3600)
+////@WorkflowRegistrationOptions(defaultExecutionStartToCloseTimeoutSeconds = 3600)
 public interface DeploymentWorkflow {
 
     /**

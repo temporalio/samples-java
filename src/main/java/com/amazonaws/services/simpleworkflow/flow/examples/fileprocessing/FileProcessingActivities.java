@@ -15,13 +15,11 @@
 package com.amazonaws.services.simpleworkflow.flow.examples.fileprocessing;
 
 import com.amazonaws.services.simpleworkflow.flow.annotations.Activities;
-import com.amazonaws.services.simpleworkflow.flow.annotations.ActivityRegistrationOptions;
 
 /**
  * Contract for file processing activities
  */
-@Activities(version="1.0")
-@ActivityRegistrationOptions(defaultTaskScheduleToStartTimeoutSeconds = 60, defaultTaskStartToCloseTimeoutSeconds = 60)
+@Activities
 public interface FileProcessingActivities {
 
     public void processFile(String inputFileName, String outputFileName) throws Exception;

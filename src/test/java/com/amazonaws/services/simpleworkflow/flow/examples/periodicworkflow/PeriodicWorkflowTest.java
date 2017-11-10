@@ -28,8 +28,8 @@ import com.amazonaws.services.simpleworkflow.flow.ActivityExecutionContextProvid
 import com.amazonaws.services.simpleworkflow.flow.core.TryFinally;
 import com.amazonaws.services.simpleworkflow.flow.junit.FlowBlockJUnit4ClassRunner;
 import com.amazonaws.services.simpleworkflow.flow.junit.WorkflowTest;
-import com.amazonaws.services.simpleworkflow.model.ActivityType;
-import com.amazonaws.services.simpleworkflow.model.WorkflowExecution;
+import com.uber.cadence.ActivityType;
+import com.uber.cadence.WorkflowExecution;
 
 // Have to use Flow JUnit runner if timeout is specified on any @Test
 // annotation.
@@ -120,7 +120,7 @@ public class PeriodicWorkflowTest {
 
         final ActivityType activityType = new ActivityType();
         activityType.setName("PeriodicWorkflowActivities.doSomeWork");
-        activityType.setVersion("1.0");
+//        activityType.setVersion("1.0");
         final Object[] parameters = new Object[] { "parameter1" };
 
         new TryFinally() {

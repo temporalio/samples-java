@@ -19,7 +19,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 
-import com.amazonaws.services.simpleworkflow.AmazonSimpleWorkflow;
+import com.uber.cadence.WorkflowService;
 import com.amazonaws.services.simpleworkflow.flow.ActivityWorker;
 import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
 
@@ -27,9 +27,9 @@ import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
  * This is the process which hosts all Activities in this sample
  */
 public class ActivityHost {    
-    private static AmazonSimpleWorkflow swfService;
+    private static WorkflowService.Iface swfService;
     private static String domain;
-    private static long domainRetentionPeriodInDays;
+    private static int domainRetentionPeriodInDays;
     private static ActivityWorker worker;
     private static ActivityHost activityWorker;
 
@@ -87,7 +87,7 @@ public class ActivityHost {
     
     static ConfigHelper loadConfig() throws IllegalArgumentException, IOException{
        	ConfigHelper configHelper = ConfigHelper.createConfig();
-        swfService = configHelper.createSWFClient();
+        swfService = configHelper.createWorkflowClient();
         domain = configHelper.getDomain();
         domainRetentionPeriodInDays = configHelper.getDomainRetentionPeriodInDays();
         

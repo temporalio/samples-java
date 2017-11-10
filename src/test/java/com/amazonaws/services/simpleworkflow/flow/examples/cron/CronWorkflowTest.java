@@ -31,8 +31,8 @@ import com.amazonaws.services.simpleworkflow.flow.WorkflowClock;
 import com.amazonaws.services.simpleworkflow.flow.core.TryCatchFinally;
 import com.amazonaws.services.simpleworkflow.flow.junit.FlowBlockJUnit4ClassRunner;
 import com.amazonaws.services.simpleworkflow.flow.junit.WorkflowTest;
-import com.amazonaws.services.simpleworkflow.model.ActivityType;
-import com.amazonaws.services.simpleworkflow.model.WorkflowExecution;
+import com.uber.cadence.ActivityType;
+import com.uber.cadence.WorkflowExecution;
 
 @RunWith(FlowBlockJUnit4ClassRunner.class)
 public class CronWorkflowTest {
@@ -97,7 +97,7 @@ public class CronWorkflowTest {
 
         final ActivityType activityType = new ActivityType();
         activityType.setName("CronExampleActivities.doSomeWork");
-        activityType.setVersion("1.0");
+//        activityType.setVersion("1.0");
         final Object[] activityArguments = new Object[] { "parameter1" };
 
         final CronWorkflowOptions cronOptions = new CronWorkflowOptions();

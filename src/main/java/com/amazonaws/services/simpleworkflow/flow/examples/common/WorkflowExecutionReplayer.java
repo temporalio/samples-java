@@ -14,9 +14,9 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.common;
 
-import com.amazonaws.services.simpleworkflow.AmazonSimpleWorkflow;
+import com.uber.cadence.WorkflowExecution;
+import com.uber.cadence.WorkflowService;
 import com.amazonaws.services.simpleworkflow.flow.WorkflowReplayer;
-import com.amazonaws.services.simpleworkflow.model.WorkflowExecution;
 
 /**
  * Simple example utility to pretty print workflow execution history.
@@ -31,28 +31,28 @@ public class WorkflowExecutionReplayer {
                     + "<workflow implementation class> <workflowId> <runId>");
             System.exit(1);
         }
-        ConfigHelper configHelper = ConfigHelper.createConfig();
-        AmazonSimpleWorkflow swfService = configHelper.createSWFClient();
-        String domain = configHelper.getDomain();
-
-        WorkflowExecution workflowExecution = new WorkflowExecution();
-        String workflowId = args[1];
-        workflowExecution.setWorkflowId(workflowId);
-        String runId = args[2];
-        workflowExecution.setRunId(runId);
-
-        String implementationTypeName = args[0];
-        @SuppressWarnings("unchecked")
-        Class<Object> workflowImplementationType = (Class<Object>) Class.forName(implementationTypeName);
-        WorkflowReplayer<Object> replayer = new WorkflowReplayer<Object>(swfService, domain, workflowExecution,
-                workflowImplementationType);
-
-        System.out.println("Beginning workflow replay for " + workflowExecution);
-        Object workflow = replayer.loadWorkflow();
-        System.out.println("Workflow implementation object:");
-        System.out.println(workflow);
-
-        System.out.println("Done workflow replay for " + workflowExecution);
+//        ConfigHelper configHelper = ConfigHelper.createConfig();
+//        WorkflowService.Iface swfService = configHelper.createWorkflowClient();
+//        String domain = configHelper.getDomain();
+//
+//        WorkflowExecution workflowExecution = new WorkflowExecution();
+//        String workflowId = args[1];
+//        workflowExecution.setWorkflowId(workflowId);
+//        String runId = args[2];
+//        workflowExecution.setRunId(runId);
+//
+//        String implementationTypeName = args[0];
+//        @SuppressWarnings("unchecked")
+//        Class<Object> workflowImplementationType = (Class<Object>) Class.forName(implementationTypeName);
+//        WorkflowReplayer<Object> replayer = new WorkflowReplayer<Object>(swfService, domain, workflowExecution,
+//                workflowImplementationType);
+//
+//        System.out.println("Beginning workflow replay for " + workflowExecution);
+//        Object workflow = replayer.loadWorkflow();
+//        System.out.println("Workflow implementation object:");
+//        System.out.println(workflow);
+//
+//        System.out.println("Done workflow replay for " + workflowExecution);
     }
 
 }

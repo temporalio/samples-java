@@ -15,11 +15,9 @@
 package com.amazonaws.services.simpleworkflow.flow.examples.fileprocessing;
 
 import com.amazonaws.services.simpleworkflow.flow.annotations.Activities;
-import com.amazonaws.services.simpleworkflow.flow.annotations.ActivityRegistrationOptions;
 import com.amazonaws.services.simpleworkflow.flow.annotations.ExponentialRetry;
 
-@Activities(version = "1.0")
-@ActivityRegistrationOptions(defaultTaskScheduleToStartTimeoutSeconds = 60, defaultTaskStartToCloseTimeoutSeconds = 120)
+@Activities
 public interface SimpleStoreActivities {
  
     /**

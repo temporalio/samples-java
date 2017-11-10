@@ -17,15 +17,15 @@ package com.amazonaws.services.simpleworkflow.flow.examples.cronwithretry;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.amazonaws.services.simpleworkflow.AmazonSimpleWorkflow;
+import com.amazonaws.services.simpleworkflow.flow.WorkflowExecutionAlreadyStartedException;
+import com.uber.cadence.WorkflowService;
 import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
-import com.amazonaws.services.simpleworkflow.model.ActivityType;
-import com.amazonaws.services.simpleworkflow.model.WorkflowExecution;
-import com.amazonaws.services.simpleworkflow.model.WorkflowExecutionAlreadyStartedException;
+import com.uber.cadence.ActivityType;
+import com.uber.cadence.WorkflowExecution;
 
 public class CronWithRetryWorkflowExecutionStarter {
 
-    private static AmazonSimpleWorkflow swfService;
+    private static WorkflowService.Iface swfService;
 
     private static String domain;
 
@@ -49,13 +49,13 @@ public class CronWithRetryWorkflowExecutionStarter {
         ConfigHelper configHelper = ConfigHelper.createConfig();
 
         // Create the client for Simple Workflow Service
-        swfService = configHelper.createSWFClient();
+        swfService = configHelper.createWorkflowClient();
         domain = configHelper.getDomain();
 
         // Name and versions are hardcoded here but they can be passed as args or loaded from configuration file.
         ActivityType activity = new ActivityType();
         activity.setName("CronWithRetryExampleActivities.doSomeWork");
-        activity.setVersion("1.0");
+//        activity.setVersion("1.0");
         Object[] arguments = new Object[] { "parameter1" };
 
         // Start Workflow execution

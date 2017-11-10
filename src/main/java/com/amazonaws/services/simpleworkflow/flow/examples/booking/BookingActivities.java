@@ -15,15 +15,9 @@
 package com.amazonaws.services.simpleworkflow.flow.examples.booking;
 
 import com.amazonaws.services.simpleworkflow.flow.annotations.Activities;
-import com.amazonaws.services.simpleworkflow.flow.annotations.ActivityRegistrationOptions;
 import com.amazonaws.services.simpleworkflow.flow.common.FlowConstants;
 
-@Activities(version = "1.0")
-@ActivityRegistrationOptions(
-		defaultTaskHeartbeatTimeoutSeconds = FlowConstants.NONE, 
-		defaultTaskScheduleToCloseTimeoutSeconds = 300,
-        defaultTaskScheduleToStartTimeoutSeconds = 60, 
-        defaultTaskStartToCloseTimeoutSeconds = 60)
+@Activities
 public interface BookingActivities {
 
     void reserveCar(int requestId);

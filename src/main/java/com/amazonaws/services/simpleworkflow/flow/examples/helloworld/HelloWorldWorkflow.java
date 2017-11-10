@@ -16,13 +16,13 @@ package com.amazonaws.services.simpleworkflow.flow.examples.helloworld;
 
 import com.amazonaws.services.simpleworkflow.flow.annotations.Execute;
 import com.amazonaws.services.simpleworkflow.flow.annotations.Workflow;
-import com.amazonaws.services.simpleworkflow.flow.annotations.WorkflowRegistrationOptions;
+//import com.amazonaws.services.simpleworkflow.flow.annotations.WorkflowRegistrationOptions;
 
 /**
  * Contract of the hello world workflow
  */
 @Workflow
-@WorkflowRegistrationOptions(defaultExecutionStartToCloseTimeoutSeconds = 60)
+//@WorkflowRegistrationOptions(defaultExecutionStartToCloseTimeoutSeconds = 60)
 public interface HelloWorldWorkflow {
 
     @Execute(version = "1.0")
