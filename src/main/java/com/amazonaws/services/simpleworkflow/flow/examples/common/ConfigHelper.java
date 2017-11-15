@@ -41,6 +41,7 @@ public class ConfigHelper {
 	
     private String host;
     private int port;
+    private String serviceName;
 
 //    private String s3AccessId;
 //    private String s3SecretKey;
@@ -66,6 +67,11 @@ public class ConfigHelper {
         if (portString == null) {
             throw new IllegalStateException("Missing required value for " + ConfigKeys.CADENCE_SERVICE_PORT + " config key");
         }
+        this.serviceName = sampleConfig.getProperty(ConfigKeys.CADENCE_SERVICE_NAME);
+        if (this.serviceName == null) {
+            throw new IllegalStateException("Missing required value for " + ConfigKeys.CADENCE_SERVICE_NAME + " config key");
+        }
+
         try {
             this.port = Integer.parseInt(portString);
         } catch (NumberFormatException e) {
@@ -120,7 +126,7 @@ public class ConfigHelper {
 
     public WorkflowService.Iface createWorkflowClient() {
         WorkflowServiceTChannel.ClientOptions.Builder optionsBuilder = new WorkflowServiceTChannel.ClientOptions.Builder();
-        return new WorkflowServiceTChannel(host, port, optionsBuilder.build());
+        return new WorkflowServiceTChannel(host, port, serviceName, optionsBuilder.build());
     }
 
 //    public AmazonS3 createS3Client() {

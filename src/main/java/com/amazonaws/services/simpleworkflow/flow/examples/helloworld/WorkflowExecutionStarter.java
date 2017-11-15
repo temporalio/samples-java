@@ -14,9 +14,12 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.helloworld;
 
+import com.amazonaws.services.simpleworkflow.flow.StartWorkflowOptions;
 import com.uber.cadence.WorkflowService;
 import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
 import com.uber.cadence.WorkflowExecution;
+
+import java.util.UUID;
 
 public class WorkflowExecutionStarter {
 
@@ -27,10 +30,14 @@ public class WorkflowExecutionStarter {
 
         HelloWorldWorkflowClientExternalFactory clientFactory = new HelloWorldWorkflowClientExternalFactoryImpl(swfService,
                 domain);
-        HelloWorldWorkflowClientExternal workflow = clientFactory.getClient();
+        HelloWorldWorkflowClientExternal workflow = clientFactory.getClient(UUID.randomUUID().toString());
         
         // Start Wrokflow Execution
-        workflow.helloWorld("User");
+        StartWorkflowOptions options = new StartWorkflowOptions();
+        options.setTaskList(WorkflowHost.DECISION_TASK_LIST);
+        options.setExecutionStartToCloseTimeoutSeconds(20);
+        options.setTaskStartToCloseTimeoutSeconds(3);
+        workflow.helloWorld("User", options);
         
         // WorkflowExecution is available after workflow creation 
         WorkflowExecution workflowExecution = workflow.getWorkflowExecution();

@@ -15,12 +15,24 @@
 package com.amazonaws.services.simpleworkflow.flow.examples.helloworld;
 
 
+import com.amazonaws.services.simpleworkflow.flow.ActivitySchedulingOptions;
+
 /**
  * Implementation of the hello world workflow
  */
 public class HelloWorldWorkflowImpl implements HelloWorldWorkflow{
 
-    HelloWorldActivitiesClient client = new HelloWorldActivitiesClientImpl();
+    private HelloWorldActivitiesClientImpl client = new HelloWorldActivitiesClientImpl();
+
+    public HelloWorldWorkflowImpl() {
+        ActivitySchedulingOptions options = new ActivitySchedulingOptions();
+        options.setScheduleToCloseTimeoutSeconds(30);
+        options.setScheduleToStartTimeoutSeconds(10);
+        options.setStartToCloseTimeoutSeconds(20);
+        options.setHeartbeatTimeoutSeconds(10);
+        options.setTaskList("HelloWorld");
+        client.setSchedulingOptions(options);
+    }
 
     @Override
     public void helloWorld(String name) {

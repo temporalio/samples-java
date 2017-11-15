@@ -18,6 +18,8 @@ public class ConfigKeys {
 	
     public static final String CADENCE_SERVICE_HOST = "Cadence.host";
     public static final String CADENCE_SERVICE_PORT = "Cadence.port";
+    public static final String CADENCE_SERVICE_NAME = "Cadence.serviceName";
+
 
 //    public static final String S3_ACCESS_ID_KEY = "S3.Access.ID";
 //    public static final String S3_SECRET_KEY_KEY = "S3.Secret.Key";
