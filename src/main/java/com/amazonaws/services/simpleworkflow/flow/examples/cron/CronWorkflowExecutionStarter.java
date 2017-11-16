@@ -14,6 +14,8 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.cron;
 
+import com.amazonaws.services.simpleworkflow.flow.ActivitySchedulingOptions;
+import com.amazonaws.services.simpleworkflow.flow.StartWorkflowOptions;
 import com.amazonaws.services.simpleworkflow.flow.WorkflowExecutionAlreadyStartedException;
 import com.uber.cadence.WorkflowService;
 import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
@@ -69,10 +71,22 @@ public class CronWorkflowExecutionStarter {
             cronOptions.setActivityArguments(arguments);
             cronOptions.setContinueAsNewAfterSeconds(continueAsNewAfterSeconds);
             cronOptions.setTimeZone(timeZone);
-
+            ActivitySchedulingOptions options = new ActivitySchedulingOptions();
+            options.setScheduleToCloseTimeoutSeconds(30);
+            options.setScheduleToStartTimeoutSeconds(10);
+            options.setStartToCloseTimeoutSeconds(20);
+            options.setHeartbeatTimeoutSeconds(10);
+            options.setTaskList(ActivityHost.ACTIVITIES_TASK_LIST);
+            cronOptions.setOptions(options);
             // Every 10 seconds
             cronOptions.setCronExpression(cronPattern);
-            workflow.startCron(cronOptions);
+
+            StartWorkflowOptions startWorkflowOptions = clientFactory.getStartWorkflowOptions();
+            startWorkflowOptions.setTaskList(WorkflowHost.DECISION_TASK_LIST);
+            startWorkflowOptions.setExecutionStartToCloseTimeoutSeconds(300);
+            startWorkflowOptions.setTaskStartToCloseTimeoutSeconds(3);
+
+            workflow.startCron(cronOptions, startWorkflowOptions);
             // WorkflowExecution is available after workflow creation 
             WorkflowExecution workflowExecution = workflow.getWorkflowExecution();
             System.out.println("Started Cron workflow with workflowId=\"" + workflowExecution.getWorkflowId() + "\" and runId=\""

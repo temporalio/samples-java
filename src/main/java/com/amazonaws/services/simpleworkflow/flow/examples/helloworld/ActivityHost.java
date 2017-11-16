@@ -26,7 +26,7 @@ import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
  */
 public class ActivityHost {
 
-    private static final String ACTIVITIES_TASK_LIST = "HelloWorld";
+    static final String ACTIVITIES_TASK_LIST = "HelloWorld";
 
     public static void main(String[] args) throws Exception {
         ConfigHelper configHelper = ConfigHelper.createConfig();

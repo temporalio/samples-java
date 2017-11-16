@@ -16,6 +16,7 @@ package com.amazonaws.services.simpleworkflow.flow.examples.cron;
 
 import java.util.concurrent.CancellationException;
 
+import com.amazonaws.services.simpleworkflow.flow.ActivitySchedulingOptions;
 import junit.framework.Assert;
 
 import org.junit.After;
@@ -81,7 +82,7 @@ public class CronWorkflowTest {
     @Before
     public void setUp() throws Exception {
         cronActivitiesImplementation = new TestCronWorkflowActivities();
-        workflowTest.addActivitiesImplementation(cronActivitiesImplementation);
+        workflowTest.addActivitiesImplementation(ActivityHost.ACTIVITIES_TASK_LIST, cronActivitiesImplementation);
         workflowTest.addWorkflowImplementationType(CronWorkflowImpl.class);
         workflowTest.setDisableOutstandingTasksCheck(true);
     }
@@ -102,6 +103,14 @@ public class CronWorkflowTest {
 
         final CronWorkflowOptions cronOptions = new CronWorkflowOptions();
         cronOptions.setActivity(activityType);
+        ActivitySchedulingOptions options = new ActivitySchedulingOptions();
+        options.setScheduleToCloseTimeoutSeconds(30);
+        options.setScheduleToStartTimeoutSeconds(10);
+        options.setStartToCloseTimeoutSeconds(20);
+        options.setHeartbeatTimeoutSeconds(10);
+        options.setTaskList(ActivityHost.ACTIVITIES_TASK_LIST);
+        cronOptions.setOptions(options);
+
         cronOptions.setActivityArguments(activityArguments);
         cronOptions.setContinueAsNewAfterSeconds(SECONDS_HOUR * 24 + 300);
         cronOptions.setTimeZone("PST");

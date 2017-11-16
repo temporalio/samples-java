@@ -97,7 +97,7 @@ public class PeriodicWorkflowTest {
         periodicActivitiesImplementation = new TestPeriodicWorkflowActivities();
         workflowTest.addActivitiesImplementation(ActivityHost.ACTIVITIES_TASK_LIST, periodicActivitiesImplementation);
         errorReportingActivitiesImplementation = new TestErrorReportingActivities();
-        workflowTest.addActivitiesImplementation(errorReportingActivitiesImplementation);
+        workflowTest.addActivitiesImplementation(ActivityHost.ACTIVITIES_TASK_LIST, errorReportingActivitiesImplementation);
         workflowTest.addWorkflowImplementationType(PeriodicWorkflowImpl.class);
         workflowTest.setDisableOutstandingTasksCheck(true);
     }

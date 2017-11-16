@@ -16,6 +16,7 @@ package com.amazonaws.services.simpleworkflow.flow.examples.cronwithretry;
 
 import java.util.concurrent.CancellationException;
 
+import com.amazonaws.services.simpleworkflow.flow.ActivitySchedulingOptions;
 import junit.framework.Assert;
 
 import org.junit.After;
@@ -84,7 +85,7 @@ public class CronWithRetryWorkflowTest {
     @Before
     public void setUp() throws Exception {
         cronActivitiesImplementation = new TestCronWithRetryWorkflowActivities();
-        workflowTest.addActivitiesImplementation(cronActivitiesImplementation);
+        workflowTest.addActivitiesImplementation(ActivityHost.ACTIVITIES_TASK_LIST, cronActivitiesImplementation);
         workflowTest.addWorkflowImplementationType(CronWithRetryWorkflowImpl.class);
         workflowTest.setDisableOutstandingTasksCheck(true);
     }
@@ -105,6 +106,14 @@ public class CronWithRetryWorkflowTest {
 
         final CronWithRetryWorkflowOptions cronOptions = new CronWithRetryWorkflowOptions();
         cronOptions.setActivity(activityType);
+        ActivitySchedulingOptions options = new ActivitySchedulingOptions();
+        options.setScheduleToCloseTimeoutSeconds(30);
+        options.setScheduleToStartTimeoutSeconds(10);
+        options.setStartToCloseTimeoutSeconds(20);
+        options.setHeartbeatTimeoutSeconds(10);
+        options.setTaskList(ActivityHost.ACTIVITIES_TASK_LIST);
+        cronOptions.setOptions(options);
+
         cronOptions.setActivityArguments(activityArguments);
         cronOptions.setContinueAsNewAfterSeconds(SECONDS_HOUR * 24 + 300);
         cronOptions.setTimeZone("PST");

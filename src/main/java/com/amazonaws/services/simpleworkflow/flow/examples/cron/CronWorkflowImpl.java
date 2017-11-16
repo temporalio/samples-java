@@ -73,7 +73,7 @@ public class CronWorkflowImpl implements CronWorkflow {
         CronDecorator cronDecorator = new CronDecorator(options.getCronExpression(), expiration, tz, clock);
         DynamicActivitiesClient cronDecoratedActivities = cronDecorator.decorate(DynamicActivitiesClient.class, activities);
         
-        cronDecoratedActivities.scheduleActivity(options.getActivity(), options.getActivityArguments(), null, Void.class);
+        cronDecoratedActivities.scheduleActivity(options.getActivity(), options.getActivityArguments(), options.getOptions(), Void.class);
 
         // Start new workflow run as soon as cron decorator exits due to expiration.
         // The call to self client indicates the desire to start the new run.

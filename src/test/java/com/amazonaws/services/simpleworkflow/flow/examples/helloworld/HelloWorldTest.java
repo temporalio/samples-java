@@ -56,7 +56,7 @@ public class HelloWorldTest {
     public void setUp() throws Exception {
         workflowTest.addWorkflowImplementationType(HelloWorldWorkflowImpl.class);
         activitiesImplementation = new TestHelloWorldActivities();
-        workflowTest.addActivitiesImplementation(activitiesImplementation);
+        workflowTest.addActivitiesImplementation(ActivityHost.ACTIVITIES_TASK_LIST, activitiesImplementation);
     }
 
     /**

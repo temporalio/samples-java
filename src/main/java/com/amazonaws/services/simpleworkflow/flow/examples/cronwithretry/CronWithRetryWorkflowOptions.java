@@ -16,6 +16,7 @@ package com.amazonaws.services.simpleworkflow.flow.examples.cronwithretry;
 
 import java.util.List;
 
+import com.amazonaws.services.simpleworkflow.flow.ActivitySchedulingOptions;
 import com.amazonaws.services.simpleworkflow.flow.common.FlowConstants;
 import com.amazonaws.services.simpleworkflow.flow.interceptors.ExponentialRetryPolicy;
 import com.uber.cadence.ActivityType;
@@ -29,6 +30,8 @@ import com.uber.cadence.ActivityType;
 public class CronWithRetryWorkflowOptions {
 
     private ActivityType activity;
+
+    private ActivitySchedulingOptions options;
 
     private Object[] activityArguments;
 
@@ -58,6 +61,14 @@ public class CronWithRetryWorkflowOptions {
 
     public void setActivity(ActivityType activity) {
         this.activity = activity;
+    }
+
+    public ActivitySchedulingOptions getOptions() {
+        return options;
+    }
+
+    public void setOptions(ActivitySchedulingOptions options) {
+        this.options = options;
     }
 
     public Object[] getActivityArguments() {

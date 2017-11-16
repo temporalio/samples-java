@@ -17,6 +17,8 @@ package com.amazonaws.services.simpleworkflow.flow.examples.cronwithretry;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.amazonaws.services.simpleworkflow.flow.ActivitySchedulingOptions;
+import com.amazonaws.services.simpleworkflow.flow.StartWorkflowOptions;
 import com.amazonaws.services.simpleworkflow.flow.WorkflowExecutionAlreadyStartedException;
 import com.uber.cadence.WorkflowService;
 import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
@@ -68,6 +70,14 @@ public class CronWithRetryWorkflowExecutionStarter {
         try {
             CronWithRetryWorkflowOptions cronOptions = new CronWithRetryWorkflowOptions();
             cronOptions.setActivity(activity);
+            ActivitySchedulingOptions options = new ActivitySchedulingOptions();
+            options.setScheduleToCloseTimeoutSeconds(30);
+            options.setScheduleToStartTimeoutSeconds(10);
+            options.setStartToCloseTimeoutSeconds(20);
+            options.setHeartbeatTimeoutSeconds(10);
+            options.setTaskList(ActivityHost.ACTIVITIES_TASK_LIST);
+            cronOptions.setOptions(options);
+
             cronOptions.setActivityArguments(arguments);
             cronOptions.setContinueAsNewAfterSeconds(continueAsNewAfterSeconds);
             cronOptions.setTimeZone(timeZone);
@@ -80,6 +90,14 @@ public class CronWithRetryWorkflowExecutionStarter {
 
             // Every 10 seconds
             cronOptions.setCronExpression(cronPattern);
+
+            StartWorkflowOptions startWorkflowOptions = clientFactory.getStartWorkflowOptions();
+            startWorkflowOptions.setTaskList(WorkflowHost.DECISION_TASK_LIST);
+            startWorkflowOptions.setExecutionStartToCloseTimeoutSeconds(300);
+            startWorkflowOptions.setTaskStartToCloseTimeoutSeconds(3);
+
+            workflow.startCron(cronOptions, startWorkflowOptions);
+
             workflow.startCron(cronOptions);
             // WorkflowExecution is available after workflow creation 
             WorkflowExecution workflowExecution = workflow.getWorkflowExecution();

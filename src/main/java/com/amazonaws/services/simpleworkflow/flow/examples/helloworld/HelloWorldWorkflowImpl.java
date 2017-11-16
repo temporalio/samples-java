@@ -30,7 +30,7 @@ public class HelloWorldWorkflowImpl implements HelloWorldWorkflow{
         options.setScheduleToStartTimeoutSeconds(10);
         options.setStartToCloseTimeoutSeconds(20);
         options.setHeartbeatTimeoutSeconds(10);
-        options.setTaskList("HelloWorld");
+        options.setTaskList(ActivityHost.ACTIVITIES_TASK_LIST);
         client.setSchedulingOptions(options);
     }
 

@@ -134,7 +134,7 @@ public class CronWithRetryWorkflowImpl implements CronWithRetryWorkflow {
             @Override
             protected void doTry() throws Throwable {
                 appendToInvocationHistory("starting");
-                activities.scheduleActivity(options.getActivity(), options.getActivityArguments(), null, Void.class);
+                activities.scheduleActivity(options.getActivity(), options.getActivityArguments(), options.getOptions(), Void.class);
             }
 
             @Override
