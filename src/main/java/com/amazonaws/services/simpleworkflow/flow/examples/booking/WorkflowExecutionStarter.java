@@ -14,8 +14,11 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.booking;
 
+import com.amazonaws.services.simpleworkflow.flow.StartWorkflowOptions;
 import com.uber.cadence.WorkflowService;
 import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
+
+import static com.amazonaws.services.simpleworkflow.flow.examples.booking.BookingConfigKeys.WORKFLOW_WORKER_TASKLIST;
 
 public class WorkflowExecutionStarter {
     private static WorkflowService.Iface swfService;
@@ -33,10 +36,22 @@ public class WorkflowExecutionStarter {
         // Start Workflow instance
         int requestId = Integer.parseInt(configHelper.getValueFromConfig(BookingConfigKeys.WORKFLOW_INPUT_REQUESTID_KEY));
         int customerId = Integer.parseInt(configHelper.getValueFromConfig(BookingConfigKeys.WORKFLOW_INPUT_CUSTOMERID_KEY));
-        
-        BookingWorkflowClientExternalFactory clientFactory = new BookingWorkflowClientExternalFactoryImpl(swfService, domain); 
+
+        // Start Wrokflow Execution
+
+        BookingWorkflowClientExternalFactory clientFactory = new BookingWorkflowClientExternalFactoryImpl(swfService, domain);
+        StartWorkflowOptions options = clientFactory.getStartWorkflowOptions();
+        String taskList = configHelper.getValueFromConfig(BookingConfigKeys.WORKFLOW_WORKER_TASKLIST);
+
+        options.setTaskList(taskList);
+        options.setExecutionStartToCloseTimeoutSeconds(20);
+        options.setTaskStartToCloseTimeoutSeconds(3);
+
         BookingWorkflowClientExternal workflow = clientFactory.getClient();
-        workflow.makeBooking(requestId, customerId, true, true);
+
+        String activityTaskList = configHelper.getValueFromConfig(BookingConfigKeys.ACTIVITY_WORKER_TASKLIST);
+
+        workflow.makeBooking(activityTaskList, requestId, customerId, true, true);
         
         System.exit(0);
     }    

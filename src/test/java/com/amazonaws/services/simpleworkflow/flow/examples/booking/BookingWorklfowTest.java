@@ -72,7 +72,7 @@ public class BookingWorklfowTest {
     @Test
     public void testReserveBoth() {
         BookingWorkflowClient workflow = workflowFactory.getClient();
-        Promise<Void> booked = workflow.makeBooking(123, 345, true, true);
+        Promise<Void> booked = workflow.makeBooking("foo", 123, 345, true, true);
         List<String> expected = new ArrayList<String>();
         expected.add("reserveCar-123");
         expected.add("reserveAirline-123");
@@ -83,7 +83,7 @@ public class BookingWorklfowTest {
     @Test
     public void testReserveAir() {
         BookingWorkflowClient workflow = workflowFactory.getClient();
-        Promise<Void> booked = workflow.makeBooking(123, 345, true, false);
+        Promise<Void> booked = workflow.makeBooking("foo", 123, 345, true, false);
         List<String> expected = new ArrayList<String>();
         expected.add("reserveAirline-123");
         expected.add("sendConfirmation-345");
@@ -93,7 +93,7 @@ public class BookingWorklfowTest {
     @Test
     public void testReserveCar() {
         BookingWorkflowClient workflow = workflowFactory.getClient();
-        Promise<Void> booked = workflow.makeBooking(123, 345, false, true);
+        Promise<Void> booked = workflow.makeBooking("foo", 123, 345, false, true);
         List<String> expected = new ArrayList<String>();
         expected.add("reserveCar-123");
         expected.add("sendConfirmation-345");
@@ -103,7 +103,7 @@ public class BookingWorklfowTest {
     @Test
     public void testReserveNone() {
         BookingWorkflowClient workflow = workflowFactory.getClient();
-        Promise<Void> booked = workflow.makeBooking(123, 345, false, false);
+        Promise<Void> booked = workflow.makeBooking("foo", 123, 345, false, false);
         List<String> expected = new ArrayList<String>();
         expected.add("sendConfirmation-345");
         AsyncAssert.assertEqualsWaitFor(expected, trace, booked);

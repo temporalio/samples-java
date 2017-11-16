@@ -14,6 +14,7 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.booking;
 
+import com.amazonaws.services.simpleworkflow.flow.ActivitySchedulingOptions;
 import com.amazonaws.services.simpleworkflow.flow.core.Promise;
 
 public class BookingWorkflowImpl implements BookingWorkflow {
@@ -21,7 +22,14 @@ public class BookingWorkflowImpl implements BookingWorkflow {
     private final BookingActivitiesClient client = new BookingActivitiesClientImpl();
 
     @Override
-    public void makeBooking(int requestID, int customerID, boolean reserveAir, boolean reserveCar) {
+    public void makeBooking(String activityTaskList, int requestID, int customerID, boolean reserveAir, boolean reserveCar) {
+        ActivitySchedulingOptions options = client.getSchedulingOptions();
+        options.setTaskList(activityTaskList);
+        options.setScheduleToCloseTimeoutSeconds(30);
+        options.setScheduleToStartTimeoutSeconds(10);
+        options.setStartToCloseTimeoutSeconds(20);
+        options.setHeartbeatTimeoutSeconds(10);
+
         Promise<Void> carReservation = null;
         if (reserveCar) {
             carReservation = client.reserveCar(requestID);

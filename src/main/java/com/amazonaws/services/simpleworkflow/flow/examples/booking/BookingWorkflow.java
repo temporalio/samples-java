@@ -23,6 +23,6 @@ import com.amazonaws.services.simpleworkflow.flow.annotations.Workflow;
 public interface BookingWorkflow {
 
     @Execute(name = "MakeBooking", version = "1.0")
-    void makeBooking(int requestID, int customerID, boolean reserveAir, boolean reserveCar);
+    void makeBooking(String activityTaskList, int requestID, int customerID, boolean reserveAir, boolean reserveCar);
 
 }
