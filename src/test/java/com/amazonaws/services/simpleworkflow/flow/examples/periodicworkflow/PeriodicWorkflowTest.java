@@ -95,7 +95,7 @@ public class PeriodicWorkflowTest {
     @Before
     public void setUp() throws Exception {
         periodicActivitiesImplementation = new TestPeriodicWorkflowActivities();
-        workflowTest.addActivitiesImplementation(periodicActivitiesImplementation);
+        workflowTest.addActivitiesImplementation(ActivityHost.ACTIVITIES_TASK_LIST, periodicActivitiesImplementation);
         errorReportingActivitiesImplementation = new TestErrorReportingActivities();
         workflowTest.addActivitiesImplementation(errorReportingActivitiesImplementation);
         workflowTest.addWorkflowImplementationType(PeriodicWorkflowImpl.class);
