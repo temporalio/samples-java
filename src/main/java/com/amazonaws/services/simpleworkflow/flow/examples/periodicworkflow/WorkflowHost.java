@@ -23,7 +23,7 @@ import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
 
 public class WorkflowHost {
 
-    private static final String DECISION_TASK_LIST = "PeriodicWorkflow";
+    static final String DECISION_TASK_LIST = "PeriodicWorkflow";
 
     public static void main(String[] args) throws Exception {
         ConfigHelper configHelper = ConfigHelper.createConfig();

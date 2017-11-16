@@ -17,13 +17,16 @@ package com.amazonaws.services.simpleworkflow.flow.examples.splitmerge;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.amazonaws.services.simpleworkflow.flow.ActivitySchedulingOptions;
 import com.amazonaws.services.simpleworkflow.flow.annotations.Asynchronous;
 import com.amazonaws.services.simpleworkflow.flow.annotations.Wait;
 import com.amazonaws.services.simpleworkflow.flow.core.Promise;
 
+import static com.amazonaws.services.simpleworkflow.flow.examples.splitmerge.ActivityHost.ACTIVITIES_TASK_LIST;
+
 public class PartitionedAverageCalculatorImpl implements PartitionedAverageCalculator {
 
-    private final AverageCalculatorActivitiesClient client = new AverageCalculatorActivitiesClientImpl();
+    private final AverageCalculatorActivitiesClient client;
 
     private final int numberOfWorkers;
     
@@ -32,6 +35,15 @@ public class PartitionedAverageCalculatorImpl implements PartitionedAverageCalcu
     public PartitionedAverageCalculatorImpl(int numberOfWorkers, String bucketName) {
         this.numberOfWorkers = numberOfWorkers;
         this.bucketName = bucketName;
+        AverageCalculatorActivitiesClientImpl c = new AverageCalculatorActivitiesClientImpl();
+        ActivitySchedulingOptions options = new ActivitySchedulingOptions();
+        options.setHeartbeatTimeoutSeconds(10);
+        options.setStartToCloseTimeoutSeconds(30);
+        options.setScheduleToStartTimeoutSeconds(30);
+        options.setScheduleToCloseTimeoutSeconds(60);
+        options.setTaskList(ACTIVITIES_TASK_LIST);
+        c.setSchedulingOptions(options);
+        this.client = c;
     }
 
     @Override

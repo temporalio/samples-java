@@ -14,6 +14,7 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow;
 
+import com.amazonaws.services.simpleworkflow.flow.StartWorkflowOptions;
 import com.amazonaws.services.simpleworkflow.flow.WorkflowExecutionAlreadyStartedException;
 import com.uber.cadence.WorkflowService;
 import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
@@ -58,7 +59,12 @@ public class WorkflowExecutionStarter {
         Object[] parameters = new Object[] { "parameter1" };
 
         try {
-            workflow.startPeriodicWorkflow(activityType, parameters, options);
+            StartWorkflowOptions so = new StartWorkflowOptions();
+            so.setTaskList(WorkflowHost.DECISION_TASK_LIST);
+            so.setExecutionStartToCloseTimeoutSeconds(300);
+            so.setTaskStartToCloseTimeoutSeconds(3);
+
+            workflow.startPeriodicWorkflow(activityType, parameters, options, so);
             // WorkflowExecution is available after workflow creation 
             WorkflowExecution workflowExecution = workflow.getWorkflowExecution();
             System.out.println("Started periodic workflow with workflowId=\"" + workflowExecution.getWorkflowId()

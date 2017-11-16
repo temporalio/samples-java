@@ -27,7 +27,7 @@ import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
  */
 public class ActivityHost {
 
-    private static final String ACTIVITIES_TASK_LIST = "AverageCalculator";
+    static final String ACTIVITIES_TASK_LIST = "AverageCalculator";
 
     public static void main(String[] args) throws Exception {
 //        ConfigHelper configHelper = ConfigHelper.createConfig();

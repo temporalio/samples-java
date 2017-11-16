@@ -14,15 +14,21 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow;
 
+import com.amazonaws.services.simpleworkflow.flow.ActivitySchedulingOptions;
+import com.amazonaws.services.simpleworkflow.flow.DecisionContext;
 import com.amazonaws.services.simpleworkflow.flow.DecisionContextProvider;
 import com.amazonaws.services.simpleworkflow.flow.DecisionContextProviderImpl;
 import com.amazonaws.services.simpleworkflow.flow.DynamicActivitiesClient;
 import com.amazonaws.services.simpleworkflow.flow.DynamicActivitiesClientImpl;
+import com.amazonaws.services.simpleworkflow.flow.StartWorkflowOptions;
 import com.amazonaws.services.simpleworkflow.flow.WorkflowClock;
+import com.amazonaws.services.simpleworkflow.flow.WorkflowContext;
 import com.amazonaws.services.simpleworkflow.flow.annotations.Asynchronous;
 import com.amazonaws.services.simpleworkflow.flow.core.Promise;
 import com.amazonaws.services.simpleworkflow.flow.core.TryCatchFinally;
 import com.uber.cadence.ActivityType;
+
+import static com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow.ActivityHost.ACTIVITIES_TASK_LIST;
 
 public class PeriodicWorkflowImpl implements PeriodicWorkflow {
 
@@ -53,10 +59,25 @@ public class PeriodicWorkflowImpl implements PeriodicWorkflow {
 
     public PeriodicWorkflowImpl() {
         DecisionContextProvider contextProvider = new DecisionContextProviderImpl();
-        clock = contextProvider.getDecisionContext().getWorkflowClock();
-        activities = new DynamicActivitiesClientImpl();
+        DecisionContext decisionContext = contextProvider.getDecisionContext();
+        clock = decisionContext.getWorkflowClock();
+        DynamicActivitiesClientImpl a = new DynamicActivitiesClientImpl();
+        ActivitySchedulingOptions options = new ActivitySchedulingOptions();
+        options.setHeartbeatTimeoutSeconds(10);
+        options.setStartToCloseTimeoutSeconds(30);
+        options.setScheduleToStartTimeoutSeconds(30);
+        options.setScheduleToCloseTimeoutSeconds(60);
+        options.setTaskList(ACTIVITIES_TASK_LIST);
+        a.setSchedulingOptions(options);
+        activities = a;
         errorReporting = new ErrorReportingActivitiesClientImpl();
         selfClient = new PeriodicWorkflowSelfClientImpl();
+        WorkflowContext workflowContext = decisionContext.getWorkflowContext();
+        StartWorkflowOptions wOptions = new StartWorkflowOptions();
+        wOptions.setExecutionStartToCloseTimeoutSeconds((int) workflowContext.getExecutionStartToCloseTimeoutSeconds());
+        wOptions.setTaskStartToCloseTimeoutSeconds(3); // TODO: Change Cadence to not require
+        wOptions.setTaskList(workflowContext.getTaskList());
+        selfClient.setSchedulingOptions(wOptions);
     }
 
     /**
