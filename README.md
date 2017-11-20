@@ -1,7 +1,4 @@
-This package was created by Maxim Fateev (original author of the Flow Framework) 
-from aws/aws-swf-flow-library official AWS package.
-It uses standard Maven directory structure and supports invocation of the examples using
-mvn exec as oposed official version that uses ant. 
+An experimental port of SWF Flow Framework Samples to run on top of Cadence.
 
 The package uses AWS Flow Framework from <https://github.com/mfateev/swf-flow-library-java>
 which is not found in global maven repositories yet. 
@@ -39,68 +36,31 @@ workflow can run for extended periods and hence it uses the continue as new exec
 
 * **CronWithRetry** -- this is an enhanced version of the Cron sample that uses the exponential
   retry feature to retry the activity if it fails.
-
+  
 ## Prerequisites
 
-* A valid Amazon Web Services developer account. To sign up, go to <http://aws.amazon.com>.
-
-* The AWS SDK for Java. For more information about the AWS SDK for Java, see
-  <http://aws.amazon.com/sdkforjava>.
-
-* You must be signed up for the following services:
-
-    * Amazon Simple Workflow Service (SWF). For more information, see <http://aws.amazon.com/swf>.
-
-    * Amazon Simple Storage Service (S3). For more information, see <http://aws.amazon.com/s3>.
-
-* JUnit (version 4.7). The jar file must be in the classpath. For more information, see
-  <http://www.junit.org/>.
-
-* org.springframework.test (version 3.0). The jar file must be in the classpath. For more
-  information, see <http://www.springsource.org/>.
-
-* Log4j (version 1.2.15). The jar file must be in the classpath. For more information, see
-  <http://logging.apache.org/log4j/1.2/>.
+Cadence service running. See https://github.com/uber/cadence for service setup.
 
 ## Configuring and Building the samples
 
 The steps for configuring and building the AWS Flow Framework for Java samples are:
 
-1. Create the *Samples* domain. You can do this either with the AWS Management Console or using the
-   AWS CLI.
+1. Checkout and build the cadence branch of [swf-flow-library-java](https://github.com/mfateev/swf-flow-library-java) using mvn compile.
+ Run Use mvn install to get it into local Maven cache.
 
-    **To create the Samples domain using the AWS Management Console**
+2. Checkout and build the cadence branch [aws-swf-build-tools](https://github.com/mfateev/aws-swf-build-tools) using mvn compile.
+Run Use mvn install to get it into local Maven cache.
 
-    a. Go to the SWF Management Console <https://console.aws.amazon.com/swf/home>.
-    b. Follow the on-screen instructions to log in.
-    c. Click Manage Domains and register a new domain with the name *Samples*.
+3. Checkout and build the cadence branch of [swf-flow-library-samples-java](https://github.com/mfateev/swf-flow-library-samples-java)  using mvn compile.
 
-    **To create the Samples domain using the AWS CLI**
-
-    * Execute the following command:
-
-            aws swf register-domain --name Samples --workflow-execution-retention-period-in-days 1
-
-        **Note**: to use this option, you must have installed and set up the AWS CLI as described in
-        the [AWS CLI
-        documentation](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-set-up.html).
+4. Create the *Samples* domain
 
 2. Open the `access.properties` file in the `samples` directory.
 
-3. Locate the following sections and fill in your Access Key ID and Secret Access Key. You can use
-   the same values for SWF and S3:
+3. Update Cadence host and port values to a service API. Keep these values for local Cadence service:
 
-        # Fill in your AWS Access Key ID and Secret Access Key for SWF
-        # http://aws.amazon.com/security-credentials
-        AWS.Access.ID=<Your AWS Access Key>
-        AWS.Secret.Key=<Your AWS Secret Key>
-        AWS.Account.ID=<Your AWS Account ID>
-
-        # Fill in your AWS Access Key ID and Secret Access Key for S3
-        # http://aws.amazon.com/security-credentials
-        S3.Access.ID=<Your AWS Access Key>
-        S3.Secret.Key=<Your AWS Secret Key>
-        S3.Account.ID=<Your AWS Account ID>
+        Cadence.host=127.0.0.1
+        Cadence.port=7933
 
 5. Save the `access.properties` file.
 
@@ -114,9 +74,6 @@ The steps for configuring and building the AWS Flow Framework for Java samples a
     On Windows run this command:
 
         set AWS_SWF_SAMPLES_CONFIG=<Your SDK Directory>/src/samples/AwsFlowFramework
-
-7. Compile the samples by using the Ant `build.xml` file. This will create binaries in the
-   `samples/bin` directory.
 
 ## Running the samples
 
