@@ -20,7 +20,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
+import com.amazonaws.services.simpleworkflow.flow.worker.DecisionTaskPoller;
 import com.uber.cadence.serviceclient.WorkflowServiceTChannel;
+import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -91,7 +93,9 @@ public class ConfigHelper {
         BasicConfigurator.configure();
         Logger.getRootLogger().setLevel(Level.DEBUG);
 
-//        Logger.getLogger("org.apache.http").setLevel(Level.INFO);
+        Logger.getLogger("io.netty").setLevel(Level.INFO);
+        // Uncomment to see decisions sent to the Cadence
+//        Logger.getLogger(DecisionTaskPoller.class.getName() + ".decisions").setLevel(Level.TRACE);
 
         ConfigHelper configHelper = null;
 
