@@ -98,8 +98,7 @@ public class CronWithRetryWorkflowExecutionStarter {
 
             workflow.startCron(cronOptions, startWorkflowOptions);
 
-            workflow.startCron(cronOptions);
-            // WorkflowExecution is available after workflow creation 
+            // WorkflowExecution is available after workflow creation
             WorkflowExecution workflowExecution = workflow.getWorkflowExecution();
             System.out.println("Started Cron workflow with workflowId=\"" + workflowExecution.getWorkflowId() + "\" and runId=\""
                     + workflowExecution.getRunId() + "\" with cron pattern=" + cronPattern);
@@ -109,10 +108,11 @@ public class CronWithRetryWorkflowExecutionStarter {
             System.out.println("Cron workflow with workflowId=\"" + workflow.getWorkflowExecution().getWorkflowId()
                     + " is already running for the pattern=" + cronPattern);
         }
+        //TODO(Cadence): Change getState to Cadence Query.
         // This is to demonstrate the @GetState annotated method getInvocationHistory
-        System.out.println("Sleeping for 60 seconds...");
-        Thread.sleep(60000);
-        System.out.println("Invocation history after 60 seconds: \n" + workflow.getInvocationHistory());
+//        System.out.println("Sleeping for 60 seconds...");
+//        Thread.sleep(60000);
+//        System.out.println("Invocation history after 60 seconds: \n" + workflow.getInvocationHistory());
         System.exit(0);
     }
 }

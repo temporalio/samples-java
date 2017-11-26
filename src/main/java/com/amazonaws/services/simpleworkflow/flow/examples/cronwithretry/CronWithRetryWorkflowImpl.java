@@ -24,7 +24,9 @@ import java.util.TimeZone;
 import com.amazonaws.services.simpleworkflow.flow.DecisionContextProviderImpl;
 import com.amazonaws.services.simpleworkflow.flow.DynamicActivitiesClient;
 import com.amazonaws.services.simpleworkflow.flow.DynamicActivitiesClientImpl;
+import com.amazonaws.services.simpleworkflow.flow.StartWorkflowOptions;
 import com.amazonaws.services.simpleworkflow.flow.WorkflowClock;
+import com.amazonaws.services.simpleworkflow.flow.WorkflowContext;
 import com.amazonaws.services.simpleworkflow.flow.core.TryCatchFinally;
 import com.amazonaws.services.simpleworkflow.flow.interceptors.AsyncRetryingExecutor;
 import com.amazonaws.services.simpleworkflow.flow.interceptors.AsyncRunnable;
@@ -43,6 +45,8 @@ import com.amazonaws.services.simpleworkflow.flow.spring.CronInvocationSchedule;
 public class CronWithRetryWorkflowImpl implements CronWithRetryWorkflow {
 
     private static final int SECOND = 1000;
+
+    private final WorkflowContext context;
 
     /**
      * This is needed to keep the decider logic deterministic as using
@@ -64,15 +68,19 @@ public class CronWithRetryWorkflowImpl implements CronWithRetryWorkflow {
     private TimeZone tz;
 
     public CronWithRetryWorkflowImpl() {
-        this(new DecisionContextProviderImpl().getDecisionContext().getWorkflowClock(), new DynamicActivitiesClientImpl(),
-                new CronWithRetryWorkflowSelfClientImpl());
+        this(new DecisionContextProviderImpl().getDecisionContext().getWorkflowContext(),
+                new DecisionContextProviderImpl().getDecisionContext().getWorkflowClock(),
+                new DynamicActivitiesClientImpl(),
+                new CronWithRetryWorkflowSelfClientImpl()
+        );
     }
 
     /**
      * Constructor used for unit testing or configuration through IOC container
      */
-    public CronWithRetryWorkflowImpl(WorkflowClock clock, DynamicActivitiesClient activities,
+    public CronWithRetryWorkflowImpl(WorkflowContext context, WorkflowClock clock, DynamicActivitiesClient activities,
             CronWithRetryWorkflowSelfClient selfClient) {
+        this.context = context;
         this.clock = clock;
         this.activities = activities;
         this.selfClient = selfClient;

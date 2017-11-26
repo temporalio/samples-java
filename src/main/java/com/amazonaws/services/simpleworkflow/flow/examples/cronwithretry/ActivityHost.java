@@ -26,7 +26,7 @@ import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
  */
 public class ActivityHost {    
     
-    static final String ACTIVITIES_TASK_LIST = "Periodic";
+    static final String ACTIVITIES_TASK_LIST = "CronWithRetry";
 
     public static void main(String[] args) throws Exception {
         ConfigHelper configHelper = ConfigHelper.createConfig();
