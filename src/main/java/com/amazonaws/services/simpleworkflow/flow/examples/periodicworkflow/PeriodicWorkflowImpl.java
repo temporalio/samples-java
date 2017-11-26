@@ -20,9 +20,7 @@ import com.amazonaws.services.simpleworkflow.flow.DecisionContextProvider;
 import com.amazonaws.services.simpleworkflow.flow.DecisionContextProviderImpl;
 import com.amazonaws.services.simpleworkflow.flow.DynamicActivitiesClient;
 import com.amazonaws.services.simpleworkflow.flow.DynamicActivitiesClientImpl;
-import com.amazonaws.services.simpleworkflow.flow.StartWorkflowOptions;
 import com.amazonaws.services.simpleworkflow.flow.WorkflowClock;
-import com.amazonaws.services.simpleworkflow.flow.WorkflowContext;
 import com.amazonaws.services.simpleworkflow.flow.annotations.Asynchronous;
 import com.amazonaws.services.simpleworkflow.flow.core.Promise;
 import com.amazonaws.services.simpleworkflow.flow.core.TryCatchFinally;
@@ -61,30 +59,29 @@ public class PeriodicWorkflowImpl implements PeriodicWorkflow {
         DecisionContextProvider contextProvider = new DecisionContextProviderImpl();
         DecisionContext decisionContext = contextProvider.getDecisionContext();
         clock = decisionContext.getWorkflowClock();
-        DynamicActivitiesClientImpl a = new DynamicActivitiesClientImpl();
+
         ActivitySchedulingOptions options = new ActivitySchedulingOptions();
         options.setHeartbeatTimeoutSeconds(10);
         options.setStartToCloseTimeoutSeconds(30);
         options.setScheduleToStartTimeoutSeconds(30);
         options.setScheduleToCloseTimeoutSeconds(60);
         options.setTaskList(ACTIVITIES_TASK_LIST);
+
+        DynamicActivitiesClientImpl a = new DynamicActivitiesClientImpl();
         a.setSchedulingOptions(options);
         activities = a;
-        errorReporting = new ErrorReportingActivitiesClientImpl();
+
+        ErrorReportingActivitiesClientImpl er = new ErrorReportingActivitiesClientImpl();
+        er.setSchedulingOptions(options);
+        errorReporting = er;
         selfClient = new PeriodicWorkflowSelfClientImpl();
-        WorkflowContext workflowContext = decisionContext.getWorkflowContext();
-        StartWorkflowOptions wOptions = new StartWorkflowOptions();
-        wOptions.setExecutionStartToCloseTimeoutSeconds((int) workflowContext.getExecutionStartToCloseTimeoutSeconds());
-        wOptions.setTaskStartToCloseTimeoutSeconds(3); // TODO: Change Cadence to not require
-        wOptions.setTaskList(workflowContext.getTaskList());
-        selfClient.setSchedulingOptions(wOptions);
     }
 
     /**
      * Constructor used for unit testing or configuration through IOC container
      */
     public PeriodicWorkflowImpl(WorkflowClock clock, DynamicActivitiesClient activities,
-            ErrorReportingActivitiesClient errorReporting, PeriodicWorkflowSelfClient selfClient) {
+                                ErrorReportingActivitiesClient errorReporting, PeriodicWorkflowSelfClient selfClient) {
         this.clock = clock;
         this.activities = activities;
         this.errorReporting = errorReporting;
@@ -93,7 +90,7 @@ public class PeriodicWorkflowImpl implements PeriodicWorkflow {
 
     @Override
     public void startPeriodicWorkflow(final ActivityType activity, final Object[] activityArguments,
-            final PeriodicWorkflowOptions options) {
+                                      final PeriodicWorkflowOptions options) {
         final long startTime = clock.currentTimeMillis();
         this.activityType = activity;
         this.activityArguments = activityArguments;
@@ -110,6 +107,7 @@ public class PeriodicWorkflowImpl implements PeriodicWorkflow {
 
             @Override
             protected void doCatch(Throwable e) throws Throwable {
+                e.printStackTrace();
                 errorReporting.reportFailure(e);
             }
 
@@ -134,23 +132,22 @@ public class PeriodicWorkflowImpl implements PeriodicWorkflow {
     public void callPeriodicActivity(long startTime, Promise<?>... waitFor) {
         long currentTime = clock.currentTimeMillis();
         if ((currentTime - startTime) < options.getContinueAsNewAfterSeconds() * SECOND) {
-            
-            // Call activity using dynamic client. Return type is specified as Void as it is not used, but activity that 
+
+            // Call activity using dynamic client. Return type is specified as Void as it is not used, but activity that
             // returns some other type can be called this way.
             Promise<Void> activityCompletion = activities.scheduleActivity(activityType, activityArguments, null, Void.class);
-            
+
             if (!options.isWaitForActivityCompletion()) {
                 // Promise.Void() returns already ready promise of type Void
                 activityCompletion = Promise.Void();
             }
-            // Create a timer to re-run your periodic activity after activity completion, 
+            // Create a timer to re-run your periodic activity after activity completion,
             // but not earlier then after delay of executionPeriodSeconds.
-            // However in real cron workflows, delay should be calculated everytime to run activity at 
+            // However in a real cron workflow, the delay should be calculated every time to run an activity at
             // a predefined time.
             Promise<Void> timer = clock.createTimer(options.getExecutionPeriodSeconds());
 
             callPeriodicActivity(startTime, timer, activityCompletion);
         }
     }
-
 }
