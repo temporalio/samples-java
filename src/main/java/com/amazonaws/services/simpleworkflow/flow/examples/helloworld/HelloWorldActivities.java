@@ -14,16 +14,11 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.helloworld;
 
-import com.amazonaws.services.simpleworkflow.flow.annotations.Activities;
-import com.amazonaws.services.simpleworkflow.flow.annotations.Activity;
-
 /**
  * Contract of the hello world activities
  */
-@Activities
 public interface HelloWorldActivities {
 
-    @Activity(name = "PrintHello", version = "1.0")
-    void printHello(String name);
+    String printHello(String name);
     
 }

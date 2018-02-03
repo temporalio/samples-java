@@ -15,14 +15,15 @@
 package com.amazonaws.services.simpleworkflow.flow.examples.helloworld;
 
 
-import com.amazonaws.services.simpleworkflow.flow.ActivitySchedulingOptions;
+import com.uber.cadence.workflow.ActivitySchedulingOptions;
+import com.uber.cadence.workflow.Workflow;
 
 /**
  * Implementation of the hello world workflow
  */
 public class HelloWorldWorkflowImpl implements HelloWorldWorkflow{
 
-    private HelloWorldActivitiesClientImpl client = new HelloWorldActivitiesClientImpl();
+    private HelloWorldActivities client;
 
     public HelloWorldWorkflowImpl() {
         ActivitySchedulingOptions options = new ActivitySchedulingOptions();
@@ -31,12 +32,12 @@ public class HelloWorldWorkflowImpl implements HelloWorldWorkflow{
         options.setStartToCloseTimeoutSeconds(20);
         options.setHeartbeatTimeoutSeconds(10);
         options.setTaskList(ActivityHost.ACTIVITIES_TASK_LIST);
-        client.setSchedulingOptions(options);
+         client = Workflow.newActivityClient(HelloWorldActivities.class, options);
     }
 
     @Override
-    public void helloWorld(String name) {
-        client.printHello(name);
+    public String helloWorld(String name) {
+        return client.printHello(name);
     }
     
 }

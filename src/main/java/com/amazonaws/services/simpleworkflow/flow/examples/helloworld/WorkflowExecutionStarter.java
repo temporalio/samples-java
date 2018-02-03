@@ -14,12 +14,12 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.helloworld;
 
-import com.amazonaws.services.simpleworkflow.flow.StartWorkflowOptions;
-import com.uber.cadence.WorkflowService;
 import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
 import com.uber.cadence.WorkflowExecution;
-
-import java.util.UUID;
+import com.uber.cadence.WorkflowService;
+import com.uber.cadence.client.CadenceClient;
+import com.uber.cadence.client.WorkflowExternalResult;
+import com.uber.cadence.internal.StartWorkflowOptions;
 
 public class WorkflowExecutionStarter {
 
@@ -28,19 +28,19 @@ public class WorkflowExecutionStarter {
         WorkflowService.Iface swfService = configHelper.createWorkflowClient();
         String domain = configHelper.getDomain();
 
-        HelloWorldWorkflowClientExternalFactory clientFactory = new HelloWorldWorkflowClientExternalFactoryImpl(swfService,
-                domain);
-        HelloWorldWorkflowClientExternal workflow = clientFactory.getClient(UUID.randomUUID().toString());
-        
+        CadenceClient client = new CadenceClient(swfService,
+                domain, null);
+
         // Start Wrokflow Execution
         StartWorkflowOptions options = new StartWorkflowOptions();
         options.setTaskList(WorkflowHost.DECISION_TASK_LIST);
         options.setExecutionStartToCloseTimeoutSeconds(20);
         options.setTaskStartToCloseTimeoutSeconds(3);
-        workflow.helloWorld("User", options);
-        
+        HelloWorldWorkflow workflow = client.newWorkflowClient(HelloWorldWorkflow.class, options);
+
         // WorkflowExecution is available after workflow creation 
-        WorkflowExecution workflowExecution = workflow.getWorkflowExecution();
+        WorkflowExternalResult<String> result = CadenceClient.executeWorkflow(workflow::helloWorld, "User");
+        WorkflowExecution workflowExecution = result.getExecution();
         System.out.println("Started helloWorld workflow with workflowId=\"" + workflowExecution.getWorkflowId()
                 + "\" and runId=\"" + workflowExecution.getRunId() + "\"");
     }

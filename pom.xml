@@ -38,8 +38,8 @@
   <dependencies>
     <dependency>
       <groupId>com.uber</groupId>
-      <artifactId>cadence-flow-library</artifactId>
-      <version>0.0.1</version>
+      <artifactId>cadence-client</artifactId>
+      <version>0.1.0</version>
     </dependency>
     <!--dependency>
       <groupId>com.amazonaws</groupId>
@@ -51,11 +51,6 @@
       <groupId>org.aspectj</groupId>
       <artifactId>aspectjrt</artifactId>
       <version>${aspectj.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>com.uber</groupId>
-      <artifactId>cadence-annotation-processor</artifactId>
-      <version>0.0.1</version>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -123,47 +118,6 @@
           <source>${java.version}</source>
           <target>${java.version}</target>
         </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>aspectj-maven-plugin</artifactId>
-        <version>1.9</version>
-        <configuration>
-          <complianceLevel>${java.version}</complianceLevel>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
-          <showWeaveInfo>true</showWeaveInfo>
-          <sources>
-            <source>
-              <basedir>${source.dir}</basedir>
-              <includes>
-                <include>**/*.java</include>
-              </includes>
-            </source>
-          </sources>
-          <aspectLibraries>
-            <aspectLibrary>
-              <groupId>com.uber</groupId>
-              <artifactId>cadence-flow-library</artifactId>
-            </aspectLibrary>
-          </aspectLibraries>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>compile</goal>
-              <goal>test-compile</goal>
-            </goals>
-          </execution>
-        </executions>
-        <dependencies>
-          <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjtools</artifactId>
-            <version>${aspectj.version}</version>
-          </dependency>
-        </dependencies>
       </plugin>
     </plugins>
   </build>
