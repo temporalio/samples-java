@@ -14,29 +14,14 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow;
 
-import com.amazonaws.services.simpleworkflow.flow.ActivityExecutionContextProvider;
-import com.amazonaws.services.simpleworkflow.flow.ActivityExecutionContextProviderImpl;
+import com.uber.cadence.activity.Activity;
 
 public class ErrorReportingActivitiesImpl implements ErrorReportingActivities {
 
-    private final ActivityExecutionContextProvider contextProvider;
-    
-    public ErrorReportingActivitiesImpl() {
-        this.contextProvider = new ActivityExecutionContextProviderImpl();
-    }
-    
-    /**
-     * For unit testing or IoC
-     */
-    public ErrorReportingActivitiesImpl(ActivityExecutionContextProvider contextProvider) {
-        this.contextProvider = contextProvider;
-    }
-
     @Override
     public void reportFailure(Throwable e) {
-        String runId = contextProvider.getActivityExecutionContext().getTask().getWorkflowExecution().getRunId();
+        String runId = Activity.getWorkflowExecution().getRunId();
         System.err.println("Run Id: " + runId + ", Failure in periodic task:");
         e.printStackTrace();
     }
-
 }

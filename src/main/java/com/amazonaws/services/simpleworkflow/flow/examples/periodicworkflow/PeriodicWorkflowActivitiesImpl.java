@@ -18,35 +18,24 @@ import java.util.Random;
 
 import com.amazonaws.services.simpleworkflow.flow.ActivityExecutionContextProvider;
 import com.amazonaws.services.simpleworkflow.flow.ActivityExecutionContextProviderImpl;
+import com.uber.cadence.activity.Activity;
 
 public class PeriodicWorkflowActivitiesImpl implements PeriodicWorkflowActivities {
 
-    private final ActivityExecutionContextProvider contextProvider;
-
-    public PeriodicWorkflowActivitiesImpl() {
-        this.contextProvider = new ActivityExecutionContextProviderImpl();
-    }
-    
     /**
-     * For unit testing or IoC
+     * Activity takes random time to execute to show that it is waited if workflow parameter waitForActivityCompletion
+     * is set to true
      */
-    public PeriodicWorkflowActivitiesImpl(ActivityExecutionContextProvider contextProvider) {
-        this.contextProvider = contextProvider;
-    }
-
-	@Override
-    // Activity takes random time to execute to show that it is waited if workflow parameter waitForActivityCompletion
-    // is set to true
+    @Override
     public void doSomeWork(String parameter) {
-        String runId = contextProvider.getActivityExecutionContext().getTask().getWorkflowExecution().getRunId();
+        String runId = Activity.getWorkflowExecution().getRunId();
         Random r = new Random();
         long delay = r.nextInt(3000);
         System.out.println("Run Id: " + runId + ", Do some periodic task here for " + delay + " milliseconds with parameter="
                 + parameter);
         try {
             Thread.sleep(delay);
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
         }
 
     }

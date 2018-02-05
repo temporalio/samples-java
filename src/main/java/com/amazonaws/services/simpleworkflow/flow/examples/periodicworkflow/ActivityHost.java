@@ -14,12 +14,13 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow;
 
+import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
+import com.uber.cadence.WorkflowService;
+import com.uber.cadence.worker.Worker;
+import com.uber.cadence.worker.WorkerOptions;
+
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
-
-import com.uber.cadence.WorkflowService;
-import com.amazonaws.services.simpleworkflow.flow.ActivityWorker;
-import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
 
 /**
  * This is the process which hosts all Activities in this sample
@@ -33,41 +34,32 @@ public class ActivityHost {
         WorkflowService.Iface swfService = configHelper.createWorkflowClient();
         String domain = configHelper.getDomain();
 
-        final ActivityWorker worker = new ActivityWorker(swfService, domain, ACTIVITIES_TASK_LIST);
+        WorkerOptions options = new WorkerOptions();
+        options.setDisableWorkflowWorker(true);
+        final Worker worker = new Worker(swfService, domain, ACTIVITIES_TASK_LIST, options);
 
         // Create activity implementations
-        PeriodicWorkflowActivities periodicActivitiesImpl = new PeriodicWorkflowActivitiesImpl();
-        worker.addActivitiesImplementation(periodicActivitiesImpl);
+        PeriodicWorkflowActivities activities = new PeriodicWorkflowActivitiesImpl();
+        worker.addActivities(activities);
 
         worker.start();
 
-        System.out.println("Activity Worker Started for Task List: " + worker.getTaskListToPoll());
+        System.out.println("Activity Worker Started for Task List: " + ACTIVITIES_TASK_LIST);
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-
-            public void run() {
-                try {
-                    worker.shutdownAndAwaitTermination(1, TimeUnit.MINUTES);
-                    System.out.println("Activity Worker Exited.");
-                }
-                catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            worker.shutdown(1, TimeUnit.MINUTES);
+            System.out.println("Activity Worker Exited.");
+        }));
 
         System.out.println("Please press any key to terminate service.");
 
         try {
             System.in.read();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         System.exit(0);
-
     }
- 
 }
 
 

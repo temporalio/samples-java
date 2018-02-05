@@ -14,9 +14,6 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow;
 
-import com.amazonaws.services.simpleworkflow.flow.annotations.Activities;
-
-@Activities
 public interface ErrorReportingActivities {
 
     void reportFailure(Throwable e);

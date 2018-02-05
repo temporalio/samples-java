@@ -59,7 +59,5 @@ public class ActivityHost {
             e.printStackTrace();
         }
         System.exit(0);
-
     }
-
 }

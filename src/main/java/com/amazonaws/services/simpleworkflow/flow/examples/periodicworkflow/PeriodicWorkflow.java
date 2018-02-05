@@ -14,13 +14,9 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow;
 
-import com.amazonaws.services.simpleworkflow.flow.annotations.Execute;
-import com.amazonaws.services.simpleworkflow.flow.annotations.Workflow;
-//import com.amazonaws.services.simpleworkflow.flow.annotations.WorkflowRegistrationOptions;
 import com.uber.cadence.ActivityType;
+import com.uber.cadence.workflow.WorkflowMethod;
 
-@Workflow
-//@WorkflowRegistrationOptions(defaultExecutionStartToCloseTimeoutSeconds = 300, defaultTaskStartToCloseTimeoutSeconds = 10)
 public interface PeriodicWorkflow {
 
     /**
@@ -31,7 +27,7 @@ public interface PeriodicWorkflow {
      * @param options
      *            define the schedule of the execution.
      */
-    @Execute(name = "PeriodicWorkflow", version = "1.0")
+    @WorkflowMethod
     void startPeriodicWorkflow(ActivityType activity, Object[] activityArguments, PeriodicWorkflowOptions options);
 
 }

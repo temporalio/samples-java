@@ -1,12 +1,12 @@
 /*
  * Copyright 2012-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"). You may not
  * use this file except in compliance with the License. A copy of the License is
  * located at
- * 
+ *
  * http://aws.amazon.com/apache2.0
- * 
+ *
  * or in the "license" file accompanying this file. This file is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
  * express or implied. See the License for the specific language governing
@@ -25,6 +25,13 @@ import com.amazonaws.services.simpleworkflow.flow.annotations.Asynchronous;
 import com.amazonaws.services.simpleworkflow.flow.core.Promise;
 import com.amazonaws.services.simpleworkflow.flow.core.TryCatchFinally;
 import com.uber.cadence.ActivityType;
+import com.uber.cadence.workflow.ActivitySchedulingOptions;
+import com.uber.cadence.workflow.Workflow;
+import com.uber.cadence.workflow.WorkflowThread;
+
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow.ActivityHost.ACTIVITIES_TASK_LIST;
 
@@ -32,122 +39,60 @@ public class PeriodicWorkflowImpl implements PeriodicWorkflow {
 
     private static final int SECOND = 1000;
 
-    /**
-     * This is needed to keep the decider logic deterministic as using
-     * System.currentTimeMillis() in your decider logic is not.
-     * WorkflowClock.currentTimeMillis() should be used instead.
-     */
-    private final WorkflowClock clock;
+    private final ErrorReportingActivities errorReporting;
 
-    private final DynamicActivitiesClient activities;
+    private final PeriodicWorkflow continueAsNewClient;
 
-    private final ErrorReportingActivitiesClient errorReporting;
-
-    /**
-     * Used to create new run of the periodic workflow to reset history. This
-     * allows "infinite" workflows.
-     */
-    private final PeriodicWorkflowSelfClient selfClient;
-
-    private ActivityType activityType;
-
-    private PeriodicWorkflowOptions options;
-
-    private Object[] activityArguments;
+    ActivitySchedulingOptions activityOptions;
 
     public PeriodicWorkflowImpl() {
-        DecisionContextProvider contextProvider = new DecisionContextProviderImpl();
-        DecisionContext decisionContext = contextProvider.getDecisionContext();
-        clock = decisionContext.getWorkflowClock();
+        activityOptions = new ActivitySchedulingOptions();
+        activityOptions.setHeartbeatTimeoutSeconds(10);
+        activityOptions.setStartToCloseTimeoutSeconds(30);
+        activityOptions.setScheduleToStartTimeoutSeconds(30);
+        activityOptions.setScheduleToCloseTimeoutSeconds(60);
+        activityOptions.setTaskList(ACTIVITIES_TASK_LIST);
 
-        ActivitySchedulingOptions options = new ActivitySchedulingOptions();
-        options.setHeartbeatTimeoutSeconds(10);
-        options.setStartToCloseTimeoutSeconds(30);
-        options.setScheduleToStartTimeoutSeconds(30);
-        options.setScheduleToCloseTimeoutSeconds(60);
-        options.setTaskList(ACTIVITIES_TASK_LIST);
+        errorReporting = Workflow.newActivityClient(ErrorReportingActivities.class, activityOptions);
 
-        DynamicActivitiesClientImpl a = new DynamicActivitiesClientImpl();
-        a.setSchedulingOptions(options);
-        activities = a;
-
-        ErrorReportingActivitiesClientImpl er = new ErrorReportingActivitiesClientImpl();
-        er.setSchedulingOptions(options);
-        errorReporting = er;
-        selfClient = new PeriodicWorkflowSelfClientImpl();
-    }
-
-    /**
-     * Constructor used for unit testing or configuration through IOC container
-     */
-    public PeriodicWorkflowImpl(WorkflowClock clock, DynamicActivitiesClient activities,
-                                ErrorReportingActivitiesClient errorReporting, PeriodicWorkflowSelfClient selfClient) {
-        this.clock = clock;
-        this.activities = activities;
-        this.errorReporting = errorReporting;
-        this.selfClient = selfClient;
+        continueAsNewClient = Workflow.newContinueAsNewClient(PeriodicWorkflow.class);
     }
 
     @Override
     public void startPeriodicWorkflow(final ActivityType activity, final Object[] activityArguments,
                                       final PeriodicWorkflowOptions options) {
-        final long startTime = clock.currentTimeMillis();
-        this.activityType = activity;
-        this.activityArguments = activityArguments;
-        this.options = options;
+        long startTime = Workflow.currentTimeMillis();
 
-        // Use TryCatch to ensure that workflow is not going to fail as it causes new run not being created
-        new TryCatchFinally() {
+        // Use try catch to ensure that workflow is not going to fail as it causes new run not being created
+        try {
+            long continueAsNewAfter = TimeUnit.SECONDS.toMillis(options.getContinueAsNewAfterSeconds());
+            while ((Workflow.currentTimeMillis() - startTime) < continueAsNewAfter) {
 
-            @Override
-            protected void doTry() throws Throwable {
-                long startTime = clock.currentTimeMillis();
-                callPeriodicActivity(startTime, Promise.Void(), Promise.Void());
-            }
+                // Call activity using dynamic client. Return type is specified as Void as it is not used, but activity that
+                // returns some other type can be called this way.
+                Future<Object> activityCompletion = Workflow.executeActivityAsync(
+                        activity.getName(), activityOptions, Object.class, activityArguments);
 
-            @Override
-            protected void doCatch(Throwable e) throws Throwable {
-                e.printStackTrace();
-                errorReporting.reportFailure(e);
-            }
-
-            @Override
-            protected void doFinally() throws Throwable {
-                long secondsLeft = options.getCompleteAfterSeconds() - (clock.currentTimeMillis() - startTime) / SECOND;
-                PeriodicWorkflowOptions nextRunOptions = new PeriodicWorkflowOptions();
-                nextRunOptions.setCompleteAfterSeconds(secondsLeft);
-                nextRunOptions.setContinueAsNewAfterSeconds(options.getContinueAsNewAfterSeconds());
-                nextRunOptions.setExecutionPeriodSeconds(options.getExecutionPeriodSeconds());
-                nextRunOptions.setWaitForActivityCompletion(options.isWaitForActivityCompletion());
-                options.setCompleteAfterSeconds(secondsLeft);
-                if (secondsLeft > 0) {
-                    // Request new run of the current workflow instance.
-                    selfClient.startPeriodicWorkflow(activity, activityArguments, nextRunOptions);
+                if (options.isWaitForActivityCompletion()) {
+                    activityCompletion.get();
                 }
+                // Create a timer to re-run your periodic activity after activity completion,
+                // but not earlier then after delay of executionPeriodSeconds.
+                // However in a real cron workflow, the delay should be calculated every time to run an activity at
+                // a predefined time.
+                WorkflowThread.sleep(options.getExecutionPeriodSeconds(), TimeUnit.SECONDS);
             }
-        };
-    }
-
-    @Asynchronous
-    public void callPeriodicActivity(long startTime, Promise<?>... waitFor) {
-        long currentTime = clock.currentTimeMillis();
-        if ((currentTime - startTime) < options.getContinueAsNewAfterSeconds() * SECOND) {
-
-            // Call activity using dynamic client. Return type is specified as Void as it is not used, but activity that
-            // returns some other type can be called this way.
-            Promise<Void> activityCompletion = activities.scheduleActivity(activityType, activityArguments, null, Void.class);
-
-            if (!options.isWaitForActivityCompletion()) {
-                // Promise.Void() returns already ready promise of type Void
-                activityCompletion = Promise.Void();
+        } catch (Exception e) {
+            errorReporting.reportFailure(e);
+        } finally {
+            long secondsLeft = options.getCompleteAfterSeconds() - (Workflow.currentTimeMillis() - startTime) / SECOND;
+            if (secondsLeft > 0) {
+                // This workflow run stops executing at the following line
+                // and the new workflow run with the same workflow id is started with
+                // passed arguments.
+                options.setCompleteAfterSeconds(secondsLeft);
+                continueAsNewClient.startPeriodicWorkflow(activity, activityArguments, options);
             }
-            // Create a timer to re-run your periodic activity after activity completion,
-            // but not earlier then after delay of executionPeriodSeconds.
-            // However in a real cron workflow, the delay should be calculated every time to run an activity at
-            // a predefined time.
-            Promise<Void> timer = clock.createTimer(options.getExecutionPeriodSeconds());
-
-            callPeriodicActivity(startTime, timer, activityCompletion);
         }
     }
 }
