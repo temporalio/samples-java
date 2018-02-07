@@ -1,12 +1,12 @@
 /*
  * Copyright 2012-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"). You may not
  * use this file except in compliance with the License. A copy of the License is
  * located at
- * 
+ *
  * http://aws.amazon.com/apache2.0
- * 
+ *
  * or in the "license" file accompanying this file. This file is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
  * express or implied. See the License for the specific language governing
@@ -21,6 +21,11 @@ import com.uber.cadence.WorkflowService;
 import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
 import com.uber.cadence.ActivityType;
 import com.uber.cadence.WorkflowExecution;
+import com.uber.cadence.client.CadenceClient;
+import com.uber.cadence.client.WorkflowExternalResult;
+import com.uber.cadence.internal.StartWorkflowOptions;
+import com.uber.cadence.internal.WorkflowExecutionAlreadyStartedException;
+import com.uber.cadence.workflow.ActivitySchedulingOptions;
 
 public class CronWorkflowExecutionStarter {
 
@@ -39,8 +44,7 @@ public class CronWorkflowExecutionStarter {
         int continueAsNewAfterSeconds = 0;
         try {
             continueAsNewAfterSeconds = Integer.parseInt(args[2]);
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             System.err.println("Value of CONTINUE_AS_NEW_AFTER_SECONDS is not int: " + args[2]);
             System.exit(1);
         }
@@ -54,15 +58,17 @@ public class CronWorkflowExecutionStarter {
         // Name and versions are hardcoded here but they can be passed as args or loaded from configuration file.
         ActivityType activity = new ActivityType();
         activity.setName("CronExampleActivities.doSomeWork");
-//        activity.setVersion("1.0");
-        Object[] arguments = new Object[] { "parameter1" };
-        
-        // Start Workflow execution
-        CronWorkflowClientExternalFactory clientFactory = new CronWorkflowClientExternalFactoryImpl(swfService, domain);
+        Object[] arguments = new Object[]{"parameter1"};
 
-        // Use Activity + cronPattern as instance id to ensure that only one workflow per pattern for a given activity is active at a time.
-        CronWorkflowClientExternal workflow = clientFactory.getClient(activity.getName() + ": " + cronPattern);
+        CadenceClient cadenceClient = CadenceClient.newClient(swfService, domain);
 
+        StartWorkflowOptions startOptions = new StartWorkflowOptions();
+        // Include pattern into workflow id to ensure only one instance per pattern.
+        startOptions.setWorkflowId("Cron: " + cronPattern);
+        startOptions.setTaskList(WorkflowHost.DECISION_TASK_LIST);
+        startOptions.setExecutionStartToCloseTimeoutSeconds(300);
+        startOptions.setTaskStartToCloseTimeoutSeconds(3);
+        CronWorkflow workflow = cadenceClient.newWorkflowStub(CronWorkflow.class, startOptions);
 
 
         try {
@@ -81,20 +87,15 @@ public class CronWorkflowExecutionStarter {
             // Every 10 seconds
             cronOptions.setCronExpression(cronPattern);
 
-            StartWorkflowOptions startWorkflowOptions = clientFactory.getStartWorkflowOptions();
-            startWorkflowOptions.setTaskList(WorkflowHost.DECISION_TASK_LIST);
-            startWorkflowOptions.setExecutionStartToCloseTimeoutSeconds(300);
-            startWorkflowOptions.setTaskStartToCloseTimeoutSeconds(3);
-
-            workflow.startCron(cronOptions, startWorkflowOptions);
+            // Start workflow
+            WorkflowExternalResult result = CadenceClient.asyncStart(workflow::startCron, cronOptions);
             // WorkflowExecution is available after workflow creation 
-            WorkflowExecution workflowExecution = workflow.getWorkflowExecution();
+            WorkflowExecution workflowExecution = result.getExecution();
             System.out.println("Started Cron workflow with workflowId=\"" + workflowExecution.getWorkflowId() + "\" and runId=\""
                     + workflowExecution.getRunId() + "\" with cron pattern=" + cronPattern);
-        }
-        catch (WorkflowExecutionAlreadyStartedException e) {
+        } catch (WorkflowExecutionAlreadyStartedException e) {
             // It is expected to get this exception if start is called before workflow run is completed.
-            System.out.println("Cron workflow with workflowId=\"" + workflow.getWorkflowExecution().getWorkflowId()
+            System.out.println("Cron workflow with workflowId=\"" + startOptions.getWorkflowId()
                     + " is already running for the pattern=" + cronPattern);
         }
         System.exit(0);

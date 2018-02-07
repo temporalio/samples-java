@@ -14,14 +14,10 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.cron;
 
-import com.amazonaws.services.simpleworkflow.flow.ActivitySchedulingOptions;
-import com.amazonaws.services.simpleworkflow.flow.interceptors.ExponentialRetryPolicy;
 import com.uber.cadence.ActivityType;
+import com.uber.cadence.workflow.ActivitySchedulingOptions;
 
 /**
- * See {@link ExponentialRetryPolicy} for description of retry related
- * properties.
- * 
  * @author fateev
  */
 public class CronWorkflowOptions {
@@ -85,5 +81,4 @@ public class CronWorkflowOptions {
     public void setContinueAsNewAfterSeconds(int continueAsNewAfterSeconds) {
         this.continueAsNewAfterSeconds = continueAsNewAfterSeconds;
     }
-
 }

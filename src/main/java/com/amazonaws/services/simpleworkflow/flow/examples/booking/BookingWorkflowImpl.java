@@ -14,32 +14,30 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.booking;
 
-import com.amazonaws.services.simpleworkflow.flow.ActivitySchedulingOptions;
-import com.amazonaws.services.simpleworkflow.flow.core.Promise;
+import com.uber.cadence.workflow.ActivitySchedulingOptions;
+import com.uber.cadence.workflow.Workflow;
 
 public class BookingWorkflowImpl implements BookingWorkflow {
 
-    private final BookingActivitiesClient client = new BookingActivitiesClientImpl();
-
     @Override
     public void makeBooking(String activityTaskList, int requestID, int customerID, boolean reserveAir, boolean reserveCar) {
-        ActivitySchedulingOptions options = client.getSchedulingOptions();
+        BookingActivities client = getBookingActivities(activityTaskList);
+
+        client.reserveCar(requestID);
+        if (reserveAir) {
+            client.reserveAirline(requestID);
+        }
+        client.sendConfirmationActivity(customerID);
+    }
+
+    private BookingActivities getBookingActivities(String activityTaskList) {
+        ActivitySchedulingOptions options = new ActivitySchedulingOptions();
         options.setTaskList(activityTaskList);
         options.setScheduleToCloseTimeoutSeconds(30);
         options.setScheduleToStartTimeoutSeconds(10);
         options.setStartToCloseTimeoutSeconds(20);
         options.setHeartbeatTimeoutSeconds(10);
-
-        Promise<Void> carReservation = null;
-        if (reserveCar) {
-            carReservation = client.reserveCar(requestID);
-        }
-        Promise<Void> airReservation = null;
-        if (reserveAir) {
-            airReservation = client.reserveAirline(requestID);
-        }
-        // Relies on null Promise parameter considered immediately ready
-        client.sendConfirmationActivity(customerID, carReservation, airReservation);
+        return Workflow.newActivityClient(BookingActivities.class, options);
     }
-    
+
 }

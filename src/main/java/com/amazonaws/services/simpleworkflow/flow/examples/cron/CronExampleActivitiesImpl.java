@@ -14,33 +14,14 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.cron;
 
-import com.amazonaws.services.simpleworkflow.flow.ActivityExecutionContext;
-import com.amazonaws.services.simpleworkflow.flow.ActivityExecutionContextProvider;
-import com.amazonaws.services.simpleworkflow.flow.ActivityExecutionContextProviderImpl;
-import com.amazonaws.services.simpleworkflow.flow.ActivityTask;
+import com.uber.cadence.activity.Activity;
+import com.uber.cadence.internal.ActivityTask;
 
 public class CronExampleActivitiesImpl implements CronExampleActivities {
 
-    final ActivityExecutionContextProvider contextProvider;
-
-    public CronExampleActivitiesImpl() {
-        this(new ActivityExecutionContextProviderImpl());
-    }
-
-    /**
-     * Useful for unit testing activities.
-     */
-    public CronExampleActivitiesImpl(ActivityExecutionContextProvider contextProvider) {
-        this.contextProvider = contextProvider;
-    }
-
-    /**
-     * 
-     */
     @Override
     public void doSomeWork(String parameter) {
-        ActivityExecutionContext context = contextProvider.getActivityExecutionContext();
-        ActivityTask task = context.getTask();
+        ActivityTask task = Activity.getTask();
         String taskid = task.getActivityId();
         System.out.println("Processed activity task with id: " + taskid);
     }

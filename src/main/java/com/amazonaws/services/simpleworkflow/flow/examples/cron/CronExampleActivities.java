@@ -14,9 +14,6 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.cron;
 
-import com.amazonaws.services.simpleworkflow.flow.annotations.Activities;
-
-@Activities
 public interface CronExampleActivities {
 
     void doSomeWork(String parameter);

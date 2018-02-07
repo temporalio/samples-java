@@ -14,15 +14,11 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.booking;
 
-import com.amazonaws.services.simpleworkflow.flow.annotations.Execute;
-import com.amazonaws.services.simpleworkflow.flow.annotations.Workflow;
-//import com.amazonaws.services.simpleworkflow.flow.annotations.WorkflowRegistrationOptions;
+import com.uber.cadence.workflow.WorkflowMethod;
 
-@Workflow
-//@WorkflowRegistrationOptions(defaultExecutionStartToCloseTimeoutSeconds = 600, defaultTaskStartToCloseTimeoutSeconds = 10)
 public interface BookingWorkflow {
 
-    @Execute(name = "MakeBooking", version = "1.0")
+    @WorkflowMethod
     void makeBooking(String activityTaskList, int requestID, int customerID, boolean reserveAir, boolean reserveCar);
 
 }

@@ -28,18 +28,17 @@ public class WorkflowExecutionStarter {
         WorkflowService.Iface swfService = configHelper.createWorkflowClient();
         String domain = configHelper.getDomain();
 
-        CadenceClient client = new CadenceClient(swfService,
-                domain, null);
+        CadenceClient client = CadenceClient.newClient(swfService, domain, null);
 
         // Start Wrokflow Execution
         StartWorkflowOptions options = new StartWorkflowOptions();
         options.setTaskList(WorkflowHost.DECISION_TASK_LIST);
         options.setExecutionStartToCloseTimeoutSeconds(20);
         options.setTaskStartToCloseTimeoutSeconds(3);
-        HelloWorldWorkflow workflow = client.newWorkflowClient(HelloWorldWorkflow.class, options);
+        HelloWorldWorkflow workflow = client.newWorkflowStub(HelloWorldWorkflow.class, options);
 
         // WorkflowExecution is available after workflow creation 
-        WorkflowExternalResult<String> result = CadenceClient.executeWorkflow(workflow::helloWorld, "User");
+        WorkflowExternalResult<String> result = CadenceClient.asyncStart(workflow::helloWorld, "User");
         WorkflowExecution workflowExecution = result.getExecution();
         System.out.println("Started helloWorld workflow with workflowId=\"" + workflowExecution.getWorkflowId()
                 + "\" and runId=\"" + workflowExecution.getRunId() + "\"");

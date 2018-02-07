@@ -14,10 +14,6 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.booking;
 
-import com.amazonaws.services.simpleworkflow.flow.annotations.Activities;
-import com.amazonaws.services.simpleworkflow.flow.common.FlowConstants;
-
-@Activities
 public interface BookingActivities {
 
     void reserveCar(int requestId);

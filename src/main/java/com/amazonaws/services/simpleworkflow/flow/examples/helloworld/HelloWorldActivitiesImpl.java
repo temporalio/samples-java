@@ -26,4 +26,9 @@ public class HelloWorldActivitiesImpl implements HelloWorldActivities {
         return result;
     }
 
+    @Override
+    public String getName() {
+        return "World";
+    }
+
 }

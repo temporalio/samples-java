@@ -16,12 +16,14 @@ package com.amazonaws.services.simpleworkflow.flow.examples.cron;
 
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import com.amazonaws.services.simpleworkflow.flow.DecisionContextProviderImpl;
 import com.amazonaws.services.simpleworkflow.flow.DynamicActivitiesClient;
 import com.amazonaws.services.simpleworkflow.flow.DynamicActivitiesClientImpl;
 import com.amazonaws.services.simpleworkflow.flow.WorkflowClock;
 import com.amazonaws.services.simpleworkflow.flow.spring.CronDecorator;
+import com.uber.cadence.workflow.Workflow;
 
 /**
  * Demonstrates how to create workflow that executes an activity on schedule
@@ -33,42 +35,22 @@ import com.amazonaws.services.simpleworkflow.flow.spring.CronDecorator;
  */
 public class CronWorkflowImpl implements CronWorkflow {
 
-    private static final int SECOND = 1000;
-
-    /**
-     * This is needed to keep the decider logic deterministic as using
-     * System.currentTimeMillis() in your decider logic is not.
-     * WorkflowClock.currentTimeMillis() should be used instead.
-     */
-    private final WorkflowClock clock;
-
-    private final DynamicActivitiesClient activities;
-
     /**
      * Used to create new run of the Cron workflow to reset history. This allows
      * "infinite" workflows.
      */
-    private final CronWorkflowSelfClient selfClient;
+    private final CronWorkflow continueAsNewClient;
 
 
     public CronWorkflowImpl() {
-        this(new DecisionContextProviderImpl().getDecisionContext().getWorkflowClock(), new DynamicActivitiesClientImpl(),
-                new CronWorkflowSelfClientImpl());
-    }
+        continueAsNewClient = Workflow.newContinueAsNewClient(CronWorkflow.class);
 
-    /**
-     * Constructor used for unit testing or configuration through IOC container
-     */
-    public CronWorkflowImpl(WorkflowClock clock, DynamicActivitiesClient activities, CronWorkflowSelfClient selfClient) {
-        this.clock = clock;
-        this.activities = activities;
-        this.selfClient = selfClient;
     }
 
     @Override
     public void startCron(final CronWorkflowOptions options) {
-        long startTime = clock.currentTimeMillis();
-        Date expiration = new Date(startTime + options.getContinueAsNewAfterSeconds() * SECOND);
+        long startTime = Workflow.currentTimeMillis();
+        Date expiration = new Date(startTime + TimeUnit.SECONDS.toMillis(options.getContinueAsNewAfterSeconds()));
         TimeZone tz = TimeZone.getTimeZone(options.getTimeZone());
         CronDecorator cronDecorator = new CronDecorator(options.getCronExpression(), expiration, tz, clock);
         DynamicActivitiesClient cronDecoratedActivities = cronDecorator.decorate(DynamicActivitiesClient.class, activities);
@@ -78,7 +60,7 @@ public class CronWorkflowImpl implements CronWorkflow {
         // Start new workflow run as soon as cron decorator exits due to expiration.
         // The call to self client indicates the desire to start the new run.
         // It is started only after all other tasks in the given run are completed.
-        selfClient.startCron(options);
+        continueAsNewClient.startCron(options);
     }
 
 }

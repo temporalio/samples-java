@@ -14,18 +14,14 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.cron;
 
-import com.amazonaws.services.simpleworkflow.flow.annotations.Execute;
-import com.amazonaws.services.simpleworkflow.flow.annotations.Workflow;
-//import com.amazonaws.services.simpleworkflow.flow.annotations.WorkflowRegistrationOptions;
+import com.uber.cadence.workflow.WorkflowMethod;
 
-@Workflow
-//@WorkflowRegistrationOptions(defaultExecutionStartToCloseTimeoutSeconds = 300, defaultTaskStartToCloseTimeoutSeconds = 10)
 public interface CronWorkflow {
 
     /**
      * Start workflow that executes activity according to options.
      */
-    @Execute(name = "CronWorkflow", version = "1.0")
+    @WorkflowMethod
     void startCron(CronWorkflowOptions options);
 
 }

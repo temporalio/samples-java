@@ -21,7 +21,7 @@ import com.uber.cadence.workflow.Workflow;
 /**
  * Implementation of the hello world workflow
  */
-public class HelloWorldWorkflowImpl implements HelloWorldWorkflow{
+public class HelloWorldWorkflowImpl implements HelloWorldWorkflow {
 
     private HelloWorldActivities client;
 
@@ -32,12 +32,13 @@ public class HelloWorldWorkflowImpl implements HelloWorldWorkflow{
         options.setStartToCloseTimeoutSeconds(20);
         options.setHeartbeatTimeoutSeconds(10);
         options.setTaskList(ActivityHost.ACTIVITIES_TASK_LIST);
-         client = Workflow.newActivityClient(HelloWorldActivities.class, options);
+        client = Workflow.newActivityClient(HelloWorldActivities.class, options);
     }
 
     @Override
-    public String helloWorld(String name) {
+    public String helloWorld(String aaa) {
+        String name = client.getName();
         return client.printHello(name);
     }
-    
+
 }

@@ -14,40 +14,30 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.booking;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.concurrent.TimeUnit;
-
-import com.uber.cadence.WorkflowService;
-import com.amazonaws.services.simpleworkflow.flow.ActivityWorker;
 import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
+import com.uber.cadence.WorkflowService;
+import com.uber.cadence.worker.Worker;
+import com.uber.cadence.worker.WorkerOptions;
+
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This is the process which hosts all Activities in this sample
  */
 public class ActivityHost {    
     private static WorkflowService.Iface swfService;
+    private static Worker worker;
     private static String domain;
-    private static int domainRetentionPeriodInDays;
-    private static ActivityWorker worker;
-    private static ActivityHost activityWorker;
 
-    // ActivityWorker Factory method
-    public synchronized static ActivityHost getActivityHost() {
-        if (activityWorker == null) {
-            activityWorker = new ActivityHost();
-        }
-        return activityWorker;
-    }
 
     public static void main(String[] args) throws Exception {
     	// load configuration
     	ConfigHelper configHelper = loadConfig();
-    	
+
     	// Start Activity Worker
-        getActivityHost().startWorker(configHelper);
-                        
+        startWorker(configHelper);
+
         // Add a Shutdown hook to close ActivityWorker
         addShutDownHook();
 
@@ -63,59 +53,46 @@ public class ActivityHost {
         System.exit(0);
 
     }
-    
-    private void startWorker(ConfigHelper configHelper) throws Exception {    	
+
+    private static void startWorker(ConfigHelper configHelper) throws Exception {
     	// Create activity implementations
     	BookingActivities bookingActivitiesImpl = new BookingActivitiesImpl();
-    	
+
     	// Start worker to poll the common task list
     	String taskList = configHelper.getValueFromConfig(BookingConfigKeys.ACTIVITY_WORKER_TASKLIST);
-        worker = new ActivityWorker(swfService, domain, taskList);
-        worker.setDomainRetentionPeriodInDays(domainRetentionPeriodInDays);
-        worker.setRegisterDomain(true);
-    	worker.addActivitiesImplementation(bookingActivitiesImpl);
+        WorkerOptions workerOptions = new WorkerOptions();
+        workerOptions.setDisableWorkflowWorker(true);
+        worker = new Worker(swfService, domain, taskList, workerOptions);
+    	worker.addActivities(bookingActivitiesImpl);
     	worker.start();
-        System.out.println("Worker Started for Activity Task List: " + taskList);    	
+        System.out.println("Worker Started for Activity Task List: " + taskList);
 	}
 
-    private void stopWorker() throws InterruptedException {
+    private static void stopWorker() throws InterruptedException {
         System.out.println("Stopping Worker...");
-        worker.shutdownAndAwaitTermination(10, TimeUnit.SECONDS);
+        worker.shutdown(10, TimeUnit.SECONDS);
         System.out.println("Worker Stopped...");
     }
-    
-    
+
+
     static ConfigHelper loadConfig() throws IllegalArgumentException, IOException{
        	ConfigHelper configHelper = ConfigHelper.createConfig();
         swfService = configHelper.createWorkflowClient();
         domain = configHelper.getDomain();
-        domainRetentionPeriodInDays = configHelper.getDomainRetentionPeriodInDays();
-        
         return configHelper;
     }
-    
+
     static void addShutDownHook(){
     	  Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 
               public void run() {
                   try {
-                      getActivityHost().stopWorker();
+                      stopWorker();
                   }
                   catch (InterruptedException e) {
                       e.printStackTrace();
                   }
               }
-          }));    	
+          }));
     }
-    
-    static String getHostName() {
-        try {
-            InetAddress addr = InetAddress.getLocalHost();
-            return addr.getHostName();
-        }
-        catch (UnknownHostException e) {
-            throw new Error(e);
-        }
-    }
-
 }
