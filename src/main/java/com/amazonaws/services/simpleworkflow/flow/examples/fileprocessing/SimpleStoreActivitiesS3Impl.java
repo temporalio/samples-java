@@ -21,6 +21,8 @@ import java.io.InputStream;
 
 //import com.amazonaws.services.s3.AmazonS3;
 //import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.simpleworkflow.flow.ActivityExecutionContext;
 import com.amazonaws.services.simpleworkflow.flow.ActivityExecutionContextProvider;
 import com.amazonaws.services.simpleworkflow.flow.ActivityExecutionContextProviderImpl;
