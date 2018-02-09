@@ -14,11 +14,9 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow;
 
-import java.util.Random;
-
-import com.amazonaws.services.simpleworkflow.flow.ActivityExecutionContextProvider;
-import com.amazonaws.services.simpleworkflow.flow.ActivityExecutionContextProviderImpl;
 import com.uber.cadence.activity.Activity;
+
+import java.util.Random;
 
 public class PeriodicWorkflowActivitiesImpl implements PeriodicWorkflowActivities {
 

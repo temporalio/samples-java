@@ -14,22 +14,17 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.fileprocessing;
 
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.concurrent.TimeUnit;
 
 //import com.amazonaws.services.s3.AmazonS3;
-import com.uber.cadence.WorkflowService;
-import com.amazonaws.services.simpleworkflow.flow.ActivityWorker;
-import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
 
 /**
  * This is the process which hosts all Activities in this sample
  */
 public class ActivityHost {    
 
-    private static final String ACTIVITIES_TASK_LIST = "FileProcessing";
+    static final String ACTIVITIES_TASK_LIST = "FileProcessing";
 
     public static void main(String[] args) throws Exception {
         //TODO: ADD S3 DEPENDENCY

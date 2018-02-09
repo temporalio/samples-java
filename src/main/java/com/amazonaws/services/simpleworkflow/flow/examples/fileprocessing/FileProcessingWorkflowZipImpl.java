@@ -14,16 +14,12 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.fileprocessing;
 
-import java.io.File;
-import java.io.IOException;
+import com.uber.cadence.workflow.ActivitySchedulingOptions;
+import com.uber.cadence.workflow.Workflow;
 
-import com.amazonaws.services.simpleworkflow.flow.ActivitySchedulingOptions;
-import com.amazonaws.services.simpleworkflow.flow.DecisionContextProviderImpl;
-import com.amazonaws.services.simpleworkflow.flow.WorkflowContext;
-import com.amazonaws.services.simpleworkflow.flow.annotations.Asynchronous;
-import com.amazonaws.services.simpleworkflow.flow.core.Promise;
-import com.amazonaws.services.simpleworkflow.flow.core.Settable;
-import com.amazonaws.services.simpleworkflow.flow.core.TryCatchFinally;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This implementation of FileProcessingWorkflow downloads the file, zips it and
@@ -31,101 +27,77 @@ import com.amazonaws.services.simpleworkflow.flow.core.TryCatchFinally;
  */
 public class FileProcessingWorkflowZipImpl implements FileProcessingWorkflow {
 
-    private final SimpleStoreActivitiesClient store;
+    private static final int MAX_RETRIES = 10;
 
-    private final FileProcessingActivitiesClient processor;
-
-    private final WorkflowContext workflowContext;
-
-    private String state = "Started";
+    // Uses default task list shared by the pool of workers.
+    private final SimpleStoreActivities defaultTaskListStore;
+    private List<String> history = new ArrayList<>();
 
     public FileProcessingWorkflowZipImpl() {
         // Create activity clients
-        this.store = new SimpleStoreActivitiesClientImpl();
-        processor = new FileProcessingActivitiesClientImpl();
-        workflowContext = (new DecisionContextProviderImpl()).getDecisionContext().getWorkflowContext();
-    }
-
-    /**
-     * Constructor used for unit testing or when Spring is used to configure
-     * workflow
-     */
-    public FileProcessingWorkflowZipImpl(SimpleStoreActivitiesClient store, FileProcessingActivitiesClient processor,
-            WorkflowContext workflowContext) {
-        this.store = store;
-        this.processor = processor;
-        this.workflowContext = workflowContext;
+        ActivitySchedulingOptions ao = new ActivitySchedulingOptions();
+        ao.setScheduleToCloseTimeoutSeconds(60);
+        ao.setScheduleToStartTimeoutSeconds(60);
+        ao.setTaskList(ActivityHost.ACTIVITIES_TASK_LIST);
+        this.defaultTaskListStore = Workflow.newActivityStub(SimpleStoreActivities.class, ao);
     }
 
     @Override
-    public void processFile(final String sourceBucketName, final String sourceFilename, final String targetBucketName,
-            final String targetFilename) throws IOException {
-        // Settable to store the worker specific task list returned by the activity
-        final Settable<String> taskList = new Settable<String>();
-
+    public void processFile(Arguments args) throws Exception {
+        history.add("Started");
         // Use runId as a way to ensure that downloaded files do not get name collisions
-        String workflowRunId = workflowContext.getWorkflowExecution().getRunId();
-        File localSource = new File(sourceFilename);
+        String workflowRunId = Workflow.getContext().getWorkflowExecution().getRunId();
+        File localSource = new File(args.getSourceBucketName());
         final String localSourceFilename = workflowRunId + "_" + localSource.getName();
-        File localTarget = new File(targetFilename);
+        File localTarget = new File(args.getTargetFilename());
         final String localTargetFilename = workflowRunId + "_" + localTarget.getName();
-        new TryCatchFinally() {
+        SimpleStoreActivities workerTaskListStore = null;
+        // Very simple retry strategy. On any error reexecute the whole sequence from the beginning.
+        // In real life each activity would have additional retry logic and policy.
+        int retry = 0;
+        while (retry++ < MAX_RETRIES) {
+            try {
+                // Worker specific task list returned by the activity
+                String workerTaskList = defaultTaskListStore.download(args.getSourceBucketName(),
+                        args.getSourceFilename(), localSourceFilename);
+                history.add("Downloaded to " + workerTaskList);
 
-            @Override
-            protected void doTry() throws Throwable {
-                Promise<String> activityWorkerTaskList = store.download(sourceBucketName, sourceFilename, localSourceFilename);
-                // chaining is a way for one promise get assigned value of another 
-                taskList.chain(activityWorkerTaskList);
+                // Now initialize stubs that are specific to the returned task list.
+                ActivitySchedulingOptions hostAO = new ActivitySchedulingOptions();
+                hostAO.setScheduleToCloseTimeoutSeconds(60);
+                hostAO.setScheduleToStartTimeoutSeconds(10); // short queueing timeout
+                hostAO.setTaskList(workerTaskList);
+                workerTaskListStore = Workflow.newActivityStub(SimpleStoreActivities.class, hostAO);
+                FileProcessingActivities workerTaskListProcessor = Workflow.newActivityStub(FileProcessingActivities.class, hostAO);
+
                 // Call processFile activity to zip the file
-                Promise<Void> fileProcessed = processFileOnHost(localSourceFilename, localTargetFilename, activityWorkerTaskList);
+                // Call the activity to process the file using worker specific task list
+                workerTaskListProcessor.processFile(localSourceFilename, localTargetFilename);
                 // Call upload activity to upload zipped file
-                upload(targetBucketName, targetFilename, localTargetFilename, taskList, fileProcessed);
-            }
-
-            @Override
-            protected void doCatch(Throwable e) throws Throwable {
-                state = "Failed: " + e.getMessage();
-                throw e;
-            }
-
-            @Override
-            protected void doFinally() throws Throwable {
-                if (taskList.isReady()) { // File was downloaded
-
-                    // Set option to schedule activity in worker specific task list
-                    ActivitySchedulingOptions options = new ActivitySchedulingOptions().withTaskList(taskList.get());
-
+                history.add("Processed at " + workerTaskList);
+                workerTaskListStore.upload(args.getTargetBucketName(), args.getTargetFilename(), localTargetFilename);
+                history.add("Completed");
+                break; // Bail out of the retry loop
+            } catch (Exception e) {
+                history.add("Failed " + retry + " time:" + e.getMessage());
+                continue;
+            } finally {
+                if (workerTaskListStore != null) { // File was downloaded
                     // Call deleteLocalFile activity using the host specific task list
-                    store.deleteLocalFile(localSourceFilename, options);
-                    store.deleteLocalFile(localTargetFilename, options);
-                }
-                if (!state.startsWith("Failed:")) {
-                    state = "Completed";
+                    try {
+                        workerTaskListStore.deleteLocalFile(localSourceFilename);
+                        workerTaskListStore.deleteLocalFile(localTargetFilename);
+                    } catch (Exception e) {
+                        // Ignore
+                    }
                 }
             }
-
-        };
-    }
-
-    @Asynchronous
-    private Promise<Void> processFileOnHost(String fileToProcess, String fileToUpload, Promise<String> taskList) {
-        state = "Downloaded to " + taskList.get();
-        // Call the activity to process the file using worker specific task list
-        ActivitySchedulingOptions options = new ActivitySchedulingOptions().withTaskList(taskList.get());
-        return processor.processFile(fileToProcess, fileToUpload, options);
-    }
-
-    @Asynchronous
-    private void upload(final String targetBucketName, final String targetFilename, final String localTargetFilename,
-            Promise<String> taskList, Promise<Void> fileProcessed) {
-        state = "Processed at " + taskList.get();
-        ActivitySchedulingOptions options = new ActivitySchedulingOptions().withTaskList(taskList.get());
-        store.upload(targetBucketName, localTargetFilename, targetFilename, options);
+        }
     }
 
     @Override
-    public String getState() {
-        return state;
+    public List<String> getHistory() {
+        return history;
     }
 
 }

@@ -14,22 +14,11 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow;
 
-import com.amazonaws.services.simpleworkflow.flow.ActivitySchedulingOptions;
-import com.amazonaws.services.simpleworkflow.flow.DecisionContext;
-import com.amazonaws.services.simpleworkflow.flow.DecisionContextProvider;
-import com.amazonaws.services.simpleworkflow.flow.DecisionContextProviderImpl;
-import com.amazonaws.services.simpleworkflow.flow.DynamicActivitiesClient;
-import com.amazonaws.services.simpleworkflow.flow.DynamicActivitiesClientImpl;
-import com.amazonaws.services.simpleworkflow.flow.WorkflowClock;
-import com.amazonaws.services.simpleworkflow.flow.annotations.Asynchronous;
-import com.amazonaws.services.simpleworkflow.flow.core.Promise;
-import com.amazonaws.services.simpleworkflow.flow.core.TryCatchFinally;
 import com.uber.cadence.ActivityType;
 import com.uber.cadence.workflow.ActivitySchedulingOptions;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowThread;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -53,9 +42,9 @@ public class PeriodicWorkflowImpl implements PeriodicWorkflow {
         activityOptions.setScheduleToCloseTimeoutSeconds(60);
         activityOptions.setTaskList(ACTIVITIES_TASK_LIST);
 
-        errorReporting = Workflow.newActivityClient(ErrorReportingActivities.class, activityOptions);
+        errorReporting = Workflow.newActivityStub(ErrorReportingActivities.class, activityOptions);
 
-        continueAsNewClient = Workflow.newContinueAsNewClient(PeriodicWorkflow.class);
+        continueAsNewClient = Workflow.newContinueAsNewStub(PeriodicWorkflow.class);
     }
 
     @Override

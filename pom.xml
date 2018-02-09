@@ -30,7 +30,7 @@
 
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
-    <aws.java.sdk.version>1.11.58</aws.java.sdk.version>
+    <aws.java.sdk.version>1.11.273</aws.java.sdk.version>
     <freemarker.version>2.3.21</freemarker.version>
     <spring.version>3.0.7.RELEASE</spring.version>
   </properties>
@@ -41,11 +41,11 @@
       <artifactId>cadence-client</artifactId>
       <version>0.1.0</version>
     </dependency>
-    <!--dependency>
+    <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk</artifactId>
       <version>${aws.java.sdk.version}</version>
-    </dependency-->
+    </dependency>
 
     <dependency>
       <groupId>org.aspectj</groupId>

@@ -14,12 +14,13 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow;
 
+import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
+import com.uber.cadence.WorkflowService;
+import com.uber.cadence.worker.Worker;
+import com.uber.cadence.worker.WorkerOptions;
+
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
-
-import com.uber.cadence.WorkflowService;
-import com.amazonaws.services.simpleworkflow.flow.WorkflowWorker;
-import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
 
 public class WorkflowHost {
 
@@ -30,7 +31,9 @@ public class WorkflowHost {
         WorkflowService.Iface swfService = configHelper.createWorkflowClient();
         String domain = configHelper.getDomain();
 
-        final WorkflowWorker worker = new WorkflowWorker(swfService, domain, DECISION_TASK_LIST);
+        WorkerOptions workerOptions = new WorkerOptions();
+        workerOptions.setDisableActivityWorker(true);
+        final Worker worker = new Worker(swfService, domain, DECISION_TASK_LIST, workerOptions);
         worker.addWorkflowImplementationType(PeriodicWorkflowImpl.class);
         worker.start();
 
@@ -39,13 +42,8 @@ public class WorkflowHost {
         Runtime.getRuntime().addShutdownHook(new Thread() {
 
             public void run() {
-                try {
-                    worker.shutdownAndAwaitTermination(1, TimeUnit.MINUTES);
-                    System.out.println("Workflow Host Service Terminated...");
-                }
-                catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                worker.shutdown(1, TimeUnit.MINUTES);
+                System.out.println("Workflow Host Service Terminated...");
             }
         });
 
@@ -53,8 +51,7 @@ public class WorkflowHost {
 
         try {
             System.in.read();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 

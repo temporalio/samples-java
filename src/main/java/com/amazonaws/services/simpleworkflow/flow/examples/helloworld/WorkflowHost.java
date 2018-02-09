@@ -34,7 +34,7 @@ public class WorkflowHost {
         WorkerOptions options = new WorkerOptions();
         options.setDisableActivityWorker(true);
         final Worker worker = new Worker(swfService, domain, DECISION_TASK_LIST, options);
-        worker.addWorkflowType(HelloWorldWorkflowImpl.class);
+        worker.addWorkflowImplementationType(HelloWorldWorkflowImpl.class);
         worker.start();
 
         System.out.println("Workflow Host Service Started...");

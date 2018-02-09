@@ -14,12 +14,9 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.fileprocessing;
 
-import com.amazonaws.services.simpleworkflow.flow.annotations.Activities;
-
 /**
  * Contract for file processing activities
  */
-@Activities
 public interface FileProcessingActivities {
 
     public void processFile(String inputFileName, String outputFileName) throws Exception;

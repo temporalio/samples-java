@@ -14,45 +14,34 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.fileprocessing;
 
-import com.amazonaws.services.simpleworkflow.flow.annotations.Activities;
-import com.amazonaws.services.simpleworkflow.flow.annotations.ExponentialRetry;
-
-@Activities
 public interface SimpleStoreActivities {
  
     /**
      * 
      * @param localName
      *          Name of the file to upload from temporary directory
-     * @param remoteName
+     * @param targetName
      *          Name of the file to use on S3 bucket after upload
-     * @param fromBox
-     *          Machine name which has the file that needs to be uploaded
+     * @param bucketName
+     *          Name of the S3 bucket
      * @return
      */
-    @ExponentialRetry(initialRetryIntervalSeconds = 10,  maximumAttempts = 10) 
-    public void upload(String bucketName, String localName, String targetName);
+    void upload(String bucketName, String localName, String targetName);
     /**
      * 
      * @param remoteName 
      *          Name of the file to download from S3 bucket 
      * @param localName
      *          Name of the file used locally after download
-     * @param toBox 
-     *          This is an output parameter here.  
-     *          Used to communicate the name of the box that runs download activity
+     * @param bucketName
+     *          Name of the S3 bucket
      */
-    @ExponentialRetry(initialRetryIntervalSeconds = 10, maximumAttempts = 10)
-    public String download(String bucketName, String remoteName, String localName) throws Exception;
+    String download(String bucketName, String remoteName, String localName) throws Exception;
     /**
      * 
      * @param fileName 
      *          Name of file to delete from temporary folder
-     * @param machineName
-     *          Machine which has the file locally 
-     * @return
      */
-    @ExponentialRetry(initialRetryIntervalSeconds=10)
-    public void deleteLocalFile(String fileName);
+    void deleteLocalFile(String fileName);
 
 }

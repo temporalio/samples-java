@@ -14,25 +14,61 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.fileprocessing;
 
-import java.io.IOException;
+import com.uber.cadence.workflow.QueryMethod;
+import com.uber.cadence.workflow.WorkflowMethod;
 
-import com.amazonaws.services.simpleworkflow.flow.annotations.Execute;
-import com.amazonaws.services.simpleworkflow.flow.annotations.GetState;
-import com.amazonaws.services.simpleworkflow.flow.annotations.Workflow;
-//import com.amazonaws.services.simpleworkflow.flow.annotations.WorkflowRegistrationOptions;
+import java.util.List;
 
 /**
  * Contract for file processing workflow
  */
-@Workflow
-//@WorkflowRegistrationOptions(defaultExecutionStartToCloseTimeoutSeconds = 300, defaultTaskStartToCloseTimeoutSeconds = 10)
 public interface FileProcessingWorkflow {
 
-    @Execute(name = "ProcessFile", version = "1.0")
-    public void processFile(String sourceBucketName, String sourceFilename, String targetBucketName, String targetFilename)
-            throws IOException;
-    
-    @GetState
-    public String getState();
-    
+    final class Arguments {
+        String sourceBucketName;
+        String sourceFilename;
+        String targetBucketName;
+        String targetFilename;
+
+        public String getSourceBucketName() {
+            return sourceBucketName;
+        }
+
+        public void setSourceBucketName(String sourceBucketName) {
+            this.sourceBucketName = sourceBucketName;
+        }
+
+        public String getSourceFilename() {
+            return sourceFilename;
+        }
+
+        public void setSourceFilename(String sourceFilename) {
+            this.sourceFilename = sourceFilename;
+        }
+
+        public String getTargetBucketName() {
+            return targetBucketName;
+        }
+
+        public void setTargetBucketName(String targetBucketName) {
+            this.targetBucketName = targetBucketName;
+        }
+
+        public String getTargetFilename() {
+            return targetFilename;
+        }
+
+        public void setTargetFilename(String targetFilename) {
+            this.targetFilename = targetFilename;
+        }
+    }
+    /**
+     * Uses a structure as arguments, to make addition of new arguments a backwards compatible change.
+     */
+    @WorkflowMethod(name = "ProcessFile")
+    void processFile(Arguments args) throws Exception;
+
+    @QueryMethod
+    List<String> getHistory();
+
 }

@@ -41,6 +41,8 @@ public class ActivityHost {
         // Create activity implementations
         PeriodicWorkflowActivities activities = new PeriodicWorkflowActivitiesImpl();
         worker.addActivities(activities);
+        ErrorReportingActivities errorReportingActivities = new ErrorReportingActivitiesImpl();
+        worker.addActivities(errorReportingActivities);
 
         worker.start();
 

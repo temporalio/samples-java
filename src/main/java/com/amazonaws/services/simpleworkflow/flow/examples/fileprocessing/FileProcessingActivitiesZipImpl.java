@@ -35,8 +35,6 @@ public class FileProcessingActivitiesZipImpl implements FileProcessingActivities
     /**
      * This is the Activity implementation that does the zip of a file
      * 
-     * @param localDirectory
-     *            Path to the local directory containing the file to zip
      * @param fileName
      *            Name of file to zip
      * @param zipFileName

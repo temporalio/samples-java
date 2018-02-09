@@ -1,12 +1,12 @@
 /*
  * Copyright 2012-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"). You may not
  * use this file except in compliance with the License. A copy of the License is
  * located at
- * 
+ *
  * http://aws.amazon.com/apache2.0
- * 
+ *
  * or in the "license" file accompanying this file. This file is distributed on
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
  * express or implied. See the License for the specific language governing
@@ -14,12 +14,14 @@
  */
 package com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow;
 
-import com.amazonaws.services.simpleworkflow.flow.StartWorkflowOptions;
-import com.amazonaws.services.simpleworkflow.flow.WorkflowExecutionAlreadyStartedException;
-import com.uber.cadence.WorkflowService;
 import com.amazonaws.services.simpleworkflow.flow.examples.common.ConfigHelper;
 import com.uber.cadence.ActivityType;
 import com.uber.cadence.WorkflowExecution;
+import com.uber.cadence.WorkflowService;
+import com.uber.cadence.client.CadenceClient;
+import com.uber.cadence.client.WorkflowExternalResult;
+import com.uber.cadence.internal.StartWorkflowOptions;
+import com.uber.cadence.internal.WorkflowExecutionAlreadyStartedException;
 
 public class WorkflowExecutionStarter {
 
@@ -36,12 +38,8 @@ public class WorkflowExecutionStarter {
         swfService = configHelper.createWorkflowClient();
         domain = configHelper.getDomain();
 
-        // Start Workflow execution
-        PeriodicWorkflowClientExternalFactory clientFactory = new PeriodicWorkflowClientExternalFactoryImpl(swfService, domain);
+        CadenceClient client = CadenceClient.newClient(swfService, domain);
 
-        // Passing instance id to ensure that only one periodic workflow can be active at a time.
-        // Use different id for each schedule.
-        PeriodicWorkflowClientExternal workflow = clientFactory.getClient("periodic1");
 
         // Execute activity every two 10 seconds, wait for it to complete before starting the new one, 
         // create new run every 30 seconds and stop the workflow after two minutes.
@@ -56,26 +54,29 @@ public class WorkflowExecutionStarter {
         ActivityType activityType = new ActivityType();
         activityType.setName("PeriodicWorkflowActivities.doSomeWork");
 //        activityType.setVersion("1.0");
-        Object[] parameters = new Object[] { "parameter1" };
+        Object[] parameters = new Object[]{"parameter1"};
 
+        StartWorkflowOptions so = new StartWorkflowOptions();
         try {
-            StartWorkflowOptions so = new StartWorkflowOptions();
             so.setTaskList(WorkflowHost.DECISION_TASK_LIST);
             so.setExecutionStartToCloseTimeoutSeconds(300);
             so.setTaskStartToCloseTimeoutSeconds(3);
+            // Passing instance id to ensure that only one periodic workflow can be active at a time.
+            // Use different id for each schedule.
+            so.setWorkflowId("Periodic");
+            PeriodicWorkflow workflow = client.newWorkflowStub(PeriodicWorkflow.class, so);
 
-            workflow.startPeriodicWorkflow(activityType, parameters, options, so);
-            // WorkflowExecution is available after workflow creation 
-            WorkflowExecution workflowExecution = workflow.getWorkflowExecution();
+            WorkflowExternalResult<Void> r = CadenceClient.asyncStart(workflow::startPeriodicWorkflow,
+                    activityType, parameters, options);
+
+            WorkflowExecution workflowExecution = r.getExecution();
             System.out.println("Started periodic workflow with workflowId=\"" + workflowExecution.getWorkflowId()
                     + "\" and runId=\"" + workflowExecution.getRunId() + "\"");
-        }
-        catch (WorkflowExecutionAlreadyStartedException e) {
+        } catch (WorkflowExecutionAlreadyStartedException e) {
             // It is expected to get this exception if start is called before workflow run is completed.
-            System.out.println("Periodic workflow with workflowId=\"" + workflow.getWorkflowExecution().getWorkflowId()
+            System.out.println("Periodic workflow with workflowId=\"" + so.getWorkflowId()
                     + " is already running");
         }
-
         System.exit(0);
     }
 }
