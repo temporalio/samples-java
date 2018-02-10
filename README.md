@@ -85,9 +85,9 @@ you've built them using the preceding instructions.
 The sample has three executables. You should run each command in a separate terminal window, from
 the `samples` directory.
 
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.helloworld.ActivityHost
+    mvn exec:java -Dexec.mainClass=HelloWorldWorker
     mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.helloworld.WorkflowHost
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.helloworld.WorkflowExecutionStarter
+    mvn exec:java -Dexec.mainClass=HelloWorldStarter
 
 ### Hello Lambda
 
@@ -144,18 +144,18 @@ run the workflow host and workflow starter. Run each command in a separate termi
 The sample has three executables. You should run each command in a separate terminal window, from
 the `samples` directory.
 
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.booking.ActivityHost
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.booking.WorkflowHost
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.booking.WorkflowExecutionStarter
+    mvn exec:java -Dexec.mainClass=ActivityHost
+    mvn exec:java -Dexec.mainClass=WorkflowHost
+    mvn exec:java -Dexec.mainClass=WorkflowExecutionStarter
 
 ### Cron
 
 The sample has three executables. You should run each command in a separate terminal window, from
 the `samples` directory.
 
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.cron.ActivityHost
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.cron.WorkflowHost
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.cron.CronWorkflowExecutionStarter -Dexec.args="\"*/10 * * * * *\" PST 60"
+    mvn exec:java -Dexec.mainClass=ActivityHost
+    mvn exec:java -Dexec.mainClass=WorkflowHost
+    mvn exec:java -Dexec.mainClass=CronWorkflowExecutionStarter -Dexec.args="\"*/10 * * * * *\" PST 60"
 
 The workflow starter takes three command line arguments that *must* be specified:
 
@@ -173,9 +173,9 @@ The workflow starter takes three command line arguments that *must* be specified
 The sample has three executables. You should run each command in a separate terminal window, from
 the `samples` directory.
 
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.cronwithretry.ActivityHost
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.cronwithretry.WorkflowHost
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.cronwithretry.CronWithRetryWorkflowExecutionStarter" -Dmain-args="\"*/10 * * * * *\" PST 60
+    mvn exec:java -Dexec.mainClass=ActivityHost
+    mvn exec:java -Dexec.mainClass=WorkflowHost
+    mvn exec:java -Dexec.mainClass=CronWithRetryWorkflowExecutionStarter" -Dmain-args="\"*/10 * * * * *\" PST 60
 
 The workflow starter takes three command line arguments that *must* be specified:
 
@@ -204,25 +204,25 @@ bucket that you want the sample to use:
 The sample has three executables. You should run each command in a separate terminal window, from
 the `samples` directory.
 
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.fileprocessing.ActivityHost
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.fileprocessing.WorkflowHost
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.fileprocessing.WorkflowExecutionStarter
+    mvn exec:java -Dexec.mainClass=ActivityHost
+    mvn exec:java -Dexec.mainClass=WorkflowHost
+    mvn exec:java -Dexec.mainClass=WorkflowExecutionStarter
 
 ### Periodic Workflow
 
 The sample has three executables. You should run each command in a separate terminal window, from
 the `samples` directory.
 
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow.ActivityHost
+    mvn exec:java -Dexec.mainClass=PeriodicWorkflowWorker
     mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow.WorkflowHost
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow.WorkflowExecutionStarter
+    mvn exec:java -Dexec.mainClass=WorkflowExecutionStarter
 
 ### Split Merge
 
 The sample has three executables. You should run each command in a separate terminal window, from
 the `samples` directory.
 
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.splitmerge.ActivityHost
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.splitmerge.WorkflowHost
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.splitmerge.WorkflowExecutionStarter
+    mvn exec:java -Dexec.mainClass=ActivityHost
+    mvn exec:java -Dexec.mainClass=WorkflowHost
+    mvn exec:java -Dexec.mainClass=WorkflowExecutionStarter
 
