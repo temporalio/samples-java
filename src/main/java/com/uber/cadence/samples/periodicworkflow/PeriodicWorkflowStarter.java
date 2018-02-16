@@ -16,6 +16,7 @@ package com.uber.cadence.samples.periodicworkflow;
 
 import com.uber.cadence.ActivityType;
 import com.uber.cadence.WorkflowExecution;
+import com.uber.cadence.WorkflowIdReusePolicy;
 import com.uber.cadence.WorkflowService;
 import com.uber.cadence.client.CadenceClient;
 import com.uber.cadence.client.WorkflowOptions;
@@ -51,8 +52,7 @@ public class PeriodicWorkflowStarter {
         options.setWaitForActivityCompletion(true);
 
         ActivityType activityType = new ActivityType();
-        activityType.setName("PeriodicWorkflowActivities.doSomeWork");
-//        activityType.setVersion("1.0");
+        activityType.setName("PeriodicWorkflowActivities::doSomeWork");
         Object[] parameters = new Object[]{"parameter1"};
 
         String workflowId = "Periodic";
@@ -62,13 +62,12 @@ public class PeriodicWorkflowStarter {
                     .setTaskList(PeriodicWorkflowWorker.TASK_LIST)
                     .setExecutionStartToCloseTimeoutSeconds(300)
                     .setTaskStartToCloseTimeoutSeconds(3)
+                    .setWorkflowIdReusePolicy(WorkflowIdReusePolicy.AllowDuplicate)
                     .build();
             // Passing instance id to ensure that only one periodic workflow can be active at a time.
             // Use different id for each schedule.
             PeriodicWorkflow workflow = client.newWorkflowStub(PeriodicWorkflow.class, so);
-            WorkflowExecution workflowExecution
-
-                    = CadenceClient.asyncStart(workflow::startPeriodicWorkflow,
+            WorkflowExecution workflowExecution = CadenceClient.asyncStart(workflow::startPeriodicWorkflow,
                     activityType, parameters, options);
 
             System.out.println("Started periodic workflow with workflowId=\"" + workflowExecution.getWorkflowId()

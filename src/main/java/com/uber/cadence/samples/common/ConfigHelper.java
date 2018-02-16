@@ -102,6 +102,7 @@ public class ConfigHelper {
             envVariableExists = true;
         }
         File accessProperties = new File(System.getProperty(SampleConstants.HOME_DIRECTORY_PROPERTY), SampleConstants.HOME_DIRECTORY_FILENAME);
+        System.err.println("Config file: " + accessProperties);
 
         if(accessProperties.exists()){
             configHelper = new ConfigHelper(accessProperties);

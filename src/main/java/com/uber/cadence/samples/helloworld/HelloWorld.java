@@ -56,7 +56,7 @@ public class HelloWorld {
 
         private final HelloWorld.GreetingActivities activities = Workflow.newActivityStub(
                 GreetingActivities.class,
-                new ActivityOptions.Builder().setStartToCloseTimeoutSeconds(10).build());
+                new ActivityOptions.Builder().setScheduleToCloseTimeoutSeconds(10).build());
 
         @Override
         public String getGreeting(String name) {
@@ -87,5 +87,6 @@ public class HelloWorld {
         // Execute a workflow waiting for it complete.
         String greeting = workflow.getGreeting("World");
         System.out.println(greeting);
+        System.exit(0);
     }
 }
