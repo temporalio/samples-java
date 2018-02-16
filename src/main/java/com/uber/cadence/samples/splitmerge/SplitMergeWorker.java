@@ -35,9 +35,7 @@ public class SplitMergeWorker {
         WorkflowService.Iface swfService = configHelper.createWorkflowClient();
         String domain = configHelper.getDomain();
 
-        WorkerOptions options = new WorkerOptions();
-        options.setDisableWorkflowWorker(true);
-        final Worker worker = new Worker(swfService, domain, TASK_LIST, options);
+        final Worker worker = new Worker(swfService, domain, TASK_LIST, new WorkerOptions.Builder().build());
         worker.addWorkflowImplementationType(AverageCalculatorWorkflowImpl.class);
         AmazonS3 s3Client = configHelper.createS3Client();
         AverageCalculatorActivitiesImpl avgCalcActivitiesImpl = new AverageCalculatorActivitiesImpl(s3Client);

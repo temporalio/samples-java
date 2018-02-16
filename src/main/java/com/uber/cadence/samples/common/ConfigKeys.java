@@ -12,16 +12,19 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
-package com.uber.cadence.samples.splitmerge;
+package com.uber.cadence.samples.common;
 
-import java.io.IOException;
+public class ConfigKeys {
 
-public interface AverageCalculatorActivities {
+    public static final String CADENCE_SERVICE_HOST = "Cadence.host";
+    public static final String CADENCE_SERVICE_PORT = "Cadence.port";
+    public static final String CADENCE_SERVICE_NAME = "Cadence.serviceName";
 
-    int computeDataSizeForInputData(String bucketName, String filename);
 
-    int computeSumForChunk(String bucketName, String filename, int chunkNumber, int chunkSize);
+    public static final String S3_ACCESS_ID_KEY = "S3.Access.ID";
+    public static final String S3_SECRET_KEY_KEY = "S3.Secret.Key";
 
-    void reportResult(double average);
-    
+    public static final String DOMAIN_KEY = "domain";
+    public static final String DOMAIN_RETENTION_PERIOD_KEY = "domainRetentionPeriodInDays";
+
 }

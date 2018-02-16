@@ -14,14 +14,13 @@
  */
 package com.uber.cadence.samples.periodicworkflow;
 
-import com.uber.cadence.samples.common.ConfigHelper;
 import com.uber.cadence.ActivityType;
 import com.uber.cadence.WorkflowExecution;
 import com.uber.cadence.WorkflowService;
 import com.uber.cadence.client.CadenceClient;
-import com.uber.cadence.client.WorkflowExternalResult;
-import com.uber.cadence.internal.StartWorkflowOptions;
+import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.internal.WorkflowExecutionAlreadyStartedException;
+import com.uber.cadence.samples.common.ConfigHelper;
 
 public class PeriodicWorkflowStarter {
 
@@ -56,25 +55,27 @@ public class PeriodicWorkflowStarter {
 //        activityType.setVersion("1.0");
         Object[] parameters = new Object[]{"parameter1"};
 
-        StartWorkflowOptions so = new StartWorkflowOptions();
+        String workflowId = "Periodic";
         try {
-            so.setTaskList(PeriodicWorkflowWorker.TASK_LIST);
-            so.setExecutionStartToCloseTimeoutSeconds(300);
-            so.setTaskStartToCloseTimeoutSeconds(3);
+            WorkflowOptions so = new WorkflowOptions.Builder()
+                    .setWorkflowId(workflowId)
+                    .setTaskList(PeriodicWorkflowWorker.TASK_LIST)
+                    .setExecutionStartToCloseTimeoutSeconds(300)
+                    .setTaskStartToCloseTimeoutSeconds(3)
+                    .build();
             // Passing instance id to ensure that only one periodic workflow can be active at a time.
             // Use different id for each schedule.
-            so.setWorkflowId("Periodic");
             PeriodicWorkflow workflow = client.newWorkflowStub(PeriodicWorkflow.class, so);
+            WorkflowExecution workflowExecution
 
-            WorkflowExternalResult<Void> r = CadenceClient.asyncStart(workflow::startPeriodicWorkflow,
+                    = CadenceClient.asyncStart(workflow::startPeriodicWorkflow,
                     activityType, parameters, options);
 
-            WorkflowExecution workflowExecution = r.getExecution();
             System.out.println("Started periodic workflow with workflowId=\"" + workflowExecution.getWorkflowId()
                     + "\" and runId=\"" + workflowExecution.getRunId() + "\"");
         } catch (WorkflowExecutionAlreadyStartedException e) {
             // It is expected to get this exception if start is called before workflow run is completed.
-            System.out.println("Periodic workflow with workflowId=\"" + so.getWorkflowId()
+            System.out.println("Periodic workflow with workflowId=\"" + workflowId
                     + " is already running");
         }
         System.exit(0);

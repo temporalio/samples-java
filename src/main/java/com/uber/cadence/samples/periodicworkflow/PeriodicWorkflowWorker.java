@@ -14,8 +14,8 @@
  */
 package com.uber.cadence.samples.periodicworkflow;
 
-import com.uber.cadence.samples.common.ConfigHelper;
 import com.uber.cadence.WorkflowService;
+import com.uber.cadence.samples.common.ConfigHelper;
 import com.uber.cadence.worker.Worker;
 import com.uber.cadence.worker.WorkerOptions;
 
@@ -34,14 +34,10 @@ public class PeriodicWorkflowWorker {
         WorkflowService.Iface swfService = configHelper.createWorkflowClient();
         String domain = configHelper.getDomain();
 
-        WorkerOptions options = new WorkerOptions();
-        options.setDisableWorkflowWorker(true);
-        final Worker worker = new Worker(swfService, domain, TASK_LIST, options);
+        final Worker worker = new Worker(swfService, domain, TASK_LIST, new WorkerOptions.Builder().build());
         worker.addWorkflowImplementationType(PeriodicWorkflowImpl.class);
         // Create activity implementations
-        PeriodicWorkflowActivities periodicWorkflowActivities = new PeriodicWorkflowActivitiesImpl();
-        ErrorReportingActivities errorReportingActivities = new ErrorReportingActivitiesImpl();
-        worker.setActivitiesImplementation(periodicWorkflowActivities, errorReportingActivities);
+        worker.setActivitiesImplementation(new PeriodicWorkflowActivitiesImpl(), new ErrorReportingActivitiesImpl());
 
         worker.start();
 

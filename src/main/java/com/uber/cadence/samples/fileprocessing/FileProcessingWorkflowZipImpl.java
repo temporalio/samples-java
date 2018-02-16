@@ -15,7 +15,6 @@
 package com.uber.cadence.samples.fileprocessing;
 
 import com.uber.cadence.workflow.ActivityOptions;
-import com.uber.cadence.workflow.Promise;
 import com.uber.cadence.workflow.Workflow;
 
 import java.io.File;
@@ -36,15 +35,15 @@ public class FileProcessingWorkflowZipImpl implements FileProcessingWorkflow {
 
     public FileProcessingWorkflowZipImpl() {
         // Create activity clients
-        ActivityOptions ao = new ActivityOptions();
-        ao.setScheduleToCloseTimeoutSeconds(60);
-        ao.setScheduleToStartTimeoutSeconds(60);
-        ao.setTaskList(FileProcessingWorker.TASK_LIST);
+        ActivityOptions ao = new ActivityOptions.Builder()
+                .setScheduleToCloseTimeoutSeconds(60)
+                .setTaskList(FileProcessingWorker.TASK_LIST)
+                .build();
         this.defaultTaskListStore = Workflow.newActivityStub(SimpleStoreActivities.class, ao);
     }
 
     @Override
-    public void processFile(Arguments args) throws Exception {
+    public void processFile(Arguments args) {
         history.add("Started");
         // Use runId as a way to ensure that downloaded files do not get name collisions
         String workflowRunId = Workflow.getContext().getWorkflowExecution().getRunId();
@@ -64,10 +63,11 @@ public class FileProcessingWorkflowZipImpl implements FileProcessingWorkflow {
                 history.add("Downloaded to " + workerTaskList);
 
                 // Now initialize stubs that are specific to the returned task list.
-                ActivityOptions hostAO = new ActivityOptions();
-                hostAO.setScheduleToCloseTimeoutSeconds(60);
-                hostAO.setScheduleToStartTimeoutSeconds(10); // short queueing timeout
-                hostAO.setTaskList(workerTaskList);
+                ActivityOptions hostAO = new ActivityOptions.Builder()
+                        .setScheduleToCloseTimeoutSeconds(60)
+                        .setScheduleToStartTimeoutSeconds(10) // short queueing timeout
+                        .setTaskList(workerTaskList)
+                        .build();
                 workerTaskListStore = Workflow.newActivityStub(SimpleStoreActivities.class, hostAO);
                 FileProcessingActivities workerTaskListProcessor = Workflow.newActivityStub(FileProcessingActivities.class, hostAO);
 
@@ -95,56 +95,5 @@ public class FileProcessingWorkflowZipImpl implements FileProcessingWorkflow {
             }
         }
     }
-
-    @Override
-    public void processFile(Arguments args) {
-        List<Promise<String>> localNamePromises = new ArrayList<>();
-        List<String> processedNames = null;
-        try {
-            // Download all files in parallel
-            for (String sourceFilename : args.getSourceFilenames()) {
-                Promise<String> localName = Workflow.async(activities::download, args.getSourceBucketName(), sourceFilename);
-                localNamePromises.add(localName);
-            }
-            // allOf converts a list of promises to single promise that contains list of each promise value.
-            Promise<List<String>> localNamesPromise = Promise.allOf(localNamePromises);
-
-            // All code until the next line wasn't blocking.
-            // The promise get is a blocking call
-            List<String> localNames = localNamesPromise.get();
-            processedNames = activities.processFiles(localNames);
-
-            // Upload all results in parallel.
-            List<Promise<Void>> uploadedList = new ArrayList<>();
-            for (String processedName : processedNames) {
-                Promise<Void> uploaded = Workflow.async(activities::upload, args.getTargetBucketName(), args.getTargetFilename(), processedName);
-                uploadedList.add(uploaded);
-            }
-            // Wait for all uploads to complete.
-            Promise<?> allUploaded = Promise.allOf(uploadedList);
-            allUploaded.get(); // blocks until all promises are ready.
-        } finally {
-            for (Promise<Sting> localNamePromise : localNamePromises) {
-                // Skip files that haven't completed download
-                if (localNamePromise.isCompleted()) {
-                    activities.deleteLocalFile(localNamePromise.get());
-                }
-            }
-            if (processedNames != null) {
-                for (String processedName : processedNames) {
-                    activities.deleteLocalFile(processedName);
-                }
-            }
-        }
-    }
 }
 
-}
-
-
-@Override
-public List<String> getHistory(){
-        return history;
-        }
-
-        }

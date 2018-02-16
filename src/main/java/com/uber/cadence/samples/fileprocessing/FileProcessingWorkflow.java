@@ -16,7 +16,6 @@ package com.uber.cadence.samples.fileprocessing;
 
 import com.uber.cadence.workflow.QueryMethod;
 import com.uber.cadence.workflow.SignalMethod;
-import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
 
 import java.util.List;
@@ -68,12 +67,5 @@ public interface FileProcessingWorkflow {
      * Uses a structure as arguments, to make addition of new arguments a backwards compatible change.
      */
     @WorkflowMethod
-    void processFile(Arguments args) throws Exception;
-
-    @QueryMethod
-    List<String> getHistory();
-
-    @SignalMethod()
-    void retryNow();
-
+    void processFile(Arguments args);
 }

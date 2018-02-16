@@ -14,10 +14,9 @@
  */
 package com.uber.cadence.samples.booking;
 
-import com.uber.cadence.samples.common.ConfigHelper;
 import com.uber.cadence.WorkflowService;
+import com.uber.cadence.samples.common.ConfigHelper;
 import com.uber.cadence.worker.Worker;
-import com.uber.cadence.worker.WorkerOptions;
 
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;

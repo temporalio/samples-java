@@ -14,12 +14,11 @@
  */
 package com.uber.cadence.samples.splitmerge;
 
+import com.uber.cadence.WorkflowExecution;
 import com.uber.cadence.WorkflowService;
 import com.uber.cadence.client.CadenceClient;
-import com.uber.cadence.client.WorkflowExternalResult;
-import com.uber.cadence.internal.StartWorkflowOptions;
+import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.samples.common.ConfigHelper;
-import com.uber.cadence.WorkflowExecution;
 
 import static com.uber.cadence.samples.splitmerge.SplitMergeWorker.TASK_LIST;
 
@@ -43,13 +42,13 @@ public class SplitMergeStarter {
         int numberOfWorkers = Integer.parseInt(val);
 
         CadenceClient cadenceClient = CadenceClient.newClient(swfService, domain);
-        StartWorkflowOptions startOptions = new StartWorkflowOptions();
-        startOptions.setTaskList(TASK_LIST);
-        startOptions.setTaskStartToCloseTimeoutSeconds(10);
-        startOptions.setExecutionStartToCloseTimeoutSeconds(300);
+        WorkflowOptions startOptions = new WorkflowOptions.Builder()
+                .setTaskList(TASK_LIST)
+                .setTaskStartToCloseTimeoutSeconds(10)
+                .setExecutionStartToCloseTimeoutSeconds(300)
+                .build();
         AverageCalculatorWorkflow workflow = cadenceClient.newWorkflowStub(AverageCalculatorWorkflow.class, startOptions);
-        WorkflowExternalResult<Void> result = CadenceClient.asyncStart(workflow::average, bucketName, fileName, numberOfWorkers);
-        WorkflowExecution workflowExecution = result.getExecution();
+        WorkflowExecution workflowExecution = CadenceClient.asyncStart(workflow::average, bucketName, fileName, numberOfWorkers);
         System.out.println("Started split-merge workflow with workflowId=\"" + workflowExecution.getWorkflowId()
                 + "\" and runId=\"" + workflowExecution.getRunId() + "\"");
 

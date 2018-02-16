@@ -18,6 +18,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
+import com.uber.cadence.error.CheckedExceptionWrapper;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -42,7 +43,7 @@ public class AverageCalculatorActivitiesImpl implements AverageCalculatorActivit
     }
 
     @Override
-    public int computeSumForChunk(String bucketName, String filename, int chunkNumber, int chunkSize) throws IOException {
+    public int computeSumForChunk(String bucketName, String filename, int chunkNumber, int chunkSize) {
         int sum = 0;
         int from = chunkNumber * chunkSize;
         int to = from + chunkSize;
@@ -68,14 +69,20 @@ public class AverageCalculatorActivitiesImpl implements AverageCalculatorActivit
             while ((line = reader.readLine()) != null) {
                 sum += Integer.parseInt(line);
             }
-        }
-        finally {
-            if (reader != null)
-                reader.close();
-            if (inputStreamReader != null)
-                inputStreamReader.close();
-            if (inputStream != null)
-                inputStream.close();
+        } catch (IOException e) {
+            throw CheckedExceptionWrapper.wrap(e);
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+                if (inputStreamReader != null)
+                    inputStreamReader.close();
+                if (inputStream != null)
+                    inputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace(); // Use log in real life.
+            }
         }
 
         System.out.printf("Sum from '%d' to '%d' is: '%d'\n", from + 1, to, sum);

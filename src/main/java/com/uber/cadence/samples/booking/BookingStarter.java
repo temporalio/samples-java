@@ -14,10 +14,10 @@
  */
 package com.uber.cadence.samples.booking;
 
-import com.uber.cadence.samples.common.ConfigHelper;
 import com.uber.cadence.WorkflowService;
 import com.uber.cadence.client.CadenceClient;
-import com.uber.cadence.internal.StartWorkflowOptions;
+import com.uber.cadence.client.WorkflowOptions;
+import com.uber.cadence.samples.common.ConfigHelper;
 
 /**
  * Starts BookingWorkflow executions.
@@ -25,16 +25,16 @@ import com.uber.cadence.internal.StartWorkflowOptions;
 public class BookingStarter {
     private static WorkflowService.Iface swfService;
     private static String domain;
-    
+
     public static void main(String[] args) throws Exception {
 
-    	// Load configuration
-    	ConfigHelper configHelper = ConfigHelper.createConfig();
-        
+        // Load configuration
+        ConfigHelper configHelper = ConfigHelper.createConfig();
+
         // Create the client for Simple Workflow Service
         swfService = configHelper.createWorkflowClient();
         domain = configHelper.getDomain();
-        
+
         // Start Workflow instance
         int requestId = Integer.parseInt(configHelper.getValueFromConfig(BookingConfigKeys.WORKFLOW_INPUT_REQUESTID_KEY));
         int customerId = Integer.parseInt(configHelper.getValueFromConfig(BookingConfigKeys.WORKFLOW_INPUT_CUSTOMERID_KEY));
@@ -44,13 +44,14 @@ public class BookingStarter {
 
         // Start Wrokflow Execution
         String taskList = configHelper.getValueFromConfig(BookingConfigKeys.WORKFLOW_WORKER_TASKLIST);
-        StartWorkflowOptions options = new StartWorkflowOptions();
-        options.setTaskList(taskList);
-        options.setExecutionStartToCloseTimeoutSeconds(20);
-        options.setTaskStartToCloseTimeoutSeconds(3);
+        WorkflowOptions options = new WorkflowOptions.Builder()
+                .setTaskList(taskList)
+                .setExecutionStartToCloseTimeoutSeconds(20)
+                .setTaskStartToCloseTimeoutSeconds(3)
+                .build();
         BookingWorkflow workflow = client.newWorkflowStub(BookingWorkflow.class, options);
         String activityTaskList = configHelper.getValueFromConfig(BookingConfigKeys.ACTIVITY_WORKER_TASKLIST);
         workflow.makeBooking(activityTaskList, requestId, customerId, true, true);
         System.exit(0);
-    }    
+    }
 }

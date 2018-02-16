@@ -16,6 +16,7 @@ package com.uber.cadence.samples.periodicworkflow;
 
 import com.uber.cadence.ActivityType;
 import com.uber.cadence.workflow.ActivityOptions;
+import com.uber.cadence.workflow.Promise;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowThread;
 
@@ -35,12 +36,13 @@ public class PeriodicWorkflowImpl implements PeriodicWorkflow {
     ActivityOptions activityOptions;
 
     public PeriodicWorkflowImpl() {
-        activityOptions = new ActivityOptions();
-        activityOptions.setHeartbeatTimeoutSeconds(10);
-        activityOptions.setStartToCloseTimeoutSeconds(30);
-        activityOptions.setScheduleToStartTimeoutSeconds(30);
-        activityOptions.setScheduleToCloseTimeoutSeconds(60);
-        activityOptions.setTaskList(TASK_LIST);
+        activityOptions = new ActivityOptions.Builder()
+                .setHeartbeatTimeoutSeconds(10)
+                .setStartToCloseTimeoutSeconds(30)
+                .setScheduleToStartTimeoutSeconds(30)
+                .setScheduleToCloseTimeoutSeconds(60)
+                .setTaskList(TASK_LIST)
+                .build();
 
         errorReporting = Workflow.newActivityStub(ErrorReportingActivities.class, activityOptions);
 
@@ -59,7 +61,7 @@ public class PeriodicWorkflowImpl implements PeriodicWorkflow {
 
                 // Call activity using dynamic client. Return type is specified as Void as it is not used, but activity that
                 // returns some other type can be called this way.
-                Future<Object> activityCompletion = Workflow.executeActivityAsync(
+                Promise<Object> activityCompletion = Workflow.executeActivityAsync(
                         activity.getName(), activityOptions, Object.class, activityArguments);
 
                 if (options.isWaitForActivityCompletion()) {

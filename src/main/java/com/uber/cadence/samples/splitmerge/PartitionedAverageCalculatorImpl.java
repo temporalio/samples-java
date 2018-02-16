@@ -15,12 +15,11 @@
 package com.uber.cadence.samples.splitmerge;
 
 import com.uber.cadence.workflow.ActivityOptions;
+import com.uber.cadence.workflow.Promise;
 import com.uber.cadence.workflow.Workflow;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import static com.uber.cadence.samples.splitmerge.SplitMergeWorker.TASK_LIST;
 
@@ -35,12 +34,13 @@ public class PartitionedAverageCalculatorImpl implements PartitionedAverageCalcu
     public PartitionedAverageCalculatorImpl(int numberOfWorkers, String bucketName) {
         this.numberOfWorkers = numberOfWorkers;
         this.bucketName = bucketName;
-        ActivityOptions options = new ActivityOptions();
-        options.setHeartbeatTimeoutSeconds(10);
-        options.setStartToCloseTimeoutSeconds(30);
-        options.setScheduleToStartTimeoutSeconds(30);
-        options.setScheduleToCloseTimeoutSeconds(60);
-        options.setTaskList(TASK_LIST);
+        ActivityOptions options = new ActivityOptions.Builder()
+                .setHeartbeatTimeoutSeconds(10)
+                .setStartToCloseTimeoutSeconds(30)
+                .setScheduleToStartTimeoutSeconds(30)
+                .setScheduleToCloseTimeoutSeconds(60)
+                .setTaskList(TASK_LIST)
+                .build();
         this.client = Workflow.newActivityStub(AverageCalculatorActivities.class, options);
     }
 
@@ -54,29 +54,23 @@ public class PartitionedAverageCalculatorImpl implements PartitionedAverageCalcu
         int chunkSize = dataSize / numberOfWorkers;
 
         // Create an array list to hold the result returned by each worker
-        List<Future<Integer>> asyncResults = new ArrayList<>();
+        List<Promise<Integer>> asyncResults = new ArrayList<>();
         for (int chunkNumber = 0; chunkNumber < numberOfWorkers; chunkNumber++) {
             // Splitting computation for each chunk as separate activity
-            Future<Integer> result = Workflow.async(client::computeSumForChunk, bucketName, inputFile, chunkNumber, chunkSize);
+            Promise<Integer> result = Workflow.async(client::computeSumForChunk,
+                    bucketName, inputFile, chunkNumber, chunkSize);
             asyncResults.add(result);
         }
         // Merge phase
-        try {
-            int totalSum = 0;
-            for (Future<Integer> workerSum : asyncResults) {
-                totalSum += workerSum.get();
-            }
-            return (double) totalSum / (double) dataSize;
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
+        int totalSum = 0;
+        for (Promise<Integer> workerSum : asyncResults) {
+            totalSum += workerSum.get();
         }
+        return (double) totalSum / (double) dataSize;
     }
 
     @Override
     public void reportResult(double result) {
         client.reportResult(result);
     }
-
 }

@@ -16,7 +16,6 @@ package com.uber.cadence.samples.fileprocessing;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.uber.cadence.WorkflowService;
-import com.uber.cadence.internal.worker.ActivityWorker;
 import com.uber.cadence.samples.common.ConfigHelper;
 import com.uber.cadence.worker.Worker;
 import com.uber.cadence.worker.WorkerOptions;
@@ -51,8 +50,7 @@ public class FileProcessingWorker {
         System.out.println("Worker tarted for task list: " + TASK_LIST);
 
         // Start worker to poll the host specific task list
-        WorkerOptions hostSpecificOptions = new WorkerOptions();
-        hostSpecificOptions.setDisableWorkflowWorker(true);
+        WorkerOptions hostSpecificOptions = new WorkerOptions.Builder().build();
         final Worker workerForHostSpecificTaskList = new Worker(swfService, domain, getHostName(), hostSpecificOptions);
         FileProcessingActivitiesZipImpl processorActivityImpl = new FileProcessingActivitiesZipImpl(localFolder);
         workerForHostSpecificTaskList.setActivitiesImplementation(storeActivityImpl, processorActivityImpl);

@@ -14,7 +14,6 @@
  */
 package com.uber.cadence.samples.helloworld;
 
-import com.uber.cadence.WorkflowExecution;
 import com.uber.cadence.client.CadenceClient;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;

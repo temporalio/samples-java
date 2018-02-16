@@ -17,9 +17,7 @@ package com.uber.cadence.samples.fileprocessing;
 import com.uber.cadence.WorkflowExecution;
 import com.uber.cadence.WorkflowService;
 import com.uber.cadence.client.CadenceClient;
-import com.uber.cadence.client.WorkflowExternalResult;
 import com.uber.cadence.client.WorkflowOptions;
-import com.uber.cadence.internal.WorkflowOptions;
 import com.uber.cadence.samples.common.ConfigHelper;
 
 /**
@@ -53,18 +51,15 @@ public class FileProcessingStarter {
         workflowArgs.setTargetBucketName(targetBucketName);
         workflowArgs.setTargetFilename(targetFilename);
 
-        CadenceClient cadenceClient = CadenceClient.newClient(cadenceServiceHost, cadenceServicePort, domain);
+        CadenceClient cadenceClient = CadenceClient.newClient(swfService, domain);
         WorkflowOptions options = new WorkflowOptions.Builder()
                 .setExecutionStartToCloseTimeoutSeconds(300)
                 .setTaskList(WORKFLOW_TASK_LIST)
                 .build();
         FileProcessingWorkflow workflow = cadenceClient.newWorkflowStub(FileProcessingWorkflow.class, options);
-        String result = workflow.processFile(workflowArgs);
 
-        WorkflowExternalResult<Void> result = CadenceClient.asyncStart(workflow::processFile, workflowArgs);
+        WorkflowExecution workflowExecution = CadenceClient.asyncStart(workflow::processFile, workflowArgs);
 
-        // WorkflowExecution is available after workflow creation 
-        WorkflowExecution workflowExecution = result.getExecution();
         System.out.println("Started periodic workflow with workflowId=\"" + workflowExecution.getWorkflowId()
                 + "\" and runId=\"" + workflowExecution.getRunId() + "\"");
 
