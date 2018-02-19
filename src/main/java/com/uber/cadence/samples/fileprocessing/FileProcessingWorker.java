@@ -23,6 +23,7 @@ import com.uber.cadence.worker.WorkerOptions;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -43,8 +44,8 @@ public class FileProcessingWorker {
         // Start worker to poll the common task list
         final Worker workerForCommonTaskList = new Worker(swfService, domain, TASK_LIST, null);
         SimpleStoreActivitiesS3Impl storeActivityImpl = new SimpleStoreActivitiesS3Impl(s3Client, localFolder, getHostName());
-        workerForCommonTaskList.setActivitiesImplementation(storeActivityImpl);
-        workerForCommonTaskList.setWorkflowImplementationTypes(FileProcessingWorkflowZipImpl.class);
+        workerForCommonTaskList.registerActivitiesImplementations(storeActivityImpl);
+        workerForCommonTaskList.registerWorkflowImplementationTypes(FileProcessingWorkflowZipImpl.class);
 
         workerForCommonTaskList.start();
         System.out.println("Worker tarted for task list: " + TASK_LIST);
@@ -53,15 +54,15 @@ public class FileProcessingWorker {
         WorkerOptions hostSpecificOptions = new WorkerOptions.Builder().build();
         final Worker workerForHostSpecificTaskList = new Worker(swfService, domain, getHostName(), hostSpecificOptions);
         FileProcessingActivitiesZipImpl processorActivityImpl = new FileProcessingActivitiesZipImpl(localFolder);
-        workerForHostSpecificTaskList.setActivitiesImplementation(storeActivityImpl, processorActivityImpl);
+        workerForHostSpecificTaskList.registerActivitiesImplementations(storeActivityImpl, processorActivityImpl);
         workerForHostSpecificTaskList.start();
         System.out.println("Worker Started for activity and workflow task List: " + getHostName());
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
 
             public void run() {
-                workerForCommonTaskList.shutdown(5, TimeUnit.SECONDS);
-                workerForHostSpecificTaskList.shutdown(5, TimeUnit.SECONDS);
+                workerForCommonTaskList.shutdown(Duration.ofSeconds(5));
+                workerForHostSpecificTaskList.shutdown(Duration.ofSeconds(5));
                 System.out.println("Activity Workers Exited.");
             }
         });

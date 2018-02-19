@@ -20,6 +20,7 @@ import com.uber.cadence.worker.Worker;
 import com.uber.cadence.worker.WorkerOptions;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -35,16 +36,16 @@ public class PeriodicWorkflowWorker {
         String domain = configHelper.getDomain();
 
         final Worker worker = new Worker(swfService, domain, TASK_LIST, new WorkerOptions.Builder().build());
-        worker.addWorkflowImplementationType(PeriodicWorkflowImpl.class);
+        worker.registerWorkflowImplementationTypes(PeriodicWorkflowImpl.class);
         // Create activity implementations
-        worker.setActivitiesImplementation(new PeriodicWorkflowActivitiesImpl(), new ErrorReportingActivitiesImpl());
+        worker.registerActivitiesImplementations(new PeriodicWorkflowActivitiesImpl(), new ErrorReportingActivitiesImpl());
 
         worker.start();
 
         System.out.println("Worker Started for Task List: " + TASK_LIST);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            worker.shutdown(1, TimeUnit.MINUTES);
+            worker.shutdown(Duration.ofMinutes(1));
             System.out.println("Activity Worker Exited.");
         }));
 

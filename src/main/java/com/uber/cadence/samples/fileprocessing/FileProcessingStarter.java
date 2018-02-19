@@ -51,7 +51,7 @@ public class FileProcessingStarter {
         workflowArgs.setTargetBucketName(targetBucketName);
         workflowArgs.setTargetFilename(targetFilename);
 
-        CadenceClient cadenceClient = CadenceClient.newClient(swfService, domain);
+        CadenceClient cadenceClient = CadenceClient.newInstance(swfService, domain);
         WorkflowOptions options = new WorkflowOptions.Builder()
                 .setExecutionStartToCloseTimeoutSeconds(300)
                 .setTaskList(WORKFLOW_TASK_LIST)

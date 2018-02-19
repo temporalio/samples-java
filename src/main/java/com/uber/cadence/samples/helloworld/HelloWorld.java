@@ -25,7 +25,7 @@ import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
  * Hello World Cadence workflow that executes a single activity.
- * Requires local instance of Cadence server running.
+ * Requires a local instance of Cadence server running.
  */
 public class HelloWorld {
 
@@ -54,6 +54,9 @@ public class HelloWorld {
      */
     public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
+        /**
+         * Activity stub implements activity interface and proxies calls to it to Cadence activity invocations.
+         */
         private final HelloWorld.GreetingActivities activities = Workflow.newActivityStub(
                 GreetingActivities.class,
                 new ActivityOptions.Builder().setScheduleToCloseTimeoutSeconds(10).build());
@@ -65,18 +68,25 @@ public class HelloWorld {
         }
     }
 
+    private static class GreetingActivitiesImpl implements GreetingActivities {
+        @Override
+        public String composeGreeting(String greeting, String name) {
+            return greeting + " " + name + "!";
+        }
+    }
+
     public static void main(String[] args) {
         // Start a worker that hosts both workflow and activity implementation
         Worker worker = new Worker(DOMAIN, TASK_LIST);
         // Workflows are stateful. So need a type to create instances.
-        worker.addWorkflowImplementationType(HelloWorld.GreetingWorkflowImpl.class);
+        worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
         // Activities are stateless and thread safe. So a shared instance is used.
-        worker.addActivitiesImplementation((GreetingActivities) (greeting, name) -> greeting + " " + name + "!");
+        worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
         // Start listening to the workflow and activity task lists.
         worker.start();
 
         // Start a workflow execution. Usually it is done from another program.
-        CadenceClient cadenceClient = CadenceClient.newClient(DOMAIN);
+        CadenceClient cadenceClient = CadenceClient.newInstance(DOMAIN);
         // Get a workflow stub using the same task list the worker uses.
         WorkflowOptions workflowOptions = new WorkflowOptions.Builder()
                 .setTaskList(TASK_LIST)

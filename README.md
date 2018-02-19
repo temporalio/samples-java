@@ -82,112 +82,9 @@ you've built them using the preceding instructions.
 
 ### Hello World
 
-The sample has three executables. You should run each command in a separate terminal window, from
-the `samples` directory.
+To run hello world:
 
-    mvn exec:java -Dexec.mainClass=HelloWorldWorker
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.helloworld.WorkflowHost
-    mvn exec:java -Dexec.mainClass=HelloWorldStarter
-
-### Hello Lambda
-
-The *HelloLambda* sample requires the use of an [AWS Lambda](http://aws.amazon.com/lambda/)
-function. You can create the function in any way supported by AWS Lambda, including by using the AWS
-Eclipse Toolkit.
-
-**Note**: Using Lambda can incur costs to your AWS account. For more information, see the [AWS
-Lambda Pricing page](http://aws.amazon.com/lambda/pricing/).
-
-Visit the following pages to learn how to create AWS Lambda functions:
-
-* [in Java using Eclipse](http://docs.aws.amazon.com/AWSToolkitEclipse/latest/GettingStartedGuide/lambda-tutorial.html).
-
-* [in Java without Eclipse](http://docs.aws.amazon.com/lambda/latest/dg/java-lambda.html).
-
-* [in Node.js](http://docs.aws.amazon.com/lambda/latest/dg/authoring-function-in-nodejs.html).
-
-When you create the function, be sure that it exists in the same AWS region that you will run the
-*HelloLambda* sample in. You will also need to provide Amazon SWF with access to your Lambda
-function in order to run it using the sample.
-
-**To create a Lambda role for SWF:**
-
-1. Open the [Amazon IAM console](https://console.aws.amazon.com/iam/)
-
-2. Click **Roles**, then **Create New Role**.
-
-3. Give your role a name, such as `swf-lambda' and click **Next Step**.
-
-4. Under **AWS Service Roles**, choose **AWS SWF**, and click **Next Step**.
-
-5. Choose **AWSLambdaRole** from the list, click **Next Step** and then **Create Role** once you've
-   reviewed the role.
-
-    Once you have a Lambda function to run and an IAM policy that gives SWF access to it, then find the
-    following section in the `access.properties` file and provide it with information about the function
-    and role that you created:
-
-        ####### HelloLambda Sample Config Values ######
-        SWF.LambdaRole.ARN=<Your IAM role that authorizes SWF to invoke Lambda functions>
-        SWFLambdaFunction.Name=<The name of your Lambda function>
-        SWFLambdaFunction.Input=<Input for your Lambda function>
-
-The *HelloLambda* sample uses an AWS Lambda task instead of running an activity, so you only need to
-run the workflow host and workflow starter. Run each command in a separate terminal window from the
-`samples` directory.
-
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.hellolambda.WorkflowHost
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.hellolambda.WorkflowExecutionStarter
-
-### Booking
-
-The sample has three executables. You should run each command in a separate terminal window, from
-the `samples` directory.
-
-    mvn exec:java -Dexec.mainClass=ActivityHost
-    mvn exec:java -Dexec.mainClass=WorkflowHost
-    mvn exec:java -Dexec.mainClass=WorkflowExecutionStarter
-
-### Cron
-
-The sample has three executables. You should run each command in a separate terminal window, from
-the `samples` directory.
-
-    mvn exec:java -Dexec.mainClass=ActivityHost
-    mvn exec:java -Dexec.mainClass=WorkflowHost
-    mvn exec:java -Dexec.mainClass=CronWorkflowExecutionStarter -Dexec.args="\"*/10 * * * * *\" PST 60"
-
-The workflow starter takes three command line arguments that *must* be specified:
-
-1. CRON_PATTERN: specifies the pattern used to determine the cron schedule for the periodic activity
-   task. The above command specifies the pattern `*/10 * * * * *` to run the task every 10 seconds.
-
-2. TIME_ZONE: specifies the time zone to use for time calculations. The above command specifies PST
-   (Pacific Standard Time).
-
-3. CONTINUE_AS_NEW_AFTER_SECONDS: specifies the duration, in seconds, after which the current
-   execution should be closed and continued as a new execution. The above command specifies 60 seconds.
-
-### Cron With Retry
-
-The sample has three executables. You should run each command in a separate terminal window, from
-the `samples` directory.
-
-    mvn exec:java -Dexec.mainClass=ActivityHost
-    mvn exec:java -Dexec.mainClass=WorkflowHost
-    mvn exec:java -Dexec.mainClass=CronWithRetryWorkflowExecutionStarter" -Dmain-args="\"*/10 * * * * *\" PST 60
-
-The workflow starter takes three command line arguments that *must* be specified:
-
-1. CRON_PATTERN: specifies the pattern used to determine the cron schedule for the periodic activity
-   task. The above command specifies the pattern `*/10 * * * * *` to run the task every 10 seconds.
-
-2. TIME_ZONE: specifies the time zone to use for time calculations. The above command specifies PST
-(Pacific Standard Time).
-
-3. CONTINUE_AS_NEW_AFTER_SECONDS: specifies the duration, in seconds, after which the current
-   execution should be closed and continued as a new execution. The above command specifies 60
-   seconds.
+    mvn exec:java -Dexec.mainClass=com.uber.cadence.samples.helloworld.HelloWorld
 
 ### File Processing
 
@@ -201,28 +98,25 @@ bucket that you want the sample to use:
         ####### FileProcessing Sample Config Values ##########
         Workflow.Input.TargetBucketName=<Your S3 bucket name>
 
-The sample has three executables. You should run each command in a separate terminal window, from
-the `samples` directory.
+The sample has two executables. You should run each command in a separate terminal window. The first one 
+is the worker that hosts workflow and activities implementation:
 
-    mvn exec:java -Dexec.mainClass=ActivityHost
-    mvn exec:java -Dexec.mainClass=WorkflowHost
-    mvn exec:java -Dexec.mainClass=WorkflowExecutionStarter
+    mvn exec:java -Dexec.mainClass=com.uber.cadence.samples.fileprocessing.FileProcessingWorker
+    
+The second is responsible for starting workflows: 
 
+    mvn exec:java -Dexec.mainClass=com.uber.cadence.samples.fileprocessing.FileProcessingStarter
+    
 ### Periodic Workflow
 
-The sample has three executables. You should run each command in a separate terminal window, from
-the `samples` directory.
-
-    mvn exec:java -Dexec.mainClass=PeriodicWorkflowWorker
-    mvn exec:java -Dexec.mainClass=com.amazonaws.services.simpleworkflow.flow.examples.periodicworkflow.WorkflowHost
-    mvn exec:java -Dexec.mainClass=WorkflowExecutionStarter
+    mvn exec:java -Dexec.mainClass=com.uber.cadence.samples.periodicworkflow.PeriodicWorkflowWorker
+    
+    mvn exec:java -Dexec.mainClass=com.uber.cadence.samples.periodicworkflow.PeriodicWorkflowStarter
 
 ### Split Merge
 
-The sample has three executables. You should run each command in a separate terminal window, from
-the `samples` directory.
+The sample has two executables. You should run each command in a separate terminal window.
 
-    mvn exec:java -Dexec.mainClass=ActivityHost
-    mvn exec:java -Dexec.mainClass=WorkflowHost
-    mvn exec:java -Dexec.mainClass=WorkflowExecutionStarter
+    mvn exec:java -Dexec.mainClass=com.uber.cadence.samples.splitmerge.SplitMergeWorker
+    mvn exec:java -Dexec.mainClass=com.uber.cadence.samples.splitmerge.SplitMergeStarter
 

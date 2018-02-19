@@ -38,7 +38,7 @@ public class PeriodicWorkflowStarter {
         swfService = configHelper.createWorkflowClient();
         domain = configHelper.getDomain();
 
-        CadenceClient client = CadenceClient.newClient(swfService, domain);
+        CadenceClient client = CadenceClient.newInstance(swfService, domain);
 
 
         // Execute activity every two 10 seconds, wait for it to complete before starting the new one, 

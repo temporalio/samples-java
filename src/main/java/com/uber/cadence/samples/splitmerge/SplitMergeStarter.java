@@ -41,7 +41,7 @@ public class SplitMergeStarter {
         String val = configHelper.getValueFromConfig(SplitMergeConfigKeys.NUMBER_OF_WORKERS);
         int numberOfWorkers = Integer.parseInt(val);
 
-        CadenceClient cadenceClient = CadenceClient.newClient(swfService, domain);
+        CadenceClient cadenceClient = CadenceClient.newInstance(swfService, domain);
         WorkflowOptions startOptions = new WorkflowOptions.Builder()
                 .setTaskList(TASK_LIST)
                 .setTaskStartToCloseTimeoutSeconds(10)

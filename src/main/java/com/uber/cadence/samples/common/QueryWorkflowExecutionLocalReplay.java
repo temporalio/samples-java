@@ -47,7 +47,7 @@ public class QueryWorkflowExecutionLocalReplay {
         @SuppressWarnings("unchecked")
         Class<Object> workflowImplementationType = (Class<Object>) Class.forName(implementationTypeName);
         Worker replayer = new Worker(swfService, domain, null, null);
-        replayer.addWorkflowImplementationType(workflowImplementationType);
+        replayer.registerWorkflowImplementationTypes(workflowImplementationType);
         System.out.println("Beginning query replay for " + workflowExecution);
         String queryResult = replayer.queryWorkflowExecution(workflowExecution, queryType, String.class);
         System.out.println("Done query replay for " + workflowExecution);

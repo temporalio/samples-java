@@ -21,6 +21,7 @@ import com.uber.cadence.worker.Worker;
 import com.uber.cadence.worker.WorkerOptions;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -36,27 +37,18 @@ public class SplitMergeWorker {
         String domain = configHelper.getDomain();
 
         final Worker worker = new Worker(swfService, domain, TASK_LIST, new WorkerOptions.Builder().build());
-        worker.addWorkflowImplementationType(AverageCalculatorWorkflowImpl.class);
+        worker.registerWorkflowImplementationTypes(AverageCalculatorWorkflowImpl.class);
         AmazonS3 s3Client = configHelper.createS3Client();
         AverageCalculatorActivitiesImpl avgCalcActivitiesImpl = new AverageCalculatorActivitiesImpl(s3Client);
-        worker.addActivitiesImplementation(avgCalcActivitiesImpl);
+        worker.registerActivitiesImplementations(avgCalcActivitiesImpl);
 
         worker.start();
 
         System.out.println("Worker Started for Task List: " + TASK_LIST);
-
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            worker.shutdown(1, TimeUnit.MINUTES);
-            System.out.println("Worker Exited.");
-        }));
-
         System.out.println("Please press any key to terminate service.");
+        System.in.read();
 
-        try {
-            System.in.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        worker.shutdown(Duration.ofMinutes(1));
         System.exit(0);
     }
 }

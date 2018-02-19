@@ -93,7 +93,7 @@ public class ConfigHelper {
         // Uncomment to see decisions sent to the Cadence
 //        Logger.getLogger(DecisionTaskPoller.class.getName() + ".decisions").setLevel(Level.TRACE);
 
-        ConfigHelper configHelper = null;
+        ConfigHelper configHelper;
 
         boolean envVariableExists = false;
         //first check the existence of environment variable

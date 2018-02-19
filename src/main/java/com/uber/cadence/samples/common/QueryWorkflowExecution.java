@@ -47,7 +47,7 @@ public class QueryWorkflowExecution {
             String runId = args[1];
             workflowExecution.setRunId(runId);
         }
-        CadenceClient client = CadenceClient.newClient(swfService, domain);
+        CadenceClient client = CadenceClient.newInstance(swfService, domain);
         UntypedWorkflowStub workflow = client.newUntypedWorkflowStub(workflowExecution);
         String result = workflow.query(queryType, String.class);
 

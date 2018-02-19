@@ -20,6 +20,7 @@ import com.uber.cadence.workflow.Promise;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowThread;
 
+import java.time.Duration;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -71,7 +72,7 @@ public class PeriodicWorkflowImpl implements PeriodicWorkflow {
                 // but not earlier then after delay of executionPeriodSeconds.
                 // However in a real cron workflow, the delay should be calculated every time to run an activity at
                 // a predefined time.
-                WorkflowThread.sleep(options.getExecutionPeriodSeconds(), TimeUnit.SECONDS);
+                WorkflowThread.sleep(Duration.ofSeconds(options.getExecutionPeriodSeconds()));
             }
         } catch (Exception e) {
             errorReporting.reportFailure(e);
