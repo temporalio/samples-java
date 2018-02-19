@@ -1,66 +1,62 @@
-An experimental port of SWF Flow Framework Samples to run on top of Cadence.
+# Cadence Samples
+These are some samples to demonstrate various capabilities of Java Cadence client and server.  You can learn more about cadence at:
+* Cadence: https://github.com/uber/cadence
+* Java Cadence Client: https://github.com/uber-java/cadence-client
+* Go Cadence Client: https://github.com/uber-go/cadence-client
 
-The package uses AWS Flow Framework from <https://github.com/mfateev/swf-flow-library-java>
-which is not found in global maven repositories yet. 
+## Prerequisite
+Run Cadence Server
 
-# AWS Flow Framework Samples
+See instructions for running the Cadence Server: https://github.com/uber/cadence/blob/master/README.md
 
-These samples demonstrate how to use AWS Flow Framework. The following samples are included:
+## Build Samples
 
-* **HelloWorld** -- this sample includes a very simple workflow that calls an activity to print
-  hello world to the console. It shows the basic usage of AWS Flow Framework, including defining
-  contracts, implementation of activities and workflow coordination logic and worker programs to
-  host them.
+We are working on getting [cadence-client library](https://github.com/uber-java/cadence-client) into a public Maven repository.
+In the meantime before running samples it has to be build to get it into the local maven cache.
+See instructions from the Cadence Client README for the instructions.
 
-* **HelloLambda** -- this sample shows how you can create a workflow that calls an AWS Lambda task
-  instead of a traditional Amazon SWF activity.
+After cadence-client library is available just run
 
-* **Booking** -- shows an example workflow for making a reservation, including flight and rental
-  car.
+    mvn compile
+    
+to build the samples.
+
+##Overview of the Samples
+
+* **HelloWorld** -- obligatory single activity workflow.
+
+* **PeriodicWorkflow** -- shows how to create a workflow that periodically executes an activity which name 
+  and arguments are specified at runtime. 
+  The workflow can run for extended periods and hence it uses the continue as new execution feature.
 
 * **FileProcessing** -- shows a workflow for media processing use case. The sample workflow
   downloads a file from an Amazon S3 bucket, creates a zip file and uploads that zip file back to
   S3. The sample uses the task routing feature.
 
-* **PeriodicWorkflow** -- shows how to create a workflow that periodically executes an activity. The
-workflow can run for extended periods and hence it uses the continue as new execution feature.
-
 * **SplitMerge** -- the workflow in this sample processes a large data set by splitting it up into
   smaller data sets. The sample calculates the average of a large set of numbers stored in a file in
   S3. The smaller data sets are assigned to workers and the results of processing are merged to
   produce the final result.
-
-* **Deployment** -- the workflow in this sample shows deployment of interdependent components.
-
-* **Cron** -- the workflow in this sample starts an activity periodically based on a cron schedule.
-
-* **CronWithRetry** -- this is an enhanced version of the Cron sample that uses the exponential
-  retry feature to retry the activity if it fails.
   
-## Prerequisites
-
-Cadence service running. See https://github.com/uber/cadence for service setup.
-
-## Configuring and Building the samples
+## Configuring Samples
 
 The steps for configuring and building the AWS Flow Framework for Java samples are:
 
-1. Checkout and build the cadence branch of [swf-flow-library-java](https://github.com/mfateev/swf-flow-library-java) using mvn compile.
- Run Use mvn install to get it into local Maven cache.
+1. Open the `access.properties` file in the `samples` directory.
 
-2. Checkout and build the cadence branch [aws-swf-build-tools](https://github.com/mfateev/aws-swf-build-tools) using mvn compile.
-Run Use mvn install to get it into local Maven cache.
-
-3. Checkout and build the cadence branch of [swf-flow-library-samples-java](https://github.com/mfateev/swf-flow-library-samples-java)  using mvn compile.
-
-4. Create the *Samples* domain
-
-2. Open the `access.properties` file in the `samples` directory.
-
-3. Update Cadence host and port values to a service API. Keep these values for local Cadence service:
+2. Update Cadence host and port values to a service API. Keep these values for a local Cadence service:
 
         Cadence.host=127.0.0.1
         Cadence.port=7933
+
+2. If planning to run samples that access S3 locate the following sections and fill in your Access Key ID and Secret Access Key.
+
+        # Fill in your AWS Access Key ID and Secret Access Key for S3
+        # http://aws.amazon.com/security-credentials
+        S3.Access.ID=<Your AWS Access Key>
+        S3.Secret.Key=<Your AWS Secret Key>
+        S3.Account.ID=<Your AWS Account ID>
+
 
 5. Save the `access.properties` file.
 
@@ -69,11 +65,11 @@ Run Use mvn install to get it into local Maven cache.
 
     On Linux, Unix or OS X, use this command to set the environment variable:
 
-        export AWS_SWF_SAMPLES_CONFIG=<Your SDK Directory>/src/samples/AwsFlowFramework
+        export AWS_SWF_SAMPLES_CONFIG=<Your SDK Directory>
 
     On Windows run this command:
 
-        set AWS_SWF_SAMPLES_CONFIG=<Your SDK Directory>/src/samples/AwsFlowFramework
+        set AWS_SWF_SAMPLES_CONFIG=<Your SDK Directory>
 
 ## Running the samples
 
