@@ -16,7 +16,6 @@
  */
 package com.uber.cadence.samples.fileprocessing;
 
-import com.uber.cadence.internal.ActivityException;
 import com.uber.cadence.workflow.ActivityOptions;
 import com.uber.cadence.workflow.Workflow;
 
@@ -58,7 +57,7 @@ public class FileProcessingWorkflowZipImpl implements FileProcessingWorkflow {
         // Very simple retry strategy. On any error reexecute the whole sequence from the beginning.
         // In real life each activity would have additional retry logic and policy.
         int retry = 0;
-        ActivityException failureCause = null;
+        Exception failureCause = null;
         while (retry++ < MAX_RETRIES) {
             try {
                 // Worker specific task list returned by the activity
@@ -83,7 +82,7 @@ public class FileProcessingWorkflowZipImpl implements FileProcessingWorkflow {
                 workerTaskListStore.upload(args.getTargetBucketName(), args.getTargetFilename(), localTargetFilename);
                 history.add("Completed");
                 break; // Bail out of the retry loop
-            } catch (ActivityException e) {
+            } catch (Exception e) {
                 history.add("Failed " + retry + " time:" + e.getMessage());
                 failureCause = e;
                 continue;
@@ -100,7 +99,7 @@ public class FileProcessingWorkflowZipImpl implements FileProcessingWorkflow {
             }
         }
         if (failureCause != null) {
-            throw failureCause;
+            throw Workflow.throwWrapped(failureCause);
         }
     }
 }

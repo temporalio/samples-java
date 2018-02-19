@@ -16,7 +16,7 @@
  */
 package com.uber.cadence.samples.fileprocessing;
 
-import com.uber.cadence.error.CheckedExceptionWrapper;
+import com.uber.cadence.activity.Activity;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -50,7 +50,7 @@ public class FileProcessingActivitiesZipImpl implements FileProcessingActivities
         try {
             processFileImpl(fileName, zipFileName);
         } catch (IOException e) {
-            throw CheckedExceptionWrapper.wrap(e);
+            throw Activity.throwWrapped(e);
         }
         System.out.println("zipFileActivity done.");
     }

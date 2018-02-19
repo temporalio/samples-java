@@ -20,7 +20,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
-import com.uber.cadence.error.CheckedExceptionWrapper;
+import com.uber.cadence.activity.Activity;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -72,7 +72,7 @@ public class AverageCalculatorActivitiesImpl implements AverageCalculatorActivit
                 sum += Integer.parseInt(line);
             }
         } catch (IOException e) {
-            throw CheckedExceptionWrapper.wrap(e);
+            throw Activity.throwWrapped(e);
         } finally {
             try {
                 if (reader != null) {

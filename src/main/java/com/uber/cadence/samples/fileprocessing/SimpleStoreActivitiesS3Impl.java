@@ -19,7 +19,7 @@ package com.uber.cadence.samples.fileprocessing;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.S3Object;
 import com.uber.cadence.activity.Activity;
-import com.uber.cadence.error.CheckedExceptionWrapper;
+import com.uber.cadence.workflow.Workflow;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -74,7 +74,7 @@ public class SimpleStoreActivitiesS3Impl implements SimpleStoreActivities {
         } catch (IOException e) {
             // Cadence error propagation logic is going to unwrap the exception when setting it as a cause it to
             // an ActivityFailureException that workflow receives when an activity throws.
-            throw CheckedExceptionWrapper.wrap(e);
+            throw Workflow.throwWrapped(e);
         }
     }
 
