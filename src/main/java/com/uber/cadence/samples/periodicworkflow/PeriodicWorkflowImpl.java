@@ -53,7 +53,7 @@ public class PeriodicWorkflowImpl implements PeriodicWorkflow {
     }
 
     @Override
-    public void startPeriodicWorkflow(final ActivityType activity, final Object[] activityArguments,
+    public void startPeriodicWorkflow(final String activity, final Object[] activityArguments,
                                       final PeriodicWorkflowOptions options) {
         long startTime = Workflow.currentTimeMillis();
 
@@ -65,7 +65,7 @@ public class PeriodicWorkflowImpl implements PeriodicWorkflow {
                 // Call activity using dynamic client. Return type is specified as Void as it is not used, but activity that
                 // returns some other type can be called this way.
                 Promise<Object> activityCompletion = Workflow.executeActivityAsync(
-                        activity.getName(), activityOptions, Object.class, activityArguments);
+                        activity, activityOptions, Object.class, activityArguments);
 
                 if (options.isWaitForActivityCompletion()) {
                     activityCompletion.get();

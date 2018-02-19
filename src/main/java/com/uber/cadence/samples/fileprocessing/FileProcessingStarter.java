@@ -60,11 +60,17 @@ public class FileProcessingStarter {
                 .build();
         FileProcessingWorkflow workflow = cadenceClient.newWorkflowStub(FileProcessingWorkflow.class, options);
 
-        WorkflowExecution workflowExecution = CadenceClient.asyncStart(workflow::processFile, workflowArgs);
+        // This is going to block until the workflow completion.
+        // This is rarely used in production. Use the commented code below for async start version.
+        System.out.println("Executing FileProcessingWorkflow");
+        workflow.processFile(workflowArgs);
 
-        System.out.println("Started periodic workflow with workflowId=\"" + workflowExecution.getWorkflowId()
-                + "\" and runId=\"" + workflowExecution.getRunId() + "\"");
-
+        // Use this code instead of the above blocking call to start workflow asynchronously.
+//        WorkflowExecution workflowExecution = CadenceClient.asyncStart(workflow::processFile, workflowArgs);
+//
+//        System.out.println("Started periodic workflow with workflowId=\"" + workflowExecution.getWorkflowId()
+//                + "\" and runId=\"" + workflowExecution.getRunId() + "\"");
+//
         System.exit(0);
     }
 }

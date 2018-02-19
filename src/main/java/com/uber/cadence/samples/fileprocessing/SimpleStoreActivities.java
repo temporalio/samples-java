@@ -38,7 +38,7 @@ public interface SimpleStoreActivities {
      * @param bucketName
      *          Name of the S3 bucket
      */
-    String download(String bucketName, String remoteName, String localName) throws Exception;
+    String download(String bucketName, String remoteName, String localName);
     /**
      * 
      * @param fileName 

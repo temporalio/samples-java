@@ -21,6 +21,6 @@ package com.uber.cadence.samples.fileprocessing;
  */
 public interface FileProcessingActivities {
 
-    public void processFile(String inputFileName, String outputFileName) throws Exception;
+    void processFile(String inputFileName, String outputFileName);
     
 }

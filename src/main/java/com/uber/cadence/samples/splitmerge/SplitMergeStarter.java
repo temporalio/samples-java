@@ -50,9 +50,16 @@ public class SplitMergeStarter {
                 .setExecutionStartToCloseTimeoutSeconds(300)
                 .build();
         AverageCalculatorWorkflow workflow = cadenceClient.newWorkflowStub(AverageCalculatorWorkflow.class, startOptions);
-        WorkflowExecution workflowExecution = CadenceClient.asyncStart(workflow::average, bucketName, fileName, numberOfWorkers);
-        System.out.println("Started split-merge workflow with workflowId=\"" + workflowExecution.getWorkflowId()
-                + "\" and runId=\"" + workflowExecution.getRunId() + "\"");
+
+        // This is going to block until the workflow completion.
+        // This is rarely used in production. Use the commented code below for async start version.
+        System.out.println("Executing AverageCalculatorWorkflow");
+        workflow.average(bucketName, fileName, numberOfWorkers);
+
+// Use this code instead of the above blocking call to start workflow asynchronously.
+//        WorkflowExecution workflowExecution = CadenceClient.asyncStart(workflow::average, bucketName, fileName, numberOfWorkers);
+//        System.out.println("Started split-merge workflow with workflowId=\"" + workflowExecution.getWorkflowId()
+//                + "\" and runId=\"" + workflowExecution.getRunId() + "\"");
 
         System.exit(0);
     }

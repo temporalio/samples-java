@@ -30,6 +30,6 @@ public interface PeriodicWorkflow {
      *            define the schedule of the execution.
      */
     @WorkflowMethod
-    void startPeriodicWorkflow(ActivityType activity, Object[] activityArguments, PeriodicWorkflowOptions options);
+    void startPeriodicWorkflow(String activity, Object[] activityArguments, PeriodicWorkflowOptions options);
 
 }

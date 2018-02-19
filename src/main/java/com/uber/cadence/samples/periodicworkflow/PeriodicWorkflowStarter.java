@@ -53,8 +53,7 @@ public class PeriodicWorkflowStarter {
         options.setCompleteAfterSeconds(120);
         options.setWaitForActivityCompletion(true);
 
-        ActivityType activityType = new ActivityType();
-        activityType.setName("PeriodicWorkflowActivities::doSomeWork");
+        String activityType = "PeriodicWorkflowActivities::doSomeWork";
         Object[] parameters = new Object[]{"parameter1"};
 
         String workflowId = "Periodic";

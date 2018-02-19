@@ -16,10 +16,13 @@
  */
 package com.uber.cadence.samples.fileprocessing;
 
+import com.uber.cadence.error.CheckedExceptionWrapper;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -43,7 +46,16 @@ public class FileProcessingActivitiesZipImpl implements FileProcessingActivities
      *            Filename after zip
      */
     @Override
-    public void processFile(String fileName, String zipFileName) throws Exception {
+    public void processFile(String fileName, String zipFileName) {
+        try {
+            processFileImpl(fileName, zipFileName);
+        } catch (IOException e) {
+            throw CheckedExceptionWrapper.wrap(e);
+        }
+        System.out.println("zipFileActivity done.");
+    }
+
+    private void processFileImpl(String fileName, String zipFileName) throws IOException {
         String fileNameFullPath = localDirectory + fileName;
         String zipFileNameFullPath = localDirectory + zipFileName;
 
@@ -72,7 +84,5 @@ public class FileProcessingActivitiesZipImpl implements FileProcessingActivities
             if (out != null)
                 out.close();
         }
-
-        System.out.println("zipFileActivity done.");
     }
 }
