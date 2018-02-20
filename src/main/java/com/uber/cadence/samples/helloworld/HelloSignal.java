@@ -16,22 +16,28 @@
  */
 package com.uber.cadence.samples.helloworld;
 
+import com.uber.cadence.WorkflowExecution;
+import com.uber.cadence.WorkflowIdReusePolicy;
 import com.uber.cadence.client.CadenceClient;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
 import com.uber.cadence.workflow.ActivityOptions;
+import com.uber.cadence.workflow.CompletablePromise;
+import com.uber.cadence.workflow.Promise;
+import com.uber.cadence.workflow.SignalMethod;
 import com.uber.cadence.workflow.Workflow;
+import com.uber.cadence.workflow.WorkflowException;
 import com.uber.cadence.workflow.WorkflowMethod;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
- * Hello World Cadence workflow that executes a single activity.
+ * Hello World Cadence workflow that blocks until a signal is received.
  * Requires a local instance of Cadence server running.
  */
-public class HelloWorld {
+public class HelloSignal {
 
-    private static final String TASK_LIST = "HelloWorld";
+    private static final String TASK_LIST = "HelloSignal";
 
     /**
      * Workflow interface has to have at least one method annotated with @WorkflowMethod.
@@ -41,14 +47,13 @@ public class HelloWorld {
          * @return greeting string
          */
         @WorkflowMethod
-        String getGreeting(String name);
-    }
+        String getGreeting();
 
-    /**
-     * Activity interface is just a POJI
-     */
-    public interface GreetingActivities {
-        String composeGreeting(String greeting, String name);
+        /**
+         * Receives name through an external signal.
+         */
+        @SignalMethod
+        void waitForName(String name);
     }
 
     /**
@@ -56,35 +61,23 @@ public class HelloWorld {
      */
     public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
-        /**
-         * Activity stub implements activity interface and proxies calls to it to Cadence activity invocations.
-         */
-        private final HelloWorld.GreetingActivities activities = Workflow.newActivityStub(
-                GreetingActivities.class,
-                new ActivityOptions.Builder().setScheduleToCloseTimeoutSeconds(10).build());
+        private final CompletablePromise<String> name = Workflow.newCompletablePromise();
 
         @Override
-        public String getGreeting(String name) {
-            // This is blocking call that returns only after
-            return activities.composeGreeting("Hello", name );
+        public String getGreeting() {
+            return "Hello " + name.get() + "!";
         }
-    }
 
-    private static class GreetingActivitiesImpl implements GreetingActivities {
         @Override
-        public String composeGreeting(String greeting, String name) {
-            return greeting + " " + name + "!";
+        public void waitForName(String name) {
+            this.name.complete(name);
         }
     }
 
     public static void main(String[] args) {
-        // Start a worker that hosts both workflow and activity implementation
+        // Start a worker that hosts the workflow implementation
         Worker worker = new Worker(DOMAIN, TASK_LIST);
-        // Workflows are stateful. So need a type to create instances.
         worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
-        // Activities are stateless and thread safe. So a shared instance is used.
-        worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
-        // Start listening to the workflow and activity task lists.
         worker.start();
 
         // Start a workflow execution. Usually it is done from another program.
@@ -96,8 +89,15 @@ public class HelloWorld {
                 .build();
         GreetingWorkflow workflow = cadenceClient.newWorkflowStub(GreetingWorkflow.class,
                 workflowOptions);
-        // Execute a workflow waiting for it complete.
-        String greeting = workflow.getGreeting("World");
+        // Start workflow asynchronously to not use another thread to signal.
+        WorkflowExecution execution = CadenceClient.asyncStart(workflow::getGreeting);
+        // After asyncStart for getGreeting returns the workflow is guaranteed to be started.
+        // So we can send signal to it using workflow stub.
+        workflow.waitForName("World");
+        // Calling synchronous getGreeting after workflow has started reconnects to the existing workflow and
+        // blocks until result is available. Note this behavior assumes that WorkflowOptions are not configured
+        // with WorkflowIdReusePolicy.AllowDuplicate. In that case the call would fail with IllegalStateException.
+        String greeting = workflow.getGreeting();
         System.out.println(greeting);
         System.exit(0);
     }
