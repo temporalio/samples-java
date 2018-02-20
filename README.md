@@ -19,15 +19,17 @@ After cadence-client library is available just run
 
     mvn compile
     
-to build the samples.
+to build the samples. Verify that they actually can run:
 
-##Overview of the Samples
+    mvn exec:java -Dexec.mainClass=com.uber.cadence.samples.helloworld.HelloWorld
+
+## Overview of the Samples
 
 * **HelloWorld** -- obligatory single activity workflow.
 
 * **PeriodicWorkflow** -- shows how to create a workflow that periodically executes an activity which name 
   and arguments are specified at runtime. 
-  The workflow can run for extended periods and hence it uses the continue as new execution feature.
+  The workflow can run for extended periods and hence it uses the _continue as new execution_ feature.
 
 * **FileProcessing** -- shows a workflow for media processing use case. The sample workflow
   downloads a file from an Amazon S3 bucket, creates a zip file and uploads that zip file back to
@@ -40,7 +42,9 @@ to build the samples.
   
 ## Configuring Samples
 
-The steps for configuring and building the AWS Flow Framework for Java samples are:
+If you are running local container the HelloWorld and PeriodicWorkflow samples do not need any additional configuration.
+
+The steps for configuring and building other samples for Java Cadence Client are:
 
 1. Open the `access.properties` file in the `samples` directory.
 
