@@ -14,11 +14,9 @@
  *  express or implied. See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package com.uber.cadence.samples.helloworld;
+package com.uber.cadence.samples.hello;
 
-import com.uber.cadence.WorkflowExecution;
-import com.uber.cadence.client.CadenceClient;
-import com.uber.cadence.client.WorkflowExecutionAlreadyStartedException;
+import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
 import com.uber.cadence.workflow.CompletablePromise;
@@ -79,16 +77,16 @@ public class HelloSignal {
         worker.start();
 
         // Start a workflow execution. Usually it is done from another program.
-        CadenceClient cadenceClient = CadenceClient.newInstance(DOMAIN);
+        WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
         // Get a workflow stub using the same task list the worker uses.
         WorkflowOptions workflowOptions = new WorkflowOptions.Builder()
                 .setTaskList(TASK_LIST)
                 .setExecutionStartToCloseTimeoutSeconds(30)
                 .build();
-        GreetingWorkflow workflow = cadenceClient.newWorkflowStub(GreetingWorkflow.class,
+        GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class,
                 workflowOptions);
         // Start workflow asynchronously to not use another thread to signal.
-        CadenceClient.asyncStart(workflow::getGreeting);
+        WorkflowClient.asyncStart(workflow::getGreeting);
         // After asyncStart for getGreeting returns the workflow is guaranteed to be started.
         // So we can send signal to it using workflow stub.
         workflow.waitForName("World");

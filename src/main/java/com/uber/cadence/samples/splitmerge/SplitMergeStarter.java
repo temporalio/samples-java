@@ -18,7 +18,7 @@ package com.uber.cadence.samples.splitmerge;
 
 import com.uber.cadence.WorkflowExecution;
 import com.uber.cadence.WorkflowService;
-import com.uber.cadence.client.CadenceClient;
+import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.samples.common.ConfigHelper;
 
@@ -43,13 +43,13 @@ public class SplitMergeStarter {
         String val = configHelper.getValueFromConfig(SplitMergeConfigKeys.NUMBER_OF_WORKERS);
         int numberOfWorkers = Integer.parseInt(val);
 
-        CadenceClient cadenceClient = CadenceClient.newInstance(swfService, domain);
+        WorkflowClient workflowClient = WorkflowClient.newInstance(swfService, domain);
         WorkflowOptions startOptions = new WorkflowOptions.Builder()
                 .setTaskList(TASK_LIST)
                 .setTaskStartToCloseTimeoutSeconds(10)
                 .setExecutionStartToCloseTimeoutSeconds(300)
                 .build();
-        AverageCalculatorWorkflow workflow = cadenceClient.newWorkflowStub(AverageCalculatorWorkflow.class, startOptions);
+        AverageCalculatorWorkflow workflow = workflowClient.newWorkflowStub(AverageCalculatorWorkflow.class, startOptions);
 
         // This is going to block until the workflow completion.
         // This is rarely used in production. Use the commented code below for async start version.
@@ -57,7 +57,7 @@ public class SplitMergeStarter {
         workflow.average(bucketName, fileName, numberOfWorkers);
 
 // Use this code instead of the above blocking call to start workflow asynchronously.
-//        WorkflowExecution workflowExecution = CadenceClient.asyncStart(workflow::average, bucketName, fileName, numberOfWorkers);
+//        WorkflowExecution workflowExecution = WorkflowClient.asyncStart(workflow::average, bucketName, fileName, numberOfWorkers);
 //        System.out.println("Started split-merge workflow with workflowId=\"" + workflowExecution.getWorkflowId()
 //                + "\" and runId=\"" + workflowExecution.getRunId() + "\"");
 

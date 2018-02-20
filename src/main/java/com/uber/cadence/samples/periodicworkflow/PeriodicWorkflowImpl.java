@@ -18,6 +18,7 @@ package com.uber.cadence.samples.periodicworkflow;
 
 import com.uber.cadence.ActivityType;
 import com.uber.cadence.workflow.ActivityOptions;
+import com.uber.cadence.workflow.Async;
 import com.uber.cadence.workflow.Promise;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowThread;
@@ -58,35 +59,35 @@ public class PeriodicWorkflowImpl implements PeriodicWorkflow {
         long startTime = Workflow.currentTimeMillis();
 
         // Use try catch to ensure that workflow is not going to fail as it causes new run not being created
-        try {
-            long continueAsNewAfter = TimeUnit.SECONDS.toMillis(options.getContinueAsNewAfterSeconds());
-            while ((Workflow.currentTimeMillis() - startTime) < continueAsNewAfter) {
-
-                // Call activity using dynamic client. Return type is specified as Void as it is not used, but activity that
-                // returns some other type can be called this way.
-                Promise<Object> activityCompletion = Workflow.executeActivityAsync(
-                        activity, activityOptions, Object.class, activityArguments);
-
-                if (options.isWaitForActivityCompletion()) {
-                    activityCompletion.get();
-                }
-                // Sleep to re-run your periodic activity after activity completion,
-                // but not earlier then after delay of executionPeriodSeconds.
-                // However in a real cron workflow, the delay should be calculated every time to run an activity at
-                // a predefined time.
-                WorkflowThread.sleep(Duration.ofSeconds(options.getExecutionPeriodSeconds()));
-            }
-        } catch (Exception e) {
-            errorReporting.reportFailure(e);
-        } finally {
-            long secondsLeft = options.getCompleteAfterSeconds() - (Workflow.currentTimeMillis() - startTime) / SECOND;
-            if (secondsLeft > 0) {
-                // This workflow run stops executing at the following line
-                // and the new workflow run with the same workflow id is started with
-                // passed arguments.
-                options.setCompleteAfterSeconds(secondsLeft);
-                continueAsNew.startPeriodicWorkflow(activity, activityArguments, options);
-            }
-        }
+//        try {
+//            long continueAsNewAfter = TimeUnit.SECONDS.toMillis(options.getContinueAsNewAfterSeconds());
+//            while ((Workflow.currentTimeMillis() - startTime) < continueAsNewAfter) {
+//
+//                // Call activity using dynamic client. Return type is specified as Void as it is not used, but activity that
+//                // returns some other type can be called this way.
+//                Promise<Object> activityCompletion = //Async.invoke(Workflow.executeActivityAsync(
+//                        activity, activityOptions, Object.class, activityArguments);
+//
+//                if (options.isWaitForActivityCompletion()) {
+//                    activityCompletion.get();
+//                }
+//                // Sleep to re-run your periodic activity after activity completion,
+//                // but not earlier then after delay of executionPeriodSeconds.
+//                // However in a real cron workflow, the delay should be calculated every time to run an activity at
+//                // a predefined time.
+//                WorkflowThread.sleep(Duration.ofSeconds(options.getExecutionPeriodSeconds()));
+//            }
+//        } catch (Exception e) {
+//            errorReporting.reportFailure(e);
+//        } finally {
+//            long secondsLeft = options.getCompleteAfterSeconds() - (Workflow.currentTimeMillis() - startTime) / SECOND;
+//            if (secondsLeft > 0) {
+//                // This workflow run stops executing at the following line
+//                // and the new workflow run with the same workflow id is started with
+//                // passed arguments.
+//                options.setCompleteAfterSeconds(secondsLeft);
+//                continueAsNew.startPeriodicWorkflow(activity, activityArguments, options);
+//            }
+//        }
     }
 }

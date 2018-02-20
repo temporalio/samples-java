@@ -18,7 +18,7 @@ package com.uber.cadence.samples.common;
 
 import com.uber.cadence.WorkflowExecution;
 import com.uber.cadence.WorkflowService;
-import com.uber.cadence.client.CadenceClient;
+import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.UntypedWorkflowStub;
 
 /**
@@ -49,7 +49,7 @@ public class QueryWorkflowExecution {
             String runId = args[1];
             workflowExecution.setRunId(runId);
         }
-        CadenceClient client = CadenceClient.newInstance(swfService, domain);
+        WorkflowClient client = WorkflowClient.newInstance(swfService, domain);
         UntypedWorkflowStub workflow = client.newUntypedWorkflowStub(workflowExecution);
         String result = workflow.query(queryType, String.class);
 

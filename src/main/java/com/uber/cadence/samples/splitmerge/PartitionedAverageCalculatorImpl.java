@@ -17,6 +17,7 @@
 package com.uber.cadence.samples.splitmerge;
 
 import com.uber.cadence.workflow.ActivityOptions;
+import com.uber.cadence.workflow.Async;
 import com.uber.cadence.workflow.Promise;
 import com.uber.cadence.workflow.Workflow;
 
@@ -59,7 +60,7 @@ public class PartitionedAverageCalculatorImpl implements PartitionedAverageCalcu
         List<Promise<Integer>> asyncResults = new ArrayList<>();
         for (int chunkNumber = 0; chunkNumber < numberOfWorkers; chunkNumber++) {
             // Splitting computation for each chunk as separate activity
-            Promise<Integer> result = Workflow.async(client::computeSumForChunk,
+            Promise<Integer> result = Async.invoke(client::computeSumForChunk,
                     bucketName, inputFile, chunkNumber, chunkSize);
             asyncResults.add(result);
         }

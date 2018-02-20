@@ -18,7 +18,7 @@ package com.uber.cadence.samples.fileprocessing;
 
 import com.uber.cadence.WorkflowExecution;
 import com.uber.cadence.WorkflowService;
-import com.uber.cadence.client.CadenceClient;
+import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.samples.common.ConfigHelper;
 
@@ -53,12 +53,12 @@ public class FileProcessingStarter {
         workflowArgs.setTargetBucketName(targetBucketName);
         workflowArgs.setTargetFilename(targetFilename);
 
-        CadenceClient cadenceClient = CadenceClient.newInstance(swfService, domain);
+        WorkflowClient workflowClient = WorkflowClient.newInstance(swfService, domain);
         WorkflowOptions options = new WorkflowOptions.Builder()
                 .setExecutionStartToCloseTimeoutSeconds(300)
                 .setTaskList(WORKFLOW_TASK_LIST)
                 .build();
-        FileProcessingWorkflow workflow = cadenceClient.newWorkflowStub(FileProcessingWorkflow.class, options);
+        FileProcessingWorkflow workflow = workflowClient.newWorkflowStub(FileProcessingWorkflow.class, options);
 
         // This is going to block until the workflow completion.
         // This is rarely used in production. Use the commented code below for async start version.
@@ -66,7 +66,7 @@ public class FileProcessingStarter {
         workflow.processFile(workflowArgs);
 
         // Use this code instead of the above blocking call to start workflow asynchronously.
-//        WorkflowExecution workflowExecution = CadenceClient.asyncStart(workflow::processFile, workflowArgs);
+//        WorkflowExecution workflowExecution = WorkflowClient.asyncStart(workflow::processFile, workflowArgs);
 //
 //        System.out.println("Started periodic workflow with workflowId=\"" + workflowExecution.getWorkflowId()
 //                + "\" and runId=\"" + workflowExecution.getRunId() + "\"");

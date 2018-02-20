@@ -14,9 +14,9 @@
  *  express or implied. See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package com.uber.cadence.samples.helloworld;
+package com.uber.cadence.samples.hello;
 
-import com.uber.cadence.client.CadenceClient;
+import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
 import com.uber.cadence.workflow.ActivityOptions;
@@ -67,7 +67,7 @@ public class HelloActivity {
         @Override
         public String getGreeting(String name) {
             // This is blocking call that returns only after activity is completed.
-            return activities.composeGreeting("Hello", name );
+            return activities.composeGreeting("Hello", name);
         }
     }
 
@@ -89,13 +89,13 @@ public class HelloActivity {
         worker.start();
 
         // Start a workflow execution. Usually it is done from another program.
-        CadenceClient cadenceClient = CadenceClient.newInstance(DOMAIN);
+        WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
         // Get a workflow stub using the same task list the worker uses.
         WorkflowOptions workflowOptions = new WorkflowOptions.Builder()
                 .setTaskList(TASK_LIST)
                 .setExecutionStartToCloseTimeoutSeconds(30)
                 .build();
-        GreetingWorkflow workflow = cadenceClient.newWorkflowStub(GreetingWorkflow.class,
+        GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class,
                 workflowOptions);
         // Execute a workflow waiting for it complete.
         String greeting = workflow.getGreeting("World");

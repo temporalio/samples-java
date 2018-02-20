@@ -19,7 +19,7 @@ package com.uber.cadence.samples.periodicworkflow;
 import com.uber.cadence.WorkflowExecution;
 import com.uber.cadence.WorkflowIdReusePolicy;
 import com.uber.cadence.WorkflowService;
-import com.uber.cadence.client.CadenceClient;
+import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowExecutionAlreadyStartedException;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.samples.common.ConfigHelper;
@@ -39,7 +39,7 @@ public class PeriodicWorkflowStarter {
         swfService = configHelper.createWorkflowClient();
         domain = configHelper.getDomain();
 
-        CadenceClient client = CadenceClient.newInstance(swfService, domain);
+        WorkflowClient client = WorkflowClient.newInstance(swfService, domain);
 
 
         // Execute activity every two 10 seconds, wait for it to complete before starting the new one, 
@@ -67,7 +67,7 @@ public class PeriodicWorkflowStarter {
             // Passing instance id to ensure that only one periodic workflow can be active at a time.
             // Use different id for each schedule.
             PeriodicWorkflow workflow = client.newWorkflowStub(PeriodicWorkflow.class, so);
-            WorkflowExecution workflowExecution = CadenceClient.asyncStart(workflow::startPeriodicWorkflow,
+            WorkflowExecution workflowExecution = WorkflowClient.asyncStart(workflow::startPeriodicWorkflow,
                     activityType, parameters, options);
 
             System.out.println("Started periodic workflow with workflowId=\"" + workflowExecution.getWorkflowId()

@@ -21,7 +21,7 @@ After cadence-client library is available just run
     
 to build the samples. Verify that they actually can run:
 
-    mvn exec:java -Dexec.mainClass=com.uber.cadence.samples.helloworld.HelloActivity
+    mvn exec:java -Dexec.mainClass=com.uber.cadence.samples.hello.HelloActivity
 
 ## Overview of the Samples
 
@@ -84,7 +84,7 @@ you've built them using the preceding instructions.
 
 To run hello world:
 
-    mvn exec:java -Dexec.mainClass=com.uber.cadence.samples.helloworld.HelloActivity
+    mvn exec:java -Dexec.mainClass=com.uber.cadence.samples.hello.HelloActivity
 
 ### File Processing
 

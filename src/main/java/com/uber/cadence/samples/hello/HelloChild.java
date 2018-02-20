@@ -14,11 +14,13 @@
  *  express or implied. See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-package com.uber.cadence.samples.helloworld;
+package com.uber.cadence.samples.hello;
 
-import com.uber.cadence.client.CadenceClient;
+import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
+import com.uber.cadence.workflow.Async;
+import com.uber.cadence.workflow.Promise;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
 import org.apache.log4j.BasicConfigurator;
@@ -65,7 +67,9 @@ public class HelloChild {
             GreetingChild child = Workflow.newChildWorkflowStub(GreetingChild.class);
 
             // This is blocking call that returns only after child is completed.
-            return child.composeGreeting("Hello", name );
+            Promise<String> greeting = Async.invoke(child::composeGreeting, "Hello", name);
+            // Do something else here
+            return greeting.get(); // blocks waiting for child to complete
         }
     }
 
@@ -91,13 +95,13 @@ public class HelloChild {
         worker.start();
 
         // Start a workflow execution. Usually it is done from another program.
-        CadenceClient cadenceClient = CadenceClient.newInstance(DOMAIN);
+        WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
         // Get a workflow stub using the same task list the worker uses.
         WorkflowOptions workflowOptions = new WorkflowOptions.Builder()
                 .setTaskList(TASK_LIST)
                 .setExecutionStartToCloseTimeoutSeconds(30)
                 .build();
-        GreetingWorkflow workflow = cadenceClient.newWorkflowStub(GreetingWorkflow.class,
+        GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class,
                 workflowOptions);
         // Execute a workflow waiting for it complete.
         String greeting = workflow.getGreeting("World");
