@@ -18,61 +18,62 @@ package com.uber.cadence.samples.helloworld;
 
 import com.uber.cadence.WorkflowExecution;
 import com.uber.cadence.client.CadenceClient;
-import com.uber.cadence.client.WorkflowExecutionAlreadyStartedException;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
 import com.uber.cadence.workflow.CompletablePromise;
+import com.uber.cadence.workflow.QueryMethod;
 import com.uber.cadence.workflow.SignalMethod;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
+import com.uber.cadence.workflow.WorkflowThread;
+
+import java.time.Duration;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
- * Hello World Cadence workflow that blocks until a signal is received.
+ * Hello World Cadence workflow that returns greeting when queried.
  * Requires a local instance of Cadence server running.
  */
-@SuppressWarnings("ALL")
-public class HelloSignal {
+public class HelloQuery {
 
-    private static final String TASK_LIST = "HelloSignal";
+    private static final String TASK_LIST = "HelloQuery";
 
-    /**
-     * Workflow interface has to have at least one method annotated with @WorkflowMethod.
-     */
     public interface GreetingWorkflow {
-        /**
-         * @return greeting string
-         */
+
         @WorkflowMethod
-        String getGreeting();
+        void createGreeting(String name);
 
         /**
-         * Receives name through an external signal.
+         * Returns greeting as a query value.
          */
-        @SignalMethod
-        void waitForName(String name);
+        @QueryMethod
+        String queryGreeting();
     }
 
     /**
-     * GreetingWorkflow implementation that returns a greeting.
+     * GreetingWorkflow implementation that updates greeting after sleeping for 5 seconds.
      */
     public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
-        private final CompletablePromise<String> name = Workflow.newCompletablePromise();
+        private String greeting;
 
         @Override
-        public String getGreeting() {
-            return "Hello " + name.get() + "!";
+        public void createGreeting(String name) {
+            greeting = "Hello " + name + "!";
+            // Inside workflow code always use WorkflowThread.sleep
+            // and Workflow.currentTimeMillis instead of standard Java ones.
+            WorkflowThread.sleep(Duration.ofSeconds(2));
+            greeting = "Bye " + name + "!";
         }
 
         @Override
-        public void waitForName(String name) {
-            this.name.complete(name);
+        public String queryGreeting() {
+            return greeting;
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         // Start a worker that hosts the workflow implementation
         Worker worker = new Worker(DOMAIN, TASK_LIST);
         worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
@@ -87,16 +88,15 @@ public class HelloSignal {
                 .build();
         GreetingWorkflow workflow = cadenceClient.newWorkflowStub(GreetingWorkflow.class,
                 workflowOptions);
-        // Start workflow asynchronously to not use another thread to signal.
-        CadenceClient.asyncStart(workflow::getGreeting);
+        // Start workflow asynchronously to not use another thread to query.
+        CadenceClient.asyncStart(workflow::createGreeting, "World");
         // After asyncStart for getGreeting returns the workflow is guaranteed to be started.
         // So we can send signal to it using workflow stub.
-        workflow.waitForName("World");
-        // Calling synchronous getGreeting after workflow has started reconnects to the existing workflow and
-        // blocks until result is available. Note that this behavior assumes that WorkflowOptions are not configured
-        // with WorkflowIdReusePolicy.AllowDuplicate. In that case the call would fail with WorkflowExecutionAlreadyStartedException.
-        String greeting = workflow.getGreeting();
-        System.out.println(greeting);
+
+        System.out.println(workflow.queryGreeting()); // Should print Hello...
+        // Note that inside a workflow only WorkflowThread.sleep is allowed. Outside WorkflowThread.sleep is not allowed.
+        Thread.sleep(2500);
+        System.out.println(workflow.queryGreeting()); // Should print Bye ...
         System.exit(0);
     }
 }
