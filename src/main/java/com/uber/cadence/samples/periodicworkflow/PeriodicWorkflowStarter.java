@@ -16,13 +16,12 @@
  */
 package com.uber.cadence.samples.periodicworkflow;
 
-import com.uber.cadence.ActivityType;
 import com.uber.cadence.WorkflowExecution;
 import com.uber.cadence.WorkflowIdReusePolicy;
 import com.uber.cadence.WorkflowService;
 import com.uber.cadence.client.CadenceClient;
+import com.uber.cadence.client.WorkflowExecutionAlreadyStartedException;
 import com.uber.cadence.client.WorkflowOptions;
-import com.uber.cadence.internal.WorkflowExecutionAlreadyStartedException;
 import com.uber.cadence.samples.common.ConfigHelper;
 
 public class PeriodicWorkflowStarter {

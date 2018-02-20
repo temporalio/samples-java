@@ -17,16 +17,12 @@
 package com.uber.cadence.samples.helloworld;
 
 import com.uber.cadence.WorkflowExecution;
-import com.uber.cadence.WorkflowIdReusePolicy;
 import com.uber.cadence.client.CadenceClient;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.ActivityOptions;
 import com.uber.cadence.workflow.CompletablePromise;
-import com.uber.cadence.workflow.Promise;
 import com.uber.cadence.workflow.SignalMethod;
 import com.uber.cadence.workflow.Workflow;
-import com.uber.cadence.workflow.WorkflowException;
 import com.uber.cadence.workflow.WorkflowMethod;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
