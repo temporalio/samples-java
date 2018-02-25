@@ -27,7 +27,7 @@ import com.uber.cadence.workflow.WorkflowMethod;
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
- * Hello World Cadence workflow that blocks until a signal is received.
+ * Demonstrates asynchronous signalling of a workflow.
  * Requires a local instance of Cadence server running.
  */
 @SuppressWarnings("ALL")

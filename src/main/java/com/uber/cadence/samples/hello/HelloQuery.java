@@ -28,7 +28,7 @@ import java.time.Duration;
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
- * Hello World Cadence workflow that returns greeting when queried.
+ * Demonstrates query capability.
  * Requires a local instance of Cadence server running.
  */
 public class HelloQuery {

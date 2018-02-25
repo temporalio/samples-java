@@ -21,6 +21,7 @@ import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
 import com.uber.cadence.workflow.ActivityOptions;
 import com.uber.cadence.workflow.Async;
+import com.uber.cadence.workflow.Functions;
 import com.uber.cadence.workflow.Promise;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
@@ -28,7 +29,7 @@ import com.uber.cadence.workflow.WorkflowMethod;
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
- * Hello World Cadence workflow that executes a couple activities in parallel.
+ * Demonstrates asynchronous activity invocation.
  * Requires a local instance of Cadence server running.
  */
 public class HelloAsync {
@@ -40,15 +41,13 @@ public class HelloAsync {
         String getGreeting(String name);
     }
 
-    /**
-     * Activity interface is just a POJI
-     */
     public interface GreetingActivities {
         String composeGreeting(String greeting, String name);
     }
 
     /**
-     * GreetingWorkflow implementation that calls GreetingsActivities#printIt.
+     * GreetingWorkflow implementation that calls GreetingsActivities#composeGreeting
+     * using {@link Async#invoke(Functions.Proc)}.
      */
     public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
