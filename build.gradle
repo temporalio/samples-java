@@ -1,0 +1,45 @@
+plugins {
+    id "com.github.hierynomus.license" version "0.14.0"
+}
+
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group = 'com.uber'
+version = '0.0.1'
+
+description = """Samples for Cadence. Based on samples for AWS SWF"""
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compile group: 'com.uber', name: 'cadence-client', version: '0.2.0-SNAPSHOT'
+    compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.274'
+    compile group: 'commons-configuration', name: 'commons-configuration', version: '1.9'
+    compile group: 'log4j', name: 'log4j', version: '1.2.17'
+}
+
+task execute(type: JavaExec) {
+    main = findProperty("mainClass") ?: ""
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+license {
+    header rootProject.file('license-header.txt')
+    mapping {
+        java = 'SLASHSTAR_STYLE'
+    }
+    strictCheck true
+}

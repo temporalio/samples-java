@@ -17,11 +17,11 @@ See instructions from the Cadence Client README for the instructions.
 
 After cadence-client library is available just run
 
-    mvn compile
+    ./gradlew build`
     
 to build the samples. Verify that they actually can run:
 
-    mvn exec:java -Dexec.mainClass=com.uber.cadence.samples.hello.HelloActivity
+    ./gradlew execute -PmainClass=com.uber.cadence.samples.hello.HelloActivity
 
 ## Overview of the Samples
 
@@ -84,7 +84,7 @@ you've built them using the preceding instructions.
 
 To run hello world:
 
-    mvn exec:java -Dexec.mainClass=com.uber.cadence.samples.hello.HelloActivity
+    ./gradlew execute -PmainClass=com.uber.cadence.samples.hello.HelloActivity
 
 ### File Processing
 
@@ -101,22 +101,16 @@ bucket that you want the sample to use:
 The sample has two executables. You should run each command in a separate terminal window. The first one 
 is the worker that hosts workflow and activities implementation:
 
-    mvn exec:java -Dexec.mainClass=com.uber.cadence.samples.fileprocessing.FileProcessingWorker
+    ./gradlew execute -PmainClass=com.uber.cadence.samples.fileprocessing.FileProcessingWorker
     
 The second is responsible for starting workflows: 
 
-    mvn exec:java -Dexec.mainClass=com.uber.cadence.samples.fileprocessing.FileProcessingStarter
+    ./gradlew execute -PmainClass=com.uber.cadence.samples.fileprocessing.FileProcessingStarter
     
-### Periodic Workflow
-
-    mvn exec:java -Dexec.mainClass=com.uber.cadence.samples.periodicworkflow.PeriodicWorkflowWorker
-    
-    mvn exec:java -Dexec.mainClass=com.uber.cadence.samples.periodicworkflow.PeriodicWorkflowStarter
-
 ### Split Merge
 
 The sample has two executables. You should run each command in a separate terminal window.
 
-    mvn exec:java -Dexec.mainClass=com.uber.cadence.samples.splitmerge.SplitMergeWorker
-    mvn exec:java -Dexec.mainClass=com.uber.cadence.samples.splitmerge.SplitMergeStarter
+    ./gradlew execute -PmainClass=com.uber.cadence.samples.splitmerge.SplitMergeWorker
+    ./gradlew execute -PmainClass=com.uber.cadence.samples.splitmerge.SplitMergeStarter
 
