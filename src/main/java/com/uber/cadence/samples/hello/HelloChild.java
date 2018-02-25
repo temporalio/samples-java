@@ -30,7 +30,7 @@ import org.apache.log4j.Logger;
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
- * Hello World Cadence workflow that executes a single child workflow.
+ * Demonstrates child workflow.
  * Requires a local instance of Cadence server running.
  */
 public class HelloChild {

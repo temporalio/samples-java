@@ -20,19 +20,20 @@ import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
 import com.uber.cadence.workflow.ActivityOptions;
-import com.uber.cadence.workflow.Async;
-import com.uber.cadence.workflow.CompletablePromise;
-import com.uber.cadence.workflow.Promise;
+import com.uber.cadence.workflow.Functions;
+import com.uber.cadence.workflow.RetryOptions;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
+
+import java.time.Duration;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
- * Demonstrates async invocation of an entire sequence of activities.
+ * Demonstrates activity retries using exponential backoff algorithm.
  * Requires a local instance of Cadence server running.
  */
-public class HelloAsyncLambda {
+public class HelloActivityRetry {
 
     private static final String TASK_LIST = "HelloActivity";
 
@@ -44,54 +45,54 @@ public class HelloAsyncLambda {
         String getGreeting(String name);
     }
 
-    /**
-     * Activity interface is just a POJI
-     */
     public interface GreetingActivities {
-        String getGreeting();
-
         String composeGreeting(String greeting, String name);
     }
 
     /**
-     * GreetingWorkflow implementation that calls GreetingsActivities#printIt.
+     * GreetingWorkflow implementation that demonstrates activity stub configured with
+     * {@link RetryOptions}.
      */
     public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
         /**
-         * Activity stub implements activity interface and proxies calls to it to Cadence activity invocations.
-         * As activities are reentrant only a single stub can be used for multiple activity invocations.
+         * To enable activity retry set {@link RetryOptions} on {@link ActivityOptions}.
+         * It also works for activities invoked through
+         * {@link com.uber.cadence.workflow.Async#invoke(Functions.Proc)} and for child workflows.
          */
         private final GreetingActivities activities = Workflow.newActivityStub(
                 GreetingActivities.class,
-                new ActivityOptions.Builder().setScheduleToCloseTimeoutSeconds(10).build());
+                new ActivityOptions.Builder()
+                        .setScheduleToCloseTimeoutSeconds(10)
+                        .setRetryOptions(new RetryOptions.Builder()
+                                .setInitialInterval(Duration.ofSeconds(1))
+                                .setExpiration(Duration.ofMinutes(1))
+                                .build())
+                        .build());
 
         @Override
         public String getGreeting(String name) {
-            // Async.invoke accepts not only activity or child workflow method references
-            // but lambda functions as well. Behind the scene it allocates a thread
-            // to execute it asynchronously.
-            Promise<String> result1 = Async.invoke(() -> {
-                String greeting = activities.getGreeting();
-                return activities.composeGreeting(greeting, name);
-            });
-            Promise<String> result2 = Async.invoke(() -> {
-                String greeting = activities.getGreeting();
-                return activities.composeGreeting(greeting, name);
-            });
-            return result1.get() + "\n" + result2.get();
+            // This is blocking call that returns only after activity is completed.
+            return activities.composeGreeting("Hello", name);
         }
     }
 
     private static class GreetingActivitiesImpl implements GreetingActivities {
+        private int callCount;
+        private long lastInvocationTime;
 
         @Override
-        public String getGreeting() {
-            return "Hello";
-        }
-
-        @Override
-        public String composeGreeting(String greeting, String name) {
+        public synchronized String composeGreeting(String greeting, String name) {
+            if (lastInvocationTime != 0) {
+                long timeSinceLastInvocation = System.currentTimeMillis() - lastInvocationTime;
+                System.out.print(timeSinceLastInvocation + " milliseconds since last invocation. ");
+            }
+            lastInvocationTime = System.currentTimeMillis();
+            if (++callCount < 4) {
+                System.out.println("composeGreeting activity is going to fail");
+                throw new IllegalStateException("not yet");
+            }
+            System.out.println("composeGreeting activity is going to complete");
             return greeting + " " + name + "!";
         }
     }

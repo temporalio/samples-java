@@ -32,7 +32,7 @@ import java.time.Duration;
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
- * Hello World Cadence workflow that executes a single activity periodically.
+ * Demonstrates a "cron" workflow that executes activity periodically.
  * Requires a local instance of Cadence server running.
  */
 public class HelloPeriodic {

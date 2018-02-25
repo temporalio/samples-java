@@ -52,7 +52,7 @@ public class HelloActivity {
     }
 
     /**
-     * GreetingWorkflow implementation that calls GreetingsActivities#printIt.
+     * GreetingWorkflow implementation that calls GreetingsActivities#composeGreeting.
      */
     public static class GreetingWorkflowImpl implements GreetingWorkflow {
 

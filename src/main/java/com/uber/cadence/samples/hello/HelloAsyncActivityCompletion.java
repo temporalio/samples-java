@@ -31,16 +31,13 @@ import java.util.concurrent.ForkJoinPool;
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
- * Hello World Cadence workflow that executes a single activity.
+ * Demonstrates an asynchronous activity implementation.
  * Requires a local instance of Cadence server running.
  */
 public class HelloAsyncActivityCompletion {
 
     private static final String TASK_LIST = "HelloActivity";
 
-    /**
-     * Workflow interface has to have at least one method annotated with @WorkflowMethod.
-     */
     public interface GreetingWorkflow {
         /**
          * @return greeting string
