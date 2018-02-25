@@ -20,8 +20,8 @@ import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
 import com.uber.cadence.workflow.QueryMethod;
+import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
-import com.uber.cadence.workflow.WorkflowThread;
 
 import java.time.Duration;
 
@@ -59,7 +59,7 @@ public class HelloQuery {
             greeting = "Hello " + name + "!";
             // Inside workflow code always use WorkflowThread.sleep
             // and Workflow.currentTimeMillis instead of standard Java ones.
-            WorkflowThread.sleep(Duration.ofSeconds(2));
+            Workflow.sleep(Duration.ofSeconds(2));
             greeting = "Bye " + name + "!";
         }
 
