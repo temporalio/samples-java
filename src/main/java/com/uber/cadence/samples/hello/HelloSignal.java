@@ -57,7 +57,7 @@ public class HelloSignal {
      */
     public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
-        private final CompletablePromise<String> name = Workflow.newCompletablePromise();
+        private final CompletablePromise<String> name = Workflow.newPromise();
 
         @Override
         public String getGreeting() {
