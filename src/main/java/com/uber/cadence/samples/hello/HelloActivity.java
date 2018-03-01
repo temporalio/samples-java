@@ -16,12 +16,12 @@
  */
 package com.uber.cadence.samples.hello;
 
+import com.uber.cadence.activity.ActivityMethod;
 import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.ActivityOptions;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
+import org.apache.log4j.BasicConfigurator;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
@@ -40,7 +40,7 @@ public class HelloActivity {
         /**
          * @return greeting string
          */
-        @WorkflowMethod
+        @WorkflowMethod(executionStartToCloseTimeoutSeconds = 10, taskList = TASK_LIST)
         String getGreeting(String name);
     }
 
@@ -48,6 +48,7 @@ public class HelloActivity {
      * Activity interface is just a POJI
      */
     public interface GreetingActivities {
+        @ActivityMethod(scheduleToCloseTimeoutSeconds = 2)
         String composeGreeting(String greeting, String name);
     }
 
@@ -60,9 +61,7 @@ public class HelloActivity {
          * Activity stub implements activity interface and proxies calls to it to Cadence activity invocations.
          * As activities are reentrant only a single stub can be used for multiple activity invocations.
          */
-        private final GreetingActivities activities = Workflow.newActivityStub(
-                GreetingActivities.class,
-                new ActivityOptions.Builder().setScheduleToCloseTimeoutSeconds(10).build());
+        private final GreetingActivities activities = Workflow.newActivityStub(GreetingActivities.class);
 
         @Override
         public String getGreeting(String name) {
@@ -91,12 +90,7 @@ public class HelloActivity {
         // Start a workflow execution. Usually it is done from another program.
         WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
         // Get a workflow stub using the same task list the worker uses.
-        WorkflowOptions workflowOptions = new WorkflowOptions.Builder()
-                .setTaskList(TASK_LIST)
-                .setExecutionStartToCloseTimeoutSeconds(30)
-                .build();
-        GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class,
-                workflowOptions);
+        GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);
         // Execute a workflow waiting for it complete.
         String greeting = workflow.getGreeting("World");
         System.out.println(greeting);

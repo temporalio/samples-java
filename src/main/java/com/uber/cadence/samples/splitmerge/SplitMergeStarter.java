@@ -22,6 +22,8 @@ import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.samples.common.ConfigHelper;
 
+import java.time.Duration;
+
 import static com.uber.cadence.samples.splitmerge.SplitMergeWorker.TASK_LIST;
 
 public class SplitMergeStarter {
@@ -46,8 +48,8 @@ public class SplitMergeStarter {
         WorkflowClient workflowClient = WorkflowClient.newInstance(swfService, domain);
         WorkflowOptions startOptions = new WorkflowOptions.Builder()
                 .setTaskList(TASK_LIST)
-                .setTaskStartToCloseTimeoutSeconds(10)
-                .setExecutionStartToCloseTimeoutSeconds(300)
+                .setTaskStartToCloseTimeout(Duration.ofSeconds(10))
+                .setExecutionStartToCloseTimeout(Duration.ofMinutes(10))
                 .build();
         AverageCalculatorWorkflow workflow = workflowClient.newWorkflowStub(AverageCalculatorWorkflow.class, startOptions);
 

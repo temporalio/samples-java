@@ -24,6 +24,8 @@ import com.uber.cadence.workflow.SignalMethod;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
 
+import java.time.Duration;
+
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
@@ -81,7 +83,7 @@ public class HelloSignal {
         // Get a workflow stub using the same task list the worker uses.
         WorkflowOptions workflowOptions = new WorkflowOptions.Builder()
                 .setTaskList(TASK_LIST)
-                .setExecutionStartToCloseTimeoutSeconds(30)
+                .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
                 .build();
         GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class,
                 workflowOptions);

@@ -16,14 +16,15 @@
  */
 package com.uber.cadence.samples.hello;
 
+import com.uber.cadence.activity.ActivityOptions;
 import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowOptions;
+import com.uber.cadence.common.RetryOptions;
 import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.ActivityOptions;
 import com.uber.cadence.workflow.Functions;
-import com.uber.cadence.workflow.RetryOptions;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
+import org.apache.log4j.BasicConfigurator;
 
 import java.time.Duration;
 
@@ -63,10 +64,11 @@ public class HelloActivityRetry {
         private final GreetingActivities activities = Workflow.newActivityStub(
                 GreetingActivities.class,
                 new ActivityOptions.Builder()
-                        .setScheduleToCloseTimeoutSeconds(10)
+                        .setScheduleToCloseTimeout(Duration.ofSeconds(10))
                         .setRetryOptions(new RetryOptions.Builder()
                                 .setInitialInterval(Duration.ofSeconds(1))
                                 .setExpiration(Duration.ofMinutes(1))
+                                .setDoNotRetry(IllegalArgumentException.class)
                                 .build())
                         .build());
 
@@ -112,7 +114,7 @@ public class HelloActivityRetry {
         // Get a workflow stub using the same task list the worker uses.
         WorkflowOptions workflowOptions = new WorkflowOptions.Builder()
                 .setTaskList(TASK_LIST)
-                .setExecutionStartToCloseTimeoutSeconds(30)
+                .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
                 .build();
         GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class,
                 workflowOptions);

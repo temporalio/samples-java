@@ -68,6 +68,7 @@ public interface FileProcessingWorkflow {
     /**
      * Uses a structure as arguments, to make addition of new arguments a backwards compatible change.
      */
-    @WorkflowMethod
+    @WorkflowMethod(taskList = FileProcessingStarter.WORKFLOW_TASK_LIST,
+            executionStartToCloseTimeoutSeconds = 300)
     void processFile(Arguments args);
 }
