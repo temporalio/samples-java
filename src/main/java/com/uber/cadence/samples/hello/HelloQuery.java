@@ -80,7 +80,7 @@ public class HelloQuery {
         // Get a workflow stub using the same task list the worker uses.
         WorkflowOptions workflowOptions = new WorkflowOptions.Builder()
                 .setTaskList(TASK_LIST)
-                .setExecutionStartToCloseTimeoutSeconds(30)
+                .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
                 .build();
         GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class,
                 workflowOptions);

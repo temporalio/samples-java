@@ -16,14 +16,18 @@
  */
 package com.uber.cadence.samples.hello;
 
+import com.google.common.base.Throwables;
 import com.uber.cadence.WorkflowExecution;
 import com.uber.cadence.WorkflowIdReusePolicy;
 import com.uber.cadence.activity.Activity;
-import com.uber.cadence.client.WorkflowClient;
+import com.uber.cadence.activity.ActivityOptions;
 import com.uber.cadence.client.DuplicateWorkflowException;
+import com.uber.cadence.client.UntypedWorkflowStub;
+import com.uber.cadence.client.WorkflowClient;
+import com.uber.cadence.client.WorkflowException;
 import com.uber.cadence.client.WorkflowOptions;
+import com.uber.cadence.common.RetryOptions;
 import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.ActivityOptions;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
 
@@ -64,7 +68,7 @@ public class HelloPeriodic {
         private final GreetingActivities activities = Workflow.newActivityStub(
                 GreetingActivities.class,
                 new ActivityOptions.Builder()
-                        .setScheduleToCloseTimeoutSeconds(10)
+                        .setScheduleToCloseTimeout(Duration.ofSeconds(10))
                         .build());
 
         /**
@@ -107,13 +111,23 @@ public class HelloPeriodic {
         // ignoring duplicated exception.
         // It is only to protect from application level failures.
         // Failures of a workflow worker don't lead to workflow failures.
+        WorkflowExecution execution = null;
         while (true) {
+            // Print reason of failure of the previous run, before restarting.
+            if (execution != null) {
+                UntypedWorkflowStub workflow = workflowClient.newUntypedWorkflowStub(execution);
+                try {
+                    workflow.getResult(Void.class); //
+                } catch (WorkflowException e) {
+                    System.out.println("Previous instance failed:\n" + Throwables.getStackTraceAsString(e));
+                }
+            }
             // Get a workflow stub using the same task list the worker uses.
             WorkflowOptions workflowOptions = new WorkflowOptions.Builder()
                     .setTaskList(TASK_LIST)
                     // Adjust this value to the maximum time workflow is expected to run
                     // It usually depends on number of repetitions and interval between them.
-                    .setExecutionStartToCloseTimeoutSeconds(300)
+                    .setExecutionStartToCloseTimeout(Duration.ofMinutes(10))
                     // Use single fixed ID to ensure that there is at most one instance running.
                     // Obviously if there is need to run multiple instances adjust the ID appropriately to have one
                     // per periodic business process.
@@ -125,7 +139,7 @@ public class HelloPeriodic {
             GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class,
                     workflowOptions);
             try {
-                WorkflowExecution execution = WorkflowClient.asyncStart(workflow::greetPeriodically,
+                execution = WorkflowClient.asyncStart(workflow::greetPeriodically,
                         "World", Duration.ofSeconds(1));
                 System.out.println("Started " + execution);
             } catch (DuplicateWorkflowException e) {

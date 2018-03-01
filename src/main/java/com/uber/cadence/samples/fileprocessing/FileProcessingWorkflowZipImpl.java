@@ -16,10 +16,11 @@
  */
 package com.uber.cadence.samples.fileprocessing;
 
-import com.uber.cadence.workflow.ActivityOptions;
+import com.uber.cadence.activity.ActivityOptions;
 import com.uber.cadence.workflow.Workflow;
 
 import java.io.File;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class FileProcessingWorkflowZipImpl implements FileProcessingWorkflow {
     public FileProcessingWorkflowZipImpl() {
         // Create activity clients
         ActivityOptions ao = new ActivityOptions.Builder()
-                .setScheduleToCloseTimeoutSeconds(60)
+                .setScheduleToCloseTimeout(Duration.ofMinutes(1))
                 .setTaskList(FileProcessingWorker.TASK_LIST)
                 .build();
         this.defaultTaskListStore = Workflow.newActivityStub(SimpleStoreActivities.class, ao);
@@ -67,8 +68,8 @@ public class FileProcessingWorkflowZipImpl implements FileProcessingWorkflow {
 
                 // Now initialize stubs that are specific to the returned task list.
                 ActivityOptions hostAO = new ActivityOptions.Builder()
-                        .setScheduleToCloseTimeoutSeconds(60)
-                        .setScheduleToStartTimeoutSeconds(10) // short queueing timeout
+                        .setScheduleToCloseTimeout(Duration.ofMinutes(1))
+                        .setScheduleToStartTimeout(Duration.ofSeconds(10)) // short queueing timeout
                         .setTaskList(workerTaskList)
                         .build();
                 workerTaskListStore = Workflow.newActivityStub(SimpleStoreActivities.class, hostAO);

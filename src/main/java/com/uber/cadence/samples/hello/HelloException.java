@@ -17,11 +17,11 @@
 package com.uber.cadence.samples.hello;
 
 import com.google.common.base.Throwables;
+import com.uber.cadence.activity.ActivityOptions;
 import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowException;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.ActivityOptions;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
 import org.apache.log4j.BasicConfigurator;
@@ -29,6 +29,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.time.Duration;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
@@ -135,7 +136,7 @@ public class HelloException {
     public static class GreetingChildImpl implements GreetingChild {
         private final GreetingActivities activities = Workflow.newActivityStub(
                 GreetingActivities.class,
-                new ActivityOptions.Builder().setScheduleToCloseTimeoutSeconds(10).build());
+                new ActivityOptions.Builder().setScheduleToCloseTimeout(Duration.ofSeconds(10)).build());
 
         @Override
         public String composeGreeting(String greeting, String name) {
@@ -166,7 +167,7 @@ public class HelloException {
         WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
         WorkflowOptions workflowOptions = new WorkflowOptions.Builder()
                 .setTaskList(TASK_LIST)
-                .setExecutionStartToCloseTimeoutSeconds(30)
+                .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
                 .build();
         GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class,
                 workflowOptions);

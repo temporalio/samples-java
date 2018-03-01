@@ -16,15 +16,16 @@
  */
 package com.uber.cadence.samples.hello;
 
+import com.uber.cadence.activity.ActivityOptions;
 import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.ActivityOptions;
 import com.uber.cadence.workflow.Async;
-import com.uber.cadence.workflow.CompletablePromise;
 import com.uber.cadence.workflow.Promise;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
+
+import java.time.Duration;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
@@ -64,7 +65,7 @@ public class HelloAsyncLambda {
          */
         private final GreetingActivities activities = Workflow.newActivityStub(
                 GreetingActivities.class,
-                new ActivityOptions.Builder().setScheduleToCloseTimeoutSeconds(10).build());
+                new ActivityOptions.Builder().setScheduleToCloseTimeout(Duration.ofSeconds(10)).build());
 
         @Override
         public String getGreeting(String name) {
@@ -111,7 +112,7 @@ public class HelloAsyncLambda {
         // Get a workflow stub using the same task list the worker uses.
         WorkflowOptions workflowOptions = new WorkflowOptions.Builder()
                 .setTaskList(TASK_LIST)
-                .setExecutionStartToCloseTimeoutSeconds(30)
+                .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
                 .build();
         GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class,
                 workflowOptions);

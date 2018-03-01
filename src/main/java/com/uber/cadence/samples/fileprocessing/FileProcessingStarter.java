@@ -54,11 +54,7 @@ public class FileProcessingStarter {
         workflowArgs.setTargetFilename(targetFilename);
 
         WorkflowClient workflowClient = WorkflowClient.newInstance(swfService, domain);
-        WorkflowOptions options = new WorkflowOptions.Builder()
-                .setExecutionStartToCloseTimeoutSeconds(300)
-                .setTaskList(WORKFLOW_TASK_LIST)
-                .build();
-        FileProcessingWorkflow workflow = workflowClient.newWorkflowStub(FileProcessingWorkflow.class, options);
+        FileProcessingWorkflow workflow = workflowClient.newWorkflowStub(FileProcessingWorkflow.class);
 
         // This is going to block until the workflow completion.
         // This is rarely used in production. Use the commented code below for async start version.

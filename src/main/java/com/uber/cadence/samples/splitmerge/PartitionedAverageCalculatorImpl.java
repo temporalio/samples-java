@@ -16,11 +16,12 @@
  */
 package com.uber.cadence.samples.splitmerge;
 
-import com.uber.cadence.workflow.ActivityOptions;
+import com.uber.cadence.activity.ActivityOptions;
 import com.uber.cadence.workflow.Async;
 import com.uber.cadence.workflow.Promise;
 import com.uber.cadence.workflow.Workflow;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,10 +39,10 @@ public class PartitionedAverageCalculatorImpl implements PartitionedAverageCalcu
         this.numberOfWorkers = numberOfWorkers;
         this.bucketName = bucketName;
         ActivityOptions options = new ActivityOptions.Builder()
-                .setHeartbeatTimeoutSeconds(10)
-                .setStartToCloseTimeoutSeconds(30)
-                .setScheduleToStartTimeoutSeconds(30)
-                .setScheduleToCloseTimeoutSeconds(60)
+                .setHeartbeatTimeout(Duration.ofSeconds(10))
+                .setStartToCloseTimeout(Duration.ofSeconds(30))
+                .setScheduleToStartTimeout(Duration.ofSeconds(30))
+                .setScheduleToCloseTimeout(Duration.ofMinutes(1))
                 .setTaskList(TASK_LIST)
                 .build();
         this.client = Workflow.newActivityStub(AverageCalculatorActivities.class, options);

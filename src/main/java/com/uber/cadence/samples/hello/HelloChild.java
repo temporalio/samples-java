@@ -17,7 +17,6 @@
 package com.uber.cadence.samples.hello;
 
 import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
 import com.uber.cadence.workflow.Async;
 import com.uber.cadence.workflow.Promise;
@@ -44,7 +43,7 @@ public class HelloChild {
         /**
          * @return greeting string
          */
-        @WorkflowMethod
+        @WorkflowMethod(executionStartToCloseTimeoutSeconds = 10, taskList = TASK_LIST)
         String getGreeting(String name);
     }
 
@@ -97,12 +96,7 @@ public class HelloChild {
         // Start a workflow execution. Usually it is done from another program.
         WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
         // Get a workflow stub using the same task list the worker uses.
-        WorkflowOptions workflowOptions = new WorkflowOptions.Builder()
-                .setTaskList(TASK_LIST)
-                .setExecutionStartToCloseTimeoutSeconds(30)
-                .build();
-        GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class,
-                workflowOptions);
+        GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);
         // Execute a workflow waiting for it complete.
         String greeting = workflow.getGreeting("World");
         System.out.println(greeting);
