@@ -40,7 +40,7 @@ to build the samples. Verify that they actually can run:
   S3. The smaller data sets are assigned to workers and the results of processing are merged to
   produce the final result.
   
-## Configuring Samples
+## Configuring Service and S3 Access Keys
 
 If you are running local container the HelloWorld and PeriodicWorkflow samples do not need any additional configuration.
 
@@ -74,6 +74,12 @@ The steps for configuring and building other samples for Java Cadence Client are
     On Windows run this command:
 
         set AWS_SWF_SAMPLES_CONFIG=<Your SDK Directory>
+
+## Registering Domain
+
+Run it once before running any samples to register domain.
+
+./gradlew execute -PmainClass=com.uber.cadence.samples.common.RegisterDomain
 
 ## Running the samples
 
