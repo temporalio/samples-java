@@ -84,7 +84,9 @@ public class HelloPeriodic {
                 activities.greet("Hello " + name + "!");
                 Workflow.sleep(delay);
             }
+            // Current workflow run stops executing after this call.
             continueAsNew.greetPeriodically(name, delay);
+            // unreachable line
         }
     }
 
