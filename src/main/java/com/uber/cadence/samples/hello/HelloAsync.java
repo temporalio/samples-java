@@ -34,7 +34,7 @@ import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
  */
 public class HelloAsync {
 
-    private static final String TASK_LIST = "HelloActivity";
+    private static final String TASK_LIST = "HelloAsync";
 
     public interface GreetingWorkflow {
         @WorkflowMethod(executionStartToCloseTimeoutSeconds = 15, taskList = TASK_LIST)

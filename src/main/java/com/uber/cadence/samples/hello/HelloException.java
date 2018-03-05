@@ -98,7 +98,7 @@ import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
  */
 public class HelloException {
 
-    private static final String TASK_LIST = "HelloChild";
+    private static final String TASK_LIST = "HelloException";
 
     public interface GreetingWorkflow {
         @WorkflowMethod
