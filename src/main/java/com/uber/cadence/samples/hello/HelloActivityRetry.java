@@ -36,7 +36,7 @@ import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
  */
 public class HelloActivityRetry {
 
-    private static final String TASK_LIST = "HelloActivity";
+    private static final String TASK_LIST = "HelloActivityRetry";
 
     public interface GreetingWorkflow {
         /**

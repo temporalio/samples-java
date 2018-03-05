@@ -49,7 +49,7 @@ public class FileProcessingWorkflowZipImpl implements FileProcessingWorkflow {
     public void processFile(Arguments args) {
         history.add("Started");
         // Use runId as a way to ensure that downloaded files do not get name collisions
-        String workflowRunId = Workflow.getContext().getWorkflowExecution().getRunId();
+        String workflowRunId = Workflow.getWorkflowInfo().getRunId();
         File localSource = new File(args.getSourceBucketName());
         final String localSourceFilename = workflowRunId + "_" + localSource.getName();
         File localTarget = new File(args.getTargetFilename());
