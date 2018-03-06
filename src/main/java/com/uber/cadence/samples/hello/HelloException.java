@@ -24,9 +24,6 @@ import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -156,9 +153,6 @@ public class HelloException {
     }
 
     public static void main(String[] args) {
-        BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.WARN);
-
         Worker worker = new Worker(DOMAIN, TASK_LIST);
         worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class, GreetingChildImpl.class);
         worker.registerActivitiesImplementations(new GreetingActivitiesImpl());

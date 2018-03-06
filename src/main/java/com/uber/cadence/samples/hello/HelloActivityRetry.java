@@ -24,7 +24,6 @@ import com.uber.cadence.worker.Worker;
 import com.uber.cadence.workflow.Functions;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
-import org.apache.log4j.BasicConfigurator;
 
 import java.time.Duration;
 

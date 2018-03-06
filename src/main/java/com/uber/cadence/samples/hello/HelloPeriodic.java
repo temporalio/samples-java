@@ -26,7 +26,6 @@ import com.uber.cadence.client.UntypedWorkflowStub;
 import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowException;
 import com.uber.cadence.client.WorkflowOptions;
-import com.uber.cadence.common.RetryOptions;
 import com.uber.cadence.worker.Worker;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;

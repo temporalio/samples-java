@@ -16,8 +16,6 @@
  */
 package com.uber.cadence.samples.splitmerge;
 
-import java.io.IOException;
-
 public interface AverageCalculatorActivities {
 
     int computeDataSizeForInputData(String bucketName, String filename);
