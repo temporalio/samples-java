@@ -22,9 +22,7 @@ import com.uber.cadence.samples.common.ConfigHelper;
 import com.uber.cadence.worker.Worker;
 import com.uber.cadence.worker.WorkerOptions;
 
-import java.io.IOException;
 import java.time.Duration;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This is the process which hosts all workflows and activities in this sample

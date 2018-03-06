@@ -22,9 +22,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.uber.cadence.WorkflowService;
 import com.uber.cadence.serviceclient.WorkflowServiceTChannel;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -87,11 +84,6 @@ public class ConfigHelper {
     }
 
     public static ConfigHelper createConfig() throws IOException, IllegalArgumentException {
-
-        BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.DEBUG);
-
-        Logger.getLogger("io.netty").setLevel(Level.INFO);
         // Uncomment to see decisions sent to the Cadence
 //        Logger.getLogger(DecisionTaskPoller.class.getName() + ".decisions").setLevel(Level.TRACE);
 

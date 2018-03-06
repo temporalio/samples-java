@@ -22,9 +22,6 @@ import com.uber.cadence.workflow.Async;
 import com.uber.cadence.workflow.Promise;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
@@ -84,9 +81,6 @@ public class HelloChild {
     }
 
     public static void main(String[] args) {
-        BasicConfigurator.configure();
-        Logger.getRootLogger().setLevel(Level.WARN);
-
         // Start a worker that hosts both parent and child workflow implementations.
         Worker worker = new Worker(DOMAIN, TASK_LIST);
         worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class, GreetingChildImpl.class);

@@ -18,8 +18,8 @@ package com.uber.cadence.samples.common;
 
 import com.uber.cadence.WorkflowExecution;
 import com.uber.cadence.WorkflowService;
-import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.UntypedWorkflowStub;
+import com.uber.cadence.client.WorkflowClient;
 
 /**
  * Simple example utility to query workflow execution using Cadence query API.

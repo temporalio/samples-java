@@ -20,9 +20,7 @@ import com.uber.cadence.DomainAlreadyExistsError;
 import com.uber.cadence.DomainConfiguration;
 import com.uber.cadence.RegisterDomainRequest;
 import com.uber.cadence.UpdateDomainRequest;
-import com.uber.cadence.WorkflowExecution;
 import com.uber.cadence.WorkflowService;
-import com.uber.cadence.internal.common.WorkflowExecutionUtils;
 import org.apache.thrift.TException;
 
 import java.io.IOException;

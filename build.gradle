@@ -28,7 +28,7 @@ dependencies {
     compile group: 'com.uber', name: 'cadence-client', version: '0.2.0-SNAPSHOT'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.274'
     compile group: 'commons-configuration', name: 'commons-configuration', version: '1.9'
-    compile group: 'log4j', name: 'log4j', version: '1.2.17'
+    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 }
 
 task execute(type: JavaExec) {
@@ -41,5 +41,4 @@ license {
     mapping {
         java = 'SLASHSTAR_STYLE'
     }
-    strictCheck true
 }

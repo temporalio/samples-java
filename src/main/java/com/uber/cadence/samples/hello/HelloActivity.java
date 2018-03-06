@@ -21,7 +21,6 @@ import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.worker.Worker;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
-import org.apache.log4j.BasicConfigurator;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 

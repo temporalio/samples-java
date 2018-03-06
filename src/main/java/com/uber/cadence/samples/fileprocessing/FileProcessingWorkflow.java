@@ -16,11 +16,7 @@
  */
 package com.uber.cadence.samples.fileprocessing;
 
-import com.uber.cadence.workflow.QueryMethod;
-import com.uber.cadence.workflow.SignalMethod;
 import com.uber.cadence.workflow.WorkflowMethod;
-
-import java.util.List;
 
 /**
  * Contract for file processing workflow
