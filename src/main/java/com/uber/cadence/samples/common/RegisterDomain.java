@@ -21,54 +21,34 @@ import com.uber.cadence.DomainConfiguration;
 import com.uber.cadence.RegisterDomainRequest;
 import com.uber.cadence.UpdateDomainRequest;
 import com.uber.cadence.WorkflowService;
+import com.uber.cadence.serviceclient.WorkflowServiceTChannel;
 import org.apache.thrift.TException;
 
 import java.io.IOException;
 
+import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
+
 /**
- * Simple example utility to pretty print workflow execution history. 
- * 
+ * Simple example utility to pretty print workflow execution history.
+ *
  * @author fateev
  */
 public class RegisterDomain {
-    
+
     public static void main(String[] args) throws TException, IOException {
-        if (args.length == 1 && "help".equals(args[0])) {
-            System.err.println("Usage: java " + RegisterDomain.class.getName() + " <domain-name> [<retention-days>]");
-            System.exit(1);
-        }
-        ConfigHelper configHelper = ConfigHelper.createConfig();
-        WorkflowService.Iface swfService = configHelper.createWorkflowClient();
-        String domain;
-        if (args.length == 1) {
-            domain = args[0];
-        } else {
-            domain = configHelper.getDomain();
-        }
+        WorkflowService.Iface cadenceService = new WorkflowServiceTChannel();
         RegisterDomainRequest request = new RegisterDomainRequest();
         request.setDescription("Java Samples");
         request.setEmitMetric(false);
-        request.setName(domain);
-        int retention = 1;
-        if (args.length > 1) {
-            try {
-                retention = Integer.parseInt(args[1]);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Cannot parse retention-days: " + args[1], e);
-            }
-        }
-        request.setWorkflowExecutionRetentionPeriodInDays(retention);
+        request.setName(DOMAIN);
+        int retentionPeriodInDays = 1;
+        request.setWorkflowExecutionRetentionPeriodInDays(retentionPeriodInDays);
         try {
-            swfService.RegisterDomain(request);
-            System.out.println("Successfully registered domain \"" + domain + "\" with retentionDays=" + retention);
+            cadenceService.RegisterDomain(request);
+            System.out.println("Successfully registered domain \"" + DOMAIN + "\" with retentionDays=" + retentionPeriodInDays);
         } catch (DomainAlreadyExistsError e) {
-            UpdateDomainRequest update = new UpdateDomainRequest();
-            update.setName(domain);
-            update.setConfiguration(new DomainConfiguration().setWorkflowExecutionRetentionPeriodInDays(retention));
-            swfService.UpdateDomain(update);
-            System.out.println("Successfully updated domain \"" + domain + "\" with retentionDays=" + retention);
+            System.out.println("Domain \"" + DOMAIN + "\" is already registered");
         }
         System.exit(0);
     }
-    
 }
