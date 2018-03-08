@@ -121,7 +121,7 @@ public class HelloException {
 
         @Override
         public String getGreeting(String name) {
-            GreetingChild child = Workflow.newChildWorkflowStub(GreetingChild.class);
+            GreetingChild child = Workflow.newWorkflowStub(GreetingChild.class);
             return child.composeGreeting("Hello", name);
         }
     }

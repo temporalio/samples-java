@@ -18,53 +18,14 @@ package com.uber.cadence.samples.fileprocessing;
 
 import com.uber.cadence.workflow.WorkflowMethod;
 
+import java.net.URL;
+
 /**
  * Contract for file processing workflow
  */
 public interface FileProcessingWorkflow {
 
-    final class Arguments {
-        String sourceBucketName;
-        String sourceFilename;
-        String targetBucketName;
-        String targetFilename;
-
-        public String getSourceBucketName() {
-            return sourceBucketName;
-        }
-
-        public void setSourceBucketName(String sourceBucketName) {
-            this.sourceBucketName = sourceBucketName;
-        }
-
-        public String getSourceFilename() {
-            return sourceFilename;
-        }
-
-        public void setSourceFilename(String sourceFilename) {
-            this.sourceFilename = sourceFilename;
-        }
-
-        public String getTargetBucketName() {
-            return targetBucketName;
-        }
-
-        public void setTargetBucketName(String targetBucketName) {
-            this.targetBucketName = targetBucketName;
-        }
-
-        public String getTargetFilename() {
-            return targetFilename;
-        }
-
-        public void setTargetFilename(String targetFilename) {
-            this.targetFilename = targetFilename;
-        }
-    }
-    /**
-     * Uses a structure as arguments, to make addition of new arguments a backwards compatible change.
-     */
-    @WorkflowMethod(taskList = FileProcessingStarter.WORKFLOW_TASK_LIST,
-            executionStartToCloseTimeoutSeconds = 300)
-    void processFile(Arguments args);
+    @WorkflowMethod(taskList = FileProcessingWorker.TASK_LIST,
+            executionStartToCloseTimeoutSeconds = 30)
+    void processFile(URL source, URL destination);
 }
