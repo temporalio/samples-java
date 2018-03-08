@@ -78,7 +78,7 @@ The steps for configuring and building other samples for Java Cadence Client are
         set AWS_SWF_SAMPLES_CONFIG=<Your SDK Directory>
 
 ## Prerequisite
-  Run Cadence Server
+  Run Cadence Server using Docker Compose
 
     curl -O https://raw.githubusercontent.com/uber/cadence/master/docker/docker-compose.yml
     docker-compose up

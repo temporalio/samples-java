@@ -16,52 +16,34 @@
  */
 package com.uber.cadence.samples.fileprocessing;
 
-import com.uber.cadence.WorkflowService;
 import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.samples.common.ConfigHelper;
+
+import java.net.URL;
+
+import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
- * This is used for launching a Workflow instance of FileProcessingWorkflowExample
+ * This is used for launching a Workflow instance of file processing sample.
  */
 public class FileProcessingStarter {
 
-    static final String WORKFLOW_TASK_LIST = "FileProcessing";
-
-    private static WorkflowService.Iface swfService;
-    private static String domain;
-
     public static void main(String[] args) throws Exception {
-
-        // Load configuration
-        ConfigHelper configHelper = ConfigHelper.createConfig();
-
-        // Create the client for Simple Workflow Service
-        swfService = configHelper.createWorkflowClient();
-        domain = configHelper.getDomain();
-
         // Start Workflow instance
-        String sourceBucketName = configHelper.getValueFromConfig(FileProcessingConfigKeys.WORKFLOW_INPUT_SOURCEBUCKETNAME_KEY);
-        String sourceFilename = configHelper.getValueFromConfig(FileProcessingConfigKeys.WORKFLOW_INPUT_SOURCEFILENAME_KEY);
-        String targetBucketName = configHelper.getValueFromConfig(FileProcessingConfigKeys.WORKFLOW_INPUT_TARGETBUCKETNAME_KEY);
-        String targetFilename = configHelper.getValueFromConfig(FileProcessingConfigKeys.WORKFLOW_INPUT_TARGETFILENAME_KEY);
-
-        FileProcessingWorkflow.Arguments workflowArgs = new FileProcessingWorkflow.Arguments();
-        workflowArgs.setSourceBucketName(sourceBucketName);
-        workflowArgs.setSourceFilename(sourceFilename);
-        workflowArgs.setTargetBucketName(targetBucketName);
-        workflowArgs.setTargetFilename(targetFilename);
-
-        WorkflowClient workflowClient = WorkflowClient.newInstance(swfService, domain);
+        WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
         FileProcessingWorkflow workflow = workflowClient.newWorkflowStub(FileProcessingWorkflow.class);
+
+        System.out.println("Executing FileProcessingWorkflow");
+
+        URL source = new URL("http://www.google.com/");
+        URL destination = new URL("http://dummy");
 
         // This is going to block until the workflow completion.
         // This is rarely used in production. Use the commented code below for async start version.
-        System.out.println("Executing FileProcessingWorkflow");
-        workflow.processFile(workflowArgs);
+        workflow.processFile(source, destination);
+        System.out.println("FileProcessingWorkflow completed");
 
         // Use this code instead of the above blocking call to start workflow asynchronously.
-//        WorkflowExecution workflowExecution = WorkflowClient.asyncStart(workflow::processFile, workflowArgs);
-//
+//        WorkflowExecution workflowExecution = WorkflowClient.asyncStart(workflow::processFile, source, destination);
 //        System.out.println("Started periodic workflow with workflowId=\"" + workflowExecution.getWorkflowId()
 //                + "\" and runId=\"" + workflowExecution.getRunId() + "\"");
 //

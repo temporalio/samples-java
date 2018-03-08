@@ -60,7 +60,7 @@ public class HelloChild {
         @Override
         public String getGreeting(String name) {
             // Workflows are stateful. So new stub must be created for each new child.
-            GreetingChild child = Workflow.newChildWorkflowStub(GreetingChild.class);
+            GreetingChild child = Workflow.newWorkflowStub(GreetingChild.class);
 
             // This is blocking call that returns only after child is completed.
             Promise<String> greeting = Async.invoke(child::composeGreeting, "Hello", name);

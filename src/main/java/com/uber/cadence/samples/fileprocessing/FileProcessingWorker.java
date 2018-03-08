@@ -16,76 +16,38 @@
  */
 package com.uber.cadence.samples.fileprocessing;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.uber.cadence.WorkflowService;
-import com.uber.cadence.samples.common.ConfigHelper;
 import com.uber.cadence.worker.Worker;
-import com.uber.cadence.worker.WorkerOptions;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.time.Duration;
+import java.lang.management.ManagementFactory;
+
+import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
- * This is the process which hosts all workflows and activities in this sample
+ * This is the process which hosts all workflows and activities in this sample.
+ * Run multiple instances of the worker in different windows. Then start workflow
+ * by running FileProcessingStarter. Note that all activities always execute on the same worker.
+ * But each time they might end up on a different worker as the first activity is dispatched to the common task list.
  */
 public class FileProcessingWorker {
 
     static final String TASK_LIST = "FileProcessing";
 
-    public static void main(String[] args) throws Exception {
-        ConfigHelper configHelper = ConfigHelper.createConfig();
-        WorkflowService.Iface swfService = configHelper.createWorkflowClient();
-        AmazonS3 s3Client = configHelper.createS3Client();
-        String domain = configHelper.getDomain();
+    public static void main(String[] args) {
 
-        String localFolder = configHelper.getValueFromConfig(FileProcessingConfigKeys.ACTIVITY_WORKER_LOCALFOLDER);
+        String hostSpecifiTaskList = ManagementFactory.getRuntimeMXBean().getName();
 
         // Start worker to poll the common task list
-        final Worker workerForCommonTaskList = new Worker(swfService, domain, TASK_LIST, null);
-        SimpleStoreActivitiesS3Impl storeActivityImpl = new SimpleStoreActivitiesS3Impl(s3Client, localFolder, getHostName());
+        final Worker workerForCommonTaskList = new Worker(DOMAIN, TASK_LIST);
+        workerForCommonTaskList.registerWorkflowImplementationTypes(FileProcessingWorkflowImpl.class);
+        StoreActivitiesImpl storeActivityImpl = new StoreActivitiesImpl(hostSpecifiTaskList);
         workerForCommonTaskList.registerActivitiesImplementations(storeActivityImpl);
-        workerForCommonTaskList.registerWorkflowImplementationTypes(FileProcessingWorkflowZipImpl.class);
-
         workerForCommonTaskList.start();
-        System.out.println("Worker tarted for task list: " + TASK_LIST);
+        System.out.println("Worker started for task list: " + TASK_LIST);
 
         // Start worker to poll the host specific task list
-        WorkerOptions hostSpecificOptions = new WorkerOptions.Builder().build();
-        final Worker workerForHostSpecificTaskList = new Worker(swfService, domain, getHostName(), hostSpecificOptions);
-        FileProcessingActivitiesZipImpl processorActivityImpl = new FileProcessingActivitiesZipImpl(localFolder);
-        workerForHostSpecificTaskList.registerActivitiesImplementations(storeActivityImpl, processorActivityImpl);
+        final Worker workerForHostSpecificTaskList = new Worker(DOMAIN, hostSpecifiTaskList);
+        workerForHostSpecificTaskList.registerActivitiesImplementations(storeActivityImpl);
         workerForHostSpecificTaskList.start();
-        System.out.println("Worker Started for activity and workflow task List: " + getHostName());
-
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-
-            public void run() {
-                workerForCommonTaskList.shutdown(Duration.ofSeconds(5));
-                workerForHostSpecificTaskList.shutdown(Duration.ofSeconds(5));
-                System.out.println("Activity Workers Exited.");
-            }
-        });
-
-        System.out.println("Please press any key to terminate service.");
-
-        try {
-            System.in.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.exit(0);
-
+        System.out.println("Worker Started for activity task List: " + hostSpecifiTaskList);
     }
-
-    static String getHostName() {
-        try {
-            InetAddress addr = InetAddress.getLocalHost();
-            return addr.getHostName();
-        } catch (UnknownHostException e) {
-            throw new Error(e);
-        }
-    }
-
 }
