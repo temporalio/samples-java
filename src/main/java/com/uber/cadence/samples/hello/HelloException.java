@@ -88,7 +88,7 @@ import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
  * activity, child and workflow interfaces is not going to help. It is because at all levels it is never received directly, but
  * in wrapped form. Propagating it without wrapping would not allow adding additional context information
  * like activity, child workflow and parent workflow  types and IDs. The Cadence library solution is to provide special
- * wrapper method {@link Workflow#throwWrapped(Throwable)} which wraps a checked exception in a special runtime exception.
+ * wrapper method {@link Workflow#wrap(Exception)} which wraps a checked exception in a special runtime exception.
  * It is special because framework strips it when chaining exception across logical process boundaries. In this example
  * IOException is directly attached to ActivityFailureException besides being wrapped when rethrown.
  * </p>
@@ -147,7 +147,9 @@ public class HelloException {
             try {
                 throw new IOException(greeting + " " + name + "!");
             } catch (IOException e) {
-                throw Workflow.throwWrapped(e);
+                // Wrap it as checked exceptions in activity and workflow interface methods are prohibited.
+                // It will be unwrapped and attached as a cause to the ActivityFailureException.
+                throw Workflow.wrap(e);
             }
         }
     }

@@ -51,7 +51,7 @@ public class StoreActivitiesImpl implements StoreActivities {
             System.out.println("download activity: downloaded from " + url + " to " + destination.getAbsolutePath());
             return new TaskListFileNamePair(hostSpecificTaskList, destination.getAbsolutePath());
         } catch (IOException e) {
-            throw Workflow.throwWrapped(e);
+            throw Workflow.wrap(e);
         }
     }
 
@@ -63,7 +63,7 @@ public class StoreActivitiesImpl implements StoreActivities {
             System.out.println("process activity: processed file: " + processedName);
             return processedName;
         } catch (IOException e) {
-            throw Activity.throwWrapped(e);
+            throw Activity.wrap(e);
         }
     }
 
