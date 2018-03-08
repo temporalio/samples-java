@@ -19,30 +19,28 @@ package com.uber.cadence.samples.common;
 import com.uber.cadence.WorkflowExecution;
 import com.uber.cadence.WorkflowService;
 import com.uber.cadence.internal.common.WorkflowExecutionUtils;
+import com.uber.cadence.serviceclient.WorkflowServiceTChannel;
+
+import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
- * Simple example utility to pretty print workflow execution history. 
- * 
+ * Simple example utility to pretty print workflow execution history.
+ *
  * @author fateev
  */
 public class WorkflowExecutionHistoryPrinter {
-    
+
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
             System.err.println("Usage: java " + WorkflowExecutionHistoryPrinter.class.getName() + " <workflowId> <runId>");
             System.exit(1);
         }
-        ConfigHelper configHelper = ConfigHelper.createConfig();
-        WorkflowService.Iface swfService = configHelper.createWorkflowClient();
-        String domain = configHelper.getDomain();
-        
-        
+        WorkflowService.Iface cadenceService = new WorkflowServiceTChannel();
         WorkflowExecution workflowExecution = new WorkflowExecution();
         String workflowId = args[0];
         workflowExecution.setWorkflowId(workflowId);
         String runId = args[1];
         workflowExecution.setRunId(runId);
-        System.out.println(WorkflowExecutionUtils.prettyPrintHistory(swfService, domain, workflowExecution, true));
-    }    
-    
+        System.out.println(WorkflowExecutionUtils.prettyPrintHistory(cadenceService, DOMAIN, workflowExecution, true));
+    }
 }

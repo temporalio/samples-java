@@ -7,26 +7,21 @@ These are some samples to demonstrate various capabilities of Java Cadence clien
 ## Overview of the Samples
 
 * **HelloWorld Samples** 
-  * _HelloActivity_ is a sample of a single activity workflow
-  * _HelloActivityRetry_ demonstrates how to retry an activity
-  * _HelloAsync_ is a sample of how to call activities asynchronously and wait for them using Promises.
-  * _HelloAsyncLambda_ is a sample of how to run a part of a workflow asynchronously in a separate task (thread).
-  * _HelloAsyncActivityCompletion_ is a sample of an asynchronous activity implementation.
-  * _HelloChild_ is a sample of a child workflow
-  * _HelloException_ demonstrates exception propagation and wrapping
+  * HelloActivity is a sample of a single activity workflow
+  * HelloActivityRetry demonstrates how to retry an activity
+  * HelloAsync is a sample of how to call activities asynchronously and wait for them using Promises.
+  * HelloAsyncLambda is a sample of how to run a part of a workflow asynchronously in a separate task (thread).
+  * HelloAsyncActivityCompletion is a sample of an asynchronous activity implementation.
+  * HelloChild is a sample of a child workflow
+  * HelloException demonstrates exception propagation and wrapping
   * HelloQuery is a sample of a query
   * HelloSignal is a sample of sending and handling a signal.
   * HelloPeriodic is a sample workflow that executes an activity periodically forever. 
 
 * **FileProcessing** -- shows a workflow for media processing use case. The sample workflow
-  downloads a file from an Amazon S3 bucket, creates a zip file and uploads that zip file back to
-  S3. The sample uses the task routing feature. Requires AWS credentials.
+  downloads a file, processes it and uploads result to a destination. Demonstrates how to route activities to a 
+  specific host.
 
-* **SplitMerge** -- the workflow in this sample processes a large data set by splitting it up into
-  smaller data sets. The sample calculates the average of a large set of numbers stored in a file in
-  S3. The smaller data sets are assigned to workers and the results of processing are merged to
-  produce the final result. Requires S3 credentials.
-    
 ## Build Samples
   
   We are working on getting [cadence-client library](https://github.com/uber-java/cadence-client) into a public Maven repository.
@@ -39,44 +34,8 @@ These are some samples to demonstrate various capabilities of Java Cadence clien
       
   to build the samples. Verify that they actually can run:
   
-      ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloActivity
+      ./gradlew -q execute -PmainClass=com.uber.cadence.samples.common.RegisterDomain
   
-
-## Configuring Service and S3 Access Keys
-
-If you are running local container the HelloWorld samples do not need any additional configuration.
-
-The steps for configuring and building other samples for Java Cadence Client are:
-
-1. Open the `access.properties` file in the `samples` directory.
-
-2. Update Cadence host and port values to a service API. Keep these values for a local Cadence service:
-
-        Cadence.host=127.0.0.1
-        Cadence.port=7933
-
-2. If planning to run samples that access S3 locate the following sections and fill in your Access Key ID and Secret Access Key.
-
-        # Fill in your AWS Access Key ID and Secret Access Key for S3
-        # http://aws.amazon.com/security-credentials
-        S3.Access.ID=<Your AWS Access Key>
-        S3.Secret.Key=<Your AWS Secret Key>
-        S3.Account.ID=<Your AWS Account ID>
-
-
-5. Save the `access.properties` file.
-
-6. Set the environment variable `AWS_SWF_SAMPLES_CONFIG` to the full path of the directory
-   containing the `access.properties` file.
-
-    On Linux, Unix or OS X, use this command to set the environment variable:
-
-        export AWS_SWF_SAMPLES_CONFIG=<Your SDK Directory>
-
-    On Windows run this command:
-
-        set AWS_SWF_SAMPLES_CONFIG=<Your SDK Directory>
-
 ## Prerequisite
   Run Cadence Server using Docker Compose
 

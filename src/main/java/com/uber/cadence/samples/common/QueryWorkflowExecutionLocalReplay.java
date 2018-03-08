@@ -18,7 +18,10 @@ package com.uber.cadence.samples.common;
 
 import com.uber.cadence.WorkflowExecution;
 import com.uber.cadence.WorkflowService;
+import com.uber.cadence.serviceclient.WorkflowServiceTChannel;
 import com.uber.cadence.worker.Worker;
+
+import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
  * Query workflow execution by getting history from Cadence and executing it on a local worker.
@@ -34,9 +37,7 @@ public class QueryWorkflowExecutionLocalReplay {
                     + "<workflow implementation class> <workflowId> <runId> <queryType>");
             System.exit(1);
         }
-        ConfigHelper configHelper = ConfigHelper.createConfig();
-        WorkflowService.Iface swfService = configHelper.createWorkflowClient();
-        String domain = configHelper.getDomain();
+        WorkflowService.Iface cadenceService = new WorkflowServiceTChannel();
 
         WorkflowExecution workflowExecution = new WorkflowExecution();
         String workflowId = args[1];
@@ -48,12 +49,11 @@ public class QueryWorkflowExecutionLocalReplay {
         String implementationTypeName = args[0];
         @SuppressWarnings("unchecked")
         Class<Object> workflowImplementationType = (Class<Object>) Class.forName(implementationTypeName);
-        Worker replayer = new Worker(swfService, domain, null, null);
+        Worker replayer = new Worker(cadenceService, DOMAIN, null, null);
         replayer.registerWorkflowImplementationTypes(workflowImplementationType);
         System.out.println("Beginning query replay for " + workflowExecution);
         String queryResult = replayer.queryWorkflowExecution(workflowExecution, queryType, String.class);
         System.out.println("Done query replay for " + workflowExecution);
         System.out.println("Query result:\n" + queryResult);
     }
-
 }
