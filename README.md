@@ -1,63 +1,80 @@
-# Cadence Samples
-These are some samples to demonstrate various capabilities of Java Cadence client and server.  You can learn more about cadence at:
+# Java Cadence Samples
+These samples demonstrate various capabilities of Java Cadence client and server. You can learn more about Cadence at:
 * Cadence: https://github.com/uber/cadence
 * Java Cadence Client: https://github.com/uber-java/cadence-client
 * Go Cadence Client: https://github.com/uber-go/cadence-client
 
 ## Overview of the Samples
 
-* **HelloWorld Samples** 
-  * HelloActivity is a sample of a single activity workflow
-  * HelloActivityRetry demonstrates how to retry an activity
-  * HelloAsync is a sample of how to call activities asynchronously and wait for them using Promises.
-  * HelloAsyncLambda is a sample of how to run a part of a workflow asynchronously in a separate task (thread).
-  * HelloAsyncActivityCompletion is a sample of an asynchronous activity implementation.
-  * HelloChild is a sample of a child workflow
-  * HelloException demonstrates exception propagation and wrapping
-  * HelloQuery is a sample of a query
-  * HelloSignal is a sample of sending and handling a signal.
-  * HelloPeriodic is a sample workflow that executes an activity periodically forever. 
+* **HelloWorld Samples**
 
-* **FileProcessing** -- shows a workflow for media processing use case. The sample workflow
-  downloads a file, processes it and uploads result to a destination. Demonstrates how to route activities to a 
-  specific host.
+    The following samples demonstrate:
 
-## Build Samples
-  
-  We are working on getting [cadence-client library](https://github.com/uber-java/cadence-client) into a public Maven repository.
-  In the meantime before running samples it has to be build to get it into the local maven cache.
-  See instructions from the Cadence Client README for the instructions.
-  
-  After cadence-client library is available just run
-  
-      ./gradlew build`
-      
-  to build the samples. Verify that they actually can run:
-  
-      ./gradlew -q execute -PmainClass=com.uber.cadence.samples.common.RegisterDomain
-  
-## Prerequisite
-  Run Cadence Server using Docker Compose
+  * **HelloActivity**: a single activity workflow
+  * **HelloActivityRetry**: how to retry an activity
+  * **HelloAsync**: how to call activities asynchronously and wait for them using Promises
+  * **HelloAsyncLambda**: how to run part of a workflow asynchronously in a separate task (thread)
+  * **HelloAsyncActivityCompletion**: an asynchronous activity implementation
+  * **HelloChild**: a child workflow
+  * **HelloException**: exception propagation and wrapping
+  * **HelloQuery**: a query
+  * **HelloSignal**: sending and handling a signal
+  * **HelloPeriodic**: a sample workflow that executes an activity periodically forever
+
+* **FileProcessing** demonstrates task routing features. The sample workflow downloads a file, processes it, and uploads
+    the result to a destination. The first activity can be picked up by any worker. However, the second and third activities
+    must be executed on the same host as the first one.
+
+## Get the Samples
+
+Run the following commands:
+
+      git clone https://github.com/mfateev/uber-java-cadence-samples
+      cd cadence-java-client-samples
+
+## Import into IntelliJ
+
+In the IntelliJ user interface, navigate to **File**->**New**->**Project from Existing Sources**.
+
+Select the cloned directory. In the **Import Project page**, select **Import project from external model**,
+choose **Gradle** and then click **Next**->**Finish**.
+
+## Build the Samples
+
+Assumng that the https://github.com/uber-java/cadence-client is in local maven cache.
+
+      ./gradlew build
+
+If the latest samples stop building after you pull the latest version, refresh the Gradle dependencies:
+
+      ./gradlew build --refresh-dependencies
+
+Or, in IntelliJ, in the **Gradle projects** window, right-click "cadence-samples" and then click
+**Refresh dependencies**.
+
+## Run Cadence Server
+
+Run Cadence Server using Docker Compose:
 
     curl -O https://raw.githubusercontent.com/uber/cadence/master/docker/docker-compose.yml
     docker-compose up
-     
-  If it does not work see instructions for running the Cadence Server at https://github.com/uber/cadence/blob/master/README.md
 
-## Registering Domain
+If this does not work, see the instructions for running Cadence Server at https://github.com/uber/cadence/blob/master/README.md.
 
-Run it once before running any samples to register domain.
+## Register the Domain
 
-./gradlew -q execute -PmainClass=com.uber.cadence.samples.common.RegisterDomain
+To register the domain, run the follownig command once before running any samples:
 
-## Running the samples
+    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.common.RegisterDomain
 
-Each sample has particular requirements for running it. Here's how to run each of the samples once
-you've built them using the preceding instructions.
+## Run the samples
+
+Each sample has specific requirements for running it. The following sections contain information about
+how to run each of the samples after you've built them using the preceding instructions.
 
 ### Hello World
 
-To run hello world:
+To run the hello world samples:
 
     ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloActivity
     ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloActivityRetry
@@ -72,29 +89,13 @@ To run hello world:
 
 ### File Processing
 
-The *FileProcessing* sample uploads files to [Amazon S3](http://aws.amazon.com/s3/). To run this
-sample, you will need to first [create an S3
-bucket](http://docs.aws.amazon.com/AmazonS3/latest/gsg/CreatingABucket.html).
-
-Then, locate the following section in the `access.properties` file and fill in the name of an S3
-bucket that you want the sample to use:
-
-        ####### FileProcessing Sample Config Values ##########
-        Workflow.Input.TargetBucketName=<Your S3 bucket name>
-
-The sample has two executables. You should run each command in a separate terminal window. The first one 
-is the worker that hosts workflow and activities implementation:
+This sample has two executables. Execute each command in a separate terminal window. The first command
+runs the worker that hosts the workflow and activities implementation. To demonstrate that activities
+execute together, we recommend that you run more than one instance of this worker.
 
     ./gradlew -q execute -PmainClass=com.uber.cadence.samples.fileprocessing.FileProcessingWorker
-    
-The second is responsible for starting workflows: 
+
+The second command starts workflows. Each invocation starts a new workflow execution.
 
     ./gradlew -q execute -PmainClass=com.uber.cadence.samples.fileprocessing.FileProcessingStarter
-    
-### Split Merge
-
-The sample has two executables. You should run each command in a separate terminal window.
-
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.splitmerge.SplitMergeWorker
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.splitmerge.SplitMergeStarter
 
