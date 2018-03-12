@@ -43,7 +43,20 @@ public class HelloPeriodic {
     private static final String TASK_LIST = "HelloPeriodic";
 
     public interface GreetingWorkflow {
-        @WorkflowMethod
+        /**
+         * Use single fixed ID to ensure that there is at most one instance running.
+         * To run multiple instances  set different ids through
+         * WorkflowOptions passed to WorkflowClient.newWorkflowStub call.
+         */
+        @WorkflowMethod(
+                // At most one instance
+                workflowId = "HelloPeriodic",
+                // To allow starting workflow with the same ID after the previous one has terminated.
+                workflowIdReusePolicy = WorkflowIdReusePolicy.AllowDuplicate,
+                // Adjust this value to the maximum time workflow is expected to run
+                // It usually depends on number of repetitions and interval between them.
+                executionStartToCloseTimeoutSeconds = 300,
+                taskList = TASK_LIST)
         void greetPeriodically(String name, Duration delay);
     }
 
@@ -123,22 +136,8 @@ public class HelloPeriodic {
                     System.out.println("Previous instance failed:\n" + Throwables.getStackTraceAsString(e));
                 }
             }
-            // Get a workflow stub using the same task list the worker uses.
-            WorkflowOptions workflowOptions = new WorkflowOptions.Builder()
-                    .setTaskList(TASK_LIST)
-                    // Adjust this value to the maximum time workflow is expected to run
-                    // It usually depends on number of repetitions and interval between them.
-                    .setExecutionStartToCloseTimeout(Duration.ofMinutes(10))
-                    // Use single fixed ID to ensure that there is at most one instance running.
-                    // Obviously if there is need to run multiple instances adjust the ID appropriately to have one
-                    // per periodic business process.
-                    .setWorkflowId("HelloPeriodic")
-                    // To allow starting workflow with the same ID after the previous one has terminated.
-                    .setWorkflowIdReusePolicy(WorkflowIdReusePolicy.AllowDuplicate)
-                    .build();
             // New stub instance should be created for each new workflow start.
-            GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class,
-                    workflowOptions);
+            GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);
             try {
                 execution = WorkflowClient.asyncStart(workflow::greetPeriodically,
                         "World", Duration.ofSeconds(1));
