@@ -72,11 +72,11 @@ public class HelloAsyncLambda {
             // Async.invoke accepts not only activity or child workflow method references
             // but lambda functions as well. Behind the scene it allocates a thread
             // to execute it asynchronously.
-            Promise<String> result1 = Async.invoke(() -> {
+            Promise<String> result1 = Async.function(() -> {
                 String greeting = activities.getGreeting();
                 return activities.composeGreeting(greeting, name);
             });
-            Promise<String> result2 = Async.invoke(() -> {
+            Promise<String> result2 = Async.function(() -> {
                 String greeting = activities.getGreeting();
                 return activities.composeGreeting(greeting, name);
             });

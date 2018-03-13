@@ -21,6 +21,7 @@ import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.worker.Worker;
 import com.uber.cadence.workflow.Async;
 import com.uber.cadence.workflow.Functions;
+import com.uber.cadence.workflow.Functions.Func;
 import com.uber.cadence.workflow.Promise;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
@@ -47,7 +48,7 @@ public class HelloAsync {
 
     /**
      * GreetingWorkflow implementation that calls GreetingsActivities#composeGreeting
-     * using {@link Async#invoke(Functions.Proc)}.
+     * using {@link Async#function(Func)}.
      */
     public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
@@ -60,8 +61,8 @@ public class HelloAsync {
         @Override
         public String getGreeting(String name) {
              // Async.invoke takes method reference and activity parameters and returns Promise.
-             Promise<String> hello = Async.invoke(activities::composeGreeting, "Hello", name);
-             Promise<String> bye = Async.invoke(activities::composeGreeting, "Bye", name);
+             Promise<String> hello = Async.function(activities::composeGreeting, "Hello", name);
+             Promise<String> bye = Async.function(activities::composeGreeting, "Bye", name);
 
              // Promise is similar to the Java Future. Promise#get blocks until result is ready.
              return hello.get() + "\n" + bye.get();

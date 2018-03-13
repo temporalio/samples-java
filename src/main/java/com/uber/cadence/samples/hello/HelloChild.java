@@ -63,7 +63,7 @@ public class HelloChild {
             GreetingChild child = Workflow.newWorkflowStub(GreetingChild.class);
 
             // This is blocking call that returns only after child is completed.
-            Promise<String> greeting = Async.invoke(child::composeGreeting, "Hello", name);
+            Promise<String> greeting = Async.function(child::composeGreeting, "Hello", name);
             // Do something else here
             return greeting.get(); // blocks waiting for child to complete
         }
