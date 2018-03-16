@@ -16,6 +16,8 @@
  */
 package com.uber.cadence.samples.hello;
 
+import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
+
 import com.uber.cadence.activity.ActivityOptions;
 import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowOptions;
@@ -24,10 +26,7 @@ import com.uber.cadence.workflow.Async;
 import com.uber.cadence.workflow.Promise;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
-
 import java.time.Duration;
-
-import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
  * Demonstrates async invocation of an entire sequence of activities.

@@ -16,12 +16,12 @@
  */
 package com.uber.cadence.samples.common;
 
+import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
+
 import com.uber.cadence.WorkflowExecution;
-import com.uber.cadence.WorkflowService;
+import com.uber.cadence.serviceclient.IWorkflowService;
 import com.uber.cadence.serviceclient.WorkflowServiceTChannel;
 import com.uber.cadence.worker.Worker;
-
-import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
  * Query workflow execution by getting history from Cadence and executing it on a local worker.
@@ -37,7 +37,7 @@ public class QueryWorkflowExecutionLocalReplay {
                     + "<workflow implementation class> <workflowId> <runId> <queryType>");
             System.exit(1);
         }
-        WorkflowService.Iface cadenceService = new WorkflowServiceTChannel();
+        IWorkflowService cadenceService = new WorkflowServiceTChannel();
 
         WorkflowExecution workflowExecution = new WorkflowExecution();
         String workflowId = args[1];

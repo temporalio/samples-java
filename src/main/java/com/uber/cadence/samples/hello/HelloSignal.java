@@ -16,6 +16,8 @@
  */
 package com.uber.cadence.samples.hello;
 
+import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
+
 import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
@@ -23,10 +25,7 @@ import com.uber.cadence.workflow.CompletablePromise;
 import com.uber.cadence.workflow.SignalMethod;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
-
 import java.time.Duration;
-
-import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
  * Demonstrates asynchronous signalling of a workflow.
@@ -88,8 +87,8 @@ public class HelloSignal {
         GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class,
                 workflowOptions);
         // Start workflow asynchronously to not use another thread to signal.
-        WorkflowClient.asyncStart(workflow::getGreeting);
-        // After asyncStart for getGreeting returns the workflow is guaranteed to be started.
+        WorkflowClient.start(workflow::getGreeting);
+        // After start for getGreeting returns the workflow is guaranteed to be started.
         // So we can send signal to it using workflow stub.
         workflow.waitForName("World");
         // Calling synchronous getGreeting after workflow has started reconnects to the existing workflow and

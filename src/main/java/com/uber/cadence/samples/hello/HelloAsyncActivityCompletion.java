@@ -16,6 +16,8 @@
  */
 package com.uber.cadence.samples.hello;
 
+import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
+
 import com.uber.cadence.activity.Activity;
 import com.uber.cadence.activity.ActivityMethod;
 import com.uber.cadence.client.ActivityCompletionClient;
@@ -23,10 +25,7 @@ import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.worker.Worker;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
-
 import java.util.concurrent.ForkJoinPool;
-
-import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
  * Demonstrates an asynchronous activity implementation.
@@ -82,7 +81,8 @@ public class HelloAsyncActivityCompletion {
         public String composeGreeting(String greeting, String name) {
             // TaskToken is a correlation token used to match activity task with completion
             byte[] taskToken = Activity.getTaskToken();
-            // In real life this request can be executed anywhere. By external service for example.
+            // In real life this request can be executed anywhere. By a separate service for
+            // example.
             ForkJoinPool.commonPool().execute(() -> composeGreetingAsync(taskToken, greeting, name));
             Activity.doNotCompleteOnReturn();
             // When doNotCompleteOnReturn() is invoked the return value is ignored.

@@ -16,11 +16,10 @@
  */
 package com.uber.cadence.samples.fileprocessing;
 
-import com.uber.cadence.client.WorkflowClient;
-
-import java.net.URL;
-
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
+
+import com.uber.cadence.client.WorkflowClient;
+import java.net.URL;
 
 /**
  * This is used for launching a Workflow instance of file processing sample.
@@ -43,7 +42,7 @@ public class FileProcessingStarter {
         System.out.println("FileProcessingWorkflow completed");
 
         // Use this code instead of the above blocking call to start workflow asynchronously.
-//        WorkflowExecution workflowExecution = WorkflowClient.asyncStart(workflow::processFile, source, destination);
+//        WorkflowExecution workflowExecution = WorkflowClient.start(workflow::processFile, source, destination);
 //        System.out.println("Started periodic workflow with workflowId=\"" + workflowExecution.getWorkflowId()
 //                + "\" and runId=\"" + workflowExecution.getRunId() + "\"");
 //

@@ -16,13 +16,13 @@
  */
 package com.uber.cadence.samples.common;
 
+import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
+
 import com.uber.cadence.WorkflowExecution;
-import com.uber.cadence.WorkflowService;
 import com.uber.cadence.client.UntypedWorkflowStub;
 import com.uber.cadence.client.WorkflowClient;
+import com.uber.cadence.serviceclient.IWorkflowService;
 import com.uber.cadence.serviceclient.WorkflowServiceTChannel;
-
-import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
  * Simple example utility to query workflow execution using Cadence query API.
@@ -39,7 +39,7 @@ public class QueryWorkflowExecution {
                     " <queryType> <workflowId> [<runId>]");
             System.exit(1);
         }
-        WorkflowService.Iface cadenceService = new WorkflowServiceTChannel();
+        IWorkflowService cadenceService = new WorkflowServiceTChannel();
 
         String queryType = args[0];
 
