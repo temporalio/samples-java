@@ -25,6 +25,8 @@ import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.worker.Worker;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 
 /**
@@ -97,7 +99,7 @@ public class HelloAsyncActivityCompletion {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
         // Start a worker that hosts both workflow and activity implementation
         Worker worker = new Worker(DOMAIN, TASK_LIST);
         // Workflows are stateful. So need a type to create instances.
@@ -111,9 +113,12 @@ public class HelloAsyncActivityCompletion {
         WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
         // Get a workflow stub using the same task list the worker uses.
         GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);
-        // Execute a workflow waiting for it complete.
-        String greeting = workflow.getGreeting("World");
-        System.out.println(greeting);
+        // Execute a workflow returning a future that can be used to wait for the workflow
+        // completion.
+        CompletableFuture<String> greeting = WorkflowClient.execute(workflow::getGreeting,
+            "World");
+        // Wait for workflow completion
+        System.out.println(greeting.get());
         System.exit(0);
     }
 }
