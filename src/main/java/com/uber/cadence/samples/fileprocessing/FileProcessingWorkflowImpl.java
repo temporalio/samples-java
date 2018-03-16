@@ -18,7 +18,6 @@ package com.uber.cadence.samples.fileprocessing;
 
 import com.uber.cadence.activity.ActivityOptions;
 import com.uber.cadence.workflow.Workflow;
-
 import java.net.URL;
 import java.time.Duration;
 

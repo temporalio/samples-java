@@ -20,16 +20,9 @@ import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import com.uber.cadence.activity.Activity;
 import com.uber.cadence.workflow.Workflow;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /**
  * Sample activities implementation.

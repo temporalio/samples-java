@@ -16,11 +16,10 @@
  */
 package com.uber.cadence.samples.fileprocessing;
 
-import com.uber.cadence.worker.Worker;
-
-import java.lang.management.ManagementFactory;
-
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
+
+import com.uber.cadence.worker.Worker;
+import java.lang.management.ManagementFactory;
 
 /**
  * This is the process which hosts all workflows and activities in this sample.

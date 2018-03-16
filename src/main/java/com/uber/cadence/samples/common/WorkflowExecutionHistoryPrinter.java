@@ -16,12 +16,12 @@
  */
 package com.uber.cadence.samples.common;
 
-import com.uber.cadence.WorkflowExecution;
-import com.uber.cadence.WorkflowService;
-import com.uber.cadence.internal.common.WorkflowExecutionUtils;
-import com.uber.cadence.serviceclient.WorkflowServiceTChannel;
-
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
+
+import com.uber.cadence.WorkflowExecution;
+import com.uber.cadence.internal.common.WorkflowExecutionUtils;
+import com.uber.cadence.serviceclient.IWorkflowService;
+import com.uber.cadence.serviceclient.WorkflowServiceTChannel;
 
 /**
  * Simple example utility to pretty print workflow execution history.
@@ -35,7 +35,7 @@ public class WorkflowExecutionHistoryPrinter {
             System.err.println("Usage: java " + WorkflowExecutionHistoryPrinter.class.getName() + " <workflowId> <runId>");
             System.exit(1);
         }
-        WorkflowService.Iface cadenceService = new WorkflowServiceTChannel();
+        IWorkflowService cadenceService = new WorkflowServiceTChannel();
         WorkflowExecution workflowExecution = new WorkflowExecution();
         String workflowId = args[0];
         workflowExecution.setWorkflowId(workflowId);

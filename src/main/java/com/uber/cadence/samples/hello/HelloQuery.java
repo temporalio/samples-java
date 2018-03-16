@@ -16,16 +16,15 @@
  */
 package com.uber.cadence.samples.hello;
 
+import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
+
 import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
 import com.uber.cadence.workflow.QueryMethod;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
-
 import java.time.Duration;
-
-import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
  * Demonstrates query capability.
@@ -85,8 +84,8 @@ public class HelloQuery {
         GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class,
                 workflowOptions);
         // Start workflow asynchronously to not use another thread to query.
-        WorkflowClient.asyncStart(workflow::createGreeting, "World");
-        // After asyncStart for getGreeting returns the workflow is guaranteed to be started.
+        WorkflowClient.start(workflow::createGreeting, "World");
+        // After start for getGreeting returns the workflow is guaranteed to be started.
         // So we can send signal to it using workflow stub.
 
         System.out.println(workflow.queryGreeting()); // Should print Hello...

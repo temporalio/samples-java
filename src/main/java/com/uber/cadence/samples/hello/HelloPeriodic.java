@@ -16,6 +16,8 @@
  */
 package com.uber.cadence.samples.hello;
 
+import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
+
 import com.google.common.base.Throwables;
 import com.uber.cadence.WorkflowExecution;
 import com.uber.cadence.WorkflowIdReusePolicy;
@@ -25,14 +27,10 @@ import com.uber.cadence.client.DuplicateWorkflowException;
 import com.uber.cadence.client.UntypedWorkflowStub;
 import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowException;
-import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
-
 import java.time.Duration;
-
-import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
 /**
  * Demonstrates a "cron" workflow that executes activity periodically.
@@ -139,7 +137,7 @@ public class HelloPeriodic {
             // New stub instance should be created for each new workflow start.
             GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);
             try {
-                execution = WorkflowClient.asyncStart(workflow::greetPeriodically,
+                execution = WorkflowClient.start(workflow::greetPeriodically,
                         "World", Duration.ofSeconds(1));
                 System.out.println("Started " + execution);
             } catch (DuplicateWorkflowException e) {

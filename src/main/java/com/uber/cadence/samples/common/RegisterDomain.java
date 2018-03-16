@@ -16,17 +16,14 @@
  */
 package com.uber.cadence.samples.common;
 
-import com.uber.cadence.DomainAlreadyExistsError;
-import com.uber.cadence.DomainConfiguration;
-import com.uber.cadence.RegisterDomainRequest;
-import com.uber.cadence.UpdateDomainRequest;
-import com.uber.cadence.WorkflowService;
-import com.uber.cadence.serviceclient.WorkflowServiceTChannel;
-import org.apache.thrift.TException;
-
-import java.io.IOException;
-
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
+
+import com.uber.cadence.DomainAlreadyExistsError;
+import com.uber.cadence.RegisterDomainRequest;
+import com.uber.cadence.serviceclient.IWorkflowService;
+import com.uber.cadence.serviceclient.WorkflowServiceTChannel;
+import java.io.IOException;
+import org.apache.thrift.TException;
 
 /**
  * Simple example utility to pretty print workflow execution history.
@@ -36,7 +33,7 @@ import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 public class RegisterDomain {
 
     public static void main(String[] args) throws TException, IOException {
-        WorkflowService.Iface cadenceService = new WorkflowServiceTChannel();
+        IWorkflowService cadenceService = new WorkflowServiceTChannel();
         RegisterDomainRequest request = new RegisterDomainRequest();
         request.setDescription("Java Samples");
         request.setEmitMetric(false);
