@@ -14,17 +14,18 @@
  *  express or implied. See the License for the specific language governing
  *  permissions and limitations under the License.
  */
+
 package com.uber.cadence.samples.fileprocessing;
 
 import com.uber.cadence.workflow.WorkflowMethod;
 import java.net.URL;
 
-/**
- * Contract for file processing workflow
- */
+/** Contract for file processing workflow. */
 public interface FileProcessingWorkflow {
 
-    @WorkflowMethod(taskList = FileProcessingWorker.TASK_LIST,
-            executionStartToCloseTimeoutSeconds = 30)
-    void processFile(URL source, URL destination);
+  @WorkflowMethod(
+    taskList = FileProcessingWorker.TASK_LIST,
+    executionStartToCloseTimeoutSeconds = 30
+  )
+  void processFile(URL source, URL destination);
 }

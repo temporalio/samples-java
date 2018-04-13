@@ -14,6 +14,7 @@
  *  express or implied. See the License for the specific language governing
  *  permissions and limitations under the License.
  */
+
 package com.uber.cadence.samples.common;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
@@ -24,23 +25,27 @@ import com.uber.cadence.serviceclient.IWorkflowService;
 import com.uber.cadence.serviceclient.WorkflowServiceTChannel;
 
 /**
- * Simple example utility to pretty print workflow execution history.
+ * Prints a workflow execution history to the console.
  *
  * @author fateev
  */
 public class WorkflowExecutionHistoryPrinter {
 
-    public static void main(String[] args) throws Exception {
-        if (args.length < 2) {
-            System.err.println("Usage: java " + WorkflowExecutionHistoryPrinter.class.getName() + " <workflowId> <runId>");
-            System.exit(1);
-        }
-        IWorkflowService cadenceService = new WorkflowServiceTChannel();
-        WorkflowExecution workflowExecution = new WorkflowExecution();
-        String workflowId = args[0];
-        workflowExecution.setWorkflowId(workflowId);
-        String runId = args[1];
-        workflowExecution.setRunId(runId);
-        System.out.println(WorkflowExecutionUtils.prettyPrintHistory(cadenceService, DOMAIN, workflowExecution, true));
+  public static void main(String[] args) throws Exception {
+    if (args.length < 2) {
+      System.err.println(
+          "Usage: java "
+              + WorkflowExecutionHistoryPrinter.class.getName()
+              + " <workflowId> <runId>");
+      System.exit(1);
     }
+    IWorkflowService cadenceService = new WorkflowServiceTChannel();
+    WorkflowExecution workflowExecution = new WorkflowExecution();
+    String workflowId = args[0];
+    workflowExecution.setWorkflowId(workflowId);
+    String runId = args[1];
+    workflowExecution.setRunId(runId);
+    System.out.println(
+        WorkflowExecutionUtils.prettyPrintHistory(cadenceService, DOMAIN, workflowExecution, true));
+  }
 }

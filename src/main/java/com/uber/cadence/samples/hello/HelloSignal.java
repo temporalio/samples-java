@@ -14,6 +14,7 @@
  *  express or implied. See the License for the specific language governing
  *  permissions and limitations under the License.
  */
+
 package com.uber.cadence.samples.hello;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
@@ -28,74 +29,68 @@ import com.uber.cadence.workflow.WorkflowMethod;
 import java.time.Duration;
 
 /**
- * Demonstrates asynchronous signalling of a workflow.
- * Requires a local instance of Cadence server running.
+ * Demonstrates asynchronous signalling of a workflow. Requires a local instance of Cadence server
+ * to be running.
  */
 @SuppressWarnings("ALL")
 public class HelloSignal {
 
-    private static final String TASK_LIST = "HelloSignal";
+  static final String TASK_LIST = "HelloSignal";
 
-    /**
-     * Workflow interface has to have at least one method annotated with @WorkflowMethod.
-     */
-    public interface GreetingWorkflow {
-        /**
-         * @return greeting string
-         */
-        @WorkflowMethod
-        String getGreeting();
+  /** Workflow interface must have a method annotated with @WorkflowMethod. */
+  public interface GreetingWorkflow {
+    /** @return greeting string */
+    @WorkflowMethod
+    String getGreeting();
 
-        /**
-         * Receives name through an external signal.
-         */
-        @SignalMethod
-        void waitForName(String name);
+    /** Receives name through an external signal. */
+    @SignalMethod
+    void waitForName(String name);
+  }
+
+  /** GreetingWorkflow implementation that returns a greeting. */
+  public static class GreetingWorkflowImpl implements GreetingWorkflow {
+
+    private final CompletablePromise<String> name = Workflow.newPromise();
+
+    @Override
+    public String getGreeting() {
+      return "Hello " + name.get() + "!";
     }
 
-    /**
-     * GreetingWorkflow implementation that returns a greeting.
-     */
-    public static class GreetingWorkflowImpl implements GreetingWorkflow {
-
-        private final CompletablePromise<String> name = Workflow.newPromise();
-
-        @Override
-        public String getGreeting() {
-            return "Hello " + name.get() + "!";
-        }
-
-        @Override
-        public void waitForName(String name) {
-            this.name.complete(name);
-        }
+    @Override
+    public void waitForName(String name) {
+      this.name.complete(name);
     }
+  }
 
-    public static void main(String[] args) {
-        // Start a worker that hosts the workflow implementation
-        Worker worker = new Worker(DOMAIN, TASK_LIST);
-        worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
-        worker.start();
+  public static void main(String[] args) {
+    // Start a worker that hosts the workflow implementation.
+    Worker worker = new Worker(DOMAIN, TASK_LIST);
+    worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
+    worker.start();
 
-        // Start a workflow execution. Usually it is done from another program.
-        WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
-        // Get a workflow stub using the same task list the worker uses.
-        WorkflowOptions workflowOptions = new WorkflowOptions.Builder()
-                .setTaskList(TASK_LIST)
-                .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
-                .build();
-        GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class,
-                workflowOptions);
-        // Start workflow asynchronously to not use another thread to signal.
-        WorkflowClient.start(workflow::getGreeting);
-        // After start for getGreeting returns the workflow is guaranteed to be started.
-        // So we can send signal to it using workflow stub.
-        workflow.waitForName("World");
-        // Calling synchronous getGreeting after workflow has started reconnects to the existing workflow and
-        // blocks until result is available. Note that this behavior assumes that WorkflowOptions are not configured
-        // with WorkflowIdReusePolicy.AllowDuplicate. In that case the call would fail with WorkflowExecutionAlreadyStartedException.
-        String greeting = workflow.getGreeting();
-        System.out.println(greeting);
-        System.exit(0);
-    }
+    // Start a workflow execution. Usually this is done from another program.
+    WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
+    // Get a workflow stub using the same task list the worker uses.
+    WorkflowOptions workflowOptions =
+        new WorkflowOptions.Builder()
+            .setTaskList(TASK_LIST)
+            .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
+            .build();
+    GreetingWorkflow workflow =
+        workflowClient.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
+    // Start workflow asynchronously to not use another thread to signal.
+    WorkflowClient.start(workflow::getGreeting);
+    // After start for getGreeting returns, the workflow is guaranteed to be started.
+    // So we can send a signal to it using workflow stub.
+    workflow.waitForName("World");
+    // Calling synchronous getGreeting after workflow has started reconnects to the existing
+    // workflow and blocks until a result is available. Note that this behavior assumes that
+    // WorkflowOptions are not configured with WorkflowIdReusePolicy.AllowDuplicate. In that case
+    // the call would fail with WorkflowExecutionAlreadyStartedException.
+    String greeting = workflow.getGreeting();
+    System.out.println(greeting);
+    System.exit(0);
+  }
 }
