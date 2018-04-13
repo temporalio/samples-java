@@ -14,52 +14,51 @@
  *  express or implied. See the License for the specific language governing
  *  permissions and limitations under the License.
  */
+
 package com.uber.cadence.samples.fileprocessing;
 
 import java.net.URL;
 
 public interface StoreActivities {
 
-    final class TaskListFileNamePair {
-        private final String hostTaskList;
-        private final String fileName;
+  final class TaskListFileNamePair {
+    private final String hostTaskList;
+    private final String fileName;
 
-        public TaskListFileNamePair(String hostTaskList, String fileName) {
-            this.hostTaskList = hostTaskList;
-            this.fileName = fileName;
-        }
-
-        public String getHostTaskList() {
-            return hostTaskList;
-        }
-
-        public String getFileName() {
-            return fileName;
-        }
+    public TaskListFileNamePair(String hostTaskList, String fileName) {
+      this.hostTaskList = hostTaskList;
+      this.fileName = fileName;
     }
 
-    /**
-     * Upload file to remote location.
-     *
-     * @param localFileName file to upload
-     * @param url           remote location
-     */
-    void upload(String localFileName, URL url);
+    public String getHostTaskList() {
+      return hostTaskList;
+    }
 
-    /**
-     * Process file.
-     *
-     * @param inputFileName source file name
-     * @@return processed file name
-     */
-    String process(String inputFileName);
+    public String getFileName() {
+      return fileName;
+    }
+  }
 
-    /**
-     * Downloads file to local disk.
-     *
-     * @param url remote file location
-     * @return local task list and downloaded file name
-     */
-    TaskListFileNamePair download(URL url);
+  /**
+   * Upload file to remote location.
+   *
+   * @param localFileName file to upload
+   * @param url remote location
+   */
+  void upload(String localFileName, URL url);
 
+  /**
+   * Process file.
+   *
+   * @param inputFileName source file name @@return processed file name
+   */
+  String process(String inputFileName);
+
+  /**
+   * Downloads file to local disk.
+   *
+   * @param url remote file location
+   * @return local task list and downloaded file name
+   */
+  TaskListFileNamePair download(URL url);
 }

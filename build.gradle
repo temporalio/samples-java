@@ -1,9 +1,18 @@
 plugins {
-    id "com.github.hierynomus.license" version "0.14.0"
+    id 'net.minecrell.licenser' version '0.3'
+    id "com.github.sherter.google-java-format" version "0.6"
+    id "net.ltgt.errorprone" version "0.0.13"
 }
 
 apply plugin: 'java'
 apply plugin: 'maven'
+apply plugin: 'com.github.sherter.google-java-format'
+
+googleJavaFormat {
+    toolVersion '1.5'
+    include '**/*.java'
+    exclude '**/generated-sources/*'
+}
 
 group = 'com.uber'
 version = '0.0.1'
@@ -29,6 +38,16 @@ dependencies {
     compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.274'
     compile group: 'commons-configuration', name: 'commons-configuration', version: '1.9'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
+    testCompile group: 'org.powermock', name: 'powermock-api-mockito', version: '1.7.3'
+}
+
+compileJava {
+    dependsOn 'googleJavaFormat'
+    options.encoding = 'UTF-8'
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation" << "-XepExcludedPaths:" +
+            ".*/generated-sources/.*"
 }
 
 task execute(type: JavaExec) {
@@ -38,7 +57,4 @@ task execute(type: JavaExec) {
 
 license {
     header rootProject.file('license-header.txt')
-    mapping {
-        java = 'SLASHSTAR_STYLE'
-    }
 }

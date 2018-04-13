@@ -14,6 +14,7 @@
  *  express or implied. See the License for the specific language governing
  *  permissions and limitations under the License.
  */
+
 package com.uber.cadence.samples.hello;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
@@ -25,75 +26,64 @@ import com.uber.cadence.workflow.Promise;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
 
-/**
- * Demonstrates child workflow.
- * Requires a local instance of Cadence server running.
- */
+/** Demonstrates a child workflow. Requires a local instance of the Cadence server to be running. */
 public class HelloChild {
 
-    private static final String TASK_LIST = "HelloChild";
+  static final String TASK_LIST = "HelloChild";
 
-    /**
-     * Workflow interface has to have at least one method annotated with @WorkflowMethod.
-     */
-    public interface GreetingWorkflow {
-        /**
-         * @return greeting string
-         */
-        @WorkflowMethod(executionStartToCloseTimeoutSeconds = 10, taskList = TASK_LIST)
-        String getGreeting(String name);
+  /** The parent workflow interface. */
+  public interface GreetingWorkflow {
+    /** @return greeting string */
+    @WorkflowMethod(executionStartToCloseTimeoutSeconds = 10, taskList = TASK_LIST)
+    String getGreeting(String name);
+  }
+
+  /** The child workflow interface. */
+  public interface GreetingChild {
+    @WorkflowMethod
+    String composeGreeting(String greeting, String name);
+  }
+
+  /** GreetingWorkflow implementation that calls GreetingsActivities#printIt. */
+  public static class GreetingWorkflowImpl implements GreetingWorkflow {
+
+    @Override
+    public String getGreeting(String name) {
+      // Workflows are stateful. So a new stub must be created for each new child.
+      GreetingChild child = Workflow.newChildWorkflowStub(GreetingChild.class);
+
+      // This is a blocking call that returns only after the child has completed.
+      Promise<String> greeting = Async.function(child::composeGreeting, "Hello", name);
+      // Do something else here.
+      return greeting.get(); // blocks waiting for the child to complete.
     }
+  }
 
-    /**
-     * Activity interface is just a POJI
-     */
-    public interface GreetingChild {
-        @WorkflowMethod
-        String composeGreeting(String greeting, String name);
+  /**
+   * The child workflow implementation. A workflow implementation must always be public for the
+   * Cadence library to be able to create instances.
+   */
+  public static class GreetingChildImpl implements GreetingChild {
+    @Override
+    public String composeGreeting(String greeting, String name) {
+      return greeting + " " + name + "!";
     }
+  }
 
-    /**
-     * GreetingWorkflow implementation that calls GreetingsActivities#printIt.
-     */
-    public static class GreetingWorkflowImpl implements GreetingWorkflow {
+  public static void main(String[] args) {
+    // Start a worker that hosts both parent and child workflow implementations.
+    Worker worker = new Worker(DOMAIN, TASK_LIST);
+    worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class, GreetingChildImpl.class);
+    // Start listening to the workflow task list.
+    worker.start();
 
-        @Override
-        public String getGreeting(String name) {
-            // Workflows are stateful. So new stub must be created for each new child.
-            GreetingChild child = Workflow.newWorkflowStub(GreetingChild.class);
-
-            // This is blocking call that returns only after child is completed.
-            Promise<String> greeting = Async.function(child::composeGreeting, "Hello", name);
-            // Do something else here
-            return greeting.get(); // blocks waiting for child to complete
-        }
-    }
-
-    /**
-     * Child workflow implementation.
-     * Workflow implementation must always be public for the Cadence to be able to create instances.
-     */
-    public static class GreetingChildImpl implements GreetingChild {
-        @Override
-        public String composeGreeting(String greeting, String name) {
-            return greeting + " " + name + "!";
-        }
-    }
-
-    public static void main(String[] args) {
-        // Start a worker that hosts both parent and child workflow implementations.
-        Worker worker = new Worker(DOMAIN, TASK_LIST);
-        worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class, GreetingChildImpl.class);
-        // Start listening to the workflow task list.
-        worker.start();
-
-        // Start a workflow execution. Usually it is done from another program.
-        WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
-        // Get a workflow stub using the same task list the worker uses.
-        GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);
-        // Execute a workflow waiting for it complete.
-        String greeting = workflow.getGreeting("World");
-        System.out.println(greeting);
-        System.exit(0);
-    }
+    // Start a workflow execution. Usually this is done from another program.
+    WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
+    // Get a workflow stub using the same task list the worker uses.
+    GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);
+    // Execute a workflow waiting for it to complete.
+    String greeting = workflow.getGreeting("World");
+    System.out.println(greeting);
+    System.exit(0);
+  }
 }

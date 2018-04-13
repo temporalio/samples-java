@@ -14,6 +14,7 @@
  *  express or implied. See the License for the specific language governing
  *  permissions and limitations under the License.
  */
+
 package com.uber.cadence.samples.hello;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
@@ -26,72 +27,67 @@ import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
 import java.time.Duration;
 
-/**
- * Demonstrates query capability.
- * Requires a local instance of Cadence server running.
- */
+/** Demonstrates query capability. Requires a local instance of Cadence server to be running. */
 public class HelloQuery {
 
-    private static final String TASK_LIST = "HelloQuery";
+  static final String TASK_LIST = "HelloQuery";
 
-    public interface GreetingWorkflow {
+  public interface GreetingWorkflow {
 
-        @WorkflowMethod
-        void createGreeting(String name);
+    @WorkflowMethod
+    void createGreeting(String name);
 
-        /**
-         * Returns greeting as a query value.
-         */
-        @QueryMethod
-        String queryGreeting();
+    /** Returns greeting as a query value. */
+    @QueryMethod
+    String queryGreeting();
+  }
+
+  /** GreetingWorkflow implementation that updates greeting after sleeping for 5 seconds. */
+  public static class GreetingWorkflowImpl implements GreetingWorkflow {
+
+    private String greeting;
+
+    @Override
+    public void createGreeting(String name) {
+      greeting = "Hello " + name + "!";
+      // Workflow code always uses WorkflowThread.sleep
+      // and Workflow.currentTimeMillis instead of standard Java ones.
+      Workflow.sleep(Duration.ofSeconds(2));
+      greeting = "Bye " + name + "!";
     }
 
-    /**
-     * GreetingWorkflow implementation that updates greeting after sleeping for 5 seconds.
-     */
-    public static class GreetingWorkflowImpl implements GreetingWorkflow {
-
-        private String greeting;
-
-        @Override
-        public void createGreeting(String name) {
-            greeting = "Hello " + name + "!";
-            // Inside workflow code always use WorkflowThread.sleep
-            // and Workflow.currentTimeMillis instead of standard Java ones.
-            Workflow.sleep(Duration.ofSeconds(2));
-            greeting = "Bye " + name + "!";
-        }
-
-        @Override
-        public String queryGreeting() {
-            return greeting;
-        }
+    @Override
+    public String queryGreeting() {
+      return greeting;
     }
+  }
 
-    public static void main(String[] args) throws InterruptedException {
-        // Start a worker that hosts the workflow implementation
-        Worker worker = new Worker(DOMAIN, TASK_LIST);
-        worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
-        worker.start();
+  public static void main(String[] args) throws InterruptedException {
+    // Start a worker that hosts the workflow implementation.
+    Worker worker = new Worker(DOMAIN, TASK_LIST);
+    worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
+    worker.start();
 
-        // Start a workflow execution. Usually it is done from another program.
-        WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
-        // Get a workflow stub using the same task list the worker uses.
-        WorkflowOptions workflowOptions = new WorkflowOptions.Builder()
-                .setTaskList(TASK_LIST)
-                .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
-                .build();
-        GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class,
-                workflowOptions);
-        // Start workflow asynchronously to not use another thread to query.
-        WorkflowClient.start(workflow::createGreeting, "World");
-        // After start for getGreeting returns the workflow is guaranteed to be started.
-        // So we can send signal to it using workflow stub.
+    // Start a workflow execution. Usually this is done from another program.
+    WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
+    // Get a workflow stub using the same task list the worker uses.
+    WorkflowOptions workflowOptions =
+        new WorkflowOptions.Builder()
+            .setTaskList(TASK_LIST)
+            .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
+            .build();
+    GreetingWorkflow workflow =
+        workflowClient.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
+    // Start workflow asynchronously to not use another thread to query.
+    WorkflowClient.start(workflow::createGreeting, "World");
+    // After start for getGreeting returns, the workflow is guaranteed to be started.
+    // So we can send a signal to it using workflow stub.
 
-        System.out.println(workflow.queryGreeting()); // Should print Hello...
-        // Note that inside a workflow only WorkflowThread.sleep is allowed. Outside WorkflowThread.sleep is not allowed.
-        Thread.sleep(2500);
-        System.out.println(workflow.queryGreeting()); // Should print Bye ...
-        System.exit(0);
-    }
+    System.out.println(workflow.queryGreeting()); // Should print Hello...
+    // Note that inside a workflow only WorkflowThread.sleep is allowed. Outside
+    // WorkflowThread.sleep is not allowed.
+    Thread.sleep(2500);
+    System.out.println(workflow.queryGreeting()); // Should print Bye ...
+    System.exit(0);
+  }
 }

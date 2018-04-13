@@ -14,6 +14,7 @@
  *  express or implied. See the License for the specific language governing
  *  permissions and limitations under the License.
  */
+
 package com.uber.cadence.samples.fileprocessing;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
@@ -21,31 +22,30 @@ import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 import com.uber.cadence.client.WorkflowClient;
 import java.net.URL;
 
-/**
- * This is used for launching a Workflow instance of file processing sample.
- */
+/** Starts a file processing sample workflow. */
 public class FileProcessingStarter {
 
-    public static void main(String[] args) throws Exception {
-        // Start Workflow instance
-        WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
-        FileProcessingWorkflow workflow = workflowClient.newWorkflowStub(FileProcessingWorkflow.class);
+  public static void main(String[] args) throws Exception {
+    WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
+    FileProcessingWorkflow workflow = workflowClient.newWorkflowStub(FileProcessingWorkflow.class);
 
-        System.out.println("Executing FileProcessingWorkflow");
+    System.out.println("Executing FileProcessingWorkflow");
 
-        URL source = new URL("http://www.google.com/");
-        URL destination = new URL("http://dummy");
+    URL source = new URL("http://www.google.com/");
+    URL destination = new URL("http://dummy");
 
-        // This is going to block until the workflow completion.
-        // This is rarely used in production. Use the commented code below for async start version.
-        workflow.processFile(source, destination);
-        System.out.println("FileProcessingWorkflow completed");
+    // This is going to block until the workflow completes.
+    // This is rarely used in production. Use the commented code below for async start version.
+    workflow.processFile(source, destination);
+    System.out.println("FileProcessingWorkflow completed");
 
-        // Use this code instead of the above blocking call to start workflow asynchronously.
-//        WorkflowExecution workflowExecution = WorkflowClient.start(workflow::processFile, source, destination);
-//        System.out.println("Started periodic workflow with workflowId=\"" + workflowExecution.getWorkflowId()
-//                + "\" and runId=\"" + workflowExecution.getRunId() + "\"");
-//
-        System.exit(0);
-    }
+    // Use this code instead of the above blocking call to start workflow asynchronously.
+    //        WorkflowExecution workflowExecution = WorkflowClient.start(workflow::processFile,
+    // source, destination);
+    //        System.out.println("Started periodic workflow with workflowId=\"" +
+    // workflowExecution.getWorkflowId()
+    //                + "\" and runId=\"" + workflowExecution.getRunId() + "\"");
+    //
+    System.exit(0);
+  }
 }

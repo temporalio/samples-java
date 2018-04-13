@@ -14,6 +14,7 @@
  *  express or implied. See the License for the specific language governing
  *  permissions and limitations under the License.
  */
+
 package com.uber.cadence.samples.hello;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
@@ -30,22 +31,28 @@ import java.io.IOException;
 import java.time.Duration;
 
 /**
- * Demonstrates exception propagation across activity, child workflow and workflow client boundaries.
- * Shows how to deal with checked exceptions.
+ * Demonstrates exception propagation across activity, child workflow and workflow client
+ * boundaries. Shows how to deal with checked exceptions.
  * <li>
- * <ul>
- * Exceptions thrown by an activity are received by the workflow wrapped into an {@link com.uber.cadence.workflow.ActivityFailureException}.
+ *
+ *     <ul>
+ *       Exceptions thrown by an activity are received by the workflow wrapped into an {@link
+ *       com.uber.cadence.workflow.ActivityFailureException}.
  * </ul>
+ *
  * <ul>
- * Exceptions thrown by a child workflow are received by a parent workflow wrapped into a {@link com.uber.cadence.workflow.ChildWorkflowFailureException}.
+ *   Exceptions thrown by a child workflow are received by a parent workflow wrapped into a {@link
+ *   com.uber.cadence.workflow.ChildWorkflowFailureException}.
  * </ul>
+ *
  * <ul>
- * Exceptions thrown by a workflow are received  by a workflow client wrapped into {@link com.uber.cadence.client.WorkflowFailureException}.
+ *   Exceptions thrown by a workflow are received by a workflow client wrapped into {@link
+ *   com.uber.cadence.client.WorkflowFailureException}.
  * </ul>
- * </li>
- * <p>
- * In this example a Workflow Client executes a workflow which executes a child workflow
- * which executes activity which throws an IOException. The resulting exception stack trace is:
+ *
+ * <p>In this example a Workflow Client executes a workflow which executes a child workflow which
+ * executes an activity which throws an IOException. The resulting exception stack trace is:
+ *
  * <pre>
  * com.uber.cadence.client.WorkflowFailureException: WorkflowType="GreetingWorkflow::getGreeting", WorkflowID="38b9ce7a-e370-4cd8-a9f3-35e7295f7b3d", RunID="37ceb58c-9271-4fca-b5aa-ba06c5495214
  *     at com.uber.cadence.internal.dispatcher.UntypedWorkflowStubImpl.getResult(UntypedWorkflowStubImpl.java:139)
@@ -80,101 +87,100 @@ import java.time.Duration;
  *     at com.uber.cadence.internal.worker.POJOActivityImplementationFactory$POJOActivityImplementation.execute(POJOActivityImplementationFactory.java:162)
  *
  * </pre>
- * Note that there is only one level of wrapping when crossing logical process boundaries. And that wrapper exception
- * adds a lot of relevant information about failure.
- * <p>
- * {@link IOException} is a checked exception. The standard Java way of adding <code>throws IOException</code> to
- * activity, child and workflow interfaces is not going to help. It is because at all levels it is never received directly, but
- * in wrapped form. Propagating it without wrapping would not allow adding additional context information
- * like activity, child workflow and parent workflow  types and IDs. The Cadence library solution is to provide special
- * wrapper method {@link Workflow#wrap(Exception)} which wraps a checked exception in a special runtime exception.
- * It is special because framework strips it when chaining exception across logical process boundaries. In this example
- * IOException is directly attached to ActivityFailureException besides being wrapped when rethrown.
- * </p>
+ *
+ * Note that there is only one level of wrapping when crossing logical process boundaries. And that
+ * wrapper exception adds a lot of relevant information about failure.
+ *
+ * <p>{@link IOException} is a checked exception. The standard Java way of adding <code>
+ * throws IOException</code> to activity, child and workflow interfaces is not going to help. It is
+ * because at all levels it is never received directly, but in wrapped form. Propagating it without
+ * wrapping would not allow adding additional context information like activity, child workflow and
+ * parent workflow types and IDs. The Cadence library solution is to provide a special wrapper
+ * method {@link Workflow#wrap(Exception)} which wraps a checked exception in a special runtime
+ * exception. It is special because the framework strips it when chaining exceptions across logical
+ * process boundaries. In this example IOException is directly attached to ActivityFailureException
+ * besides being wrapped when rethrown.
  */
 public class HelloException {
 
-    private static final String TASK_LIST = "HelloException";
+  static final String TASK_LIST = "HelloException";
 
-    public interface GreetingWorkflow {
-        @WorkflowMethod
-        String getGreeting(String name);
+  public interface GreetingWorkflow {
+    @WorkflowMethod
+    String getGreeting(String name);
+  }
+
+  public interface GreetingChild {
+    @WorkflowMethod
+    String composeGreeting(String greeting, String name);
+  }
+
+  public interface GreetingActivities {
+    String composeGreeting(String greeting, String name);
+  }
+
+  /** Parent implementation that calls GreetingChild#composeGreeting. */
+  public static class GreetingWorkflowImpl implements GreetingWorkflow {
+
+    @Override
+    public String getGreeting(String name) {
+      GreetingChild child = Workflow.newChildWorkflowStub(GreetingChild.class);
+      return child.composeGreeting("Hello", name);
     }
+  }
 
-    /**
-     * Activity interface is just a POJI
-     */
-    public interface GreetingChild {
-        @WorkflowMethod
-        String composeGreeting(String greeting, String name);
+  /** Child workflow implementation. */
+  public static class GreetingChildImpl implements GreetingChild {
+    private final GreetingActivities activities =
+        Workflow.newActivityStub(
+            GreetingActivities.class,
+            new ActivityOptions.Builder()
+                .setScheduleToCloseTimeout(Duration.ofSeconds(10))
+                .build());
+
+    @Override
+    public String composeGreeting(String greeting, String name) {
+      return activities.composeGreeting(greeting, name);
     }
+  }
 
-    public interface GreetingActivities {
-        String composeGreeting(String greeting, String name);
+  static class GreetingActivitiesImpl implements GreetingActivities {
+    @Override
+    public String composeGreeting(String greeting, String name) {
+      try {
+        throw new IOException(greeting + " " + name + "!");
+      } catch (IOException e) {
+        // Wrapping the exception as checked exceptions in activity and workflow interface methods
+        // are prohibited.
+        // It will be unwrapped and attached as a cause to the ActivityFailureException.
+        throw Workflow.wrap(e);
+      }
     }
+  }
 
-    /**
-     * GreetingWorkflow implementation that calls GreetingsActivities#printIt.
-     */
-    public static class GreetingWorkflowImpl implements GreetingWorkflow {
+  public static void main(String[] args) {
+    Worker worker = new Worker(DOMAIN, TASK_LIST);
+    worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class, GreetingChildImpl.class);
+    worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
+    worker.start();
 
-        @Override
-        public String getGreeting(String name) {
-            GreetingChild child = Workflow.newWorkflowStub(GreetingChild.class);
-            return child.composeGreeting("Hello", name);
-        }
+    WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
+    WorkflowOptions workflowOptions =
+        new WorkflowOptions.Builder()
+            .setTaskList(TASK_LIST)
+            .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
+            .build();
+    GreetingWorkflow workflow =
+        workflowClient.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
+    try {
+      workflow.getGreeting("World");
+      throw new IllegalStateException("unreachable");
+    } catch (WorkflowException e) {
+      Throwable cause = Throwables.getRootCause(e);
+      // prints "Hello World!"
+      System.out.println(cause.getMessage());
+      System.out.println("\nStack Trace:\n" + Throwables.getStackTraceAsString(e));
     }
-
-    /**
-     * Child workflow implementation.
-     * Workflow implementation must always be public for the Cadence to be able to create instances.
-     */
-    public static class GreetingChildImpl implements GreetingChild {
-        private final GreetingActivities activities = Workflow.newActivityStub(
-                GreetingActivities.class,
-                new ActivityOptions.Builder().setScheduleToCloseTimeout(Duration.ofSeconds(10)).build());
-
-        @Override
-        public String composeGreeting(String greeting, String name) {
-            return activities.composeGreeting(greeting, name);
-        }
-    }
-
-    private static class GreetingActivitiesImpl implements GreetingActivities {
-        @Override
-        public String composeGreeting(String greeting, String name) {
-            try {
-                throw new IOException(greeting + " " + name + "!");
-            } catch (IOException e) {
-                // Wrap it as checked exceptions in activity and workflow interface methods are prohibited.
-                // It will be unwrapped and attached as a cause to the ActivityFailureException.
-                throw Workflow.wrap(e);
-            }
-        }
-    }
-
-    public static void main(String[] args) {
-        Worker worker = new Worker(DOMAIN, TASK_LIST);
-        worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class, GreetingChildImpl.class);
-        worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
-        worker.start();
-
-        WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
-        WorkflowOptions workflowOptions = new WorkflowOptions.Builder()
-                .setTaskList(TASK_LIST)
-                .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
-                .build();
-        GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class,
-                workflowOptions);
-        try {
-            workflow.getGreeting("World");
-            throw new IllegalStateException("unreachable");
-        } catch (WorkflowException e) {
-            Throwable cause = Throwables.getRootCause(e);
-            // prints "Hello World!"
-            System.out.println(cause.getMessage());
-            System.out.println("\nStack Trace:\n" + Throwables.getStackTraceAsString(e));
-        }
-        System.exit(0);
-    }
+    System.exit(0);
+  }
 }
