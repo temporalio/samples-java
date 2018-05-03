@@ -30,11 +30,10 @@ repositories {
         url "https://plugins.gradle.org/m2/"
     }
     mavenCentral()
-    mavenLocal()
 }
 
 dependencies {
-    compile group: 'com.uber', name: 'cadence-client', version: '0.2.0-SNAPSHOT'
+    compile group: 'com.uber.cadence', name: 'cadence-client', version: '0.1.0'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.274'
     compile group: 'commons-configuration', name: 'commons-configuration', version: '1.9'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
