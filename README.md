@@ -2,7 +2,7 @@
 # Java Cadence Samples
 These samples demonstrate various capabilities of Java Cadence client and server. You can learn more about Cadence at:
 * [Cadence Service](https://github.com/uber/cadence)
-* [Cadence Java Client](https://github.com/uber-java/cadence-client)
+* [Cadence Java Client](https://github.com/uber/cadence-java-client)
 * [Go Cadence Client](https://github.com/uber-go/cadence-client)
 
 ## Overview of the Samples
@@ -30,8 +30,8 @@ These samples demonstrate various capabilities of Java Cadence client and server
 
 Run the following commands:
 
-      git clone https://github.com/mfateev/uber-java-cadence-samples
-      cd cadence-java-client-samples
+      git clone https://github.com/uber/cadence-java-samples
+      cd cadence-java-samples
 
 ## Import into IntelliJ
 
@@ -42,16 +42,7 @@ choose **Gradle** and then click **Next**->**Finish**.
 
 ## Build the Samples
 
-Assumng that the https://github.com/uber-java/cadence-client is in local maven cache.
-
       ./gradlew build
-
-If the latest samples stop building after you pull the latest version, refresh the Gradle dependencies:
-
-      ./gradlew build --refresh-dependencies
-
-Or, in IntelliJ, in the **Gradle projects** window, right-click "cadence-samples" and then click
-**Refresh dependencies**.
 
 ## Run Cadence Server
 
