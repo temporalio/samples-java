@@ -37,18 +37,20 @@ public class FileProcessingWorker {
 
     String hostSpecifiTaskList = ManagementFactory.getRuntimeMXBean().getName();
 
-    // Start worker to poll the common task list.
-    final Worker workerForCommonTaskList = new Worker(DOMAIN, TASK_LIST);
+    // Get worker to poll the common task list.
+    Worker.Factory factory = new Worker.Factory(DOMAIN);
+    final Worker workerForCommonTaskList = factory.newWorker(TASK_LIST);
     workerForCommonTaskList.registerWorkflowImplementationTypes(FileProcessingWorkflowImpl.class);
     StoreActivitiesImpl storeActivityImpl = new StoreActivitiesImpl(hostSpecifiTaskList);
     workerForCommonTaskList.registerActivitiesImplementations(storeActivityImpl);
-    workerForCommonTaskList.start();
-    System.out.println("Worker started for task list: " + TASK_LIST);
 
-    // Start worker to poll the host-specific task list.
-    final Worker workerForHostSpecificTaskList = new Worker(DOMAIN, hostSpecifiTaskList);
+    // Get worker to poll the host-specific task list.
+    final Worker workerForHostSpecificTaskList =factory.newWorker(hostSpecifiTaskList);
     workerForHostSpecificTaskList.registerActivitiesImplementations(storeActivityImpl);
-    workerForHostSpecificTaskList.start();
+
+    // Start all workers created by this factory.
+    factory.start();
+    System.out.println("Worker started for task list: " + TASK_LIST);
     System.out.println("Worker Started for activity task List: " + hostSpecifiTaskList);
   }
 }

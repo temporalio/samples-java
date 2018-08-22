@@ -85,7 +85,7 @@ public class HelloExceptionTest {
     worker.registerWorkflowImplementationTypes(
         HelloException.GreetingWorkflowImpl.class, GreetingChildImpl.class);
     worker.registerActivitiesImplementations(new HelloException.GreetingActivitiesImpl());
-    worker.start();
+    testEnv.start();
 
     WorkflowOptions workflowOptions =
         new WorkflowOptions.Builder()
@@ -116,7 +116,7 @@ public class HelloExceptionTest {
         .thenThrow(new SimulatedTimeoutException(TimeoutType.SCHEDULE_TO_START));
     worker.registerActivitiesImplementations(activities);
 
-    worker.start();
+    testEnv.start();
 
     WorkflowOptions workflowOptions =
         new WorkflowOptions.Builder()
@@ -150,7 +150,7 @@ public class HelloExceptionTest {
           return child;
         });
 
-    worker.start();
+    testEnv.start();
 
     WorkflowOptions workflowOptions =
         new WorkflowOptions.Builder()

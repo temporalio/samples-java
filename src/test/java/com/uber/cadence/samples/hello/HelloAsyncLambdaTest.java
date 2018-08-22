@@ -80,7 +80,7 @@ public class HelloAsyncLambdaTest {
   @Test
   public void testActivityImpl() {
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
-    worker.start();
+    testEnv.start();
 
     // Get a workflow stub using the same task list the worker uses.
     WorkflowOptions workflowOptions =
@@ -101,7 +101,7 @@ public class HelloAsyncLambdaTest {
     when(activities.getGreeting()).thenReturn("Hello");
     when(activities.composeGreeting("Hello", "World")).thenReturn("Hello World!");
     worker.registerActivitiesImplementations(activities);
-    worker.start();
+    testEnv.start();
 
     WorkflowOptions workflowOptions =
         new WorkflowOptions.Builder()

@@ -75,7 +75,7 @@ public class HelloAsyncTest {
   @Test
   public void testActivityImpl() {
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
-    worker.start();
+    testEnv.start();
 
     GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);
     // Execute a workflow waiting for it to complete.
@@ -89,7 +89,7 @@ public class HelloAsyncTest {
     when(activities.composeGreeting("Hello", "World")).thenReturn("Hello World!");
     when(activities.composeGreeting("Bye", "World")).thenReturn("Bye World!");
     worker.registerActivitiesImplementations(activities);
-    worker.start();
+    testEnv.start();
 
     GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);
     // Execute a workflow waiting for it to complete.

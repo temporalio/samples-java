@@ -72,10 +72,11 @@ public class HelloChild {
 
   public static void main(String[] args) {
     // Start a worker that hosts both parent and child workflow implementations.
-    Worker worker = new Worker(DOMAIN, TASK_LIST);
+    Worker.Factory factory = new Worker.Factory(DOMAIN);
+    Worker worker = factory.newWorker(TASK_LIST);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class, GreetingChildImpl.class);
     // Start listening to the workflow task list.
-    worker.start();
+    factory.start();
 
     // Start a workflow execution. Usually this is done from another program.
     WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);

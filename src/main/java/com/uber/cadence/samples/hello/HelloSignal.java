@@ -22,16 +22,12 @@ import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.CompletablePromise;
 import com.uber.cadence.workflow.SignalMethod;
 import com.uber.cadence.workflow.Workflow;
 import com.uber.cadence.workflow.WorkflowMethod;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -45,9 +41,10 @@ public class HelloSignal {
 
   /** Workflow interface must have a method annotated with @WorkflowMethod. */
   public interface GreetingWorkflow {
-    /** @return list of greeting strings that were received through the
-     * waitForNameMethod. This method will block until the number of greetings
-     * specified are received. */
+    /**
+     * @return list of greeting strings that were received through the waitForNameMethod. This
+     *     method will block until the number of greetings specified are received.
+     */
     @WorkflowMethod
     List<String> getGreetings();
 
@@ -72,7 +69,7 @@ public class HelloSignal {
 
       while (true) {
         Workflow.await(() -> !messageQueue.isEmpty() || exit);
-        if(messageQueue.isEmpty() && exit){
+        if (messageQueue.isEmpty() && exit) {
           return receivedMessages;
         }
         String message = messageQueue.remove(0);
@@ -93,9 +90,10 @@ public class HelloSignal {
 
   public static void main(String[] args) throws Exception {
     // Start a worker that hosts the workflow implementation.
-    Worker worker = new Worker(DOMAIN, TASK_LIST);
+    Worker.Factory factory = new Worker.Factory(DOMAIN);
+    Worker worker = factory.newWorker(TASK_LIST);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
-    worker.start();
+    factory.start();
 
     // Start a workflow execution. Usually this is done from another program.
     WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);

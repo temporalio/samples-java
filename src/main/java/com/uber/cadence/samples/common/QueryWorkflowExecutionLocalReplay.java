@@ -53,7 +53,8 @@ public class QueryWorkflowExecutionLocalReplay {
     @SuppressWarnings("unchecked")
     Class<Object> workflowImplementationType =
         (Class<Object>) Class.forName(implementationTypeName);
-    Worker replayer = new Worker(cadenceService, DOMAIN, null, null);
+    Worker.Factory factory = new Worker.Factory(cadenceService, DOMAIN);
+    Worker replayer = factory.newWorker("ignored");
     replayer.registerWorkflowImplementationTypes(workflowImplementationType);
     System.out.println("Beginning query replay for " + workflowExecution);
     String queryResult =

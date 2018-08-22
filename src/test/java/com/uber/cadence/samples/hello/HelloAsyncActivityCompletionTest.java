@@ -76,7 +76,7 @@ public class HelloAsyncActivityCompletionTest {
   public void testActivityImpl() throws ExecutionException, InterruptedException {
     ActivityCompletionClient completionClient = workflowClient.newActivityCompletionClient();
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl(completionClient));
-    worker.start();
+    testEnv.start();
 
     GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);
     // Execute a workflow asynchronously.

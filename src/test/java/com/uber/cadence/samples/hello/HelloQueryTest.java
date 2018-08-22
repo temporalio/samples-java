@@ -62,7 +62,7 @@ public class HelloQueryTest {
     // worker = testEnv.newWorker("InvalidTaskList");
 
     worker.registerWorkflowImplementationTypes(HelloQuery.GreetingWorkflowImpl.class);
-    worker.start();
+    testEnv.start();
 
     workflowClient = testEnv.newWorkflowClient();
   }

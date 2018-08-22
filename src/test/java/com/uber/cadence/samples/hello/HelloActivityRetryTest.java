@@ -77,7 +77,7 @@ public class HelloActivityRetryTest {
   @Test
   public void testActivityImpl() {
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
-    worker.start();
+    testEnv.start();
 
     WorkflowOptions workflowOptions =
         new WorkflowOptions.Builder()
@@ -102,7 +102,7 @@ public class HelloActivityRetryTest {
             new IllegalStateException("not yet3"))
         .thenReturn("Hello World!");
     worker.registerActivitiesImplementations(activities);
-    worker.start();
+    testEnv.start();
 
     // Get a workflow stub using the same task list the worker uses.
     WorkflowOptions workflowOptions =
