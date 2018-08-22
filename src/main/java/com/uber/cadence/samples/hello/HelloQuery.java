@@ -64,9 +64,10 @@ public class HelloQuery {
 
   public static void main(String[] args) throws InterruptedException {
     // Start a worker that hosts the workflow implementation.
-    Worker worker = new Worker(DOMAIN, TASK_LIST);
+    Worker.Factory factory = new Worker.Factory(DOMAIN);
+    Worker worker = factory.newWorker(TASK_LIST);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
-    worker.start();
+    factory.start();
 
     // Start a workflow execution. Usually this is done from another program.
     WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);

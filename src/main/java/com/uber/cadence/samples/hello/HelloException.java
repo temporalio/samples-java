@@ -159,10 +159,11 @@ public class HelloException {
   }
 
   public static void main(String[] args) {
-    Worker worker = new Worker(DOMAIN, TASK_LIST);
+    Worker.Factory factory = new Worker.Factory(DOMAIN);
+    Worker worker = factory.newWorker(TASK_LIST);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class, GreetingChildImpl.class);
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
-    worker.start();
+    factory.start();
 
     WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
     WorkflowOptions workflowOptions =

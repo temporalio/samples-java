@@ -105,7 +105,8 @@ public class HelloAsyncActivityCompletion {
     WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
 
     // Start a worker that hosts both workflow and activity implementations.
-    Worker worker = new Worker(DOMAIN, TASK_LIST);
+    Worker.Factory factory = new Worker.Factory(DOMAIN);
+    Worker worker = factory.newWorker(TASK_LIST);
     // Workflows are stateful. So you need a type to create instances.
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     // Activities are stateless and thread safe. So a shared instance is used.
@@ -113,7 +114,7 @@ public class HelloAsyncActivityCompletion {
     ActivityCompletionClient completionClient = workflowClient.newActivityCompletionClient();
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl(completionClient));
     // Start listening to the workflow and activity task lists.
-    worker.start();
+    factory.start();
 
     // Get a workflow stub using the same task list the worker uses.
     GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);

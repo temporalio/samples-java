@@ -75,7 +75,7 @@ public class HelloChildTest {
   public void testChild() {
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class, GreetingChildImpl.class);
 
-    worker.start();
+    testEnv.start();
 
     // Get a workflow stub using the same task list the worker uses.
     GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);
@@ -98,7 +98,7 @@ public class HelloChildTest {
           lastChildMock.set(child);
           return child;
         });
-    worker.start();
+    testEnv.start();
 
     // Get a workflow stub using the same task list the worker uses.
     GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);

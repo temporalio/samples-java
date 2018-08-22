@@ -106,17 +106,15 @@ public class FileProcessingTest {
     when(activities.download(anyObject()))
         .thenReturn(new TaskListFileNamePair(HOST_NAME_1, FILE_NAME_UNPROCESSED));
     worker.registerActivitiesImplementations(activities);
-    worker.start();
 
     StoreActivities activitiesHost1 = mock(StoreActivities.class);
     when(activitiesHost1.process(FILE_NAME_UNPROCESSED)).thenReturn(FILE_NAME_PROCESSED);
     workerHost1.registerActivitiesImplementations(activitiesHost1);
-    workerHost1.start();
 
     StoreActivities activitiesHost2 = mock(StoreActivities.class);
     workerHost2.registerActivitiesImplementations(activitiesHost2);
-    workerHost2.start();
 
+    testEnv.start();
     FileProcessingWorkflow workflow = workflowClient.newWorkflowStub(FileProcessingWorkflow.class);
 
     // Execute workflow waiting for completion.
@@ -139,19 +137,18 @@ public class FileProcessingTest {
         .thenReturn(new TaskListFileNamePair(HOST_NAME_2, FILE_NAME_UNPROCESSED));
 
     worker.registerActivitiesImplementations(activities);
-    worker.start();
 
     StoreActivities activitiesHost1 = mock(StoreActivities.class);
     when(activitiesHost1.process(FILE_NAME_UNPROCESSED))
         .thenThrow(new SimulatedTimeoutException(TimeoutType.SCHEDULE_TO_START));
     workerHost1.registerActivitiesImplementations(activitiesHost1);
-    workerHost1.start();
 
     StoreActivities activitiesHost2 = mock(StoreActivities.class);
     when(activitiesHost2.process(FILE_NAME_UNPROCESSED)).thenReturn(FILE_NAME_PROCESSED);
 
     workerHost2.registerActivitiesImplementations(activitiesHost2);
-    workerHost2.start();
+
+    testEnv.start();
 
     FileProcessingWorkflow workflow = workflowClient.newWorkflowStub(FileProcessingWorkflow.class);
 

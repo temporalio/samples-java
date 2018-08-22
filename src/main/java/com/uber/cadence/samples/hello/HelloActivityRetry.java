@@ -100,13 +100,14 @@ public class HelloActivityRetry {
 
   public static void main(String[] args) {
     // Start a worker that hosts both workflow and activity implementations.
-    Worker worker = new Worker(DOMAIN, TASK_LIST);
+    Worker.Factory factory = new Worker.Factory(DOMAIN);
+    Worker worker = factory.newWorker(TASK_LIST);
     // Workflows are stateful. So you need a type to create instances.
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     // Activities are stateless and thread safe. So a shared instance is used.
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
     // Start listening to the workflow and activity task lists.
-    worker.start();
+    factory.start();
 
     // Start a workflow execution. Usually this is done from another program.
     WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);

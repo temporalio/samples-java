@@ -33,7 +33,7 @@ repositories {
 }
 
 dependencies {
-    compile group: 'com.uber.cadence', name: 'cadence-client', version: '0.1.0'
+    compile group: 'com.uber.cadence', name: 'cadence-client', version: '2.0.0'
     compile group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.11.274'
     compile group: 'commons-configuration', name: 'commons-configuration', version: '1.9'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'

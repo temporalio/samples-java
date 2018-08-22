@@ -56,7 +56,7 @@ public class HelloActivityTest {
   @Test
   public void testActivityImpl() {
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
-    worker.start();
+    testEnv.start();
 
     // Get a workflow stub using the same task list the worker uses.
     GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);
@@ -70,7 +70,7 @@ public class HelloActivityTest {
     GreetingActivities activities = mock(GreetingActivities.class);
     when(activities.composeGreeting("Hello", "World")).thenReturn("Hello World!");
     worker.registerActivitiesImplementations(activities);
-    worker.start();
+    testEnv.start();
 
     // Get a workflow stub using the same task list the worker uses.
     GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);

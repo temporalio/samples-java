@@ -87,7 +87,7 @@ public class HelloPeriodicTest {
   @Test
   public void testPeriodicActivityInvocation() throws TException {
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
-    worker.start();
+    testEnv.start();
 
     // Get a workflow stub using the same task list the worker uses.
     GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);
@@ -114,7 +114,7 @@ public class HelloPeriodicTest {
   public void testMockedActivity() {
     GreetingActivities activities = mock(GreetingActivities.class);
     worker.registerActivitiesImplementations(activities);
-    worker.start();
+    testEnv.start();
 
     // Get a workflow stub using the same task list the worker uses.
     GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);
