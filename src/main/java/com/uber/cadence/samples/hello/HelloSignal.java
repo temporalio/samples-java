@@ -28,7 +28,6 @@ import com.uber.cadence.workflow.WorkflowMethod;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Demonstrates asynchronous signalling of a workflow. Requires a local instance of Cadence server

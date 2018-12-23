@@ -45,7 +45,7 @@ public class FileProcessingWorker {
     workerForCommonTaskList.registerActivitiesImplementations(storeActivityImpl);
 
     // Get worker to poll the host-specific task list.
-    final Worker workerForHostSpecificTaskList =factory.newWorker(hostSpecifiTaskList);
+    final Worker workerForHostSpecificTaskList = factory.newWorker(hostSpecifiTaskList);
     workerForHostSpecificTaskList.registerActivitiesImplementations(storeActivityImpl);
 
     // Start all workers created by this factory.
