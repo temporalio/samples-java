@@ -26,8 +26,6 @@ import com.uber.cadence.testing.TestWorkflowEnvironment;
 import com.uber.cadence.worker.Worker;
 import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -70,7 +68,7 @@ public class HelloSignalTest {
   public void tearDown() {
     testEnv.close();
   }
-  
+
   @Test
   public void testSignal() {
     // Get a workflow stub using the same task list the worker uses.
