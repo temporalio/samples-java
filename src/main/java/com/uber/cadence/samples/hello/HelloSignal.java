@@ -104,7 +104,6 @@ public class HelloSignal {
             .build();
     GreetingWorkflow workflow =
         workflowClient.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
-    workflow.wait();
     // Start workflow asynchronously to not use another thread to signal.
     WorkflowClient.start(workflow::getGreetings);
     // After start for getGreeting returns, the workflow is guaranteed to be started.
