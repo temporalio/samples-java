@@ -1,4 +1,3 @@
-**If you work for Uber** use the internal _cadence-java-client-samples_ repository.
 # Java Cadence Samples
 These samples demonstrate various capabilities of Java Cadence client and server. You can learn more about Cadence at:
 * [Cadence Service](https://github.com/uber/cadence)
