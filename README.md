@@ -73,24 +73,7 @@ of details about the execution history.
 
 ## Install Cadence CLI
 
-Check out [Cadence Service](https://github.com/uber/cadence) and run **make bins**.
-CLI executable named **cadence** will be in the root directory.
-
-To not pass the domain on every command set the following environment variable:
-
-    export CADENCE_CLI_DOMAIN=sample
-
-After the CADENCE_CLI_DOMAIN is set, to list closed workflow executions run:
-
-    cadence workflow list
-
-To see a history of a particular workflow execution run:
-
-    cadence workflow showid <WorkflowID>
-
-To see a stack trace of a currently running workflow execution run:
-
-    ./cadence workflow stack -w <WorkflowID>
+[Command Line Interface Documentation](https://mfateev.github.io/cadence/docs/08_cli)
 
 ## Run the samples
 
