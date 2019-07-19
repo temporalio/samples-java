@@ -80,17 +80,19 @@ public class HelloSaga {
     public void execute() {
       Saga saga = new Saga(new Saga.Options.Builder().setParallelCompensation(false).build());
       try {
+        // The following demonstrate how to compensate sync invocations.
         ChildWorkflowOperation op1 = Workflow.newChildWorkflowStub(ChildWorkflowOperation.class);
         op1.execute(10);
         ChildWorkflowCompensation c1 = Workflow.newChildWorkflowStub(ChildWorkflowCompensation.class);
         saga.addCompensation(c1::compensate, -10);
 
+        // The following demonstrate how to compensate async invocations.
         Promise<Void> result = Async.procedure(activity::execute, 20);
-        result.get();
         saga.addCompensation(activity::compensate, -20);
+        result.get();
 
-        // The following is just to demonstrate the ability of supplying arbitrary lambda as a
-        // saga compensation function. In production code please always use Workflow.getLogger
+        // The following demonstrate the ability of supplying arbitrary lambda as a saga
+        // compensation function. In production code please always use Workflow.getLogger
         // to log messages in workflow code.
         saga.addCompensation(() -> System.out.println("Other compensation logic in main workflow."));
         throw new RuntimeException("some error");
