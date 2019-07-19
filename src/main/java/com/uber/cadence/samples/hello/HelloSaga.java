@@ -64,6 +64,10 @@ public class HelloSaga {
   public interface SagaWorkflow {
     /**
      * Main saga workflow.
+     * Here we execute activity operation twice (first from a child workflow, second directly using
+     * activity stub), add three compensation functions, and then throws some exception in workflow code.
+     * When we catch the exception, saga.compensate will run the compensation functions according
+     * to the policy specified in SagaOptions.
      */
     @WorkflowMethod
     void execute();
