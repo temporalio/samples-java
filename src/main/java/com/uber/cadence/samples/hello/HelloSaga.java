@@ -1,18 +1,15 @@
 package com.uber.cadence.samples.hello;
 
+import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
+
 import com.uber.cadence.activity.ActivityMethod;
 import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
 import com.uber.cadence.workflow.*;
-
 import java.time.Duration;
 
-import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
-
-/**
- * Demonstrates implementing saga transaction and compensation logic using Cadence.
- */
+/** Demonstrates implementing saga transaction and compensation logic using Cadence. */
 public class HelloSaga {
   static final String TASK_LIST = "HelloSaga";
 
@@ -24,6 +21,7 @@ public class HelloSaga {
   public static class ChildWorkflowOperationImpl implements ChildWorkflowOperation {
     ActivityOperation activity = Workflow.newActivityStub(ActivityOperation.class);
 
+    @Override
     public void execute(int amount) {
       activity.execute(amount);
     }
@@ -37,6 +35,7 @@ public class HelloSaga {
   public static class ChildWorkflowCompensationImpl implements ChildWorkflowCompensation {
     ActivityOperation activity = Workflow.newActivityStub(ActivityOperation.class);
 
+    @Override
     public void compensate(int amount) {
       activity.compensate(amount);
     }
@@ -52,10 +51,12 @@ public class HelloSaga {
 
   public static class ActivityOperationImpl implements ActivityOperation {
 
+    @Override
     public void execute(int amount) {
       System.out.println("ActivityOperationImpl.execute() is called with amount " + amount);
     }
 
+    @Override
     public void compensate(int amount) {
       System.out.println("ActivityCompensationImpl.compensate() is called with amount " + amount);
     }
@@ -63,11 +64,10 @@ public class HelloSaga {
 
   public interface SagaWorkflow {
     /**
-     * Main saga workflow.
-     * Here we execute activity operation twice (first from a child workflow, second directly using
-     * activity stub), add three compensation functions, and then throws some exception in workflow code.
-     * When we catch the exception, saga.compensate will run the compensation functions according
-     * to the policy specified in SagaOptions.
+     * Main saga workflow. Here we execute activity operation twice (first from a child workflow,
+     * second directly using activity stub), add three compensation functions, and then throws some
+     * exception in workflow code. When we catch the exception, saga.compensate will run the
+     * compensation functions according to the policy specified in SagaOptions.
      */
     @WorkflowMethod
     void execute();
@@ -83,7 +83,8 @@ public class HelloSaga {
         // The following demonstrate how to compensate sync invocations.
         ChildWorkflowOperation op1 = Workflow.newChildWorkflowStub(ChildWorkflowOperation.class);
         op1.execute(10);
-        ChildWorkflowCompensation c1 = Workflow.newChildWorkflowStub(ChildWorkflowCompensation.class);
+        ChildWorkflowCompensation c1 =
+            Workflow.newChildWorkflowStub(ChildWorkflowCompensation.class);
         saga.addCompensation(c1::compensate, -10);
 
         // The following demonstrate how to compensate async invocations.
@@ -94,7 +95,8 @@ public class HelloSaga {
         // The following demonstrate the ability of supplying arbitrary lambda as a saga
         // compensation function. In production code please always use Workflow.getLogger
         // to log messages in workflow code.
-        saga.addCompensation(() -> System.out.println("Other compensation logic in main workflow."));
+        saga.addCompensation(
+            () -> System.out.println("Other compensation logic in main workflow."));
         throw new RuntimeException("some error");
 
       } catch (Exception e) {
