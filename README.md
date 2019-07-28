@@ -80,6 +80,8 @@ of details about the execution history.
 Each sample has specific requirements for running it. The following sections contain information about
 how to run each of the samples after you've built them using the preceding instructions.
 
+Don't forget to check unit tests found under src/test/java!
+
 ### Hello World
 
 To run the hello world samples:
@@ -106,4 +108,15 @@ execute together, we recommend that you run more than one instance of this worke
 The second command starts workflows. Each invocation starts a new workflow execution.
 
     ./gradlew -q execute -PmainClass=com.uber.cadence.samples.fileprocessing.FileProcessingStarter
+    
+### Trip Booking
+
+Cadence implementation of the [Camunda BPMN trip booking example](https://github.com/berndruecker/trip-booking-saga-java)
+
+Demonstrates Cadence approach to SAGA.
+
+To run:
+
+    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.bookingsaga.TripBookingSaga
+
 
