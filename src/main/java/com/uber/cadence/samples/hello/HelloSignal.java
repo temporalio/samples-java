@@ -19,6 +19,7 @@ package com.uber.cadence.samples.hello;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
+import com.google.common.base.Charsets;
 import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
@@ -28,6 +29,7 @@ import com.uber.cadence.workflow.WorkflowMethod;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Demonstrates asynchronous signalling of a workflow. Requires a local instance of Cadence server
@@ -51,7 +53,6 @@ public class HelloSignal {
     @SignalMethod
     void waitForName(String name);
 
-    /** Receives name through an external signal. */
     @SignalMethod
     void exit();
   }
@@ -94,29 +95,41 @@ public class HelloSignal {
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     factory.start();
 
+    // In real applications use a business level ID like customerId or orderId
+    byte[] idBytes = new byte[10];
+    new Random().nextBytes(idBytes);
+    String workflowId = new String(idBytes, Charsets.UTF_8);
+
     // Start a workflow execution. Usually this is done from another program.
     WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
     // Get a workflow stub using the same task list the worker uses.
+    // The newly started workflow is going to have the workflowId generated above.
     WorkflowOptions workflowOptions =
         new WorkflowOptions.Builder()
             .setTaskList(TASK_LIST)
             .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
+            .setWorkflowId(workflowId)
             .build();
     GreetingWorkflow workflow =
         workflowClient.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     // Start workflow asynchronously to not use another thread to signal.
     WorkflowClient.start(workflow::getGreetings);
     // After start for getGreeting returns, the workflow is guaranteed to be started.
-    // So we can send a signal to it using workflow stub.
+    // So we can send a signal to it using the workflow stub.
     // This workflow keeps receiving signals until exit is called
-    workflow.waitForName("World");
-    workflow.waitForName("Universe");
-    workflow.exit();
+    workflow.waitForName("World"); // sends waitForName signal
+
+    // Create a new stub using the workflowId.
+    // This is to demonstrate that to send a signal only the workflowId is required.
+    GreetingWorkflow workflowById =
+        workflowClient.newWorkflowStub(GreetingWorkflow.class, workflowId);
+    workflowById.waitForName("Universe"); // sends waitForName signal
+    workflowById.exit(); // sends exit signal
     // Calling synchronous getGreeting after workflow has started reconnects to the existing
     // workflow and blocks until a result is available. Note that this behavior assumes that
     // WorkflowOptions are not configured with WorkflowIdReusePolicy.AllowDuplicate. In that case
     // the call would fail with WorkflowExecutionAlreadyStartedException.
-    List<String> greetings = workflow.getGreetings();
+    List<String> greetings = workflowById.getGreetings();
     System.out.println(greetings);
     System.exit(0);
   }
