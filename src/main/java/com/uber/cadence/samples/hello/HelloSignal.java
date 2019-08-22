@@ -19,7 +19,6 @@ package com.uber.cadence.samples.hello;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
-import com.google.common.base.Charsets;
 import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.worker.Worker;
@@ -29,7 +28,7 @@ import com.uber.cadence.workflow.WorkflowMethod;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+import org.apache.commons.lang.RandomStringUtils;
 
 /**
  * Demonstrates asynchronous signalling of a workflow. Requires a local instance of Cadence server
@@ -95,10 +94,8 @@ public class HelloSignal {
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     factory.start();
 
-    // In real applications use a business level ID like customerId or orderId
-    byte[] idBytes = new byte[10];
-    new Random().nextBytes(idBytes);
-    String workflowId = new String(idBytes, Charsets.UTF_8);
+    // In a real application use a business ID like customer ID or order ID
+    String workflowId = RandomStringUtils.randomAlphabetic(10);
 
     // Start a workflow execution. Usually this is done from another program.
     WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
