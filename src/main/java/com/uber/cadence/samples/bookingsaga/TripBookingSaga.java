@@ -27,8 +27,8 @@ public class TripBookingSaga {
 
   static final String TASK_LIST = "TripBooking";
 
+  @SuppressWarnings("CatchAndPrintStackTrace")
   public static void main(String[] args) {
-
     // Get worker to poll the common task list.
     Worker.Factory factory = new Worker.Factory(DOMAIN);
     final Worker workerForCommonTaskList = factory.newWorker(TASK_LIST);
