@@ -52,7 +52,8 @@ public class HelloChild {
       // Workflows are stateful. So a new stub must be created for each new child.
       GreetingChild child = Workflow.newChildWorkflowStub(GreetingChild.class);
 
-      // This is a blocking call that returns only after the child has completed.
+      // This is a non blocking call that returns immediately.
+      // Use child.composeGreeting("Hello", name) to call synchronously.
       Promise<String> greeting = Async.function(child::composeGreeting, "Hello", name);
       // Do something else here.
       return greeting.get(); // blocks waiting for the child to complete.
