@@ -21,13 +21,13 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.samples.hello.HelloActivity.GreetingActivities;
 import com.uber.cadence.samples.hello.HelloActivity.GreetingActivitiesImpl;
 import com.uber.cadence.samples.hello.HelloActivity.GreetingWorkflow;
 import com.uber.cadence.samples.hello.HelloActivity.GreetingWorkflowImpl;
-import com.uber.cadence.testing.TestWorkflowEnvironment;
-import com.uber.cadence.worker.Worker;
+import io.temporal.client.WorkflowClient;
+import io.temporal.testing.TestWorkflowEnvironment;
+import io.temporal.worker.Worker;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

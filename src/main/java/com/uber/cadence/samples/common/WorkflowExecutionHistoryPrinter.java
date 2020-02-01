@@ -19,10 +19,10 @@ package com.uber.cadence.samples.common;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
-import com.uber.cadence.WorkflowExecution;
-import com.uber.cadence.internal.common.WorkflowExecutionUtils;
-import com.uber.cadence.serviceclient.IWorkflowService;
-import com.uber.cadence.serviceclient.WorkflowServiceTChannel;
+import io.temporal.WorkflowExecution;
+import io.temporal.internal.common.WorkflowExecutionUtils;
+import io.temporal.serviceclient.IWorkflowService;
+import io.temporal.serviceclient.WorkflowServiceTChannel;
 
 /**
  * Prints a workflow execution history to the console.

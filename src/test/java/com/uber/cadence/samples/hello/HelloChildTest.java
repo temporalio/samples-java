@@ -23,13 +23,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.samples.hello.HelloChild.GreetingChild;
 import com.uber.cadence.samples.hello.HelloChild.GreetingChildImpl;
 import com.uber.cadence.samples.hello.HelloChild.GreetingWorkflow;
 import com.uber.cadence.samples.hello.HelloChild.GreetingWorkflowImpl;
-import com.uber.cadence.testing.TestWorkflowEnvironment;
-import com.uber.cadence.worker.Worker;
+import io.temporal.client.WorkflowClient;
+import io.temporal.testing.TestWorkflowEnvironment;
+import io.temporal.worker.Worker;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.After;
 import org.junit.Before;

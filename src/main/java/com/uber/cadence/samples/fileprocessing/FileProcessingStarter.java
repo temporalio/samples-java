@@ -19,7 +19,7 @@ package com.uber.cadence.samples.fileprocessing;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
-import com.uber.cadence.client.WorkflowClient;
+import io.temporal.client.WorkflowClient;
 import java.net.URL;
 
 /** Starts a file processing sample workflow. */

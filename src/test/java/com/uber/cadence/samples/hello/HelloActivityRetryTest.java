@@ -24,14 +24,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.client.WorkflowOptions;
 import com.uber.cadence.samples.hello.HelloActivityRetry.GreetingActivities;
 import com.uber.cadence.samples.hello.HelloActivityRetry.GreetingActivitiesImpl;
 import com.uber.cadence.samples.hello.HelloActivityRetry.GreetingWorkflow;
 import com.uber.cadence.samples.hello.HelloActivityRetry.GreetingWorkflowImpl;
-import com.uber.cadence.testing.TestWorkflowEnvironment;
-import com.uber.cadence.worker.Worker;
+import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
+import io.temporal.testing.TestWorkflowEnvironment;
+import io.temporal.worker.Worker;
 import java.time.Duration;
 import org.junit.After;
 import org.junit.Before;

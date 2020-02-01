@@ -17,9 +17,9 @@
 
 package com.uber.cadence.samples.fileprocessing;
 
-import com.uber.cadence.activity.ActivityOptions;
-import com.uber.cadence.common.RetryOptions;
-import com.uber.cadence.workflow.Workflow;
+import io.temporal.activity.ActivityOptions;
+import io.temporal.common.RetryOptions;
+import io.temporal.workflow.Workflow;
 import java.net.URL;
 import java.time.Duration;
 

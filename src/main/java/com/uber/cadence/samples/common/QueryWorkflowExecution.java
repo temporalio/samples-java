@@ -19,11 +19,11 @@ package com.uber.cadence.samples.common;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
-import com.uber.cadence.WorkflowExecution;
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.client.WorkflowStub;
-import com.uber.cadence.serviceclient.IWorkflowService;
-import com.uber.cadence.serviceclient.WorkflowServiceTChannel;
+import io.temporal.WorkflowExecution;
+import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowStub;
+import io.temporal.serviceclient.IWorkflowService;
+import io.temporal.serviceclient.WorkflowServiceTChannel;
 import java.util.Optional;
 
 /**

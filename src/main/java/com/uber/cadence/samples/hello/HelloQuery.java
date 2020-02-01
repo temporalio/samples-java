@@ -19,12 +19,12 @@ package com.uber.cadence.samples.hello;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.client.WorkflowOptions;
-import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.QueryMethod;
-import com.uber.cadence.workflow.Workflow;
-import com.uber.cadence.workflow.WorkflowMethod;
+import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
+import io.temporal.worker.Worker;
+import io.temporal.workflow.QueryMethod;
+import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 
 /** Demonstrates query capability. Requires a local instance of Cadence server to be running. */

@@ -17,7 +17,7 @@
 
 package com.uber.cadence.samples.fileprocessing;
 
-import com.uber.cadence.workflow.WorkflowMethod;
+import io.temporal.workflow.WorkflowMethod;
 import java.net.URL;
 
 /** Contract for file processing workflow. */

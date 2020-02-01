@@ -19,9 +19,9 @@ package com.uber.cadence.samples.bookingsaga;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.client.WorkflowException;
-import com.uber.cadence.worker.Worker;
+import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowException;
+import io.temporal.worker.Worker;
 
 public class TripBookingSaga {
 

@@ -19,11 +19,11 @@ package com.uber.cadence.samples.hello;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
-import com.uber.cadence.activity.ActivityMethod;
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.client.WorkflowOptions;
-import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.*;
+import io.temporal.activity.ActivityMethod;
+import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
+import io.temporal.worker.Worker;
+import io.temporal.workflow.*;
 import java.time.Duration;
 
 /** Demonstrates implementing saga transaction and compensation logic using Cadence. */

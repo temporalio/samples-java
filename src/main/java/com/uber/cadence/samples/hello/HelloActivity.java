@@ -19,11 +19,11 @@ package com.uber.cadence.samples.hello;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
-import com.uber.cadence.activity.ActivityMethod;
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.Workflow;
-import com.uber.cadence.workflow.WorkflowMethod;
+import io.temporal.activity.ActivityMethod;
+import io.temporal.client.WorkflowClient;
+import io.temporal.worker.Worker;
+import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowMethod;
 
 /**
  * Hello World Cadence workflow that executes a single activity. Requires a local instance the

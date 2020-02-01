@@ -17,10 +17,10 @@
 
 package com.uber.cadence.samples.bookingsaga;
 
-import com.uber.cadence.activity.ActivityOptions;
-import com.uber.cadence.workflow.ActivityException;
-import com.uber.cadence.workflow.Saga;
-import com.uber.cadence.workflow.Workflow;
+import io.temporal.activity.ActivityOptions;
+import io.temporal.workflow.ActivityException;
+import io.temporal.workflow.Saga;
+import io.temporal.workflow.Workflow;
 import java.time.Duration;
 
 public class TripBookingWorkflowImpl implements TripBookingWorkflow {

@@ -25,12 +25,12 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.uber.cadence.TimeoutType;
-import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.samples.fileprocessing.StoreActivities.TaskListFileNamePair;
-import com.uber.cadence.testing.SimulatedTimeoutException;
-import com.uber.cadence.testing.TestWorkflowEnvironment;
-import com.uber.cadence.worker.Worker;
+import io.temporal.TimeoutType;
+import io.temporal.client.WorkflowClient;
+import io.temporal.testing.SimulatedTimeoutException;
+import io.temporal.testing.TestWorkflowEnvironment;
+import io.temporal.worker.Worker;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.junit.After;

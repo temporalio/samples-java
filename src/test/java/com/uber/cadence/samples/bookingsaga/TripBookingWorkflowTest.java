@@ -24,10 +24,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.client.WorkflowException;
-import com.uber.cadence.testing.TestWorkflowEnvironment;
-import com.uber.cadence.worker.Worker;
+import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowException;
+import io.temporal.testing.TestWorkflowEnvironment;
+import io.temporal.worker.Worker;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

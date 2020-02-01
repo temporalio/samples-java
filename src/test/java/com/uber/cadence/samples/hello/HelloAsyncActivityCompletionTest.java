@@ -19,13 +19,13 @@ package com.uber.cadence.samples.hello;
 
 import static org.junit.Assert.assertEquals;
 
-import com.uber.cadence.client.ActivityCompletionClient;
-import com.uber.cadence.client.WorkflowClient;
 import com.uber.cadence.samples.hello.HelloAsyncActivityCompletion.GreetingActivitiesImpl;
 import com.uber.cadence.samples.hello.HelloAsyncActivityCompletion.GreetingWorkflow;
 import com.uber.cadence.samples.hello.HelloAsyncActivityCompletion.GreetingWorkflowImpl;
-import com.uber.cadence.testing.TestWorkflowEnvironment;
-import com.uber.cadence.worker.Worker;
+import io.temporal.client.ActivityCompletionClient;
+import io.temporal.client.WorkflowClient;
+import io.temporal.testing.TestWorkflowEnvironment;
+import io.temporal.worker.Worker;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;

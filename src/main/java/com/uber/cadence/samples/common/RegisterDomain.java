@@ -19,10 +19,10 @@ package com.uber.cadence.samples.common;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
-import com.uber.cadence.DomainAlreadyExistsError;
-import com.uber.cadence.RegisterDomainRequest;
-import com.uber.cadence.serviceclient.IWorkflowService;
-import com.uber.cadence.serviceclient.WorkflowServiceTChannel;
+import io.temporal.DomainAlreadyExistsError;
+import io.temporal.RegisterDomainRequest;
+import io.temporal.serviceclient.IWorkflowService;
+import io.temporal.serviceclient.WorkflowServiceTChannel;
 import java.io.IOException;
 import org.apache.thrift.TException;
 

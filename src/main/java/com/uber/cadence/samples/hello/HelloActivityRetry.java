@@ -19,14 +19,14 @@ package com.uber.cadence.samples.hello;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
-import com.uber.cadence.activity.ActivityOptions;
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.client.WorkflowOptions;
-import com.uber.cadence.common.RetryOptions;
-import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.Functions;
-import com.uber.cadence.workflow.Workflow;
-import com.uber.cadence.workflow.WorkflowMethod;
+import io.temporal.activity.ActivityOptions;
+import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
+import io.temporal.common.RetryOptions;
+import io.temporal.worker.Worker;
+import io.temporal.workflow.Functions;
+import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 
 /**
@@ -55,8 +55,8 @@ public class HelloActivityRetry {
 
     /**
      * To enable activity retry set {@link RetryOptions} on {@link ActivityOptions}. It also works
-     * for activities invoked through {@link com.uber.cadence.workflow.Async#invoke(Functions.Proc)}
-     * and for child workflows.
+     * for activities invoked through {@link io.temporal.workflow.Async#invoke(Functions.Proc)} and
+     * for child workflows.
      */
     private final GreetingActivities activities =
         Workflow.newActivityStub(

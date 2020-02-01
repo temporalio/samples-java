@@ -19,12 +19,12 @@ package com.uber.cadence.samples.hello;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.Async;
-import com.uber.cadence.workflow.Promise;
-import com.uber.cadence.workflow.Workflow;
-import com.uber.cadence.workflow.WorkflowMethod;
+import io.temporal.client.WorkflowClient;
+import io.temporal.worker.Worker;
+import io.temporal.workflow.Async;
+import io.temporal.workflow.Promise;
+import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowMethod;
 
 /** Demonstrates a child workflow. Requires a local instance of the Cadence server to be running. */
 public class HelloChild {

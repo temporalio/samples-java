@@ -19,7 +19,7 @@ package com.uber.cadence.samples.fileprocessing;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
-import com.uber.cadence.worker.Worker;
+import io.temporal.worker.Worker;
 import java.lang.management.ManagementFactory;
 
 /**

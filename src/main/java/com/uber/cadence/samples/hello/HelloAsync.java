@@ -19,14 +19,14 @@ package com.uber.cadence.samples.hello;
 
 import static com.uber.cadence.samples.common.SampleConstants.DOMAIN;
 
-import com.uber.cadence.activity.ActivityMethod;
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.Async;
-import com.uber.cadence.workflow.Functions.Func;
-import com.uber.cadence.workflow.Promise;
-import com.uber.cadence.workflow.Workflow;
-import com.uber.cadence.workflow.WorkflowMethod;
+import io.temporal.activity.ActivityMethod;
+import io.temporal.client.WorkflowClient;
+import io.temporal.worker.Worker;
+import io.temporal.workflow.Async;
+import io.temporal.workflow.Functions.Func;
+import io.temporal.workflow.Promise;
+import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowMethod;
 
 /**
  * Demonstrates asynchronous activity invocation. Requires a local instance of Cadence server to be
