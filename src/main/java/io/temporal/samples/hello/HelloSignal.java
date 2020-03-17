@@ -17,14 +17,14 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.common.SampleConstants.DOMAIN;
-
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.client.WorkflowOptions;
-import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.SignalMethod;
-import com.uber.cadence.workflow.Workflow;
-import com.uber.cadence.workflow.WorkflowMethod;
+import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
+import io.temporal.serviceclient.WorkflowServiceStubs;
+import io.temporal.worker.Worker;
+import io.temporal.worker.WorkerFactory;
+import io.temporal.workflow.SignalMethod;
+import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,7 +89,10 @@ public class HelloSignal {
 
   public static void main(String[] args) throws Exception {
     // Start a worker that hosts the workflow implementation.
-    Worker.Factory factory = new Worker.Factory(DOMAIN);
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newInstance(WorkflowServiceStubs.LOCAL_DOCKER_TARGET);
+    WorkflowClient client = WorkflowClient.newInstance(service);
+    WorkerFactory factory = WorkerFactory.newInstance(client);
     Worker worker = factory.newWorker(TASK_LIST);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     factory.start();
@@ -98,17 +101,15 @@ public class HelloSignal {
     String workflowId = RandomStringUtils.randomAlphabetic(10);
 
     // Start a workflow execution. Usually this is done from another program.
-    WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
     // Get a workflow stub using the same task list the worker uses.
     // The newly started workflow is going to have the workflowId generated above.
     WorkflowOptions workflowOptions =
-        new WorkflowOptions.Builder()
+        WorkflowOptions.newBuilder()
             .setTaskList(TASK_LIST)
             .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
             .setWorkflowId(workflowId)
             .build();
-    GreetingWorkflow workflow =
-        workflowClient.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
+    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     // Start workflow asynchronously to not use another thread to signal.
     WorkflowClient.start(workflow::getGreetings);
     // After start for getGreeting returns, the workflow is guaranteed to be started.
@@ -118,8 +119,7 @@ public class HelloSignal {
 
     // Create a new stub using the workflowId.
     // This is to demonstrate that to send a signal only the workflowId is required.
-    GreetingWorkflow workflowById =
-        workflowClient.newWorkflowStub(GreetingWorkflow.class, workflowId);
+    GreetingWorkflow workflowById = client.newWorkflowStub(GreetingWorkflow.class, workflowId);
     workflowById.waitForName("Universe"); // sends waitForName signal
     workflowById.exit(); // sends exit signal
     // Calling synchronous getGreeting after workflow has started reconnects to the existing

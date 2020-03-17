@@ -17,13 +17,13 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.common.SampleConstants.DOMAIN;
-
-import com.uber.cadence.activity.ActivityMethod;
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.client.WorkflowOptions;
-import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.*;
+import io.temporal.activity.ActivityMethod;
+import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
+import io.temporal.serviceclient.WorkflowServiceStubs;
+import io.temporal.worker.Worker;
+import io.temporal.worker.WorkerFactory;
+import io.temporal.workflow.*;
 import java.time.Duration;
 
 /** Demonstrates implementing saga transaction and compensation logic using Cadence. */
@@ -123,8 +123,15 @@ public class HelloSaga {
   }
 
   public static void main(String[] args) {
-    // Start a worker that hosts the workflow implementation.
-    Worker.Factory factory = new Worker.Factory(DOMAIN);
+    // gRPC stubs wrapper that talks to the local docker instance of temporal service.
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newInstance(WorkflowServiceStubs.LOCAL_DOCKER_TARGET);
+    // client that can be used to start and signal workflows
+    WorkflowClient client = WorkflowClient.newInstance(service);
+
+    // worker factory that can be used to create workers for specific task lists
+    WorkerFactory factory = WorkerFactory.newInstance(client);
+    // Worker that listens on a task list and hosts both workflow and activity implementations.
     Worker worker = factory.newWorker(TASK_LIST);
     worker.registerWorkflowImplementationTypes(
         HelloSaga.SagaWorkflowImpl.class,
@@ -133,16 +140,14 @@ public class HelloSaga {
     worker.registerActivitiesImplementations(new ActivityOperationImpl());
     factory.start();
 
-    // Start a workflow execution. Usually this is done from another program.
-    WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
     // Get a workflow stub using the same task list the worker uses.
     WorkflowOptions workflowOptions =
-        new WorkflowOptions.Builder()
+        WorkflowOptions.newBuilder()
             .setTaskList(TASK_LIST)
             .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
             .build();
     HelloSaga.SagaWorkflow workflow =
-        workflowClient.newWorkflowStub(HelloSaga.SagaWorkflow.class, workflowOptions);
+        client.newWorkflowStub(HelloSaga.SagaWorkflow.class, workflowOptions);
     workflow.execute();
     System.exit(0);
   }

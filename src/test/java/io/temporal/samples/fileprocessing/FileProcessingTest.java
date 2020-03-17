@@ -25,12 +25,12 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.uber.cadence.TimeoutType;
-import com.uber.cadence.client.WorkflowClient;
+import io.temporal.client.WorkflowClient;
+import io.temporal.proto.enums.TimeoutType;
 import io.temporal.samples.fileprocessing.StoreActivities.TaskListFileNamePair;
-import com.uber.cadence.testing.SimulatedTimeoutException;
-import com.uber.cadence.testing.TestWorkflowEnvironment;
-import com.uber.cadence.worker.Worker;
+import io.temporal.testing.SimulatedTimeoutException;
+import io.temporal.testing.TestWorkflowEnvironment;
+import io.temporal.worker.Worker;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.junit.After;
@@ -82,7 +82,7 @@ public class FileProcessingTest {
   private Worker workerHost1;
   private Worker workerHost2;
 
-  private WorkflowClient workflowClient;
+  private WorkflowClient client;
 
   @Before
   public void setUp() {
@@ -92,7 +92,7 @@ public class FileProcessingTest {
     workerHost1 = testEnv.newWorker(HOST_NAME_1);
     workerHost2 = testEnv.newWorker(HOST_NAME_2);
 
-    workflowClient = testEnv.newWorkflowClient();
+    client = testEnv.getWorkflowClient();
   }
 
   @After
@@ -115,7 +115,7 @@ public class FileProcessingTest {
     workerHost2.registerActivitiesImplementations(activitiesHost2);
 
     testEnv.start();
-    FileProcessingWorkflow workflow = workflowClient.newWorkflowStub(FileProcessingWorkflow.class);
+    FileProcessingWorkflow workflow = client.newWorkflowStub(FileProcessingWorkflow.class);
 
     // Execute workflow waiting for completion.
     workflow.processFile(SOURCE, DESTINATION);
@@ -140,7 +140,7 @@ public class FileProcessingTest {
 
     StoreActivities activitiesHost1 = mock(StoreActivities.class);
     when(activitiesHost1.process(FILE_NAME_UNPROCESSED))
-        .thenThrow(new SimulatedTimeoutException(TimeoutType.SCHEDULE_TO_START));
+        .thenThrow(new SimulatedTimeoutException(TimeoutType.TimeoutTypeScheduleToStart));
     workerHost1.registerActivitiesImplementations(activitiesHost1);
 
     StoreActivities activitiesHost2 = mock(StoreActivities.class);
@@ -150,7 +150,7 @@ public class FileProcessingTest {
 
     testEnv.start();
 
-    FileProcessingWorkflow workflow = workflowClient.newWorkflowStub(FileProcessingWorkflow.class);
+    FileProcessingWorkflow workflow = client.newWorkflowStub(FileProcessingWorkflow.class);
 
     workflow.processFile(SOURCE, DESTINATION);
 

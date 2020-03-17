@@ -24,21 +24,21 @@ import static org.mockito.Matchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
-import com.uber.cadence.TimeoutType;
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.client.WorkflowException;
-import com.uber.cadence.client.WorkflowOptions;
+import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowException;
+import io.temporal.client.WorkflowOptions;
+import io.temporal.proto.enums.TimeoutType;
 import io.temporal.samples.hello.HelloException.GreetingActivities;
 import io.temporal.samples.hello.HelloException.GreetingChildImpl;
 import io.temporal.samples.hello.HelloException.GreetingWorkflow;
 import io.temporal.samples.hello.HelloException.GreetingWorkflowImpl;
-import com.uber.cadence.testing.SimulatedTimeoutException;
-import com.uber.cadence.testing.TestWorkflowEnvironment;
-import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.ActivityFailureException;
-import com.uber.cadence.workflow.ActivityTimeoutException;
-import com.uber.cadence.workflow.ChildWorkflowFailureException;
-import com.uber.cadence.workflow.ChildWorkflowTimedOutException;
+import io.temporal.testing.SimulatedTimeoutException;
+import io.temporal.testing.TestWorkflowEnvironment;
+import io.temporal.worker.Worker;
+import io.temporal.workflow.ActivityFailureException;
+import io.temporal.workflow.ActivityTimeoutException;
+import io.temporal.workflow.ChildWorkflowFailureException;
+import io.temporal.workflow.ChildWorkflowTimedOutException;
 import java.io.IOException;
 import java.time.Duration;
 import org.junit.After;
@@ -65,14 +65,14 @@ public class HelloExceptionTest {
 
   private TestWorkflowEnvironment testEnv;
   private Worker worker;
-  private WorkflowClient workflowClient;
+  private WorkflowClient client;
 
   @Before
   public void setUp() {
     testEnv = TestWorkflowEnvironment.newInstance();
     worker = testEnv.newWorker(HelloException.TASK_LIST);
 
-    workflowClient = testEnv.newWorkflowClient();
+    client = testEnv.getWorkflowClient();
   }
 
   @After
@@ -88,12 +88,11 @@ public class HelloExceptionTest {
     testEnv.start();
 
     WorkflowOptions workflowOptions =
-        new WorkflowOptions.Builder()
+        WorkflowOptions.newBuilder()
             .setTaskList(TASK_LIST)
             .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
             .build();
-    GreetingWorkflow workflow =
-        workflowClient.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
+    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     try {
       workflow.getGreeting("World");
       throw new IllegalStateException("unreachable");
@@ -113,18 +112,17 @@ public class HelloExceptionTest {
     // Mock an activity that times out.
     GreetingActivities activities = mock(GreetingActivities.class);
     when(activities.composeGreeting(anyString(), anyString()))
-        .thenThrow(new SimulatedTimeoutException(TimeoutType.SCHEDULE_TO_START));
+        .thenThrow(new SimulatedTimeoutException(TimeoutType.TimeoutTypeScheduleToStart));
     worker.registerActivitiesImplementations(activities);
 
     testEnv.start();
 
     WorkflowOptions workflowOptions =
-        new WorkflowOptions.Builder()
+        WorkflowOptions.newBuilder()
             .setTaskList(TASK_LIST)
             .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
             .build();
-    GreetingWorkflow workflow =
-        workflowClient.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
+    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     try {
       workflow.getGreeting("World");
       throw new IllegalStateException("unreachable");
@@ -133,7 +131,7 @@ public class HelloExceptionTest {
       Throwable doubleCause = e.getCause().getCause();
       assertTrue(doubleCause instanceof ActivityTimeoutException);
       ActivityTimeoutException timeoutException = (ActivityTimeoutException) doubleCause;
-      assertEquals(TimeoutType.SCHEDULE_TO_START, timeoutException.getTimeoutType());
+      assertEquals(TimeoutType.TimeoutTypeScheduleToStart, timeoutException.getTimeoutType());
     }
   }
 
@@ -153,12 +151,11 @@ public class HelloExceptionTest {
     testEnv.start();
 
     WorkflowOptions workflowOptions =
-        new WorkflowOptions.Builder()
+        WorkflowOptions.newBuilder()
             .setTaskList(TASK_LIST)
             .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
             .build();
-    GreetingWorkflow workflow =
-        workflowClient.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
+    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     try {
       workflow.getGreeting("World");
       throw new IllegalStateException("unreachable");

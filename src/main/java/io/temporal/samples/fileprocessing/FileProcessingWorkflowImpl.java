@@ -17,9 +17,9 @@
 
 package io.temporal.samples.fileprocessing;
 
-import com.uber.cadence.activity.ActivityOptions;
-import com.uber.cadence.common.RetryOptions;
-import com.uber.cadence.workflow.Workflow;
+import io.temporal.activity.ActivityOptions;
+import io.temporal.common.RetryOptions;
+import io.temporal.workflow.Workflow;
 import java.net.URL;
 import java.time.Duration;
 
@@ -39,7 +39,7 @@ public class FileProcessingWorkflowImpl implements FileProcessingWorkflow {
   public FileProcessingWorkflowImpl() {
     // Create activity clients.
     ActivityOptions ao =
-        new ActivityOptions.Builder()
+        ActivityOptions.newBuilder()
             .setScheduleToCloseTimeout(Duration.ofSeconds(10))
             .setTaskList(FileProcessingWorker.TASK_LIST)
             .build();
@@ -49,7 +49,7 @@ public class FileProcessingWorkflowImpl implements FileProcessingWorkflow {
   @Override
   public void processFile(URL source, URL destination) {
     RetryOptions retryOptions =
-        new RetryOptions.Builder()
+        RetryOptions.newBuilder()
             .setExpiration(Duration.ofSeconds(10))
             .setInitialInterval(Duration.ofSeconds(1))
             .build();
@@ -62,7 +62,7 @@ public class FileProcessingWorkflowImpl implements FileProcessingWorkflow {
 
     // Now initialize stubs that are specific to the returned task list.
     ActivityOptions hostActivityOptions =
-        new ActivityOptions.Builder()
+        ActivityOptions.newBuilder()
             .setTaskList(downloaded.getHostTaskList())
             .setScheduleToCloseTimeout(Duration.ofSeconds(10))
             .build();

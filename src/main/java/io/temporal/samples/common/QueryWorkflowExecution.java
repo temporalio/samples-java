@@ -17,13 +17,10 @@
 
 package io.temporal.samples.common;
 
-import static io.temporal.samples.common.SampleConstants.DOMAIN;
-
-import com.uber.cadence.WorkflowExecution;
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.client.WorkflowStub;
-import com.uber.cadence.serviceclient.IWorkflowService;
-import com.uber.cadence.serviceclient.WorkflowServiceTChannel;
+import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowStub;
+import io.temporal.proto.common.WorkflowExecution;
+import io.temporal.serviceclient.WorkflowServiceStubs;
 import java.util.Optional;
 
 /**
@@ -42,19 +39,20 @@ public class QueryWorkflowExecution {
               + " <queryType> <workflowId> [<runId>]");
       System.exit(1);
     }
-    IWorkflowService cadenceService = new WorkflowServiceTChannel();
-
     String queryType = args[0];
-
-    WorkflowExecution workflowExecution = new WorkflowExecution();
     String workflowId = args[1];
-    workflowExecution.setWorkflowId(workflowId);
-    if (args.length == 3) {
-      String runId = args[1];
-      workflowExecution.setRunId(runId);
-    }
-    WorkflowClient client = WorkflowClient.newInstance(cadenceService, DOMAIN);
+    String runId = args.length == 3 ? args[2] : "";
+
+    // gRPC stubs wrapper that talks to the local docker instance of temporal service.
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newInstance(WorkflowServiceStubs.LOCAL_DOCKER_TARGET);
+
+    WorkflowClient client = WorkflowClient.newInstance(service);
+
+    WorkflowExecution workflowExecution =
+        WorkflowExecution.newBuilder().setWorkflowId(workflowId).setRunId(runId).build();
     WorkflowStub workflow = client.newUntypedWorkflowStub(workflowExecution, Optional.empty());
+
     String result = workflow.query(queryType, String.class);
 
     System.out.println("Query result for " + workflowExecution + ":");

@@ -17,11 +17,11 @@
 
 package io.temporal.samples.bookingsaga;
 
-import static io.temporal.samples.common.SampleConstants.DOMAIN;
-
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.client.WorkflowException;
-import com.uber.cadence.worker.Worker;
+import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowException;
+import io.temporal.serviceclient.WorkflowServiceStubs;
+import io.temporal.worker.Worker;
+import io.temporal.worker.WorkerFactory;
 
 public class TripBookingSaga {
 
@@ -29,33 +29,42 @@ public class TripBookingSaga {
 
   @SuppressWarnings("CatchAndPrintStackTrace")
   public static void main(String[] args) {
-    // Get worker to poll the common task list.
-    Worker.Factory factory = new Worker.Factory(DOMAIN);
-    final Worker workerForCommonTaskList = factory.newWorker(TASK_LIST);
-    workerForCommonTaskList.registerWorkflowImplementationTypes(TripBookingWorkflowImpl.class);
+    // gRPC stubs wrapper that talks to the local docker instance of temporal service.
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newInstance(WorkflowServiceStubs.LOCAL_DOCKER_TARGET);
+    // client that can be used to start and signal workflows
+    WorkflowClient client = WorkflowClient.newInstance(service);
+
+    // worker factory that can be used to create workers for specific task lists
+    WorkerFactory factory = WorkerFactory.newInstance(client);
+
+    // Worker that listens on a task list and hosts both workflow and activity implementations.
+    Worker worker = factory.newWorker(TASK_LIST);
+
+    // Workflows are stateful. So you need a type to create instances.
+    worker.registerWorkflowImplementationTypes(TripBookingWorkflowImpl.class);
+
+    // Activities are stateless and thread safe. So a shared instance is used.
     TripBookingActivities tripBookingActivities = new TripBookingActivitiesImpl();
-    workerForCommonTaskList.registerActivitiesImplementations(tripBookingActivities);
+    worker.registerActivitiesImplementations(tripBookingActivities);
 
     // Start all workers created by this factory.
     factory.start();
     System.out.println("Worker started for task list: " + TASK_LIST);
 
-    WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
-
     // now we can start running instances of our saga - its state will be persisted
-    TripBookingWorkflow trip1 = workflowClient.newWorkflowStub(TripBookingWorkflow.class);
+    TripBookingWorkflow trip1 = client.newWorkflowStub(TripBookingWorkflow.class);
     try {
       trip1.bookTrip("trip1");
     } catch (WorkflowException e) {
       // Expected
-      e.printStackTrace();
     }
 
     try {
-      TripBookingWorkflow trip2 = workflowClient.newWorkflowStub(TripBookingWorkflow.class);
+      TripBookingWorkflow trip2 = client.newWorkflowStub(TripBookingWorkflow.class);
       trip2.bookTrip("trip2");
     } catch (WorkflowException e) {
-      e.printStackTrace();
+      // Expected
     }
 
     System.exit(0);

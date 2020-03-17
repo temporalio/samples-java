@@ -17,14 +17,14 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.common.SampleConstants.DOMAIN;
-
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.Async;
-import com.uber.cadence.workflow.Promise;
-import com.uber.cadence.workflow.Workflow;
-import com.uber.cadence.workflow.WorkflowMethod;
+import io.temporal.client.WorkflowClient;
+import io.temporal.serviceclient.WorkflowServiceStubs;
+import io.temporal.worker.Worker;
+import io.temporal.worker.WorkerFactory;
+import io.temporal.workflow.Async;
+import io.temporal.workflow.Promise;
+import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowMethod;
 
 /** Demonstrates a child workflow. Requires a local instance of the Cadence server to be running. */
 public class HelloChild {
@@ -72,17 +72,23 @@ public class HelloChild {
   }
 
   public static void main(String[] args) {
-    // Start a worker that hosts both parent and child workflow implementations.
-    Worker.Factory factory = new Worker.Factory(DOMAIN);
+    // gRPC stubs wrapper that talks to the local docker instance of temporal service.
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newInstance(WorkflowServiceStubs.LOCAL_DOCKER_TARGET);
+    // client that can be used to start and signal workflows
+    WorkflowClient client = WorkflowClient.newInstance(service);
+
+    // worker factory that can be used to create workers for specific task lists
+    WorkerFactory factory = WorkerFactory.newInstance(client);
+    // Worker that listens on a task list and hosts both workflow and activity implementations.
     Worker worker = factory.newWorker(TASK_LIST);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class, GreetingChildImpl.class);
     // Start listening to the workflow task list.
     factory.start();
 
     // Start a workflow execution. Usually this is done from another program.
-    WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
-    // Get a workflow stub using the same task list the worker uses.
-    GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);
+    // Uses task list from the GreetingWorkflow @WorkflowMethod annotation.
+    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class);
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");
     System.out.println(greeting);

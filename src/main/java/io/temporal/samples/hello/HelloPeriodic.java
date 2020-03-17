@@ -17,20 +17,19 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.common.SampleConstants.DOMAIN;
-
 import com.google.common.base.Throwables;
-import com.uber.cadence.WorkflowExecution;
-import com.uber.cadence.WorkflowIdReusePolicy;
-import com.uber.cadence.activity.Activity;
-import com.uber.cadence.activity.ActivityOptions;
-import com.uber.cadence.client.DuplicateWorkflowException;
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.client.WorkflowException;
-import com.uber.cadence.client.WorkflowStub;
-import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.Workflow;
-import com.uber.cadence.workflow.WorkflowMethod;
+import io.temporal.activity.Activity;
+import io.temporal.activity.ActivityOptions;
+import io.temporal.client.DuplicateWorkflowException;
+import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowException;
+import io.temporal.client.WorkflowStub;
+import io.temporal.proto.common.WorkflowExecution;
+import io.temporal.serviceclient.WorkflowServiceStubs;
+import io.temporal.worker.Worker;
+import io.temporal.worker.WorkerFactory;
+import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 import java.util.Optional;
 
@@ -52,8 +51,6 @@ public class HelloPeriodic {
     @WorkflowMethod(
       // At most one instance.
       workflowId = PERIODIC_WORKFLOW_ID,
-      // To allow starting workflow with the same ID after the previous one has terminated.
-      workflowIdReusePolicy = WorkflowIdReusePolicy.AllowDuplicate,
       // Adjust this value to the maximum time workflow is expected to run.
       // It usually depends on the number of repetitions and interval between them.
       executionStartToCloseTimeoutSeconds = 300,
@@ -82,9 +79,7 @@ public class HelloPeriodic {
     private final GreetingActivities activities =
         Workflow.newActivityStub(
             GreetingActivities.class,
-            new ActivityOptions.Builder()
-                .setScheduleToCloseTimeout(Duration.ofSeconds(10))
-                .build());
+            ActivityOptions.newBuilder().setScheduleToCloseTimeout(Duration.ofSeconds(10)).build());
 
     /**
      * Stub used to terminate this workflow run and create the next one with the same ID atomically.
@@ -114,8 +109,15 @@ public class HelloPeriodic {
   }
 
   public static void main(String[] args) throws InterruptedException {
-    // Start a worker that hosts both workflow and activity implementations.
-    Worker.Factory factory = new Worker.Factory(DOMAIN);
+    // gRPC stubs wrapper that talks to the local docker instance of temporal service.
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newInstance(WorkflowServiceStubs.LOCAL_DOCKER_TARGET);
+    // client that can be used to start and signal workflows
+    WorkflowClient client = WorkflowClient.newInstance(service);
+
+    // worker factory that can be used to create workers for specific task lists
+    WorkerFactory factory = WorkerFactory.newInstance(client);
+    // Worker that listens on a task list and hosts both workflow and activity implementations.
     Worker worker = factory.newWorker(TASK_LIST);
     // Workflows are stateful. So you need a type to create instances.
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
@@ -124,8 +126,6 @@ public class HelloPeriodic {
     // Start listening to the workflow and activity task lists.
     factory.start();
 
-    // Start a workflow execution. Usually this is done from another program.
-    WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
     // To ensure that this daemon type workflow is always running try to start it periodically
     // ignoring the duplicated exception.
     // It is only to protect from application level failures.
@@ -134,7 +134,7 @@ public class HelloPeriodic {
     while (true) {
       // Print reason of failure of the previous run, before restarting.
       if (execution != null) {
-        WorkflowStub workflow = workflowClient.newUntypedWorkflowStub(execution, Optional.empty());
+        WorkflowStub workflow = client.newUntypedWorkflowStub(execution, Optional.empty());
         try {
           workflow.getResult(Void.class); //
         } catch (WorkflowException e) {
@@ -142,7 +142,7 @@ public class HelloPeriodic {
         }
       }
       // New stub instance should be created for each new workflow start.
-      GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);
+      GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class);
       try {
         execution =
             WorkflowClient.start(workflow::greetPeriodically, "World", Duration.ofSeconds(1));

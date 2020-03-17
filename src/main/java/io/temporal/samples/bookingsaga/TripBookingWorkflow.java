@@ -19,7 +19,7 @@ package io.temporal.samples.bookingsaga;
 
 import static io.temporal.samples.bookingsaga.TripBookingSaga.TASK_LIST;
 
-import com.uber.cadence.workflow.WorkflowMethod;
+import io.temporal.workflow.WorkflowMethod;
 
 public interface TripBookingWorkflow {
 

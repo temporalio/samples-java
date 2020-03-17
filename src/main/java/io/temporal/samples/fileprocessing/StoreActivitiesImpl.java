@@ -19,8 +19,8 @@ package io.temporal.samples.fileprocessing;
 
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
-import com.uber.cadence.activity.Activity;
-import com.uber.cadence.workflow.Workflow;
+import io.temporal.activity.Activity;
+import io.temporal.workflow.Workflow;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;

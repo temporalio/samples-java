@@ -17,15 +17,15 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.common.SampleConstants.DOMAIN;
-
-import com.uber.cadence.activity.Activity;
-import com.uber.cadence.activity.ActivityMethod;
-import com.uber.cadence.client.ActivityCompletionClient;
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.Workflow;
-import com.uber.cadence.workflow.WorkflowMethod;
+import io.temporal.activity.Activity;
+import io.temporal.activity.ActivityMethod;
+import io.temporal.client.ActivityCompletionClient;
+import io.temporal.client.WorkflowClient;
+import io.temporal.serviceclient.WorkflowServiceStubs;
+import io.temporal.worker.Worker;
+import io.temporal.worker.WorkerFactory;
+import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowMethod;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
@@ -101,24 +101,30 @@ public class HelloAsyncActivityCompletion {
   }
 
   public static void main(String[] args) throws ExecutionException, InterruptedException {
-    // Start a workflow execution. Usually this is done from another program.
-    WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
+    // gRPC stubs wrapper that talks to the local docker instance of temporal service.
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newInstance(WorkflowServiceStubs.LOCAL_DOCKER_TARGET);
+    // client that can be used to start and signal workflows
+    WorkflowClient client = WorkflowClient.newInstance(service);
 
-    // Start a worker that hosts both workflow and activity implementations.
-    Worker.Factory factory = new Worker.Factory(DOMAIN);
+    // worker factory that can be used to create workers for specific task lists
+    WorkerFactory factory = WorkerFactory.newInstance(client);
+    // Worker that listens on a task list and hosts both workflow and activity implementations.
     Worker worker = factory.newWorker(TASK_LIST);
     // Workflows are stateful. So you need a type to create instances.
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     // Activities are stateless and thread safe. So a shared instance is used.
     // CompletionClient is passed to activity here only to support unit testing.
-    ActivityCompletionClient completionClient = workflowClient.newActivityCompletionClient();
+    ActivityCompletionClient completionClient = client.newActivityCompletionClient();
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl(completionClient));
     // Start listening to the workflow and activity task lists.
     factory.start();
 
-    // Get a workflow stub using the same task list the worker uses.
-    GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);
-    // Execute a workflow returning a future that can be used to wait for the workflow
+    // Start a workflow execution. Usually this is done from another program.
+    // Uses task list from the GreetingWorkflow @WorkflowMethod annotation.
+    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class);
+    // Execute a workflow asynchronously returning a future that can be used to wait for the
+    // workflow
     // completion.
     CompletableFuture<String> greeting = WorkflowClient.execute(workflow::getGreeting, "World");
     // Wait for workflow completion.

@@ -19,13 +19,13 @@ package io.temporal.samples.hello;
 
 import static org.junit.Assert.assertEquals;
 
-import com.uber.cadence.client.ActivityCompletionClient;
-import com.uber.cadence.client.WorkflowClient;
+import io.temporal.client.ActivityCompletionClient;
+import io.temporal.client.WorkflowClient;
 import io.temporal.samples.hello.HelloAsyncActivityCompletion.GreetingActivitiesImpl;
 import io.temporal.samples.hello.HelloAsyncActivityCompletion.GreetingWorkflow;
 import io.temporal.samples.hello.HelloAsyncActivityCompletion.GreetingWorkflowImpl;
-import com.uber.cadence.testing.TestWorkflowEnvironment;
-import com.uber.cadence.worker.Worker;
+import io.temporal.testing.TestWorkflowEnvironment;
+import io.temporal.worker.Worker;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
@@ -56,7 +56,7 @@ public class HelloAsyncActivityCompletionTest {
 
   private TestWorkflowEnvironment testEnv;
   private Worker worker;
-  private WorkflowClient workflowClient;
+  private WorkflowClient client;
 
   @Before
   public void setUp() {
@@ -64,7 +64,7 @@ public class HelloAsyncActivityCompletionTest {
     worker = testEnv.newWorker(HelloAsyncActivityCompletion.TASK_LIST);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
-    workflowClient = testEnv.newWorkflowClient();
+    client = testEnv.getWorkflowClient();
   }
 
   @After
@@ -74,11 +74,11 @@ public class HelloAsyncActivityCompletionTest {
 
   @Test
   public void testActivityImpl() throws ExecutionException, InterruptedException {
-    ActivityCompletionClient completionClient = workflowClient.newActivityCompletionClient();
+    ActivityCompletionClient completionClient = client.newActivityCompletionClient();
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl(completionClient));
     testEnv.start();
 
-    GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);
+    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class);
     // Execute a workflow asynchronously.
     CompletableFuture<String> greeting = WorkflowClient.execute(workflow::getGreeting, "World");
     // Wait for workflow completion.

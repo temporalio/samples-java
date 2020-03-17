@@ -17,16 +17,16 @@
 
 package io.temporal.samples.bookingsaga;
 
-import com.uber.cadence.activity.ActivityOptions;
-import com.uber.cadence.workflow.ActivityException;
-import com.uber.cadence.workflow.Saga;
-import com.uber.cadence.workflow.Workflow;
+import io.temporal.activity.ActivityOptions;
+import io.temporal.workflow.ActivityException;
+import io.temporal.workflow.Saga;
+import io.temporal.workflow.Workflow;
 import java.time.Duration;
 
 public class TripBookingWorkflowImpl implements TripBookingWorkflow {
 
   private final ActivityOptions options =
-      new ActivityOptions.Builder().setScheduleToCloseTimeout(Duration.ofHours(1)).build();
+      ActivityOptions.newBuilder().setScheduleToCloseTimeout(Duration.ofHours(1)).build();
   private final TripBookingActivities activities =
       Workflow.newActivityStub(TripBookingActivities.class, options);
 

@@ -35,12 +35,24 @@ repositories {
 dependencies {
     errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
     errorprone("com.google.errorprone:error_prone_core:2.3.1")
-    compile group: 'com.uber.cadence', name: 'cadence-client', version: '2.6.0'
+    //compile group: 'io.temporal', name: 'cadence-client', version: '2.6.0'
     compile group: 'commons-configuration', name: 'commons-configuration', version: '1.9'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
     testCompile group: 'org.powermock', name: 'powermock-api-mockito', version: '1.7.3'
+
+    implementation files('/Users/maxim/temporal/temporal-java-client/build/libs/temporal-java-client-1.0.0.jar')
+    compile group: 'io.grpc', name: 'grpc-testing', version: '1.28.0'
+    implementation 'io.grpc:grpc-netty-shaded:1.28.0'
+    implementation 'io.grpc:grpc-protobuf:1.28.0'
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.8.6'
+    compile group: 'com.google.guava', name: 'guava', version: '28.1-jre'
+    compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.8.0'
+    compile group: 'com.google.api.grpc', name: 'proto-google-common-protos', version: '1.17.0'
+    compile group: 'com.uber.m3', name: 'tally-core', version: '0.4.0'
+    implementation 'io.grpc:grpc-stub:1.28.0'
+    compile group: 'io.micrometer', name: 'micrometer-core', version: '1.1.2'
 }
 
 compileJava {

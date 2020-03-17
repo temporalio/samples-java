@@ -19,11 +19,11 @@ package io.temporal.samples.hello;
 
 import static org.junit.Assert.assertEquals;
 
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.client.WorkflowOptions;
+import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
 import io.temporal.samples.hello.HelloSignal.GreetingWorkflow;
-import com.uber.cadence.testing.TestWorkflowEnvironment;
-import com.uber.cadence.worker.Worker;
+import io.temporal.testing.TestWorkflowEnvironment;
+import io.temporal.worker.Worker;
 import java.time.Duration;
 import java.util.List;
 import org.junit.After;
@@ -51,7 +51,7 @@ public class HelloSignalTest {
 
   private TestWorkflowEnvironment testEnv;
   private Worker worker;
-  private WorkflowClient workflowClient;
+  private WorkflowClient client;
 
   @Before
   public void setUp() {
@@ -61,7 +61,7 @@ public class HelloSignalTest {
     worker.registerWorkflowImplementationTypes(HelloSignal.GreetingWorkflowImpl.class);
     testEnv.start();
 
-    workflowClient = testEnv.newWorkflowClient();
+    client = testEnv.getWorkflowClient();
   }
 
   @After
@@ -73,12 +73,11 @@ public class HelloSignalTest {
   public void testSignal() {
     // Get a workflow stub using the same task list the worker uses.
     WorkflowOptions workflowOptions =
-        new WorkflowOptions.Builder()
+        WorkflowOptions.newBuilder()
             .setTaskList(HelloSignal.TASK_LIST)
             .setExecutionStartToCloseTimeout(Duration.ofDays(30))
             .build();
-    GreetingWorkflow workflow =
-        workflowClient.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
+    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
 
     // Start workflow asynchronously to not use another thread to signal.
     WorkflowClient.start(workflow::getGreetings);

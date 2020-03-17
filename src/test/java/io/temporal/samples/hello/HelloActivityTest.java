@@ -21,13 +21,13 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.uber.cadence.client.WorkflowClient;
+import io.temporal.client.WorkflowClient;
 import io.temporal.samples.hello.HelloActivity.GreetingActivities;
 import io.temporal.samples.hello.HelloActivity.GreetingActivitiesImpl;
 import io.temporal.samples.hello.HelloActivity.GreetingWorkflow;
 import io.temporal.samples.hello.HelloActivity.GreetingWorkflowImpl;
-import com.uber.cadence.testing.TestWorkflowEnvironment;
-import com.uber.cadence.worker.Worker;
+import io.temporal.testing.TestWorkflowEnvironment;
+import io.temporal.worker.Worker;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,7 +37,7 @@ public class HelloActivityTest {
 
   private TestWorkflowEnvironment testEnv;
   private Worker worker;
-  private WorkflowClient workflowClient;
+  private WorkflowClient client;
 
   @Before
   public void setUp() {
@@ -45,7 +45,7 @@ public class HelloActivityTest {
     worker = testEnv.newWorker(HelloActivity.TASK_LIST);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
-    workflowClient = testEnv.newWorkflowClient();
+    client = testEnv.getWorkflowClient();
   }
 
   @After
@@ -59,7 +59,7 @@ public class HelloActivityTest {
     testEnv.start();
 
     // Get a workflow stub using the same task list the worker uses.
-    GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);
+    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class);
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");
     assertEquals("Hello World!", greeting);
@@ -73,7 +73,7 @@ public class HelloActivityTest {
     testEnv.start();
 
     // Get a workflow stub using the same task list the worker uses.
-    GreetingWorkflow workflow = workflowClient.newWorkflowStub(GreetingWorkflow.class);
+    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class);
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");
     assertEquals("Hello World!", greeting);

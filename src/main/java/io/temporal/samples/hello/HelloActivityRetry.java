@@ -17,16 +17,16 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.common.SampleConstants.DOMAIN;
-
-import com.uber.cadence.activity.ActivityOptions;
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.client.WorkflowOptions;
-import com.uber.cadence.common.RetryOptions;
-import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.Functions;
-import com.uber.cadence.workflow.Workflow;
-import com.uber.cadence.workflow.WorkflowMethod;
+import io.temporal.activity.ActivityOptions;
+import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
+import io.temporal.common.RetryOptions;
+import io.temporal.serviceclient.WorkflowServiceStubs;
+import io.temporal.worker.Worker;
+import io.temporal.worker.WorkerFactory;
+import io.temporal.workflow.Functions;
+import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 
 /**
@@ -55,16 +55,16 @@ public class HelloActivityRetry {
 
     /**
      * To enable activity retry set {@link RetryOptions} on {@link ActivityOptions}. It also works
-     * for activities invoked through {@link com.uber.cadence.workflow.Async#invoke(Functions.Proc)}
+     * for activities invoked through {@link io.temporal.workflow.Async#function(Functions.Func)}
      * and for child workflows.
      */
     private final GreetingActivities activities =
         Workflow.newActivityStub(
             GreetingActivities.class,
-            new ActivityOptions.Builder()
+            ActivityOptions.newBuilder()
                 .setScheduleToCloseTimeout(Duration.ofSeconds(10))
                 .setRetryOptions(
-                    new RetryOptions.Builder()
+                    RetryOptions.newBuilder()
                         .setInitialInterval(Duration.ofSeconds(1))
                         .setExpiration(Duration.ofMinutes(1))
                         .setDoNotRetry(IllegalArgumentException.class)
@@ -99,8 +99,15 @@ public class HelloActivityRetry {
   }
 
   public static void main(String[] args) {
-    // Start a worker that hosts both workflow and activity implementations.
-    Worker.Factory factory = new Worker.Factory(DOMAIN);
+    // gRPC stubs wrapper that talks to the local docker instance of temporal service.
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newInstance(WorkflowServiceStubs.LOCAL_DOCKER_TARGET);
+    // client that can be used to start and signal workflows
+    WorkflowClient client = WorkflowClient.newInstance(service);
+
+    // worker factory that can be used to create workers for specific task lists
+    WorkerFactory factory = WorkerFactory.newInstance(client);
+    // Worker that listens on a task list and hosts both workflow and activity implementations.
     Worker worker = factory.newWorker(TASK_LIST);
     // Workflows are stateful. So you need a type to create instances.
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
@@ -109,16 +116,13 @@ public class HelloActivityRetry {
     // Start listening to the workflow and activity task lists.
     factory.start();
 
-    // Start a workflow execution. Usually this is done from another program.
-    WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
     // Get a workflow stub using the same task list the worker uses.
     WorkflowOptions workflowOptions =
-        new WorkflowOptions.Builder()
+        WorkflowOptions.newBuilder()
             .setTaskList(TASK_LIST)
             .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
             .build();
-    GreetingWorkflow workflow =
-        workflowClient.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
+    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");
     System.out.println(greeting);

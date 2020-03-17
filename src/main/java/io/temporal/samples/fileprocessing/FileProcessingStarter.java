@@ -17,17 +17,20 @@
 
 package io.temporal.samples.fileprocessing;
 
-import static io.temporal.samples.common.SampleConstants.DOMAIN;
-
-import com.uber.cadence.client.WorkflowClient;
+import io.temporal.client.WorkflowClient;
+import io.temporal.serviceclient.WorkflowServiceStubs;
 import java.net.URL;
 
 /** Starts a file processing sample workflow. */
 public class FileProcessingStarter {
 
   public static void main(String[] args) throws Exception {
-    WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
-    FileProcessingWorkflow workflow = workflowClient.newWorkflowStub(FileProcessingWorkflow.class);
+    // gRPC stubs wrapper that talks to the local docker instance of temporal service.
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newInstance(WorkflowServiceStubs.LOCAL_DOCKER_TARGET);
+    // client that can be used to start and signal workflows
+    WorkflowClient client = WorkflowClient.newInstance(service);
+    FileProcessingWorkflow workflow = client.newWorkflowStub(FileProcessingWorkflow.class);
 
     System.out.println("Executing FileProcessingWorkflow");
 
@@ -40,11 +43,14 @@ public class FileProcessingStarter {
     System.out.println("FileProcessingWorkflow completed");
 
     // Use this code instead of the above blocking call to start workflow asynchronously.
-    //        WorkflowExecution workflowExecution = WorkflowClient.start(workflow::processFile,
-    // source, destination);
-    //        System.out.println("Started periodic workflow with workflowId=\"" +
-    // workflowExecution.getWorkflowId()
-    //                + "\" and runId=\"" + workflowExecution.getRunId() + "\"");
+    //    WorkflowExecution workflowExecution =
+    //        WorkflowClient.start(workflow::processFile, source, destination);
+    //    System.out.println(
+    //        "Started periodic workflow with workflowId=\""
+    //            + workflowExecution.getWorkflowId()
+    //            + "\" and runId=\""
+    //            + workflowExecution.getRunId()
+    //            + "\"");
     //
     System.exit(0);
   }

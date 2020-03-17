@@ -17,23 +17,21 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.common.SampleConstants.DOMAIN;
-
-import com.uber.cadence.DescribeWorkflowExecutionRequest;
-import com.uber.cadence.DescribeWorkflowExecutionResponse;
-import com.uber.cadence.SearchAttributes;
-import com.uber.cadence.WorkflowExecution;
-import com.uber.cadence.activity.ActivityMethod;
-import com.uber.cadence.client.WorkflowClient;
-import com.uber.cadence.client.WorkflowOptions;
-import com.uber.cadence.converter.DataConverter;
-import com.uber.cadence.converter.JsonDataConverter;
-import com.uber.cadence.serviceclient.IWorkflowService;
-import com.uber.cadence.serviceclient.WorkflowServiceTChannel;
-import com.uber.cadence.worker.Worker;
-import com.uber.cadence.workflow.Workflow;
-import com.uber.cadence.workflow.WorkflowMethod;
-import java.nio.ByteBuffer;
+import com.google.protobuf.ByteString;
+import io.temporal.activity.ActivityMethod;
+import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
+import io.temporal.converter.DataConverter;
+import io.temporal.converter.JsonDataConverter;
+import io.temporal.proto.common.SearchAttributes;
+import io.temporal.proto.common.WorkflowExecution;
+import io.temporal.proto.workflowservice.DescribeWorkflowExecutionRequest;
+import io.temporal.proto.workflowservice.DescribeWorkflowExecutionResponse;
+import io.temporal.serviceclient.WorkflowServiceStubs;
+import io.temporal.worker.Worker;
+import io.temporal.worker.WorkerFactory;
+import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowMethod;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -83,8 +81,15 @@ public class HelloSearchAttributes {
   }
 
   public static void main(String[] args) {
-    // Start a worker that hosts both workflow and activity implementations.
-    Worker.Factory factory = new Worker.Factory(DOMAIN);
+    // gRPC stubs wrapper that talks to the local docker instance of temporal service.
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newInstance(WorkflowServiceStubs.LOCAL_DOCKER_TARGET);
+    // client that can be used to start and signal workflows
+    WorkflowClient client = WorkflowClient.newInstance(service);
+
+    // worker factory that can be used to create workers for specific task lists
+    WorkerFactory factory = WorkerFactory.newInstance(client);
+    // Worker that listens on a task list and hosts both workflow and activity implementations.
     Worker worker = factory.newWorker(TASK_LIST);
     // Workflows are stateful. So you need a type to create instances.
     worker.registerWorkflowImplementationTypes(HelloSearchAttributes.GreetingWorkflowImpl.class);
@@ -93,34 +98,31 @@ public class HelloSearchAttributes {
     // Start listening to the workflow and activity task lists.
     factory.start();
 
-    // Start a workflow execution. Usually this is done from another program.
-    WorkflowClient workflowClient = WorkflowClient.newInstance(DOMAIN);
-
     // Set search attributes in workflowOptions
     String workflowID = UUID.randomUUID().toString();
     WorkflowOptions workflowOptions =
-        new WorkflowOptions.Builder()
+        WorkflowOptions.newBuilder()
             .setTaskList(TASK_LIST)
             .setWorkflowId(workflowID)
             .setSearchAttributes(generateSearchAttributes())
             .build();
     // Get a workflow stub using the same task list the worker uses.
     HelloSearchAttributes.GreetingWorkflow workflow =
-        workflowClient.newWorkflowStub(
-            HelloSearchAttributes.GreetingWorkflow.class, workflowOptions);
+        client.newWorkflowStub(HelloSearchAttributes.GreetingWorkflow.class, workflowOptions);
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("SearchAttributes");
 
-    IWorkflowService cadenceService = new WorkflowServiceTChannel();
-    WorkflowExecution execution = new WorkflowExecution();
-    execution.setWorkflowId(workflowID);
+    WorkflowExecution execution = WorkflowExecution.newBuilder().setWorkflowId(workflowID).build();
 
-    DescribeWorkflowExecutionRequest request = new DescribeWorkflowExecutionRequest();
-    request.setDomain(DOMAIN);
-    request.setExecution(execution);
+    DescribeWorkflowExecutionRequest request =
+        DescribeWorkflowExecutionRequest.newBuilder()
+            .setDomain(client.getDomain())
+            .setExecution(execution)
+            .build();
     try {
-      DescribeWorkflowExecutionResponse resp = cadenceService.DescribeWorkflowExecution(request);
-      SearchAttributes searchAttributes = resp.workflowExecutionInfo.getSearchAttributes();
+      DescribeWorkflowExecutionResponse resp =
+          service.blockingStub().describeWorkflowExecution(request);
+      SearchAttributes searchAttributes = resp.getWorkflowExecutionInfo().getSearchAttributes();
       String keyword = getKeywordFromSearchAttribute(searchAttributes);
       System.out.printf("In workflow we get CustomKeywordField is: %s\n", keyword);
     } catch (Exception e) {
@@ -156,11 +158,8 @@ public class HelloSearchAttributes {
 
   // example for extract value from search attributes
   private static String getKeywordFromSearchAttribute(SearchAttributes searchAttributes) {
-    Map<String, ByteBuffer> map = searchAttributes.getIndexedFields();
-    ByteBuffer byteBuffer = map.get("CustomKeywordField");
+    ByteString field = searchAttributes.getIndexedFieldsOrThrow("CustomKeywordField");
     DataConverter dataConverter = JsonDataConverter.getInstance();
-    final byte[] valueBytes = new byte[byteBuffer.limit() - byteBuffer.position()];
-    byteBuffer.get(valueBytes, 0, valueBytes.length);
-    return dataConverter.fromData(valueBytes, String.class, String.class);
+    return dataConverter.fromData(field.toByteArray(), String.class, String.class);
   }
 }

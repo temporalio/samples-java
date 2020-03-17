@@ -17,9 +17,10 @@
 
 package io.temporal.samples.fileprocessing;
 
-import static io.temporal.samples.common.SampleConstants.DOMAIN;
-
-import com.uber.cadence.worker.Worker;
+import io.temporal.client.WorkflowClient;
+import io.temporal.serviceclient.WorkflowServiceStubs;
+import io.temporal.worker.Worker;
+import io.temporal.worker.WorkerFactory;
 import java.lang.management.ManagementFactory;
 
 /**
@@ -37,8 +38,15 @@ public class FileProcessingWorker {
 
     String hostSpecifiTaskList = ManagementFactory.getRuntimeMXBean().getName();
 
-    // Get worker to poll the common task list.
-    Worker.Factory factory = new Worker.Factory(DOMAIN);
+    // gRPC stubs wrapper that talks to the local docker instance of temporal service.
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newInstance(WorkflowServiceStubs.LOCAL_DOCKER_TARGET);
+    // client that can be used to start and signal workflows
+    WorkflowClient client = WorkflowClient.newInstance(service);
+
+    // worker factory that can be used to create workers for specific task lists
+    WorkerFactory factory = WorkerFactory.newInstance(client);
+    // Worker that listens on a task list and hosts both workflow and activity implementations.
     final Worker workerForCommonTaskList = factory.newWorker(TASK_LIST);
     workerForCommonTaskList.registerWorkflowImplementationTypes(FileProcessingWorkflowImpl.class);
     StoreActivitiesImpl storeActivityImpl = new StoreActivitiesImpl(hostSpecifiTaskList);
