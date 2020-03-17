@@ -40,7 +40,7 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-/** Unit test for {@link HelloActivityRetry}. Doesn't use an external Cadence service. */
+/** Unit test for {@link HelloActivityRetry}. Doesn't use an external Temporal service. */
 public class HelloActivityRetryTest {
 
   /** Prints a history of the workflow under test in case of a test failure. */

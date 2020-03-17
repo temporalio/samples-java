@@ -35,7 +35,7 @@ import java.util.Optional;
 
 /**
  * Demonstrates a "cron" workflow that executes activity periodically. Requires a local instance of
- * Cadence server to be running.
+ * Temporal server to be running.
  */
 public class HelloPeriodic {
 

@@ -33,7 +33,7 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-/** Unit test for {@link HelloSignal}. Doesn't use an external Cadence service. */
+/** Unit test for {@link HelloSignal}. Doesn't use an external Temporal service. */
 public class HelloSignalTest {
 
   /** Prints a history of the workflow under test in case of a test failure. */

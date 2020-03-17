@@ -24,7 +24,7 @@ import io.temporal.serviceclient.WorkflowServiceStubs;
 import java.util.Optional;
 
 /**
- * Queries a workflow execution using the Cadence query API. Cadence redirects a query to any
+ * Queries a workflow execution using the Temporal query API. Temporal redirects a query to any
  * currently running workflow worker for the workflow type of the requested workflow execution.
  *
  * @author fateev

@@ -31,7 +31,7 @@ import java.util.List;
 import org.apache.commons.lang.RandomStringUtils;
 
 /**
- * Demonstrates asynchronous signalling of a workflow. Requires a local instance of Cadence server
+ * Demonstrates asynchronous signalling of a workflow. Requires a local instance of Temporal server
  * to be running.
  */
 @SuppressWarnings("ALL")

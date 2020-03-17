@@ -95,7 +95,7 @@ import java.time.Duration;
  * throws IOException</code> to activity, child and workflow interfaces is not going to help. It is
  * because at all levels it is never received directly, but in wrapped form. Propagating it without
  * wrapping would not allow adding additional context information like activity, child workflow and
- * parent workflow types and IDs. The Cadence library solution is to provide a special wrapper
+ * parent workflow types and IDs. The Temporal library solution is to provide a special wrapper
  * method {@link Workflow#wrap(Exception)} which wraps a checked exception in a special runtime
  * exception. It is special because the framework strips it when chaining exceptions across logical
  * process boundaries. In this example IOException is directly attached to ActivityFailureException

@@ -31,8 +31,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 
 /**
- * Demonstrates an asynchronous activity implementation. Requires a local instance of Cadence server
- * to be running.
+ * Demonstrates an asynchronous activity implementation. Requires a local instance of Temporal
+ * server to be running.
  */
 public class HelloAsyncActivityCompletion {
 
@@ -54,7 +54,7 @@ public class HelloAsyncActivityCompletion {
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
     /**
-     * Activity stub implements activity interface and proxies calls to it to Cadence activity
+     * Activity stub implements activity interface and proxies calls to it to Temporal activity
      * invocations. Because activities are reentrant, only a single stub can be used for multiple
      * activity invocations.
      */

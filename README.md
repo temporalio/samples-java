@@ -1,8 +1,8 @@
-# Java Cadence Samples
-These samples demonstrate various capabilities of Java Cadence client and server. You can learn more about Cadence at:
-* [Cadence Service](https://github.com/uber/cadence)
-* [Cadence Java Client](https://github.com/uber/cadence-java-client)
-* [Go Cadence Client](https://github.com/uber-go/cadence-client)
+# Java Temporal Samples
+These samples demonstrate various capabilities of Java Temporal client and server. You can learn more about Temporal at:
+* [Temporal Service](https://github.com/uber/temporal)
+* [Temporal Java Client](https://github.com/uber/temporal-java-client)
+* [Go Temporal Client](https://github.com/uber-go/temporal-client)
 
 ## Overview of the Samples
 
@@ -29,8 +29,8 @@ These samples demonstrate various capabilities of Java Cadence client and server
 
 Run the following commands:
 
-      git clone https://github.com/uber/cadence-java-samples
-      cd cadence-java-samples
+      git clone https://github.com/uber/temporal-java-samples
+      cd temporal-java-samples
 
 ## Import into IntelliJ
 
@@ -43,14 +43,14 @@ choose **Gradle** and then click **Next**->**Finish**.
 
       ./gradlew build
 
-## Run Cadence Server
+## Run Temporal Server
 
-Run Cadence Server using Docker Compose:
+Run Temporal Server using Docker Compose:
 
-    curl -O https://raw.githubusercontent.com/uber/cadence/master/docker/docker-compose.yml
+    curl -O https://raw.githubusercontent.com/uber/temporal/master/docker/docker-compose.yml
     docker-compose up
 
-If this does not work, see the instructions for running Cadence Server at https://github.com/uber/cadence/blob/master/README.md.
+If this does not work, see the instructions for running Temporal Server at https://github.com/uber/temporal/blob/master/README.md.
 
 ## Register the Domain
 
@@ -58,9 +58,9 @@ To register the *sample* domain, run the following command once before running a
 
     ./gradlew -q execute -PmainClass=io.temporal.samples.common.RegisterDomain
 
-## See Cadence UI
+## See Temporal UI
 
-The Cadence Server running in a docker container includes a Web UI.
+The Temporal Server running in a docker container includes a Web UI.
 
 Connect to [http://localhost:8088](http://localhost:8088).
 
@@ -71,9 +71,9 @@ top right corner from "Open" to "Closed" to see the list of the completed workfl
 Click on a *RUN ID* of a workflow to see more details about it. Try different view formats to get a different level
 of details about the execution history.
 
-## Install Cadence CLI
+## Install Temporal CLI
 
-[Command Line Interface Documentation](https://mfateev.github.io/cadence/docs/08_cli)
+[Command Line Interface Documentation](https://mfateev.github.io/temporal/docs/08_cli)
 
 ## Run the samples
 
@@ -111,9 +111,9 @@ The second command starts workflows. Each invocation starts a new workflow execu
     
 ### Trip Booking
 
-Cadence implementation of the [Camunda BPMN trip booking example](https://github.com/berndruecker/trip-booking-saga-java)
+Temporal implementation of the [Camunda BPMN trip booking example](https://github.com/berndruecker/trip-booking-saga-java)
 
-Demonstrates Cadence approach to SAGA.
+Demonstrates Temporal approach to SAGA.
 
 To run:
 

@@ -27,7 +27,7 @@ import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 
-/** Demonstrates query capability. Requires a local instance of Cadence server to be running. */
+/** Demonstrates query capability. Requires a local instance of Temporal server to be running. */
 public class HelloQuery {
 
   static final String TASK_LIST = "HelloQuery";

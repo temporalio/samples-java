@@ -26,7 +26,9 @@ import io.temporal.workflow.Promise;
 import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowMethod;
 
-/** Demonstrates a child workflow. Requires a local instance of the Cadence server to be running. */
+/**
+ * Demonstrates a child workflow. Requires a local instance of the Temporal server to be running.
+ */
 public class HelloChild {
 
   static final String TASK_LIST = "HelloChild";
@@ -62,7 +64,7 @@ public class HelloChild {
 
   /**
    * The child workflow implementation. A workflow implementation must always be public for the
-   * Cadence library to be able to create instances.
+   * Temporal library to be able to create instances.
    */
   public static class GreetingChildImpl implements GreetingChild {
     @Override

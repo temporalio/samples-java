@@ -36,7 +36,7 @@ import org.junit.rules.TestWatcher;
 import org.junit.rules.Timeout;
 import org.junit.runner.Description;
 
-/** Unit test for {@link HelloAsyncActivityCompletion}. Doesn't use an external Cadence service. */
+/** Unit test for {@link HelloAsyncActivityCompletion}. Doesn't use an external Temporal service. */
 public class HelloAsyncActivityCompletionTest {
 
   @Rule public Timeout globalTimeout = Timeout.seconds(2);

@@ -26,7 +26,7 @@ import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.*;
 import java.time.Duration;
 
-/** Demonstrates implementing saga transaction and compensation logic using Cadence. */
+/** Demonstrates implementing saga transaction and compensation logic using Temporal. */
 public class HelloSaga {
   static final String TASK_LIST = "HelloSaga";
 

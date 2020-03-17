@@ -59,7 +59,7 @@ public class HelloSearchAttributes {
   public static class GreetingWorkflowImpl implements HelloActivity.GreetingWorkflow {
 
     /**
-     * Activity stub implements activity interface and proxies calls to it to Cadence activity
+     * Activity stub implements activity interface and proxies calls to it to Temporal activity
      * invocations. Because activities are reentrant, only a single stub can be used for multiple
      * activity invocations.
      */

@@ -29,7 +29,7 @@ import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowMethod;
 
 /**
- * Demonstrates asynchronous activity invocation. Requires a local instance of Cadence server to be
+ * Demonstrates asynchronous activity invocation. Requires a local instance of Temporal server to be
  * running.
  */
 public class HelloAsync {
@@ -53,7 +53,7 @@ public class HelloAsync {
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
     /**
-     * Activity stub implements activity interface and proxies calls to it to Cadence activity
+     * Activity stub implements activity interface and proxies calls to it to Temporal activity
      * invocations. Because activities are reentrant, only a single stub can be used for multiple
      * activity invocations.
      */

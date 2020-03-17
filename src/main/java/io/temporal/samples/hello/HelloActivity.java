@@ -26,8 +26,8 @@ import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowMethod;
 
 /**
- * Hello World Cadence workflow that executes a single activity. Requires a local instance the
- * Cadence service to be running.
+ * Hello World Temporal workflow that executes a single activity. Requires a local instance the
+ * Temporal service to be running.
  */
 public class HelloActivity {
 
@@ -50,7 +50,7 @@ public class HelloActivity {
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
     /**
-     * Activity stub implements activity interface and proxies calls to it to Cadence activity
+     * Activity stub implements activity interface and proxies calls to it to Temporal activity
      * invocations. Because activities are reentrant, only a single stub can be used for multiple
      * activity invocations.
      */

@@ -31,7 +31,7 @@ import java.time.Duration;
 
 /**
  * Demonstrates activity retries using an exponential backoff algorithm. Requires a local instance
- * of the Cadence service to be running.
+ * of the Temporal service to be running.
  */
 public class HelloActivityRetry {
 

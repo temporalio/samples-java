@@ -32,7 +32,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Unit test for {@link HelloActivity}. Doesn't use an external Cadence service. */
+/** Unit test for {@link HelloActivity}. Doesn't use an external Temporal service. */
 public class HelloActivityTest {
 
   private TestWorkflowEnvironment testEnv;

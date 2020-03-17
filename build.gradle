@@ -17,7 +17,7 @@ googleJavaFormat {
 group = 'com.uber'
 version = '0.0.1'
 
-description = """Samples for Cadence. Based on samples for AWS SWF"""
+description = """Samples for Temporal. Based on samples for AWS SWF"""
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -35,7 +35,7 @@ repositories {
 dependencies {
     errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
     errorprone("com.google.errorprone:error_prone_core:2.3.1")
-    //compile group: 'io.temporal', name: 'cadence-client', version: '2.6.0'
+    //compile group: 'io.temporal', name: 'temporal-client', version: '2.6.0'
     compile group: 'commons-configuration', name: 'commons-configuration', version: '1.9'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
     testCompile group: 'junit', name: 'junit', version: '4.12'
