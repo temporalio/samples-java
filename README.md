@@ -56,7 +56,7 @@ If this does not work, see the instructions for running Cadence Server at https:
 
 To register the *sample* domain, run the following command once before running any samples:
 
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.common.RegisterDomain
+    ./gradlew -q execute -PmainClass=io.temporal.samples.common.RegisterDomain
 
 ## See Cadence UI
 
@@ -86,16 +86,16 @@ Don't forget to check unit tests found under src/test/java!
 
 To run the hello world samples:
 
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloActivity
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloActivityRetry
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloAsync
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloAsyncActivityCompletion
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloAsyncLambda
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloChild
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloException
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloPeriodic
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloQuery
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloSignal
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivity
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivityRetry
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAsync
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAsyncActivityCompletion
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAsyncLambda
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloChild
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloException
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloPeriodic
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloQuery
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSignal
 
 ### File Processing
 
@@ -103,11 +103,11 @@ This sample has two executables. Execute each command in a separate terminal win
 runs the worker that hosts the workflow and activities implementation. To demonstrate that activities
 execute together, we recommend that you run more than one instance of this worker.
 
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.fileprocessing.FileProcessingWorker
+    ./gradlew -q execute -PmainClass=io.temporal.samples.fileprocessing.FileProcessingWorker
 
 The second command starts workflows. Each invocation starts a new workflow execution.
 
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.fileprocessing.FileProcessingStarter
+    ./gradlew -q execute -PmainClass=io.temporal.samples.fileprocessing.FileProcessingStarter
     
 ### Trip Booking
 
@@ -117,6 +117,6 @@ Demonstrates Cadence approach to SAGA.
 
 To run:
 
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.bookingsaga.TripBookingSaga
+    ./gradlew -q execute -PmainClass=io.temporal.samples.bookingsaga.TripBookingSaga
 
 
