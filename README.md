@@ -1,8 +1,8 @@
 # Java Temporal Samples
 These samples demonstrate various capabilities of Java Temporal client and server. You can learn more about Temporal at:
-* [Temporal Service](https://github.com/uber/temporal)
-* [Temporal Java Client](https://github.com/uber/temporal-java-client)
-* [Go Temporal Client](https://github.com/uber-go/temporal-client)
+* [Temporal Service](https://github.com/temporalio/temporal)
+* [Temporal Java Client](https://github.com/temporalio/temporal-java-sdk)
+* [Go Temporal Client](https://github.com/temporalio/temporal-go-sdk)
 
 ## Overview of the Samples
 
@@ -29,7 +29,7 @@ These samples demonstrate various capabilities of Java Temporal client and serve
 
 Run the following commands:
 
-      git clone https://github.com/uber/temporal-java-samples
+      git clone https://github.com/temporalio/temporal-java-samples
       cd temporal-java-samples
 
 ## Import into IntelliJ
@@ -50,7 +50,7 @@ Run Temporal Server using Docker Compose:
     curl -O https://raw.githubusercontent.com/uber/temporal/master/docker/docker-compose.yml
     docker-compose up
 
-If this does not work, see the instructions for running Temporal Server at https://github.com/uber/temporal/blob/master/README.md.
+If this does not work, see the instructions for running Temporal Server at https://github.com/temporalio/temporal/blob/master/README.md.
 
 ## Register the Domain
 
@@ -73,7 +73,7 @@ of details about the execution history.
 
 ## Install Temporal CLI
 
-[Command Line Interface Documentation](https://mfateev.github.io/temporal/docs/08_cli)
+[Command Line Interface Documentation](https://docs.temporal.io/08_cli)
 
 ## Run the samples
 
