@@ -89,8 +89,7 @@ public class HelloSignal {
 
   public static void main(String[] args) throws Exception {
     // Start a worker that hosts the workflow implementation.
-    WorkflowServiceStubs service =
-        WorkflowServiceStubs.newInstance(WorkflowServiceStubs.LOCAL_DOCKER_TARGET);
+    WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
     WorkflowClient client = WorkflowClient.newInstance(service);
     WorkerFactory factory = WorkerFactory.newInstance(client);
     Worker worker = factory.newWorker(TASK_LIST);

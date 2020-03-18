@@ -89,12 +89,11 @@ public class HelloPeriodicTest {
     // Get a workflow stub using the same task list the worker uses.
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class);
     // Execute a workflow waiting for it to complete.
-    WorkflowExecution execution =
-        WorkflowClient.start(workflow::greetPeriodically, "World", Duration.ofSeconds(1));
+    WorkflowExecution execution = WorkflowClient.start(workflow::greetPeriodically, "World");
     assertEquals(PERIODIC_WORKFLOW_ID, execution.getWorkflowId());
     // Validate that workflow was continued as new at least once.
     // Use TestWorkflowEnvironment.sleep to execute the unit test without really sleeping.
-    testEnv.sleep(Duration.ofMinutes(1));
+    testEnv.sleep(Duration.ofMinutes(3));
     ListClosedWorkflowExecutionsRequest request =
         ListClosedWorkflowExecutionsRequest.newBuilder()
             .setDomain(testEnv.getDomain())
@@ -120,8 +119,7 @@ public class HelloPeriodicTest {
     // Get a workflow stub using the same task list the worker uses.
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class);
     // Execute a workflow waiting for it to complete.
-    WorkflowExecution execution =
-        WorkflowClient.start(workflow::greetPeriodically, "World", Duration.ofSeconds(1));
+    WorkflowExecution execution = WorkflowClient.start(workflow::greetPeriodically, "World");
     assertEquals(PERIODIC_WORKFLOW_ID, execution.getWorkflowId());
     // Use TestWorkflowEnvironment.sleep to execute the unit test without really sleeping.
     testEnv.sleep(Duration.ofMinutes(1));
