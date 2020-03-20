@@ -1,4 +1,6 @@
 <!--
+     Copyright (c) 2020 Temporal Technologies, Inc. All Rights Reserved
+
      Copyright 2012-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 
      Modifications copyright (C) 2017 Uber Technologies, Inc.
@@ -23,7 +25,7 @@
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
-    <logger name="io.netty" level="INFO"/>
+    <logger name="io.grpc.netty" level="INFO"/>
     <root level="WARN">
         <appender-ref ref="STDOUT" />
     </root>
