@@ -15,9 +15,9 @@ googleJavaFormat {
 }
 
 group = 'com.uber'
-version = '0.0.1'
+version = '0.10.0-SNAPSHOT'
 
-description = """Samples for Cadence. Based on samples for AWS SWF"""
+description = "Temporal Java SDK Samples"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -29,18 +29,23 @@ repositories {
     maven {
         url "https://plugins.gradle.org/m2/"
     }
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
     mavenCentral()
 }
 
 dependencies {
-    errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
-    errorprone("com.google.errorprone:error_prone_core:2.3.1")
-    compile group: 'com.uber.cadence', name: 'cadence-client', version: '2.6.0'
+    compile group: 'io.temporal', name: 'temporal-sdk', version: '0.10.0-SNAPSHOT'
+
     compile group: 'commons-configuration', name: 'commons-configuration', version: '1.9'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
     testCompile group: 'org.powermock', name: 'powermock-api-mockito', version: '1.7.3'
+
+    errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
+    errorprone("com.google.errorprone:error_prone_core:2.3.1")
 }
 
 compileJava {

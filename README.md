@@ -1,8 +1,8 @@
-# Java Cadence Samples
-These samples demonstrate various capabilities of Java Cadence client and server. You can learn more about Cadence at:
-* [Cadence Service](https://github.com/uber/cadence)
-* [Cadence Java Client](https://github.com/uber/cadence-java-client)
-* [Go Cadence Client](https://github.com/uber-go/cadence-client)
+# Java Temporal Samples
+These samples demonstrate various capabilities of Java Temporal client and server. You can learn more about Temporal at:
+* [Temporal Service](https://github.com/temporalio/temporal)
+* [Temporal Java Client](https://github.com/temporalio/temporal-java-sdk)
+* [Go Temporal Client](https://github.com/temporalio/temporal-go-sdk)
 
 ## Overview of the Samples
 
@@ -29,8 +29,8 @@ These samples demonstrate various capabilities of Java Cadence client and server
 
 Run the following commands:
 
-      git clone https://github.com/uber/cadence-java-samples
-      cd cadence-java-samples
+      git clone https://github.com/temporalio/temporal-java-samples
+      cd temporal-java-samples
 
 ## Import into IntelliJ
 
@@ -43,24 +43,18 @@ choose **Gradle** and then click **Next**->**Finish**.
 
       ./gradlew build
 
-## Run Cadence Server
+## Run Temporal Server
 
-Run Cadence Server using Docker Compose:
+Run Temporal Server using Docker Compose:
 
-    curl -O https://raw.githubusercontent.com/uber/cadence/master/docker/docker-compose.yml
+    curl -O https://raw.githubusercontent.com/temporalio/temporal/master/docker/docker-compose.yml
     docker-compose up
 
-If this does not work, see the instructions for running Cadence Server at https://github.com/uber/cadence/blob/master/README.md.
+If this does not work, see the instructions for running Temporal Server at https://github.com/temporalio/temporal/blob/master/README.md.
 
-## Register the Domain
+## See Temporal UI (Not Available yet!)
 
-To register the *sample* domain, run the following command once before running any samples:
-
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.common.RegisterDomain
-
-## See Cadence UI
-
-The Cadence Server running in a docker container includes a Web UI.
+The Temporal Server running in a docker container includes a Web UI.
 
 Connect to [http://localhost:8088](http://localhost:8088).
 
@@ -71,9 +65,9 @@ top right corner from "Open" to "Closed" to see the list of the completed workfl
 Click on a *RUN ID* of a workflow to see more details about it. Try different view formats to get a different level
 of details about the execution history.
 
-## Install Cadence CLI
+## Install Temporal CLI
 
-[Command Line Interface Documentation](https://mfateev.github.io/cadence/docs/08_cli)
+[Command Line Interface Documentation](https://docs.temporal.io/docs/08_cli)
 
 ## Run the samples
 
@@ -86,16 +80,17 @@ Don't forget to check unit tests found under src/test/java!
 
 To run the hello world samples:
 
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloActivity
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloActivityRetry
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloAsync
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloAsyncActivityCompletion
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloAsyncLambda
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloChild
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloException
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloPeriodic
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloQuery
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.hello.HelloSignal
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivity
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivityRetry
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAsync
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAsyncActivityCompletion
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAsyncLambda
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloChild
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloException
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloPeriodic
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloCron
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloQuery
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSignal
 
 ### File Processing
 
@@ -103,20 +98,21 @@ This sample has two executables. Execute each command in a separate terminal win
 runs the worker that hosts the workflow and activities implementation. To demonstrate that activities
 execute together, we recommend that you run more than one instance of this worker.
 
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.fileprocessing.FileProcessingWorker
+    ./gradlew -q execute -PmainClass=io.temporal.samples.fileprocessing.FileProcessingWorker
 
 The second command starts workflows. Each invocation starts a new workflow execution.
 
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.fileprocessing.FileProcessingStarter
+    ./gradlew -q execute -PmainClass=io.temporal.samples.fileprocessing.FileProcessingStarter
     
 ### Trip Booking
 
-Cadence implementation of the [Camunda BPMN trip booking example](https://github.com/berndruecker/trip-booking-saga-java)
+Temporal implementation of the [Camunda BPMN trip booking example](https://github.com/berndruecker/trip-booking-saga-java)
 
-Demonstrates Cadence approach to SAGA.
+Demonstrates Temporal approach to SAGA.
 
 To run:
 
-    ./gradlew -q execute -PmainClass=com.uber.cadence.samples.bookingsaga.TripBookingSaga
-
+    ./gradlew -q execute -PmainClass=io.temporal.samples.bookingsaga.TripBookingSaga
+    
+The produced exception trace is part of the sample, so don't get confused by it.
 
