@@ -47,18 +47,12 @@ choose **Gradle** and then click **Next**->**Finish**.
 
 Run Temporal Server using Docker Compose:
 
-    curl -O https://raw.githubusercontent.com/uber/temporal/master/docker/docker-compose.yml
+    curl -O https://raw.githubusercontent.com/temporalio/temporal/master/docker/docker-compose.yml
     docker-compose up
 
 If this does not work, see the instructions for running Temporal Server at https://github.com/temporalio/temporal/blob/master/README.md.
 
-## Register the Domain
-
-To register the *sample* domain, run the following command once before running any samples:
-
-    ./gradlew -q execute -PmainClass=io.temporal.samples.common.RegisterDomain
-
-## See Temporal UI
+## See Temporal UI (Not Available yet!)
 
 The Temporal Server running in a docker container includes a Web UI.
 
@@ -73,7 +67,7 @@ of details about the execution history.
 
 ## Install Temporal CLI
 
-[Command Line Interface Documentation](https://docs.temporal.io/08_cli)
+[Command Line Interface Documentation](https://docs.temporal.io/docs/08_cli)
 
 ## Run the samples
 
@@ -94,6 +88,7 @@ To run the hello world samples:
     ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloChild
     ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloException
     ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloPeriodic
+    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloCron
     ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloQuery
     ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSignal
 
@@ -118,5 +113,6 @@ Demonstrates Temporal approach to SAGA.
 To run:
 
     ./gradlew -q execute -PmainClass=io.temporal.samples.bookingsaga.TripBookingSaga
-
+    
+The produced exception trace is part of the sample, so don't get confused by it.
 
