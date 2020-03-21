@@ -67,7 +67,7 @@ of details about the execution history.
 
 ## Install Temporal CLI
 
-[Command Line Interface Documentation](https://docs.temporal.io/docs/08_cli)
+[Command Line Interface Documentation](https://docs.temporal.io/docs/08_running_temporal/02_cli)
 
 ## Run the samples
 
