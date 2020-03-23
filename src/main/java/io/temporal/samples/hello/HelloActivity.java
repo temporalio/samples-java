@@ -93,7 +93,9 @@ public class HelloActivity {
     // Start a workflow execution. Usually this is done from another program.
     // Uses task list from the GreetingWorkflow @WorkflowMethod annotation.
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class);
-    // Execute a workflow waiting for it to complete.
+    // Execute a workflow waiting for it to complete. See {@link
+    // io.temporal.samples.hello.HelloSignal}
+    // for an example of starting workflow without waiting synchronously for its result.
     String greeting = workflow.getGreeting("World");
     System.out.println(greeting);
     System.exit(0);
