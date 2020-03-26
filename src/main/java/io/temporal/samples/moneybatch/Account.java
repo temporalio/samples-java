@@ -20,6 +20,7 @@
 package io.temporal.samples.moneybatch;
 
 public interface Account {
+
   void deposit(String accountId, String referenceId, int amountCents);
 
   void withdraw(String accountId, String referenceId, int amountCents);

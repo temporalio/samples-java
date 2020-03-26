@@ -36,9 +36,7 @@ public class TransferRequester {
   public static void main(String[] args) {
     String reference = UUID.randomUUID().toString();
     int amountCents = (new Random().nextInt(5) + 1) * 25;
-    // gRPC stubs wrapper that talks to the local docker instance of temporal service.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
-    // client that can be used to start and signal workflows
     WorkflowClient workflowClient = WorkflowClient.newInstance(service);
 
     String from = "account1";
@@ -51,10 +49,12 @@ public class TransferRequester {
             .build();
     AccountTransferWorkflow transferWorkflow =
         workflowClient.newWorkflowStub(AccountTransferWorkflow.class, options);
+    // Signal with start sends a signal to a workflow starting it if not yet running
     BatchRequest request = workflowClient.newSignalWithStartRequest();
     request.add(transferWorkflow::deposit, to, BATCH_SIZE);
     request.add(transferWorkflow::withdraw, from, reference, amountCents);
     workflowClient.signalWithStart(request);
+
     System.out.printf("Transfer of %d cents from %s to %s requested", amountCents, from, to);
     System.exit(0);
   }

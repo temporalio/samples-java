@@ -30,21 +30,15 @@ public class AccountActivityWorker {
 
   @SuppressWarnings("CatchAndPrintStackTrace")
   public static void main(String[] args) {
-    // gRPC stubs wrapper that talks to the local docker instance of temporal service.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
-    // client that can be used to start and signal workflows
     WorkflowClient client = WorkflowClient.newInstance(service);
 
-    // worker factory that can be used to create workers for specific task lists
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    // Worker that listens on a task list and hosts both workflow and activity implementations.
     Worker worker = factory.newWorker(TASK_LIST);
-    // Workflows are stateful. So you need a type to create instances.
+
     Account account = new AccountImpl();
     worker.registerActivitiesImplementations(account);
-    //    worker.registerWorkflowImplementationTypes(AccountTransferWorkflowImpl.class);
 
-    // Start all workers created by this factory.
     factory.start();
     System.out.println("Activity Worker started for task list: " + TASK_LIST);
   }
