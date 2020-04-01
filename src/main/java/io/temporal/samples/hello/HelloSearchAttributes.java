@@ -117,7 +117,7 @@ public class HelloSearchAttributes {
 
     DescribeWorkflowExecutionRequest request =
         DescribeWorkflowExecutionRequest.newBuilder()
-            .setDomain(client.getOptions().getDomain())
+            .setNamespace(client.getOptions().getNamespace())
             .setExecution(execution)
             .build();
     try {
