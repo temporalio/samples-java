@@ -26,7 +26,7 @@ import static org.mockito.Mockito.*;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.proto.common.WorkflowExecution;
+import io.temporal.proto.execution.WorkflowExecution;
 import io.temporal.samples.hello.HelloCron.GreetingActivities;
 import io.temporal.samples.hello.HelloCron.GreetingWorkflow;
 import io.temporal.samples.hello.HelloCron.GreetingWorkflowImpl;

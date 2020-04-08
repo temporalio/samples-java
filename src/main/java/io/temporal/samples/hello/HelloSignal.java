@@ -26,6 +26,7 @@ import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.SignalMethod;
 import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ public class HelloSignal {
   static final String TASK_LIST = "HelloSignal";
 
   /** Workflow interface must have a method annotated with @WorkflowMethod. */
+  @WorkflowInterface
   public interface GreetingWorkflow {
     /**
      * @return list of greeting strings that were received through the waitForNameMethod. This

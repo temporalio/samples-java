@@ -20,15 +20,10 @@
 package io.temporal.samples.fileprocessing;
 
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import io.temporal.client.WorkflowClient;
-import io.temporal.proto.enums.TimeoutType;
+import io.temporal.proto.event.TimeoutType;
 import io.temporal.samples.fileprocessing.StoreActivities.TaskListFileNamePair;
 import io.temporal.testing.SimulatedTimeoutException;
 import io.temporal.testing.TestWorkflowEnvironment;
@@ -142,7 +137,7 @@ public class FileProcessingTest {
 
     StoreActivities activitiesHost1 = mock(StoreActivities.class);
     when(activitiesHost1.process(FILE_NAME_UNPROCESSED))
-        .thenThrow(new SimulatedTimeoutException(TimeoutType.TimeoutTypeScheduleToStart));
+        .thenThrow(new SimulatedTimeoutException(TimeoutType.ScheduleToStart));
     workerHost1.registerActivitiesImplementations(activitiesHost1);
 
     StoreActivities activitiesHost2 = mock(StoreActivities.class);

@@ -26,6 +26,7 @@ import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.QueryMethod;
 import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 
@@ -34,6 +35,7 @@ public class HelloQuery {
 
   static final String TASK_LIST = "HelloQuery";
 
+  @WorkflowInterface
   public interface GreetingWorkflow {
 
     @WorkflowMethod
