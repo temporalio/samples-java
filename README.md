@@ -29,8 +29,8 @@ These samples demonstrate various capabilities of Java Temporal client and serve
 
 Run the following commands:
 
-      git clone https://github.com/temporalio/temporal-java-samples
-      cd temporal-java-samples
+     git clone https://github.com/temporalio/temporal-java-samples
+     cd temporal-java-samples
 
 ## Import into IntelliJ
 
@@ -47,8 +47,8 @@ choose **Gradle** and then click **Next**->**Finish**.
 
 Run Temporal Server using Docker Compose:
 
-    curl -O https://raw.githubusercontent.com/temporalio/temporal/master/docker/docker-compose.yml
-    docker-compose up
+     curl -L https://github.com/temporalio/temporal/releases/download/v0.21.1/docker.tar.gz | tar -xz --strip-components 1 docker/docker-compose.yml
+     docker-compose up
 
 If this does not work, see the instructions for running Temporal Server at https://github.com/temporalio/temporal/blob/master/README.md.
 
@@ -116,3 +116,12 @@ To run:
     
 The produced exception trace is part of the sample, so don't get confused by it.
 
+### Notes for MacOSX Users
+Due to issues with default hostname resolution (see https://stackoverflow.com/questions/33289695/inetaddress-getlocalhost-slow-to-run-30-seconds), MacOSX Users may see gRPC DEADLINE_EXCEEDED errors in normal operation.
+
+This can be solved by adding the following entries to your `/etc/hosts` file (where my-macbook is your hostname):
+
+```conf
+127.0.0.1   my-macbook
+::1         my-macbook
+```
