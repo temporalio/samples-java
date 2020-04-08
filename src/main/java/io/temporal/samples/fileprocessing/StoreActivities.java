@@ -19,8 +19,10 @@
 
 package io.temporal.samples.fileprocessing;
 
+import io.temporal.activity.ActivityInterface;
 import java.net.URL;
 
+@ActivityInterface
 public interface StoreActivities {
 
   final class TaskListFileNamePair {

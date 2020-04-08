@@ -19,13 +19,17 @@
 
 package io.temporal.samples.hello;
 
+import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityMethod;
+import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
+import java.time.Duration;
 
 /**
  * Hello World Temporal workflow that executes a single activity. Requires a local instance the
@@ -36,6 +40,7 @@ public class HelloActivity {
   static final String TASK_LIST = "HelloActivity";
 
   /** Workflow interface has to have at least one method annotated with @WorkflowMethod. */
+  @WorkflowInterface
   public interface GreetingWorkflow {
     /** @return greeting string */
     @WorkflowMethod(executionStartToCloseTimeoutSeconds = 10, taskList = TASK_LIST)
@@ -43,8 +48,9 @@ public class HelloActivity {
   }
 
   /** Activity interface is just a POJI. */
+  @ActivityInterface
   public interface GreetingActivities {
-    @ActivityMethod(scheduleToCloseTimeoutSeconds = 2)
+    @ActivityMethod
     String composeGreeting(String greeting, String name);
   }
 
@@ -57,7 +63,9 @@ public class HelloActivity {
      * activity invocations.
      */
     private final GreetingActivities activities =
-        Workflow.newActivityStub(GreetingActivities.class);
+        Workflow.newActivityStub(
+            GreetingActivities.class,
+            ActivityOptions.newBuilder().setScheduleToCloseTimeout(Duration.ofSeconds(2)).build());
 
     @Override
     public String getGreeting(String name) {

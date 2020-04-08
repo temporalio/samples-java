@@ -20,6 +20,7 @@
 package io.temporal.samples.hello;
 
 import com.google.common.base.Throwables;
+import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowException;
@@ -28,6 +29,7 @@ import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 import java.io.IOException;
 import java.time.Duration;
@@ -107,16 +109,19 @@ public class HelloException {
 
   static final String TASK_LIST = "HelloException";
 
+  @WorkflowInterface
   public interface GreetingWorkflow {
     @WorkflowMethod
     String getGreeting(String name);
   }
 
+  @WorkflowInterface
   public interface GreetingChild {
     @WorkflowMethod
     String composeGreeting(String greeting, String name);
   }
 
+  @ActivityInterface
   public interface GreetingActivities {
     String composeGreeting(String greeting, String name);
   }

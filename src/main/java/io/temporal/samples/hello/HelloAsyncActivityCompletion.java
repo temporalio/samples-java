@@ -20,14 +20,17 @@
 package io.temporal.samples.hello;
 
 import io.temporal.activity.Activity;
-import io.temporal.activity.ActivityMethod;
+import io.temporal.activity.ActivityInterface;
+import io.temporal.activity.ActivityOptions;
 import io.temporal.client.ActivityCompletionClient;
 import io.temporal.client.WorkflowClient;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
@@ -40,6 +43,7 @@ public class HelloAsyncActivityCompletion {
 
   static final String TASK_LIST = "HelloAsyncActivityCompletion";
 
+  @WorkflowInterface
   public interface GreetingWorkflow {
     /** @return greeting string */
     @WorkflowMethod(executionStartToCloseTimeoutSeconds = 15, taskList = TASK_LIST)
@@ -47,8 +51,8 @@ public class HelloAsyncActivityCompletion {
   }
 
   /** Activity interface is just a POJI. * */
+  @ActivityInterface
   public interface GreetingActivities {
-    @ActivityMethod(scheduleToCloseTimeoutSeconds = 10)
     String composeGreeting(String greeting, String name);
   }
 
@@ -61,7 +65,9 @@ public class HelloAsyncActivityCompletion {
      * activity invocations.
      */
     private final GreetingActivities activities =
-        Workflow.newActivityStub(GreetingActivities.class);
+        Workflow.newActivityStub(
+            GreetingActivities.class,
+            ActivityOptions.newBuilder().setScheduleToCloseTimeout(Duration.ofSeconds(10)).build());
 
     @Override
     public String getGreeting(String name) {

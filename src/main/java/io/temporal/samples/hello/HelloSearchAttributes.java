@@ -20,20 +20,24 @@
 package io.temporal.samples.hello;
 
 import com.google.protobuf.ByteString;
+import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityMethod;
+import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.common.converter.DataConverter;
-import io.temporal.common.converter.JsonDataConverter;
+import io.temporal.common.converter.GsonJsonDataConverter;
 import io.temporal.proto.common.SearchAttributes;
-import io.temporal.proto.common.WorkflowExecution;
+import io.temporal.proto.execution.WorkflowExecution;
 import io.temporal.proto.workflowservice.DescribeWorkflowExecutionRequest;
 import io.temporal.proto.workflowservice.DescribeWorkflowExecutionResponse;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -45,6 +49,7 @@ public class HelloSearchAttributes {
   static final String TASK_LIST = "HelloSearchAttributes";
 
   /** Workflow interface has to have at least one method annotated with @WorkflowMethod. */
+  @WorkflowInterface
   public interface GreetingWorkflow {
     /** @return greeting string */
     @WorkflowMethod(executionStartToCloseTimeoutSeconds = 10, taskList = TASK_LIST)
@@ -52,8 +57,9 @@ public class HelloSearchAttributes {
   }
 
   /** Activity interface is just a POJI. */
+  @ActivityInterface
   public interface GreetingActivities {
-    @ActivityMethod(scheduleToCloseTimeoutSeconds = 2)
+    @ActivityMethod
     String composeGreeting(String greeting, String name);
   }
 
@@ -65,8 +71,10 @@ public class HelloSearchAttributes {
      * invocations. Because activities are reentrant, only a single stub can be used for multiple
      * activity invocations.
      */
-    private final HelloActivity.GreetingActivities activities =
-        Workflow.newActivityStub(HelloActivity.GreetingActivities.class);
+    private final GreetingActivities activities =
+        Workflow.newActivityStub(
+            GreetingActivities.class,
+            ActivityOptions.newBuilder().setScheduleToCloseTimeout(Duration.ofSeconds(2)).build());
 
     @Override
     public String getGreeting(String name) {
@@ -75,7 +83,7 @@ public class HelloSearchAttributes {
     }
   }
 
-  static class GreetingActivitiesImpl implements HelloActivity.GreetingActivities {
+  static class GreetingActivitiesImpl implements GreetingActivities {
     @Override
     public String composeGreeting(String greeting, String name) {
       return greeting + " " + name + "!";
@@ -160,7 +168,7 @@ public class HelloSearchAttributes {
   // example for extract value from search attributes
   private static String getKeywordFromSearchAttribute(SearchAttributes searchAttributes) {
     ByteString field = searchAttributes.getIndexedFieldsOrThrow("CustomKeywordField");
-    DataConverter dataConverter = JsonDataConverter.getInstance();
+    DataConverter dataConverter = GsonJsonDataConverter.getInstance();
     return dataConverter.fromData(field.toByteArray(), String.class, String.class);
   }
 }
