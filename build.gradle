@@ -15,7 +15,7 @@ googleJavaFormat {
 }
 
 group = 'com.uber'
-version = '0.21.1-SNAPSHOT'
+version = '0.20.0-SNAPSHOT'
 
 description = "Temporal Java SDK Samples"
 
