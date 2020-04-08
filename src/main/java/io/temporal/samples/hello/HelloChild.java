@@ -26,6 +26,7 @@ import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.Async;
 import io.temporal.workflow.Promise;
 import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 
 /**
@@ -36,6 +37,7 @@ public class HelloChild {
   static final String TASK_LIST = "HelloChild";
 
   /** The parent workflow interface. */
+  @WorkflowInterface
   public interface GreetingWorkflow {
     /** @return greeting string */
     @WorkflowMethod(executionStartToCloseTimeoutSeconds = 10, taskList = TASK_LIST)
@@ -43,6 +45,7 @@ public class HelloChild {
   }
 
   /** The child workflow interface. */
+  @WorkflowInterface
   public interface GreetingChild {
     @WorkflowMethod
     String composeGreeting(String greeting, String name);

@@ -19,6 +19,9 @@
 
 package io.temporal.samples.bookingsaga;
 
+import io.temporal.activity.ActivityInterface;
+
+@ActivityInterface
 public interface TripBookingActivities {
 
   /**

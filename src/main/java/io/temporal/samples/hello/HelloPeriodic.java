@@ -21,16 +21,18 @@ package io.temporal.samples.hello;
 
 import com.google.common.base.Throwables;
 import io.temporal.activity.Activity;
+import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.client.DuplicateWorkflowException;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowException;
 import io.temporal.client.WorkflowStub;
-import io.temporal.proto.common.WorkflowExecution;
+import io.temporal.proto.execution.WorkflowExecution;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 import java.util.Optional;
@@ -48,6 +50,7 @@ public class HelloPeriodic {
   static final String TASK_LIST = "HelloPeriodic";
   static final String PERIODIC_WORKFLOW_ID = "HelloPeriodic";
 
+  @WorkflowInterface
   public interface GreetingWorkflow {
     /**
      * Use single fixed ID to ensure that there is at most one instance running. To run multiple
@@ -65,6 +68,7 @@ public class HelloPeriodic {
     void greetPeriodically(String name);
   }
 
+  @ActivityInterface
   public interface GreetingActivities {
     void greet(String greeting);
   }

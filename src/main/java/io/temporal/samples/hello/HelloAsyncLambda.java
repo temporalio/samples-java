@@ -19,6 +19,7 @@
 
 package io.temporal.samples.hello;
 
+import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
@@ -28,6 +29,7 @@ import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.Async;
 import io.temporal.workflow.Promise;
 import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 
@@ -39,6 +41,7 @@ public class HelloAsyncLambda {
 
   static final String TASK_LIST = "HelloAsyncLambda";
 
+  @WorkflowInterface
   public interface GreetingWorkflow {
     /** @return greeting string */
     @WorkflowMethod
@@ -46,6 +49,7 @@ public class HelloAsyncLambda {
   }
 
   /** Activity interface is just a POJI. * */
+  @ActivityInterface
   public interface GreetingActivities {
     String getGreeting();
 
