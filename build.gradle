@@ -27,9 +27,9 @@ repositories {
 }
 
 dependencies {
-    compile group: 'io.temporal', name: 'temporal-sdk', version: '0.20.0-SNAPSHOT'
-    compile group: 'commons-configuration', name: 'commons-configuration', version: '1.9'
-    compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    implementation group: 'io.temporal', name: 'temporal-sdk', version: '0.20.0-SNAPSHOT'
+    implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.9'
+    implementation  group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     testImplementation group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
