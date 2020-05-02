@@ -27,7 +27,7 @@ repositories {
 }
 
 dependencies {
-    compile group: 'io.temporal', name: 'temporal-sdk', version: '0.20.0-SNAPSHOT'
+    api group: 'io.temporal', name: 'temporal-sdk', version: '0.20.0-SNAPSHOT'
     compile group: 'commons-configuration', name: 'commons-configuration', version: '1.9'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 
@@ -41,9 +41,6 @@ dependencies {
 
 compileJava {
     dependsOn 'googleJavaFormat'
-    options.encoding = 'UTF-8'
-    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
-    options.errorprone.errorproneArgs << "-XepExcludedPaths:.*/generated-sources/.*"
 }
 
 task execute(type: JavaExec) {
