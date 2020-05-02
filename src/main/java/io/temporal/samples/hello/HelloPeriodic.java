@@ -58,13 +58,12 @@ public class HelloPeriodic {
      * WorkflowClient.newWorkflowStub call.
      */
     @WorkflowMethod(
-      // At most one instance.
-      workflowId = PERIODIC_WORKFLOW_ID,
-      // Adjust this value to the maximum time workflow is expected to run.
-      // It usually depends on the number of repetitions and interval between them.
-      executionStartToCloseTimeoutSeconds = 300,
-      taskList = TASK_LIST
-    )
+        // At most one instance.
+        workflowId = PERIODIC_WORKFLOW_ID,
+        // Adjust this value to the maximum time workflow is expected to run.
+        // It usually depends on the number of repetitions and interval between them.
+        executionStartToCloseTimeoutSeconds = 300,
+        taskList = TASK_LIST)
     void greetPeriodically(String name);
   }
 

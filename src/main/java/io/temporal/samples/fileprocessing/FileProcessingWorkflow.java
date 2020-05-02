@@ -28,8 +28,7 @@ import java.net.URL;
 public interface FileProcessingWorkflow {
 
   @WorkflowMethod(
-    taskList = FileProcessingWorker.TASK_LIST,
-    executionStartToCloseTimeoutSeconds = 30
-  )
+      taskList = FileProcessingWorker.TASK_LIST,
+      executionStartToCloseTimeoutSeconds = 30)
   void processFile(URL source, URL destination);
 }

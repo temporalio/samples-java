@@ -53,12 +53,11 @@ public class HelloCron {
      * WorkflowClient.newWorkflowStub call.
      */
     @WorkflowMethod(
-      // At most one instance.
-      workflowId = CRON_WORKFLOW_ID,
-      // Adjust this value to the maximum time workflow is expected to run.
-      executionStartToCloseTimeoutSeconds = 300,
-      taskList = TASK_LIST
-    )
+        // At most one instance.
+        workflowId = CRON_WORKFLOW_ID,
+        // Adjust this value to the maximum time workflow is expected to run.
+        executionStartToCloseTimeoutSeconds = 300,
+        taskList = TASK_LIST)
     void greet(String name);
   }
 

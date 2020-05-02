@@ -23,6 +23,7 @@ import static org.junit.Assert.assertEquals;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.proto.common.WorkflowIdReusePolicy;
 import io.temporal.samples.hello.HelloSignal.GreetingWorkflow;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
@@ -78,6 +79,7 @@ public class HelloSignalTest {
         WorkflowOptions.newBuilder()
             .setTaskList(HelloSignal.TASK_LIST)
             .setExecutionStartToCloseTimeout(Duration.ofDays(30))
+            .setWorkflowIdReusePolicy(WorkflowIdReusePolicy.AllowDuplicateFailedOnly)
             .build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
 

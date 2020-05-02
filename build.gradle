@@ -1,6 +1,6 @@
 plugins {
     id 'net.minecrell.licenser' version '0.3'
-    id "com.github.sherter.google-java-format" version "0.6"
+    id 'com.github.sherter.google-java-format' version '0.8'
     id "net.ltgt.errorprone" version "0.6"
 }
 
@@ -9,7 +9,7 @@ apply plugin: 'maven'
 apply plugin: 'com.github.sherter.google-java-format'
 
 googleJavaFormat {
-    toolVersion '1.5'
+    toolVersion '1.7'
     include '**/*.java'
     exclude '**/generated-sources/*'
 }
