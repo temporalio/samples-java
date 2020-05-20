@@ -19,6 +19,7 @@
 
 package io.temporal.samples.hello;
 
+import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
@@ -28,6 +29,7 @@ import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.Functions;
 import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 
@@ -39,12 +41,14 @@ public class HelloActivityRetry {
 
   static final String TASK_LIST = "HelloActivityRetry";
 
+  @WorkflowInterface
   public interface GreetingWorkflow {
     /** @return greeting string */
     @WorkflowMethod
     String getGreeting(String name);
   }
 
+  @ActivityInterface
   public interface GreetingActivities {
     String composeGreeting(String greeting, String name);
   }

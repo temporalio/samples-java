@@ -19,7 +19,8 @@
 
 package io.temporal.samples.hello;
 
-import io.temporal.activity.ActivityMethod;
+import io.temporal.activity.ActivityInterface;
+import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
@@ -28,7 +29,9 @@ import io.temporal.workflow.Async;
 import io.temporal.workflow.Functions.Func;
 import io.temporal.workflow.Promise;
 import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
+import java.time.Duration;
 
 /**
  * Demonstrates asynchronous activity invocation. Requires a local instance of Temporal server to be
@@ -38,13 +41,14 @@ public class HelloAsync {
 
   static final String TASK_LIST = "HelloAsync";
 
+  @WorkflowInterface
   public interface GreetingWorkflow {
     @WorkflowMethod(executionStartToCloseTimeoutSeconds = 15, taskList = TASK_LIST)
     String getGreeting(String name);
   }
 
+  @ActivityInterface
   public interface GreetingActivities {
-    @ActivityMethod(scheduleToCloseTimeoutSeconds = 10)
     String composeGreeting(String greeting, String name);
   }
 
@@ -60,7 +64,9 @@ public class HelloAsync {
      * activity invocations.
      */
     private final GreetingActivities activities =
-        Workflow.newActivityStub(GreetingActivities.class);
+        Workflow.newActivityStub(
+            GreetingActivities.class,
+            ActivityOptions.newBuilder().setScheduleToCloseTimeout(Duration.ofSeconds(10)).build());
 
     @Override
     public String getGreeting(String name) {

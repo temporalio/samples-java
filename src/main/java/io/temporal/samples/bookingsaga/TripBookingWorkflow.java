@@ -21,8 +21,10 @@ package io.temporal.samples.bookingsaga;
 
 import static io.temporal.samples.bookingsaga.TripBookingSaga.TASK_LIST;
 
+import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 
+@WorkflowInterface
 public interface TripBookingWorkflow {
 
   @WorkflowMethod(executionStartToCloseTimeoutSeconds = 3600, taskList = TASK_LIST)

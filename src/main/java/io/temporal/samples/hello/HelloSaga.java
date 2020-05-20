@@ -19,26 +19,37 @@
 
 package io.temporal.samples.hello;
 
+import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityMethod;
+import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
-import io.temporal.workflow.*;
+import io.temporal.workflow.Async;
+import io.temporal.workflow.Promise;
+import io.temporal.workflow.Saga;
+import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowInterface;
+import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 
 /** Demonstrates implementing saga transaction and compensation logic using Temporal. */
 public class HelloSaga {
   static final String TASK_LIST = "HelloSaga";
 
+  @WorkflowInterface
   public interface ChildWorkflowOperation {
     @WorkflowMethod
     void execute(int amount);
   }
 
   public static class ChildWorkflowOperationImpl implements ChildWorkflowOperation {
-    ActivityOperation activity = Workflow.newActivityStub(ActivityOperation.class);
+    ActivityOperation activity =
+        Workflow.newActivityStub(
+            ActivityOperation.class,
+            ActivityOptions.newBuilder().setScheduleToCloseTimeout(Duration.ofSeconds(10)).build());
 
     @Override
     public void execute(int amount) {
@@ -46,13 +57,17 @@ public class HelloSaga {
     }
   }
 
+  @WorkflowInterface
   public interface ChildWorkflowCompensation {
     @WorkflowMethod
     void compensate(int amount);
   }
 
   public static class ChildWorkflowCompensationImpl implements ChildWorkflowCompensation {
-    ActivityOperation activity = Workflow.newActivityStub(ActivityOperation.class);
+    ActivityOperation activity =
+        Workflow.newActivityStub(
+            ActivityOperation.class,
+            ActivityOptions.newBuilder().setScheduleToCloseTimeout(Duration.ofSeconds(10)).build());
 
     @Override
     public void compensate(int amount) {
@@ -60,11 +75,12 @@ public class HelloSaga {
     }
   }
 
+  @ActivityInterface
   public interface ActivityOperation {
-    @ActivityMethod(scheduleToCloseTimeoutSeconds = 2)
+    @ActivityMethod
     void execute(int amount);
 
-    @ActivityMethod(scheduleToCloseTimeoutSeconds = 2)
+    @ActivityMethod
     void compensate(int amount);
   }
 
@@ -81,6 +97,7 @@ public class HelloSaga {
     }
   }
 
+  @WorkflowInterface
   public interface SagaWorkflow {
     /**
      * Main saga workflow. Here we execute activity operation twice (first from a child workflow,
@@ -93,7 +110,10 @@ public class HelloSaga {
   }
 
   public static class SagaWorkflowImpl implements SagaWorkflow {
-    ActivityOperation activity = Workflow.newActivityStub(ActivityOperation.class);
+    ActivityOperation activity =
+        Workflow.newActivityStub(
+            ActivityOperation.class,
+            ActivityOptions.newBuilder().setScheduleToCloseTimeout(Duration.ofSeconds(2)).build());
 
     @Override
     public void execute() {
