@@ -117,6 +117,7 @@ public class HelloCron {
     // Sets the cron schedule using the WorkflowOptions.
     // The cron format is parsed by "https://github.com/robfig/cron" library.
     // Besides the standard "* * * * *" format it supports @every and other extensions.
+    // Note that unit testing framework doesn't support the extensions.
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder().setCronSchedule("* * * * *").build();
     //        WorkflowOptions.newBuilder().setCronSchedule("@every 2s").build();
