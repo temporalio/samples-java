@@ -36,7 +36,7 @@ repositories {
 }
 
 dependencies {
-    compile group: 'io.temporal', name: 'temporal-sdk', version: '0.20.0-SNAPSHOT'
+    compile group: 'io.temporal', name: 'temporal-sdk', version: '0.19.0'
 
     compile group: 'commons-configuration', name: 'commons-configuration', version: '1.9'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
