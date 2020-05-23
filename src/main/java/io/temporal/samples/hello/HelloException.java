@@ -177,11 +177,7 @@ public class HelloException {
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
     factory.start();
 
-    WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder()
-            .setTaskList(TASK_LIST)
-            .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
-            .build();
+    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     try {
       workflow.getGreeting("World");

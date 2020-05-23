@@ -19,13 +19,13 @@
 
 package io.temporal.samples.hello;
 
+import static io.temporal.samples.hello.HelloChild.TASK_LIST;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
 import io.temporal.samples.hello.HelloChild.GreetingChild;
 import io.temporal.samples.hello.HelloChild.GreetingChildImpl;
 import io.temporal.samples.hello.HelloChild.GreetingWorkflow;
@@ -63,7 +63,7 @@ public class HelloChildTest {
   @Before
   public void setUp() {
     testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(HelloChild.TASK_LIST);
+    worker = testEnv.newWorker(TASK_LIST);
 
     client = testEnv.getWorkflowClient();
   }
@@ -80,7 +80,9 @@ public class HelloChildTest {
     testEnv.start();
 
     // Get a workflow stub using the same task list the worker uses.
-    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class);
+    GreetingWorkflow workflow =
+        client.newWorkflowStub(
+            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");
     assertEquals("Hello World!", greeting);
@@ -103,7 +105,9 @@ public class HelloChildTest {
     testEnv.start();
 
     // Get a workflow stub using the same task list the worker uses.
-    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class);
+    GreetingWorkflow workflow =
+        client.newWorkflowStub(
+            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");
     assertEquals("Hello World!", greeting);

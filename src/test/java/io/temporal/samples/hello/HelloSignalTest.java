@@ -78,8 +78,7 @@ public class HelloSignalTest {
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder()
             .setTaskList(HelloSignal.TASK_LIST)
-            .setExecutionStartToCloseTimeout(Duration.ofDays(30))
-            .setWorkflowIdReusePolicy(WorkflowIdReusePolicy.AllowDuplicateFailedOnly)
+            .setWorkflowIdReusePolicy(WorkflowIdReusePolicy.RejectDuplicate)
             .build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
 

@@ -25,7 +25,7 @@ import io.temporal.activity.ActivityOptions;
 import io.temporal.client.DuplicateWorkflowException;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.proto.execution.WorkflowExecution;
+import io.temporal.proto.common.WorkflowExecution;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -47,17 +47,7 @@ public class HelloCron {
 
   @WorkflowInterface
   public interface GreetingWorkflow {
-    /**
-     * Use single fixed ID to ensure that there is at most one instance running. To run multiple
-     * instances set different IDs through WorkflowOptions passed to the
-     * WorkflowClient.newWorkflowStub call.
-     */
-    @WorkflowMethod(
-        // At most one instance.
-        workflowId = CRON_WORKFLOW_ID,
-        // Adjust this value to the maximum time workflow is expected to run.
-        executionStartToCloseTimeoutSeconds = 300,
-        taskList = TASK_LIST)
+    @WorkflowMethod
     void greet(String name);
   }
 
@@ -116,8 +106,15 @@ public class HelloCron {
     // Sets the cron schedule using the WorkflowOptions.
     // The cron format is parsed by "https://github.com/robfig/cron" library.
     // Besides the standard "* * * * *" format it supports @every and other extensions.
+    // Note that unit testing framework doesn't support the extensions.
+    // Use single fixed ID to ensure that there is at most one instance running. To run multiple
+    // instances set different IDs.
     WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder().setCronSchedule("* * * * *").build();
+        WorkflowOptions.newBuilder()
+            .setWorkflowId(CRON_WORKFLOW_ID)
+            .setTaskList(TASK_LIST)
+            .setCronSchedule("* * * * *")
+            .build();
     //        WorkflowOptions.newBuilder().setCronSchedule("@every 2s").build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     try {
