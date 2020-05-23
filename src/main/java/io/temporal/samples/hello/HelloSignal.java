@@ -28,7 +28,6 @@ import io.temporal.workflow.SignalMethod;
 import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.RandomStringUtils;
@@ -107,11 +106,7 @@ public class HelloSignal {
     // Get a workflow stub using the same task list the worker uses.
     // The newly started workflow is going to have the workflowId generated above.
     WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder()
-            .setTaskList(TASK_LIST)
-            .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
-            .setWorkflowId(workflowId)
-            .build();
+        WorkflowOptions.newBuilder().setTaskList(TASK_LIST).setWorkflowId(workflowId).build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     // Start workflow asynchronously to not use another thread to signal.
     WorkflowClient.start(workflow::getGreetings);

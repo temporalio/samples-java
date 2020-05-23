@@ -19,11 +19,13 @@
 
 package io.temporal.samples.fileprocessing;
 
+import static io.temporal.samples.fileprocessing.FileProcessingWorker.TASK_LIST;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.*;
 
 import io.temporal.client.WorkflowClient;
-import io.temporal.proto.event.TimeoutType;
+import io.temporal.client.WorkflowOptions;
+import io.temporal.proto.common.TimeoutType;
 import io.temporal.samples.fileprocessing.StoreActivities.TaskListFileNamePair;
 import io.temporal.testing.SimulatedTimeoutException;
 import io.temporal.testing.TestWorkflowEnvironment;
@@ -84,7 +86,7 @@ public class FileProcessingTest {
   @Before
   public void setUp() {
     testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(FileProcessingWorker.TASK_LIST);
+    worker = testEnv.newWorker(TASK_LIST);
     worker.registerWorkflowImplementationTypes(FileProcessingWorkflowImpl.class);
     workerHost1 = testEnv.newWorker(HOST_NAME_1);
     workerHost2 = testEnv.newWorker(HOST_NAME_2);
@@ -112,7 +114,10 @@ public class FileProcessingTest {
     workerHost2.registerActivitiesImplementations(activitiesHost2);
 
     testEnv.start();
-    FileProcessingWorkflow workflow = client.newWorkflowStub(FileProcessingWorkflow.class);
+    FileProcessingWorkflow workflow =
+        client.newWorkflowStub(
+            FileProcessingWorkflow.class,
+            WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
 
     // Execute workflow waiting for completion.
     workflow.processFile(SOURCE, DESTINATION);
@@ -147,13 +152,18 @@ public class FileProcessingTest {
 
     testEnv.start();
 
-    FileProcessingWorkflow workflow = client.newWorkflowStub(FileProcessingWorkflow.class);
+    FileProcessingWorkflow workflow =
+        client.newWorkflowStub(
+            FileProcessingWorkflow.class,
+            WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
 
     workflow.processFile(SOURCE, DESTINATION);
 
     verify(activities, times(2)).download(SOURCE);
 
-    verify(activitiesHost1).process(FILE_NAME_UNPROCESSED);
+    // TODO(maxim): Change to 1, once retry of SimulatedTimeoutException is not happening.
+    // https://github.com/temporalio/temporal-java-sdk/issues/94
+    verify(activitiesHost1, times(4)).process(FILE_NAME_UNPROCESSED);
 
     verify(activitiesHost2).process(FILE_NAME_UNPROCESSED);
     verify(activitiesHost2).upload(FILE_NAME_PROCESSED, DESTINATION);

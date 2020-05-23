@@ -21,10 +21,7 @@ package io.temporal.samples.hello;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
@@ -34,7 +31,6 @@ import io.temporal.samples.hello.HelloAsyncLambda.GreetingWorkflow;
 import io.temporal.samples.hello.HelloAsyncLambda.GreetingWorkflowImpl;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
-import java.time.Duration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -86,10 +82,7 @@ public class HelloAsyncLambdaTest {
 
     // Get a workflow stub using the same task list the worker uses.
     WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder()
-            .setTaskList(HelloAsyncLambda.TASK_LIST)
-            .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
-            .build();
+        WorkflowOptions.newBuilder().setTaskList(HelloAsyncLambda.TASK_LIST).build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");
@@ -105,10 +98,7 @@ public class HelloAsyncLambdaTest {
     testEnv.start();
 
     WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder()
-            .setTaskList(HelloAsyncLambda.TASK_LIST)
-            .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
-            .build();
+        WorkflowOptions.newBuilder().setTaskList(HelloAsyncLambda.TASK_LIST).build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");

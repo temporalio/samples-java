@@ -123,11 +123,7 @@ public class HelloAsyncLambda {
     // Get a workflow stub using the same task list the worker uses.
     // As the required ExecutionStartToCloseTimeout is not specified through the @WorkflowMethod
     // annotation it has to be specified through the options.
-    WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder()
-            .setTaskList(TASK_LIST)
-            .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
-            .build();
+    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");

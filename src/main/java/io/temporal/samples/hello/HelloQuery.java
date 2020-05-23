@@ -80,11 +80,7 @@ public class HelloQuery {
     factory.start();
 
     // Get a workflow stub using the same task list the worker uses.
-    WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder()
-            .setTaskList(TASK_LIST)
-            .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
-            .build();
+    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     // Start workflow asynchronously to not use another thread to query.
     WorkflowClient.start(workflow::createGreeting, "World");

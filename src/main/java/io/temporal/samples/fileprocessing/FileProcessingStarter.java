@@ -19,7 +19,10 @@
 
 package io.temporal.samples.fileprocessing;
 
+import static io.temporal.samples.fileprocessing.FileProcessingWorker.TASK_LIST;
+
 import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import java.net.URL;
 
@@ -31,7 +34,10 @@ public class FileProcessingStarter {
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
     // client that can be used to start and signal workflows
     WorkflowClient client = WorkflowClient.newInstance(service);
-    FileProcessingWorkflow workflow = client.newWorkflowStub(FileProcessingWorkflow.class);
+    FileProcessingWorkflow workflow =
+        client.newWorkflowStub(
+            FileProcessingWorkflow.class,
+            WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
 
     System.out.println("Executing FileProcessingWorkflow");
 
@@ -53,6 +59,6 @@ public class FileProcessingStarter {
     //            + workflowExecution.getRunId()
     //            + "\"");
     //
-    System.exit(0);
+    service.shutdownNow();
   }
 }

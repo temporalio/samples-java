@@ -19,15 +19,15 @@
 
 package io.temporal.samples.bookingsaga;
 
+import static io.temporal.samples.bookingsaga.TripBookingSaga.TASK_LIST;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowException;
+import io.temporal.client.WorkflowOptions;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
 import org.junit.After;
@@ -43,7 +43,7 @@ public class TripBookingWorkflowTest {
   @Before
   public void setUp() {
     testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(TripBookingSaga.TASK_LIST);
+    worker = testEnv.newWorker(TASK_LIST);
     worker.registerWorkflowImplementationTypes(TripBookingWorkflowImpl.class);
 
     client = testEnv.getWorkflowClient();
@@ -63,7 +63,9 @@ public class TripBookingWorkflowTest {
     worker.registerActivitiesImplementations(new TripBookingActivitiesImpl());
     testEnv.start();
 
-    TripBookingWorkflow workflow = client.newWorkflowStub(TripBookingWorkflow.class);
+    TripBookingWorkflow workflow =
+        client.newWorkflowStub(
+            TripBookingWorkflow.class, WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
     try {
       workflow.bookTrip("trip1");
       fail("unreachable");
@@ -84,7 +86,9 @@ public class TripBookingWorkflowTest {
 
     testEnv.start();
 
-    TripBookingWorkflow workflow = client.newWorkflowStub(TripBookingWorkflow.class);
+    TripBookingWorkflow workflow =
+        client.newWorkflowStub(
+            TripBookingWorkflow.class, WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
     try {
       workflow.bookTrip("trip1");
       fail("unreachable");

@@ -22,6 +22,7 @@ package io.temporal.samples.hello;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -43,7 +44,7 @@ public class HelloAsync {
 
   @WorkflowInterface
   public interface GreetingWorkflow {
-    @WorkflowMethod(executionStartToCloseTimeoutSeconds = 15, taskList = TASK_LIST)
+    @WorkflowMethod
     String getGreeting(String name);
   }
 
@@ -105,7 +106,9 @@ public class HelloAsync {
 
     // Start a workflow execution. Usually this is done from another program.\n'
     // Uses task list from the GreetingWorkflow @WorkflowMethod annotation.
-    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class);
+    GreetingWorkflow workflow =
+        client.newWorkflowStub(
+            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");
     System.out.println(greeting);
