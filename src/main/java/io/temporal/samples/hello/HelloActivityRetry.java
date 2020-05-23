@@ -72,7 +72,6 @@ public class HelloActivityRetry {
                 .setRetryOptions(
                     RetryOptions.newBuilder()
                         .setInitialInterval(Duration.ofSeconds(1))
-                        .setExpiration(Duration.ofMinutes(1))
                         .setDoNotRetry(IllegalArgumentException.class)
                         .build())
                 .build());
@@ -122,11 +121,7 @@ public class HelloActivityRetry {
     factory.start();
 
     // Get a workflow stub using the same task list the worker uses.
-    WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder()
-            .setTaskList(TASK_LIST)
-            .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
-            .build();
+    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");

@@ -21,6 +21,7 @@ package io.temporal.samples.bookingsaga;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowException;
+import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -54,7 +55,8 @@ public class TripBookingSaga {
     System.out.println("Worker started for task list: " + TASK_LIST);
 
     // now we can start running instances of our saga - its state will be persisted
-    TripBookingWorkflow trip1 = client.newWorkflowStub(TripBookingWorkflow.class);
+    WorkflowOptions options = WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build();
+    TripBookingWorkflow trip1 = client.newWorkflowStub(TripBookingWorkflow.class, options);
     try {
       trip1.bookTrip("trip1");
     } catch (WorkflowException e) {
@@ -62,7 +64,7 @@ public class TripBookingSaga {
     }
 
     try {
-      TripBookingWorkflow trip2 = client.newWorkflowStub(TripBookingWorkflow.class);
+      TripBookingWorkflow trip2 = client.newWorkflowStub(TripBookingWorkflow.class, options);
       trip2.bookTrip("trip2");
     } catch (WorkflowException e) {
       // Expected

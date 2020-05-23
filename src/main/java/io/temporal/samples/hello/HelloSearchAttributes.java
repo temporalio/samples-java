@@ -19,7 +19,6 @@
 
 package io.temporal.samples.hello;
 
-import com.google.protobuf.ByteString;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityMethod;
 import io.temporal.activity.ActivityOptions;
@@ -27,8 +26,9 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.common.converter.DataConverter;
 import io.temporal.common.converter.GsonJsonDataConverter;
+import io.temporal.proto.common.Payload;
 import io.temporal.proto.common.SearchAttributes;
-import io.temporal.proto.execution.WorkflowExecution;
+import io.temporal.proto.common.WorkflowExecution;
 import io.temporal.proto.workflowservice.DescribeWorkflowExecutionRequest;
 import io.temporal.proto.workflowservice.DescribeWorkflowExecutionResponse;
 import io.temporal.serviceclient.WorkflowServiceStubs;
@@ -44,6 +44,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * TODO(maxim): This sample is broken. https://github.com/temporalio/temporal-java-samples/issues/10
+ */
 public class HelloSearchAttributes {
 
   static final String TASK_LIST = "HelloSearchAttributes";
@@ -52,7 +55,7 @@ public class HelloSearchAttributes {
   @WorkflowInterface
   public interface GreetingWorkflow {
     /** @return greeting string */
-    @WorkflowMethod(executionStartToCloseTimeoutSeconds = 10, taskList = TASK_LIST)
+    @WorkflowMethod
     String getGreeting(String name);
   }
 
@@ -167,8 +170,8 @@ public class HelloSearchAttributes {
 
   // example for extract value from search attributes
   private static String getKeywordFromSearchAttribute(SearchAttributes searchAttributes) {
-    ByteString field = searchAttributes.getIndexedFieldsOrThrow("CustomKeywordField");
+    Payload field = searchAttributes.getIndexedFieldsOrThrow("CustomKeywordField");
     DataConverter dataConverter = GsonJsonDataConverter.getInstance();
-    return dataConverter.fromData(field.toByteArray(), String.class, String.class);
+    return dataConverter.getPayloadConverter().fromData(field, String.class, String.class);
   }
 }

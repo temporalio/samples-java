@@ -20,13 +20,15 @@
 package io.temporal.samples.hello;
 
 import static io.temporal.samples.hello.HelloPeriodic.PERIODIC_WORKFLOW_ID;
+import static io.temporal.samples.hello.HelloPeriodic.TASK_LIST;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 import io.temporal.client.WorkflowClient;
-import io.temporal.proto.execution.WorkflowExecution;
+import io.temporal.client.WorkflowOptions;
+import io.temporal.proto.common.WorkflowExecution;
 import io.temporal.proto.execution.WorkflowExecutionInfo;
 import io.temporal.proto.execution.WorkflowExecutionStatus;
 import io.temporal.proto.filter.WorkflowExecutionFilter;
@@ -72,7 +74,7 @@ public class HelloPeriodicTest {
   @Before
   public void setUp() {
     testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(HelloPeriodic.TASK_LIST);
+    worker = testEnv.newWorker(TASK_LIST);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
     client = testEnv.getWorkflowClient();
@@ -89,7 +91,13 @@ public class HelloPeriodicTest {
     testEnv.start();
 
     // Get a workflow stub using the same task list the worker uses.
-    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class);
+    GreetingWorkflow workflow =
+        client.newWorkflowStub(
+            GreetingWorkflow.class,
+            WorkflowOptions.newBuilder()
+                .setTaskList(TASK_LIST)
+                .setWorkflowId(PERIODIC_WORKFLOW_ID)
+                .build());
     // Execute a workflow waiting for it to complete.
     WorkflowExecution execution = WorkflowClient.start(workflow::greetPeriodically, "World");
     assertEquals(PERIODIC_WORKFLOW_ID, execution.getWorkflowId());
@@ -117,7 +125,13 @@ public class HelloPeriodicTest {
     testEnv.start();
 
     // Get a workflow stub using the same task list the worker uses.
-    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class);
+    GreetingWorkflow workflow =
+        client.newWorkflowStub(
+            GreetingWorkflow.class,
+            WorkflowOptions.newBuilder()
+                .setTaskList(TASK_LIST)
+                .setWorkflowId(PERIODIC_WORKFLOW_ID)
+                .build());
     // Execute a workflow waiting for it to complete.
     WorkflowExecution execution = WorkflowClient.start(workflow::greetPeriodically, "World");
     assertEquals(PERIODIC_WORKFLOW_ID, execution.getWorkflowId());

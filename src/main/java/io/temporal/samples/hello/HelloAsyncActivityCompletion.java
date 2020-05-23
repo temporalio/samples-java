@@ -24,6 +24,7 @@ import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.client.ActivityCompletionClient;
 import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -46,7 +47,7 @@ public class HelloAsyncActivityCompletion {
   @WorkflowInterface
   public interface GreetingWorkflow {
     /** @return greeting string */
-    @WorkflowMethod(executionStartToCloseTimeoutSeconds = 15, taskList = TASK_LIST)
+    @WorkflowMethod
     String getGreeting(String name);
   }
 
@@ -129,7 +130,9 @@ public class HelloAsyncActivityCompletion {
 
     // Start a workflow execution. Usually this is done from another program.
     // Uses task list from the GreetingWorkflow @WorkflowMethod annotation.
-    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class);
+    GreetingWorkflow workflow =
+        client.newWorkflowStub(
+            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
     // Execute a workflow asynchronously returning a future that can be used to wait for the
     // workflow
     // completion.

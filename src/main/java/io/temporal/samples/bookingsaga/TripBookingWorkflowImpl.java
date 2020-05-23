@@ -20,6 +20,7 @@
 package io.temporal.samples.bookingsaga;
 
 import io.temporal.activity.ActivityOptions;
+import io.temporal.common.RetryOptions;
 import io.temporal.workflow.ActivityException;
 import io.temporal.workflow.Saga;
 import io.temporal.workflow.Workflow;
@@ -28,7 +29,11 @@ import java.time.Duration;
 public class TripBookingWorkflowImpl implements TripBookingWorkflow {
 
   private final ActivityOptions options =
-      ActivityOptions.newBuilder().setScheduleToCloseTimeout(Duration.ofHours(1)).build();
+      ActivityOptions.newBuilder()
+          .setScheduleToCloseTimeout(Duration.ofHours(1))
+          // disable retries for example to run faster
+          .setRetryOptions(RetryOptions.newBuilder().setMaximumAttempts(1).build())
+          .build();
   private final TripBookingActivities activities =
       Workflow.newActivityStub(TripBookingActivities.class, options);
 
