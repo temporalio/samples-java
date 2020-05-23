@@ -37,9 +37,9 @@ import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
+import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -160,12 +160,9 @@ public class HelloSearchAttributes {
     return searchAttributes;
   }
 
-  // CustomDatetimeField takes string like "2018-07-14T17:45:55.9483536" or
-  // "2019-01-01T00:00:00-08:00" as value
+  // CustomDatetimeField takes times encoded in the  RFC 3339 format.
   private static String generateDateTimeFieldValue() {
-    LocalDateTime currentDateTime = LocalDateTime.now();
-    DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
-    return currentDateTime.format(formatter);
+    return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").format(new Date());
   }
 
   // example for extract value from search attributes
