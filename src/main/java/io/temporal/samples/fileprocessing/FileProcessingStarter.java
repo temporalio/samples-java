@@ -59,6 +59,6 @@ public class FileProcessingStarter {
     //            + workflowExecution.getRunId()
     //            + "\"");
     //
-    service.shutdownNow();
+    System.exit(0);
   }
 }
