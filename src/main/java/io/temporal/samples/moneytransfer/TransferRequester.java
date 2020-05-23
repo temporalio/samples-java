@@ -24,7 +24,6 @@ import static io.temporal.samples.moneytransfer.AccountActivityWorker.TASK_LIST;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
-import java.time.Duration;
 import java.util.Random;
 import java.util.UUID;
 
@@ -46,11 +45,7 @@ public class TransferRequester {
     WorkflowClient workflowClient = WorkflowClient.newInstance(service);
 
     // now we can start running instances of our saga - its state will be persisted
-    WorkflowOptions options =
-        WorkflowOptions.newBuilder()
-            .setTaskList(TASK_LIST)
-            .setExecutionStartToCloseTimeout(Duration.ofDays(365))
-            .build();
+    WorkflowOptions options = WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build();
     AccountTransferWorkflow transferWorkflow =
         workflowClient.newWorkflowStub(AccountTransferWorkflow.class, options);
     String from = "account1";

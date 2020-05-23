@@ -23,7 +23,6 @@ import io.temporal.client.BatchRequest;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
-import java.time.Duration;
 import java.util.Random;
 import java.util.UUID;
 
@@ -44,7 +43,6 @@ public class TransferRequester {
     WorkflowOptions options =
         WorkflowOptions.newBuilder()
             .setTaskList(AccountActivityWorker.TASK_LIST)
-            .setExecutionStartToCloseTimeout(Duration.ofDays(365))
             .setWorkflowId(to)
             .build();
     AccountTransferWorkflow transferWorkflow =

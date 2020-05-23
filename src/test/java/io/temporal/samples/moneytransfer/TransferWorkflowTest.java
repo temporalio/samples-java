@@ -28,7 +28,6 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
-import java.time.Duration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,11 +57,7 @@ public class TransferWorkflowTest {
     Account activities = mock(Account.class);
     worker.registerActivitiesImplementations(activities);
     testEnv.start();
-    WorkflowOptions options =
-        WorkflowOptions.newBuilder()
-            .setTaskList(TASK_LIST)
-            .setExecutionStartToCloseTimeout(Duration.ofDays(365))
-            .build();
+    WorkflowOptions options = WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build();
     AccountTransferWorkflow workflow =
         workflowClient.newWorkflowStub(AccountTransferWorkflow.class, options);
     long starty = testEnv.currentTimeMillis();

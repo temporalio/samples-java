@@ -82,11 +82,7 @@ public class TransferWorkflowTest {
     String to = "account2";
     int batchSize = 1;
     WorkflowOptions options =
-        WorkflowOptions.newBuilder()
-            .setTaskList(TASK_LIST)
-            .setExecutionStartToCloseTimeout(Duration.ofDays(365))
-            .setWorkflowId(to)
-            .build();
+        WorkflowOptions.newBuilder().setTaskList(TASK_LIST).setWorkflowId(to).build();
     AccountTransferWorkflow transferWorkflow =
         workflowClient.newWorkflowStub(AccountTransferWorkflow.class, options);
     WorkflowClient.start(transferWorkflow::deposit, to, batchSize);
