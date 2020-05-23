@@ -24,6 +24,7 @@ import io.temporal.common.RetryOptions;
 import io.temporal.workflow.Workflow;
 import java.net.URL;
 import java.time.Duration;
+import java.util.Optional;
 
 /**
  * This implementation of FileProcessingWorkflow downloads the file, zips it, and uploads it to a
@@ -51,12 +52,12 @@ public class FileProcessingWorkflowImpl implements FileProcessingWorkflow {
   @Override
   public void processFile(URL source, URL destination) {
     RetryOptions retryOptions =
-        RetryOptions.newBuilder()
-            .setExpiration(Duration.ofSeconds(10))
-            .setInitialInterval(Duration.ofSeconds(1))
-            .build();
+        RetryOptions.newBuilder().setInitialInterval(Duration.ofSeconds(1)).build();
     // Retries the whole sequence on any failure, potentially on a different host.
-    Workflow.retry(retryOptions, () -> processFileImpl(source, destination));
+    Workflow.retry(
+        retryOptions,
+        Optional.of(Duration.ofSeconds(10)),
+        () -> processFileImpl(source, destination));
   }
 
   private void processFileImpl(URL source, URL destination) {

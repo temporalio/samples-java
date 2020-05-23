@@ -20,13 +20,14 @@
 package io.temporal.samples.hello;
 
 import static io.temporal.samples.hello.HelloCron.CRON_WORKFLOW_ID;
+import static io.temporal.samples.hello.HelloCron.TASK_LIST;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.proto.execution.WorkflowExecution;
+import io.temporal.proto.common.WorkflowExecution;
 import io.temporal.samples.hello.HelloCron.GreetingActivities;
 import io.temporal.samples.hello.HelloCron.GreetingWorkflow;
 import io.temporal.samples.hello.HelloCron.GreetingWorkflowImpl;
@@ -86,7 +87,11 @@ public class HelloCronTest {
     // Unfortunately the supported cron format of the Java test service is not exactly the same as
     // the temporal service. For example @every is not supported by the unit testing framework.
     WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder().setCronSchedule("0 * * * *").build();
+        WorkflowOptions.newBuilder()
+            .setCronSchedule("0 * * * *")
+            .setTaskList(TASK_LIST)
+            .setWorkflowId(CRON_WORKFLOW_ID)
+            .build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
 
     // Execute a workflow waiting for it to complete.

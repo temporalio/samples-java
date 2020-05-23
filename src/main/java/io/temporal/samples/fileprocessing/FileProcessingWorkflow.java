@@ -26,10 +26,6 @@ import java.net.URL;
 /** Contract for file processing workflow. */
 @WorkflowInterface
 public interface FileProcessingWorkflow {
-
-  @WorkflowMethod(
-    taskList = FileProcessingWorker.TASK_LIST,
-    executionStartToCloseTimeoutSeconds = 30
-  )
+  @WorkflowMethod
   void processFile(URL source, URL destination);
 }

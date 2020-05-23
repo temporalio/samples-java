@@ -29,7 +29,7 @@ import static org.powermock.api.mockito.PowerMockito.when;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowException;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.proto.event.TimeoutType;
+import io.temporal.proto.common.TimeoutType;
 import io.temporal.samples.hello.HelloException.GreetingActivities;
 import io.temporal.samples.hello.HelloException.GreetingChildImpl;
 import io.temporal.samples.hello.HelloException.GreetingWorkflow;
@@ -42,7 +42,6 @@ import io.temporal.workflow.ActivityTimeoutException;
 import io.temporal.workflow.ChildWorkflowFailureException;
 import io.temporal.workflow.ChildWorkflowTimedOutException;
 import java.io.IOException;
-import java.time.Duration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -90,11 +89,7 @@ public class HelloExceptionTest {
     worker.registerActivitiesImplementations(new HelloException.GreetingActivitiesImpl());
     testEnv.start();
 
-    WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder()
-            .setTaskList(TASK_LIST)
-            .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
-            .build();
+    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     try {
       workflow.getGreeting("World");
@@ -120,11 +115,7 @@ public class HelloExceptionTest {
 
     testEnv.start();
 
-    WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder()
-            .setTaskList(TASK_LIST)
-            .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
-            .build();
+    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     try {
       workflow.getGreeting("World");
@@ -154,11 +145,7 @@ public class HelloExceptionTest {
 
     testEnv.start();
 
-    WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder()
-            .setTaskList(TASK_LIST)
-            .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
-            .build();
+    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     try {
       workflow.getGreeting("World");
