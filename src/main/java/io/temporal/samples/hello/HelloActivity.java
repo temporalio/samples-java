@@ -23,6 +23,7 @@ import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityMethod;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -43,7 +44,7 @@ public class HelloActivity {
   @WorkflowInterface
   public interface GreetingWorkflow {
     /** @return greeting string */
-    @WorkflowMethod(executionStartToCloseTimeoutSeconds = 10, taskList = TASK_LIST)
+    @WorkflowMethod
     String getGreeting(String name);
   }
 
@@ -100,7 +101,9 @@ public class HelloActivity {
 
     // Start a workflow execution. Usually this is done from another program.
     // Uses task list from the GreetingWorkflow @WorkflowMethod annotation.
-    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class);
+    GreetingWorkflow workflow =
+        client.newWorkflowStub(
+            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
     // Execute a workflow waiting for it to complete. See {@link
     // io.temporal.samples.hello.HelloSignal}
     // for an example of starting workflow without waiting synchronously for its result.

@@ -19,11 +19,13 @@
 
 package io.temporal.samples.hello;
 
+import static io.temporal.samples.hello.HelloAsync.TASK_LIST;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
 import io.temporal.samples.hello.HelloAsync.GreetingActivities;
 import io.temporal.samples.hello.HelloAsync.GreetingActivitiesImpl;
 import io.temporal.samples.hello.HelloAsync.GreetingWorkflow;
@@ -63,7 +65,7 @@ public class HelloAsyncTest {
   @Before
   public void setUp() {
     testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(HelloAsync.TASK_LIST);
+    worker = testEnv.newWorker(TASK_LIST);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
     client = testEnv.getWorkflowClient();
@@ -79,7 +81,9 @@ public class HelloAsyncTest {
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
     testEnv.start();
 
-    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class);
+    GreetingWorkflow workflow =
+        client.newWorkflowStub(
+            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");
     assertEquals("Hello World!\nBye World!", greeting);
@@ -93,7 +97,9 @@ public class HelloAsyncTest {
     worker.registerActivitiesImplementations(activities);
     testEnv.start();
 
-    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class);
+    GreetingWorkflow workflow =
+        client.newWorkflowStub(
+            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");
     assertEquals("Hello World!\nBye World!", greeting);

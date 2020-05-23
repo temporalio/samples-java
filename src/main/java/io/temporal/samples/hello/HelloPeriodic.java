@@ -26,8 +26,9 @@ import io.temporal.activity.ActivityOptions;
 import io.temporal.client.DuplicateWorkflowException;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowException;
+import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
-import io.temporal.proto.execution.WorkflowExecution;
+import io.temporal.proto.common.WorkflowExecution;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -57,14 +58,7 @@ public class HelloPeriodic {
      * instances set different IDs through WorkflowOptions passed to the
      * WorkflowClient.newWorkflowStub call.
      */
-    @WorkflowMethod(
-      // At most one instance.
-      workflowId = PERIODIC_WORKFLOW_ID,
-      // Adjust this value to the maximum time workflow is expected to run.
-      // It usually depends on the number of repetitions and interval between them.
-      executionStartToCloseTimeoutSeconds = 300,
-      taskList = TASK_LIST
-    )
+    @WorkflowMethod
     void greetPeriodically(String name);
   }
 
@@ -149,13 +143,20 @@ public class HelloPeriodic {
       if (execution != null) {
         WorkflowStub workflow = client.newUntypedWorkflowStub(execution, Optional.empty());
         try {
-          workflow.getResult(Void.class); //
+          workflow.getResult(Void.class);
         } catch (WorkflowException e) {
           System.out.println("Previous instance failed:\n" + Throwables.getStackTraceAsString(e));
         }
       }
       // New stub instance should be created for each new workflow start.
-      GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class);
+      GreetingWorkflow workflow =
+          client.newWorkflowStub(
+              GreetingWorkflow.class,
+              // At most one instance.
+              WorkflowOptions.newBuilder()
+                  .setWorkflowId(PERIODIC_WORKFLOW_ID)
+                  .setTaskList(TASK_LIST)
+                  .build());
       try {
         execution = WorkflowClient.start(workflow::greetPeriodically, "World");
         System.out.println("Started " + execution);

@@ -162,11 +162,7 @@ public class HelloSaga {
     factory.start();
 
     // Get a workflow stub using the same task list the worker uses.
-    WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder()
-            .setTaskList(TASK_LIST)
-            .setExecutionStartToCloseTimeout(Duration.ofSeconds(30))
-            .build();
+    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build();
     HelloSaga.SagaWorkflow workflow =
         client.newWorkflowStub(HelloSaga.SagaWorkflow.class, workflowOptions);
     workflow.execute();
