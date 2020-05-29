@@ -26,7 +26,7 @@
         </encoder>
     </appender>
     <logger name="io.grpc.netty" level="INFO"/>
-    <root level="WARN">
+    <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>
