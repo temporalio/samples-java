@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 
 public final class UpdatableTimer {
 
-  private final Logger logger = Workflow.getLogger(DynamicSleepWorkflowImpl.class);
+  private final Logger logger = Workflow.getLogger(UpdatableTimer.class);
 
   private long wakeUpTime;
   private boolean wakeUpTimeUpdated;
@@ -34,14 +34,14 @@ public final class UpdatableTimer {
   public void sleepUntil(long wakeUpTime) {
     logger.info("sleepUntil: " + new Date(wakeUpTime));
     this.wakeUpTime = wakeUpTime;
-    do {
+    while (true) {
       wakeUpTimeUpdated = false;
       Duration sleepInterval = Duration.ofMillis(this.wakeUpTime - Workflow.currentTimeMillis());
       logger.info("Going to sleep for " + sleepInterval);
       if (!Workflow.await(sleepInterval, () -> wakeUpTimeUpdated)) {
         break;
       }
-    } while (wakeUpTimeUpdated);
+    }
     logger.info("sleepUntil completed");
   }
 

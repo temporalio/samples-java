@@ -27,9 +27,9 @@ import static org.mockito.Mockito.verify;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.client.WorkflowStub;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
-import java.time.Duration;
 import java.util.Random;
 import java.util.UUID;
 import org.junit.After;
@@ -80,7 +80,7 @@ public class TransferWorkflowTest {
 
     String from = "account1";
     String to = "account2";
-    int batchSize = 1;
+    int batchSize = 5;
     WorkflowOptions options =
         WorkflowOptions.newBuilder().setTaskList(TASK_LIST).setWorkflowId(to).build();
     AccountTransferWorkflow transferWorkflow =
@@ -93,7 +93,8 @@ public class TransferWorkflowTest {
       transferWorkflow.withdraw(from, UUID.randomUUID().toString(), amountCents);
       total += amountCents;
     }
-    testEnv.sleep(Duration.ofDays(1)); // let workflow finish
+    // Wait for workflow to finish
+    WorkflowStub.fromTyped(transferWorkflow).getResult(Void.class);
     verify(activities).deposit(eq("account2"), any(), eq(total));
   }
 }

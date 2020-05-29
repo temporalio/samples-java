@@ -20,7 +20,6 @@
 package io.temporal.samples.moneytransfer;
 
 import io.temporal.activity.ActivityOptions;
-import io.temporal.common.RetryOptions;
 import io.temporal.workflow.Workflow;
 import java.time.Duration;
 
@@ -30,11 +29,6 @@ public class AccountTransferWorkflowImpl implements AccountTransferWorkflow {
       ActivityOptions.newBuilder()
           .setStartToCloseTimeout(Duration.ofSeconds(5))
           .setScheduleToStartTimeout(Duration.ofMinutes(10))
-          .setRetryOptions(
-              RetryOptions.newBuilder()
-                  .setInitialInterval(Duration.ofSeconds(1))
-                  .setMaximumInterval(Duration.ofSeconds(10))
-                  .build())
           .build();
   private final Account account = Workflow.newActivityStub(Account.class, options);
 
@@ -42,7 +36,6 @@ public class AccountTransferWorkflowImpl implements AccountTransferWorkflow {
   public void transfer(
       String fromAccountId, String toAccountId, String referenceId, int amountCents) {
     account.withdraw(fromAccountId, referenceId, amountCents);
-    Workflow.sleep(Duration.ofHours(1));
     account.deposit(toAccountId, referenceId, amountCents);
   }
 }
