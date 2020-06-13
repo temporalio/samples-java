@@ -1,4 +1,6 @@
 # Java Temporal Samples
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ftemporalio%2Ftemporal-java-samples.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Ftemporalio%2Ftemporal-java-samples?ref=badge_shield)
+
 These samples demonstrate various capabilities of Java Temporal client and server. You can learn more about Temporal at:
 * [Temporal Service](https://github.com/temporalio/temporal)
 * [Temporal Java Client](https://github.com/temporalio/temporal-java-sdk)
@@ -125,3 +127,7 @@ This can be solved by adding the following entries to your `/etc/hosts` file (wh
 127.0.0.1   my-macbook
 ::1         my-macbook
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ftemporalio%2Ftemporal-java-samples.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Ftemporalio%2Ftemporal-java-samples?ref=badge_large)
