@@ -72,7 +72,7 @@ public class HelloActivityRetry {
                 .setRetryOptions(
                     RetryOptions.newBuilder()
                         .setInitialInterval(Duration.ofSeconds(1))
-                        .setDoNotRetry(IllegalArgumentException.class)
+                        .setDoNotRetry(IllegalArgumentException.class.getName())
                         .build())
                 .build());
 

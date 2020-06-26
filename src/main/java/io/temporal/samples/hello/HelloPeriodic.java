@@ -23,12 +23,12 @@ import com.google.common.base.Throwables;
 import io.temporal.activity.Activity;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityOptions;
-import io.temporal.client.DuplicateWorkflowException;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowException;
+import io.temporal.client.WorkflowExecutionAlreadyStarted;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
-import io.temporal.proto.common.WorkflowExecution;
+import io.temporal.common.v1.WorkflowExecution;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -112,7 +112,8 @@ public class HelloPeriodic {
   static class GreetingActivitiesImpl implements GreetingActivities {
     @Override
     public void greet(String greeting) {
-      System.out.println("From " + Activity.getWorkflowExecution() + ": " + greeting);
+      System.out.println(
+          "From " + Activity.getExecutionContext().getInfo().getWorkflowId() + ": " + greeting);
     }
   }
 
@@ -160,7 +161,7 @@ public class HelloPeriodic {
       try {
         execution = WorkflowClient.start(workflow::greetPeriodically, "World");
         System.out.println("Started " + execution);
-      } catch (DuplicateWorkflowException e) {
+      } catch (WorkflowExecutionAlreadyStarted e) {
         System.out.println("Still running as " + e.getExecution());
       } catch (Throwable e) {
         e.printStackTrace();

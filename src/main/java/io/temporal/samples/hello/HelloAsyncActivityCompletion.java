@@ -20,6 +20,7 @@
 package io.temporal.samples.hello;
 
 import io.temporal.activity.Activity;
+import io.temporal.activity.ActivityExecutionContext;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.client.ActivityCompletionClient;
@@ -86,17 +87,18 @@ public class HelloAsyncActivityCompletion {
 
     /**
      * Demonstrates how to implement an activity asynchronously. When {@link
-     * Activity#doNotCompleteOnReturn()} is called the activity implementation function returning
-     * doesn't complete the activity.
+     * io.temporal.activity.ActivityExecutionContext#doNotCompleteOnReturn()} is called the activity
+     * implementation function returning doesn't complete the activity.
      */
     @Override
     public String composeGreeting(String greeting, String name) {
       // TaskToken is a correlation token used to match an activity task with its completion
-      byte[] taskToken = Activity.getTaskToken();
+      ActivityExecutionContext context = Activity.getExecutionContext();
+      byte[] taskToken = context.getTaskToken();
       // In real life this request can be executed anywhere. By a separate service for
       // example.
       ForkJoinPool.commonPool().execute(() -> composeGreetingAsync(taskToken, greeting, name));
-      Activity.doNotCompleteOnReturn();
+      context.doNotCompleteOnReturn();
       // When doNotCompleteOnReturn() is invoked the return value is ignored.
       return "ignored";
     }

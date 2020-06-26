@@ -25,18 +25,17 @@ import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.common.converter.DataConverter;
-import io.temporal.common.converter.GsonJsonDataConverter;
-import io.temporal.proto.common.Payload;
-import io.temporal.proto.common.SearchAttributes;
-import io.temporal.proto.common.WorkflowExecution;
-import io.temporal.proto.workflowservice.DescribeWorkflowExecutionRequest;
-import io.temporal.proto.workflowservice.DescribeWorkflowExecutionResponse;
+import io.temporal.common.v1.Payload;
+import io.temporal.common.v1.SearchAttributes;
+import io.temporal.common.v1.WorkflowExecution;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
+import io.temporal.workflowservice.v1.DescribeWorkflowExecutionRequest;
+import io.temporal.workflowservice.v1.DescribeWorkflowExecutionResponse;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.Date;
@@ -168,7 +167,7 @@ public class HelloSearchAttributes {
   // example for extract value from search attributes
   private static String getKeywordFromSearchAttribute(SearchAttributes searchAttributes) {
     Payload field = searchAttributes.getIndexedFieldsOrThrow("CustomKeywordField");
-    DataConverter dataConverter = GsonJsonDataConverter.getInstance();
-    return dataConverter.getPayloadConverter().fromData(field, String.class, String.class);
+    DataConverter dataConverter = DataConverter.getDefaultInstance();
+    return dataConverter.fromPayload(field, String.class, String.class);
   }
 }
