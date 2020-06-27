@@ -29,19 +29,17 @@ import static org.powermock.api.mockito.PowerMockito.when;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowException;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.proto.common.TimeoutType;
+import io.temporal.enums.v1.TimeoutType;
+import io.temporal.failure.ActivityFailure;
+import io.temporal.failure.ApplicationFailure;
+import io.temporal.failure.ChildWorkflowFailure;
+import io.temporal.failure.TimeoutFailure;
 import io.temporal.samples.hello.HelloException.GreetingActivities;
 import io.temporal.samples.hello.HelloException.GreetingChildImpl;
 import io.temporal.samples.hello.HelloException.GreetingWorkflow;
 import io.temporal.samples.hello.HelloException.GreetingWorkflowImpl;
-import io.temporal.testing.SimulatedTimeoutException;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
-import io.temporal.workflow.ActivityFailureException;
-import io.temporal.workflow.ActivityTimeoutException;
-import io.temporal.workflow.ChildWorkflowFailureException;
-import io.temporal.workflow.ChildWorkflowTimedOutException;
-import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -95,10 +93,12 @@ public class HelloExceptionTest {
       workflow.getGreeting("World");
       throw new IllegalStateException("unreachable");
     } catch (WorkflowException e) {
-      assertTrue(e.getCause() instanceof ChildWorkflowFailureException);
-      assertTrue(e.getCause().getCause() instanceof ActivityFailureException);
-      assertTrue(e.getCause().getCause().getCause() instanceof IOException);
-      assertEquals("Hello World!", e.getCause().getCause().getCause().getMessage());
+      assertTrue(e.getCause() instanceof ChildWorkflowFailure);
+      assertTrue(e.getCause().getCause() instanceof ActivityFailure);
+      assertTrue(e.getCause().getCause().getCause() instanceof ApplicationFailure);
+      assertEquals(
+          "Hello World!",
+          ((ApplicationFailure) e.getCause().getCause().getCause()).getOriginalMessage());
     }
   }
 
@@ -110,7 +110,8 @@ public class HelloExceptionTest {
     // Mock an activity that times out.
     GreetingActivities activities = mock(GreetingActivities.class);
     when(activities.composeGreeting(anyString(), anyString()))
-        .thenThrow(new SimulatedTimeoutException(TimeoutType.ScheduleToStart));
+        .thenThrow(
+            new TimeoutFailure("simulated", null, TimeoutType.TIMEOUT_TYPE_SCHEDULE_TO_START));
     worker.registerActivitiesImplementations(activities);
 
     testEnv.start();
@@ -121,11 +122,14 @@ public class HelloExceptionTest {
       workflow.getGreeting("World");
       throw new IllegalStateException("unreachable");
     } catch (WorkflowException e) {
-      assertTrue(e.getCause() instanceof ChildWorkflowFailureException);
+      assertTrue(e.getCause() instanceof ChildWorkflowFailure);
       Throwable doubleCause = e.getCause().getCause();
-      assertTrue(doubleCause instanceof ActivityTimeoutException);
-      ActivityTimeoutException timeoutException = (ActivityTimeoutException) doubleCause;
-      assertEquals(TimeoutType.ScheduleToStart, timeoutException.getTimeoutType());
+      assertTrue(doubleCause instanceof ActivityFailure);
+      Throwable tripleCause = doubleCause.getCause();
+      assertTrue(tripleCause instanceof TimeoutFailure);
+      assertEquals(
+          TimeoutType.TIMEOUT_TYPE_SCHEDULE_TO_START,
+          ((TimeoutFailure) tripleCause).getTimeoutType());
     }
   }
 
@@ -139,7 +143,8 @@ public class HelloExceptionTest {
         () -> {
           GreetingChildImpl child = mock(GreetingChildImpl.class);
           when(child.composeGreeting(anyString(), anyString()))
-              .thenThrow(new SimulatedTimeoutException());
+              .thenThrow(
+                  new TimeoutFailure("simulated", null, TimeoutType.TIMEOUT_TYPE_START_TO_CLOSE));
           return child;
         });
 
@@ -151,7 +156,8 @@ public class HelloExceptionTest {
       workflow.getGreeting("World");
       throw new IllegalStateException("unreachable");
     } catch (WorkflowException e) {
-      assertTrue(e.getCause() instanceof ChildWorkflowTimedOutException);
+      assertTrue(e.getCause() instanceof ChildWorkflowFailure);
+      assertTrue(e.getCause().getCause() instanceof TimeoutFailure);
     }
   }
 }

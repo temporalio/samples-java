@@ -28,18 +28,18 @@ import static org.mockito.Mockito.*;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.proto.common.WorkflowExecution;
-import io.temporal.proto.execution.WorkflowExecutionInfo;
-import io.temporal.proto.execution.WorkflowExecutionStatus;
-import io.temporal.proto.filter.WorkflowExecutionFilter;
-import io.temporal.proto.workflowservice.ListClosedWorkflowExecutionsRequest;
-import io.temporal.proto.workflowservice.ListClosedWorkflowExecutionsResponse;
+import io.temporal.common.v1.WorkflowExecution;
+import io.temporal.enums.v1.WorkflowExecutionStatus;
+import io.temporal.filter.v1.WorkflowExecutionFilter;
 import io.temporal.samples.hello.HelloPeriodic.GreetingActivities;
 import io.temporal.samples.hello.HelloPeriodic.GreetingActivitiesImpl;
 import io.temporal.samples.hello.HelloPeriodic.GreetingWorkflow;
 import io.temporal.samples.hello.HelloPeriodic.GreetingWorkflowImpl;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
+import io.temporal.workflow.v1.WorkflowExecutionInfo;
+import io.temporal.workflowservice.v1.ListClosedWorkflowExecutionsRequest;
+import io.temporal.workflowservice.v1.ListClosedWorkflowExecutionsResponse;
 import java.time.Duration;
 import org.junit.After;
 import org.junit.Before;
@@ -114,7 +114,8 @@ public class HelloPeriodicTest {
         testEnv.getWorkflowService().blockingStub().listClosedWorkflowExecutions(request);
     assertTrue(listResponse.getExecutionsCount() > 1);
     for (WorkflowExecutionInfo e : listResponse.getExecutionsList()) {
-      assertEquals(WorkflowExecutionStatus.ContinuedAsNew, e.getStatus());
+      assertEquals(
+          WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_CONTINUED_AS_NEW, e.getStatus());
     }
   }
 

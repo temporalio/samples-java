@@ -26,7 +26,6 @@ public class AccountImpl implements Account {
     System.out.printf(
         "Withdraw to %s of %d cents requested. ReferenceId=%s\n",
         accountId, amountCents, referenceId);
-    //    throw new RuntimeException("simulated");
   }
 
   @Override
