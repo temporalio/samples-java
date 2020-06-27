@@ -22,10 +22,10 @@ package io.temporal.samples.hello;
 import io.temporal.activity.Activity;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityOptions;
-import io.temporal.client.DuplicateWorkflowException;
 import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowExecutionAlreadyStarted;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.proto.common.WorkflowExecution;
+import io.temporal.common.v1.WorkflowExecution;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -82,7 +82,8 @@ public class HelloCron {
   static class GreetingActivitiesImpl implements GreetingActivities {
     @Override
     public void greet(String greeting) {
-      System.out.println("From " + Activity.getWorkflowExecution() + ": " + greeting);
+      System.out.println(
+          "From " + Activity.getExecutionContext().getInfo().getWorkflowId() + ": " + greeting);
     }
   }
 
@@ -114,13 +115,17 @@ public class HelloCron {
             .setWorkflowId(CRON_WORKFLOW_ID)
             .setTaskList(TASK_LIST)
             .setCronSchedule("* * * * *")
+            // Execution timeout limits total time. Cron will stop executing after this timeout.
+            .setWorkflowExecutionTimeout(Duration.ofMinutes(10))
+            // Run timeout limits duration of a single workflow invocation.
+            .setWorkflowRunTimeout(Duration.ofMinutes(1))
             .build();
     //        WorkflowOptions.newBuilder().setCronSchedule("@every 2s").build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     try {
       WorkflowExecution execution = WorkflowClient.start(workflow::greet, "World");
       System.out.println("Started " + execution);
-    } catch (DuplicateWorkflowException e) {
+    } catch (WorkflowExecutionAlreadyStarted e) {
       System.out.println("Already running as " + e.getExecution());
     } catch (Throwable e) {
       e.printStackTrace();

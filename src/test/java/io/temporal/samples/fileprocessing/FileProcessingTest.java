@@ -25,9 +25,9 @@ import static org.mockito.Mockito.*;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.proto.common.TimeoutType;
+import io.temporal.enums.v1.TimeoutType;
+import io.temporal.failure.TimeoutFailure;
 import io.temporal.samples.fileprocessing.StoreActivities.TaskListFileNamePair;
-import io.temporal.testing.SimulatedTimeoutException;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
 import java.net.MalformedURLException;
@@ -142,7 +142,8 @@ public class FileProcessingTest {
 
     StoreActivities activitiesHost1 = mock(StoreActivities.class);
     when(activitiesHost1.process(FILE_NAME_UNPROCESSED))
-        .thenThrow(new SimulatedTimeoutException(TimeoutType.ScheduleToStart));
+        .thenThrow(
+            new TimeoutFailure("simulated", null, TimeoutType.TIMEOUT_TYPE_SCHEDULE_TO_START));
     workerHost1.registerActivitiesImplementations(activitiesHost1);
 
     StoreActivities activitiesHost2 = mock(StoreActivities.class);

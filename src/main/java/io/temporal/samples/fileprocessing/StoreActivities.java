@@ -26,13 +26,16 @@ import java.net.URL;
 public interface StoreActivities {
 
   final class TaskListFileNamePair {
-    private final String hostTaskList;
-    private final String fileName;
+    private String hostTaskList;
+    private String fileName;
 
     public TaskListFileNamePair(String hostTaskList, String fileName) {
       this.hostTaskList = hostTaskList;
       this.fileName = fileName;
     }
+
+    /** Jackson needs it */
+    public TaskListFileNamePair() {}
 
     public String getHostTaskList() {
       return hostTaskList;
