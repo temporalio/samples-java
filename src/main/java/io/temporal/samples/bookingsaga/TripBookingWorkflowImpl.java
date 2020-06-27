@@ -22,7 +22,6 @@ package io.temporal.samples.bookingsaga;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.common.RetryOptions;
 import io.temporal.failure.ActivityFailure;
-import io.temporal.workflow.ActivityStub;
 import io.temporal.workflow.Saga;
 import io.temporal.workflow.Workflow;
 import java.time.Duration;
@@ -40,8 +39,6 @@ public class TripBookingWorkflowImpl implements TripBookingWorkflow {
 
   @Override
   public void bookTrip(String name) {
-    ActivityStub dynamic = Workflow.newUntypedActivityStub(null);
-    dynamic.execute("reserveCar", String.class, "bar");
     // Configure SAGA to run compensation activities in parallel
     Saga.Options sagaOptions = new Saga.Options.Builder().setParallelCompensation(true).build();
     Saga saga = new Saga(sagaOptions);

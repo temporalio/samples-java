@@ -82,7 +82,6 @@ public class HelloSignal {
     @Override
     public void waitForName(String name) {
       messageQueue.add("Hello " + name + "!");
-      throw new IllegalStateException("simulated");
     }
 
     @Override

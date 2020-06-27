@@ -115,6 +115,10 @@ public class HelloCron {
             .setWorkflowId(CRON_WORKFLOW_ID)
             .setTaskList(TASK_LIST)
             .setCronSchedule("* * * * *")
+            // Execution timeout limits total time. Cron will stop executing after this timeout.
+            .setWorkflowExecutionTimeout(Duration.ofMinutes(10))
+            // Run timeout limits duration of a single workflow invocation.
+            .setWorkflowRunTimeout(Duration.ofMinutes(1))
             .build();
     //        WorkflowOptions.newBuilder().setCronSchedule("@every 2s").build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
