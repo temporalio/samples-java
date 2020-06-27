@@ -26,10 +26,7 @@ import java.time.Duration;
 public class AccountTransferWorkflowImpl implements AccountTransferWorkflow {
 
   private final ActivityOptions options =
-      ActivityOptions.newBuilder()
-          .setStartToCloseTimeout(Duration.ofSeconds(5))
-          .setScheduleToStartTimeout(Duration.ofMinutes(10))
-          .build();
+      ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(5)).build();
   private final Account account = Workflow.newActivityStub(Account.class, options);
 
   @Override

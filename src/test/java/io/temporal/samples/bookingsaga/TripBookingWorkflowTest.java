@@ -28,6 +28,7 @@ import static org.mockito.Mockito.*;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowException;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.failure.ApplicationFailure;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
 import org.junit.After;
@@ -70,7 +71,9 @@ public class TripBookingWorkflowTest {
       workflow.bookTrip("trip1");
       fail("unreachable");
     } catch (WorkflowException e) {
-      assertEquals("Flight booking did not work", e.getCause().getCause().getMessage());
+      assertEquals(
+          "Flight booking did not work",
+          ((ApplicationFailure) e.getCause().getCause()).getOriginalMessage());
     }
   }
 
@@ -93,7 +96,9 @@ public class TripBookingWorkflowTest {
       workflow.bookTrip("trip1");
       fail("unreachable");
     } catch (WorkflowException e) {
-      assertEquals("Flight booking did not work", e.getCause().getCause().getMessage());
+      assertEquals(
+          "Flight booking did not work",
+          ((ApplicationFailure) e.getCause().getCause()).getOriginalMessage());
     }
 
     verify(activities).cancelHotel(eq("HotelBookingID1"), eq("trip1"));
