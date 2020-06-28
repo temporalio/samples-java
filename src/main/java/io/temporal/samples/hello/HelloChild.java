@@ -35,7 +35,7 @@ import io.temporal.workflow.WorkflowMethod;
  */
 public class HelloChild {
 
-  static final String TASK_LIST = "HelloChild";
+  static final String TASK_QUEUE = "HelloChild";
 
   /** The parent workflow interface. */
   @WorkflowInterface
@@ -85,19 +85,19 @@ public class HelloChild {
     // client that can be used to start and signal workflows
     WorkflowClient client = WorkflowClient.newInstance(service);
 
-    // worker factory that can be used to create workers for specific task lists
+    // worker factory that can be used to create workers for specific task queues
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    // Worker that listens on a task list and hosts both workflow and activity implementations.
-    Worker worker = factory.newWorker(TASK_LIST);
+    // Worker that listens on a task queue and hosts both workflow and activity implementations.
+    Worker worker = factory.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class, GreetingChildImpl.class);
-    // Start listening to the workflow task list.
+    // Start listening to the workflow task queue.
     factory.start();
 
     // Start a workflow execution. Usually this is done from another program.
-    // Uses task list from the GreetingWorkflow @WorkflowMethod annotation.
+    // Uses task queue from the GreetingWorkflow @WorkflowMethod annotation.
     GreetingWorkflow workflow =
         client.newWorkflowStub(
-            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
+            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");
     System.out.println(greeting);

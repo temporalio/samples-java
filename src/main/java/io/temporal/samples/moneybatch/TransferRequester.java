@@ -42,7 +42,7 @@ public class TransferRequester {
     String to = "account2";
     WorkflowOptions options =
         WorkflowOptions.newBuilder()
-            .setTaskList(AccountActivityWorker.TASK_LIST)
+            .setTaskQueue(AccountActivityWorker.TASK_QUEUE)
             .setWorkflowId(to)
             .build();
     AccountTransferWorkflow transferWorkflow =

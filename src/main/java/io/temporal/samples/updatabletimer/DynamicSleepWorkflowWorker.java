@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 public class DynamicSleepWorkflowWorker {
 
-  static final String TASK_LIST = "TimerUpdate";
+  static final String TASK_QUEUE = "TimerUpdate";
 
   private static final Logger logger = LoggerFactory.getLogger(DynamicSleepWorkflowWorker.class);
   /** Create just one workflow instance for the sake of the sample. */
@@ -38,9 +38,9 @@ public class DynamicSleepWorkflowWorker {
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
     WorkflowClient client = WorkflowClient.newInstance(service);
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    final Worker worker = factory.newWorker(TASK_LIST);
+    final Worker worker = factory.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(DynamicSleepWorkflowImpl.class);
     factory.start();
-    logger.info("Worker started for task list: " + TASK_LIST);
+    logger.info("Worker started for task queue: " + TASK_QUEUE);
   }
 }

@@ -19,7 +19,7 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.hello.HelloException.TASK_LIST;
+import static io.temporal.samples.hello.HelloException.TASK_QUEUE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
@@ -70,7 +70,7 @@ public class HelloExceptionTest {
   @Before
   public void setUp() {
     testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(HelloException.TASK_LIST);
+    worker = testEnv.newWorker(HelloException.TASK_QUEUE);
 
     client = testEnv.getWorkflowClient();
   }
@@ -87,7 +87,7 @@ public class HelloExceptionTest {
     worker.registerActivitiesImplementations(new HelloException.GreetingActivitiesImpl());
     testEnv.start();
 
-    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build();
+    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     try {
       workflow.getGreeting("World");
@@ -116,7 +116,7 @@ public class HelloExceptionTest {
 
     testEnv.start();
 
-    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build();
+    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     try {
       workflow.getGreeting("World");
@@ -150,7 +150,7 @@ public class HelloExceptionTest {
 
     testEnv.start();
 
-    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build();
+    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     try {
       workflow.getGreeting("World");

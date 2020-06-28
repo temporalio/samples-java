@@ -19,7 +19,7 @@
 
 package io.temporal.samples.fileprocessing;
 
-import static io.temporal.samples.fileprocessing.FileProcessingWorker.TASK_LIST;
+import static io.temporal.samples.fileprocessing.FileProcessingWorker.TASK_QUEUE;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
@@ -37,7 +37,7 @@ public class FileProcessingStarter {
     FileProcessingWorkflow workflow =
         client.newWorkflowStub(
             FileProcessingWorkflow.class,
-            WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
+            WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
 
     System.out.println("Executing FileProcessingWorkflow");
 
