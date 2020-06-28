@@ -20,7 +20,7 @@
 package io.temporal.samples.updatabletimer;
 
 import static io.temporal.samples.updatabletimer.DynamicSleepWorkflowWorker.DYNAMIC_SLEEP_WORKFLOW_ID;
-import static io.temporal.samples.updatabletimer.DynamicSleepWorkflowWorker.TASK_LIST;
+import static io.temporal.samples.updatabletimer.DynamicSleepWorkflowWorker.TASK_QUEUE;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowExecutionAlreadyStarted;
@@ -43,7 +43,7 @@ public class DynamicSleepWorkflowStarter {
         client.newWorkflowStub(
             DynamicSleepWorkflow.class,
             WorkflowOptions.newBuilder()
-                .setTaskList(TASK_LIST)
+                .setTaskQueue(TASK_QUEUE)
                 .setWorkflowId(DYNAMIC_SLEEP_WORKFLOW_ID)
                 .setWorkflowIdReusePolicy(
                     WorkflowIdReusePolicy.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE)

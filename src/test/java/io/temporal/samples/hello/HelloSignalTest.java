@@ -60,7 +60,7 @@ public class HelloSignalTest {
   public void setUp() {
     testEnv = TestWorkflowEnvironment.newInstance();
 
-    worker = testEnv.newWorker(HelloSignal.TASK_LIST);
+    worker = testEnv.newWorker(HelloSignal.TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(HelloSignal.GreetingWorkflowImpl.class);
     testEnv.start();
 
@@ -74,10 +74,10 @@ public class HelloSignalTest {
 
   @Test
   public void testSignal() {
-    // Get a workflow stub using the same task list the worker uses.
+    // Get a workflow stub using the same task queue the worker uses.
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder()
-            .setTaskList(HelloSignal.TASK_LIST)
+            .setTaskQueue(HelloSignal.TASK_QUEUE)
             .setWorkflowIdReusePolicy(
                 WorkflowIdReusePolicy.WORKFLOW_ID_REUSE_POLICY_REJECT_DUPLICATE)
             .build();

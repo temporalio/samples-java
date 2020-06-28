@@ -30,21 +30,21 @@ import java.net.URL;
 /** Store activities implementation. */
 public class StoreActivitiesImpl implements StoreActivities {
 
-  private final String hostSpecificTaskList;
+  private final String hostSpecificTaskQueue;
 
-  public StoreActivitiesImpl(String taskList) {
-    this.hostSpecificTaskList = taskList;
+  public StoreActivitiesImpl(String taskQueue) {
+    this.hostSpecificTaskQueue = taskQueue;
   }
 
   @Override
-  public TaskListFileNamePair download(URL url) {
+  public TaskQueueFileNamePair download(URL url) {
     try {
       byte[] binary = Resources.toByteArray(url);
       File destination = new File(Files.createTempDir(), "downloaded");
       Files.write(binary, destination);
       System.out.println(
           "download activity: downloaded from " + url + " to " + destination.getAbsolutePath());
-      return new TaskListFileNamePair(hostSpecificTaskList, destination.getAbsolutePath());
+      return new TaskQueueFileNamePair(hostSpecificTaskQueue, destination.getAbsolutePath());
     } catch (IOException e) {
       throw Workflow.wrap(e);
     }

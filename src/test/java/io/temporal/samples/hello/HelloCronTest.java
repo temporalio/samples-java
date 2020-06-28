@@ -20,7 +20,7 @@
 package io.temporal.samples.hello;
 
 import static io.temporal.samples.hello.HelloCron.CRON_WORKFLOW_ID;
-import static io.temporal.samples.hello.HelloCron.TASK_LIST;
+import static io.temporal.samples.hello.HelloCron.TASK_QUEUE;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
@@ -67,7 +67,7 @@ public class HelloCronTest {
   @Before
   public void setUp() {
     testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(HelloCron.TASK_LIST);
+    worker = testEnv.newWorker(HelloCron.TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
     client = testEnv.getWorkflowClient();
@@ -89,7 +89,7 @@ public class HelloCronTest {
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder()
             .setCronSchedule("0 * * * *")
-            .setTaskList(TASK_LIST)
+            .setTaskQueue(TASK_QUEUE)
             .setWorkflowId(CRON_WORKFLOW_ID)
             .build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);

@@ -39,7 +39,7 @@ import org.apache.commons.lang.RandomStringUtils;
 @SuppressWarnings("ALL")
 public class HelloSignal {
 
-  static final String TASK_LIST = "HelloSignal";
+  static final String TASK_QUEUE = "HelloSignal";
 
   /** Workflow interface must have a method annotated with @WorkflowMethod. */
   @WorkflowInterface
@@ -95,7 +95,7 @@ public class HelloSignal {
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
     WorkflowClient client = WorkflowClient.newInstance(service);
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    Worker worker = factory.newWorker(TASK_LIST);
+    Worker worker = factory.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     factory.start();
 
@@ -103,10 +103,10 @@ public class HelloSignal {
     String workflowId = RandomStringUtils.randomAlphabetic(10);
 
     // Start a workflow execution. Usually this is done from another program.
-    // Get a workflow stub using the same task list the worker uses.
+    // Get a workflow stub using the same task queue the worker uses.
     // The newly started workflow is going to have the workflowId generated above.
     WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder().setTaskList(TASK_LIST).setWorkflowId(workflowId).build();
+        WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).setWorkflowId(workflowId).build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     // Start workflow asynchronously to not use another thread to signal.
     WorkflowClient.start(workflow::getGreetings);

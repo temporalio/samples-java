@@ -64,7 +64,7 @@ public class HelloAsyncLambdaTest {
   @Before
   public void setUp() {
     testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(HelloAsyncLambda.TASK_LIST);
+    worker = testEnv.newWorker(HelloAsyncLambda.TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
     client = testEnv.getWorkflowClient();
@@ -80,9 +80,9 @@ public class HelloAsyncLambdaTest {
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
     testEnv.start();
 
-    // Get a workflow stub using the same task list the worker uses.
+    // Get a workflow stub using the same task queue the worker uses.
     WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder().setTaskList(HelloAsyncLambda.TASK_LIST).build();
+        WorkflowOptions.newBuilder().setTaskQueue(HelloAsyncLambda.TASK_QUEUE).build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");
@@ -98,7 +98,7 @@ public class HelloAsyncLambdaTest {
     testEnv.start();
 
     WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder().setTaskList(HelloAsyncLambda.TASK_LIST).build();
+        WorkflowOptions.newBuilder().setTaskQueue(HelloAsyncLambda.TASK_QUEUE).build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");

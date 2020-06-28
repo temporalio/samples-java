@@ -48,7 +48,7 @@ import java.util.Random;
  */
 public class HelloPeriodic {
 
-  static final String TASK_LIST = "HelloPeriodic";
+  static final String TASK_QUEUE = "HelloPeriodic";
   static final String PERIODIC_WORKFLOW_ID = "HelloPeriodic";
 
   @WorkflowInterface
@@ -123,15 +123,15 @@ public class HelloPeriodic {
     // client that can be used to start and signal workflows
     WorkflowClient client = WorkflowClient.newInstance(service);
 
-    // worker factory that can be used to create workers for specific task lists
+    // worker factory that can be used to create workers for specific task queues
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    // Worker that listens on a task list and hosts both workflow and activity implementations.
-    Worker worker = factory.newWorker(TASK_LIST);
+    // Worker that listens on a task queue and hosts both workflow and activity implementations.
+    Worker worker = factory.newWorker(TASK_QUEUE);
     // Workflows are stateful. So you need a type to create instances.
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     // Activities are stateless and thread safe. So a shared instance is used.
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
-    // Start listening to the workflow and activity task lists.
+    // Start listening to the workflow and activity task queues.
     factory.start();
 
     // To ensure that this daemon type workflow is always running try to start it periodically
@@ -156,7 +156,7 @@ public class HelloPeriodic {
               // At most one instance.
               WorkflowOptions.newBuilder()
                   .setWorkflowId(PERIODIC_WORKFLOW_ID)
-                  .setTaskList(TASK_LIST)
+                  .setTaskQueue(TASK_QUEUE)
                   .build());
       try {
         execution = WorkflowClient.start(workflow::greetPeriodically, "World");
