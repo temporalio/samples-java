@@ -47,7 +47,7 @@ choose **Gradle** and then click **Next**->**Finish**.
 
 Run Temporal Server using Docker Compose:
 
-     curl -L https://github.com/temporalio/temporal/releases/download/v0.25.0/docker.tar.gz | tar -xz --strip-components 1 docker/docker-compose.yml
+     curl -L https://github.com/temporalio/temporal/releases/download/v0.26.0/docker.tar.gz | tar -xz --strip-components 1 docker/docker-compose.yml
      docker-compose up
 
 If this does not work, see the instructions for running Temporal Server at https://github.com/temporalio/temporal/blob/master/README.md.
