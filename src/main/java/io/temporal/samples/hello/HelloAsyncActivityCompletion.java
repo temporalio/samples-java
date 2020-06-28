@@ -43,7 +43,7 @@ import java.util.concurrent.ForkJoinPool;
  */
 public class HelloAsyncActivityCompletion {
 
-  static final String TASK_LIST = "HelloAsyncActivityCompletion";
+  static final String TASK_QUEUE = "HelloAsyncActivityCompletion";
 
   @WorkflowInterface
   public interface GreetingWorkflow {
@@ -117,24 +117,24 @@ public class HelloAsyncActivityCompletion {
     // client that can be used to start and signal workflows
     WorkflowClient client = WorkflowClient.newInstance(service);
 
-    // worker factory that can be used to create workers for specific task lists
+    // worker factory that can be used to create workers for specific task queues
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    // Worker that listens on a task list and hosts both workflow and activity implementations.
-    Worker worker = factory.newWorker(TASK_LIST);
+    // Worker that listens on a task queue and hosts both workflow and activity implementations.
+    Worker worker = factory.newWorker(TASK_QUEUE);
     // Workflows are stateful. So you need a type to create instances.
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     // Activities are stateless and thread safe. So a shared instance is used.
     // CompletionClient is passed to activity here only to support unit testing.
     ActivityCompletionClient completionClient = client.newActivityCompletionClient();
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl(completionClient));
-    // Start listening to the workflow and activity task lists.
+    // Start listening to the workflow and activity task queues.
     factory.start();
 
     // Start a workflow execution. Usually this is done from another program.
-    // Uses task list from the GreetingWorkflow @WorkflowMethod annotation.
+    // Uses task queue from the GreetingWorkflow @WorkflowMethod annotation.
     GreetingWorkflow workflow =
         client.newWorkflowStub(
-            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
+            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
     // Execute a workflow asynchronously returning a future that can be used to wait for the
     // workflow
     // completion.

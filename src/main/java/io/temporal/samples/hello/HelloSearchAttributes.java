@@ -48,7 +48,7 @@ import java.util.UUID;
  */
 public class HelloSearchAttributes {
 
-  static final String TASK_LIST = "HelloSearchAttributes";
+  static final String TASK_QUEUE = "HelloSearchAttributes";
 
   /** Workflow interface has to have at least one method annotated with @WorkflowMethod. */
   @WorkflowInterface
@@ -98,26 +98,26 @@ public class HelloSearchAttributes {
     // client that can be used to start and signal workflows
     WorkflowClient client = WorkflowClient.newInstance(service);
 
-    // worker factory that can be used to create workers for specific task lists
+    // worker factory that can be used to create workers for specific task queues
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    // Worker that listens on a task list and hosts both workflow and activity implementations.
-    Worker worker = factory.newWorker(TASK_LIST);
+    // Worker that listens on a task queue and hosts both workflow and activity implementations.
+    Worker worker = factory.newWorker(TASK_QUEUE);
     // Workflows are stateful. So you need a type to create instances.
     worker.registerWorkflowImplementationTypes(HelloSearchAttributes.GreetingWorkflowImpl.class);
     // Activities are stateless and thread safe. So a shared instance is used.
     worker.registerActivitiesImplementations(new HelloSearchAttributes.GreetingActivitiesImpl());
-    // Start listening to the workflow and activity task lists.
+    // Start listening to the workflow and activity task queues.
     factory.start();
 
     // Set search attributes in workflowOptions
     String workflowID = UUID.randomUUID().toString();
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder()
-            .setTaskList(TASK_LIST)
+            .setTaskQueue(TASK_QUEUE)
             .setWorkflowId(workflowID)
             .setSearchAttributes(generateSearchAttributes())
             .build();
-    // Get a workflow stub using the same task list the worker uses.
+    // Get a workflow stub using the same task queue the worker uses.
     HelloSearchAttributes.GreetingWorkflow workflow =
         client.newWorkflowStub(HelloSearchAttributes.GreetingWorkflow.class, workflowOptions);
     // Execute a workflow waiting for it to complete.

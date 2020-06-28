@@ -19,7 +19,7 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.hello.HelloAsyncActivityCompletion.TASK_LIST;
+import static io.temporal.samples.hello.HelloAsyncActivityCompletion.TASK_QUEUE;
 import static org.junit.Assert.assertEquals;
 
 import io.temporal.client.ActivityCompletionClient;
@@ -65,7 +65,7 @@ public class HelloAsyncActivityCompletionTest {
   @Before
   public void setUp() {
     testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(TASK_LIST);
+    worker = testEnv.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
     client = testEnv.getWorkflowClient();
@@ -84,7 +84,7 @@ public class HelloAsyncActivityCompletionTest {
 
     GreetingWorkflow workflow =
         client.newWorkflowStub(
-            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
+            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
     // Execute a workflow asynchronously.
     CompletableFuture<String> greeting = WorkflowClient.execute(workflow::getGreeting, "World");
     // Wait for workflow completion.

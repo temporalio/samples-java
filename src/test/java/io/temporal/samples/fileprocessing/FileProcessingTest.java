@@ -19,7 +19,7 @@
 
 package io.temporal.samples.fileprocessing;
 
-import static io.temporal.samples.fileprocessing.FileProcessingWorker.TASK_LIST;
+import static io.temporal.samples.fileprocessing.FileProcessingWorker.TASK_QUEUE;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.*;
 
@@ -27,7 +27,7 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.enums.v1.TimeoutType;
 import io.temporal.failure.TimeoutFailure;
-import io.temporal.samples.fileprocessing.StoreActivities.TaskListFileNamePair;
+import io.temporal.samples.fileprocessing.StoreActivities.TaskQueueFileNamePair;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
 import java.net.MalformedURLException;
@@ -86,7 +86,7 @@ public class FileProcessingTest {
   @Before
   public void setUp() {
     testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(TASK_LIST);
+    worker = testEnv.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(FileProcessingWorkflowImpl.class);
     workerHost1 = testEnv.newWorker(HOST_NAME_1);
     workerHost2 = testEnv.newWorker(HOST_NAME_2);
@@ -103,7 +103,7 @@ public class FileProcessingTest {
   public void testHappyPath() {
     StoreActivities activities = mock(StoreActivities.class);
     when(activities.download(anyObject()))
-        .thenReturn(new TaskListFileNamePair(HOST_NAME_1, FILE_NAME_UNPROCESSED));
+        .thenReturn(new TaskQueueFileNamePair(HOST_NAME_1, FILE_NAME_UNPROCESSED));
     worker.registerActivitiesImplementations(activities);
 
     StoreActivities activitiesHost1 = mock(StoreActivities.class);
@@ -117,7 +117,7 @@ public class FileProcessingTest {
     FileProcessingWorkflow workflow =
         client.newWorkflowStub(
             FileProcessingWorkflow.class,
-            WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
+            WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
 
     // Execute workflow waiting for completion.
     workflow.processFile(SOURCE, DESTINATION);
@@ -135,8 +135,8 @@ public class FileProcessingTest {
   public void testHostFailover() {
     StoreActivities activities = mock(StoreActivities.class);
     when(activities.download(anyObject()))
-        .thenReturn(new TaskListFileNamePair(HOST_NAME_1, FILE_NAME_UNPROCESSED))
-        .thenReturn(new TaskListFileNamePair(HOST_NAME_2, FILE_NAME_UNPROCESSED));
+        .thenReturn(new TaskQueueFileNamePair(HOST_NAME_1, FILE_NAME_UNPROCESSED))
+        .thenReturn(new TaskQueueFileNamePair(HOST_NAME_2, FILE_NAME_UNPROCESSED));
 
     worker.registerActivitiesImplementations(activities);
 
@@ -156,7 +156,7 @@ public class FileProcessingTest {
     FileProcessingWorkflow workflow =
         client.newWorkflowStub(
             FileProcessingWorkflow.class,
-            WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
+            WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
 
     workflow.processFile(SOURCE, DESTINATION);
 

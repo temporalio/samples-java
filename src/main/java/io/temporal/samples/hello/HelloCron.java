@@ -42,7 +42,7 @@ import java.time.Duration;
  */
 public class HelloCron {
 
-  static final String TASK_LIST = "HelloCron";
+  static final String TASK_QUEUE = "HelloCron";
   static final String CRON_WORKFLOW_ID = "HelloCron";
 
   @WorkflowInterface
@@ -93,15 +93,15 @@ public class HelloCron {
     // client that can be used to start and signal workflows
     WorkflowClient client = WorkflowClient.newInstance(service);
 
-    // worker factory that can be used to create workers for specific task lists
+    // worker factory that can be used to create workers for specific task queues
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    // Worker that listens on a task list and hosts both workflow and activity implementations.
-    Worker worker = factory.newWorker(TASK_LIST);
+    // Worker that listens on a task queue and hosts both workflow and activity implementations.
+    Worker worker = factory.newWorker(TASK_QUEUE);
     // Workflows are stateful. So you need a type to create instances.
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     // Activities are stateless and thread safe. So a shared instance is used.
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
-    // Start listening to the workflow and activity task lists.
+    // Start listening to the workflow and activity task queues.
     factory.start();
 
     // Sets the cron schedule using the WorkflowOptions.
@@ -113,7 +113,7 @@ public class HelloCron {
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder()
             .setWorkflowId(CRON_WORKFLOW_ID)
-            .setTaskList(TASK_LIST)
+            .setTaskQueue(TASK_QUEUE)
             .setCronSchedule("* * * * *")
             // Execution timeout limits total time. Cron will stop executing after this timeout.
             .setWorkflowExecutionTimeout(Duration.ofMinutes(10))

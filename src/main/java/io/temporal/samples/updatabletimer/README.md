@@ -22,7 +22,7 @@ Then in a different terminal window start the workflow instance:
 Check the output of the worker window. The expected output is:
 
 ```bash
-10:38:56.282 [main] INFO  i.t.s.timerupdate.DynamicSleepWorker - Worker started for task list: TimerUpdate
+10:38:56.282 [main] INFO  i.t.s.timerupdate.DynamicSleepWorker - Worker started for task queue: TimerUpdate
 10:39:07.359 [workflow-732875527] INFO  i.t.s.t.DynamicSleepWorkflowImpl - sleepUntil: Thu May 28 10:40:06 PDT 2020
 10:39:07.360 [workflow-732875527] INFO  i.t.s.t.DynamicSleepWorkflowImpl - Going to sleep for PT59.688S
 ```

@@ -26,7 +26,7 @@ import io.temporal.worker.WorkerFactory;
 
 public class AccountActivityWorker {
 
-  static final String TASK_LIST = "Account";
+  static final String TASK_QUEUE = "Account";
 
   @SuppressWarnings("CatchAndPrintStackTrace")
   public static void main(String[] args) {
@@ -34,12 +34,12 @@ public class AccountActivityWorker {
     WorkflowClient client = WorkflowClient.newInstance(service);
 
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    Worker worker = factory.newWorker(TASK_LIST);
+    Worker worker = factory.newWorker(TASK_QUEUE);
 
     Account account = new AccountImpl();
     worker.registerActivitiesImplementations(account);
 
     factory.start();
-    System.out.println("Activity Worker started for task list: " + TASK_LIST);
+    System.out.println("Activity Worker started for task queue: " + TASK_QUEUE);
   }
 }
