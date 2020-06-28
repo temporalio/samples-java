@@ -107,7 +107,7 @@ import java.time.Duration;
  */
 public class HelloException {
 
-  static final String TASK_LIST = "HelloException";
+  static final String TASK_QUEUE = "HelloException";
 
   @WorkflowInterface
   public interface GreetingWorkflow {
@@ -169,15 +169,15 @@ public class HelloException {
     // client that can be used to start and signal workflows
     WorkflowClient client = WorkflowClient.newInstance(service);
 
-    // worker factory that can be used to create workers for specific task lists
+    // worker factory that can be used to create workers for specific task queues
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    // Worker that listens on a task list and hosts both workflow and activity implementations.
-    Worker worker = factory.newWorker(TASK_LIST);
+    // Worker that listens on a task queue and hosts both workflow and activity implementations.
+    Worker worker = factory.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class, GreetingChildImpl.class);
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
     factory.start();
 
-    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build();
+    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     try {
       workflow.getGreeting("World");

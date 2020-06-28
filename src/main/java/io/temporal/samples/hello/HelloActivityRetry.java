@@ -39,7 +39,7 @@ import java.time.Duration;
  */
 public class HelloActivityRetry {
 
-  static final String TASK_LIST = "HelloActivityRetry";
+  static final String TASK_QUEUE = "HelloActivityRetry";
 
   @WorkflowInterface
   public interface GreetingWorkflow {
@@ -109,19 +109,19 @@ public class HelloActivityRetry {
     // client that can be used to start and signal workflows
     WorkflowClient client = WorkflowClient.newInstance(service);
 
-    // worker factory that can be used to create workers for specific task lists
+    // worker factory that can be used to create workers for specific task queues
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    // Worker that listens on a task list and hosts both workflow and activity implementations.
-    Worker worker = factory.newWorker(TASK_LIST);
+    // Worker that listens on a task queue and hosts both workflow and activity implementations.
+    Worker worker = factory.newWorker(TASK_QUEUE);
     // Workflows are stateful. So you need a type to create instances.
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     // Activities are stateless and thread safe. So a shared instance is used.
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
-    // Start listening to the workflow and activity task lists.
+    // Start listening to the workflow and activity task queues.
     factory.start();
 
-    // Get a workflow stub using the same task list the worker uses.
-    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build();
+    // Get a workflow stub using the same task queue the worker uses.
+    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");

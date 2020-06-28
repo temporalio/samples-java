@@ -19,7 +19,7 @@
 
 package io.temporal.samples.moneytransfer;
 
-import static io.temporal.samples.moneytransfer.AccountActivityWorker.TASK_LIST;
+import static io.temporal.samples.moneytransfer.AccountActivityWorker.TASK_QUEUE;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -41,7 +41,7 @@ public class TransferWorkflowTest {
   @Before
   public void setUp() {
     testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(TASK_LIST);
+    worker = testEnv.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(AccountTransferWorkflowImpl.class);
 
     workflowClient = testEnv.getWorkflowClient();
@@ -57,7 +57,7 @@ public class TransferWorkflowTest {
     Account activities = mock(Account.class);
     worker.registerActivitiesImplementations(activities);
     testEnv.start();
-    WorkflowOptions options = WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build();
+    WorkflowOptions options = WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build();
     AccountTransferWorkflow workflow =
         workflowClient.newWorkflowStub(AccountTransferWorkflow.class, options);
     long starty = testEnv.currentTimeMillis();

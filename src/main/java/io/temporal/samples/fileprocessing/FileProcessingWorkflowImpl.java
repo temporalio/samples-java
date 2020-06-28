@@ -30,23 +30,23 @@ import java.util.Optional;
  * This implementation of FileProcessingWorkflow downloads the file, zips it, and uploads it to a
  * destination. An important requirement for such a workflow is that while a first activity can run
  * on any host, the second and third must run on the same host as the first one. This is achieved
- * through use of a host specific task list. The first activity returns the name of the host
- * specific task list and all other activities are dispatched using the stub that is configured with
- * it. This assumes that FileProcessingWorker has a worker running on the same task list.
+ * through use of a host specific task queue. The first activity returns the name of the host
+ * specific task queue and all other activities are dispatched using the stub that is configured
+ * with it. This assumes that FileProcessingWorker has a worker running on the same task queue.
  */
 public class FileProcessingWorkflowImpl implements FileProcessingWorkflow {
 
-  // Uses the default task list shared by the pool of workers.
-  private final StoreActivities defaultTaskListStore;
+  // Uses the default task queue shared by the pool of workers.
+  private final StoreActivities defaultTaskQueueStore;
 
   public FileProcessingWorkflowImpl() {
     // Create activity clients.
     ActivityOptions ao =
         ActivityOptions.newBuilder()
             .setScheduleToCloseTimeout(Duration.ofSeconds(10))
-            .setTaskList(FileProcessingWorker.TASK_LIST)
+            .setTaskQueue(FileProcessingWorker.TASK_QUEUE)
             .build();
-    this.defaultTaskListStore = Workflow.newActivityStub(StoreActivities.class, ao);
+    this.defaultTaskQueueStore = Workflow.newActivityStub(StoreActivities.class, ao);
   }
 
   @Override
@@ -61,19 +61,19 @@ public class FileProcessingWorkflowImpl implements FileProcessingWorkflow {
   }
 
   private void processFileImpl(URL source, URL destination) {
-    StoreActivities.TaskListFileNamePair downloaded = defaultTaskListStore.download(source);
+    StoreActivities.TaskQueueFileNamePair downloaded = defaultTaskQueueStore.download(source);
 
-    // Now initialize stubs that are specific to the returned task list.
+    // Now initialize stubs that are specific to the returned task queue.
     ActivityOptions hostActivityOptions =
         ActivityOptions.newBuilder()
-            .setTaskList(downloaded.getHostTaskList())
+            .setTaskQueue(downloaded.getHostTaskQueue())
             .setScheduleToCloseTimeout(Duration.ofSeconds(10))
             .build();
     StoreActivities hostSpecificStore =
         Workflow.newActivityStub(StoreActivities.class, hostActivityOptions);
 
     // Call processFile activity to zip the file.
-    // Call the activity to process the file using worker-specific task list.
+    // Call the activity to process the file using worker-specific task queue.
     String processed = hostSpecificStore.process(downloaded.getFileName());
     // Call upload activity to upload the zipped file.
     hostSpecificStore.upload(processed, destination);

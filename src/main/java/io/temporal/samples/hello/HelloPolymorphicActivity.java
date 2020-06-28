@@ -41,7 +41,7 @@ import java.time.Duration;
  */
 public class HelloPolymorphicActivity {
 
-  static final String TASK_LIST = "HelloPolymorphicActivity";
+  static final String TASK_QUEUE = "HelloPolymorphicActivity";
 
   @WorkflowInterface
   public interface GreetingWorkflow {
@@ -119,22 +119,22 @@ public class HelloPolymorphicActivity {
     // client that can be used to start and signal workflows
     WorkflowClient client = WorkflowClient.newInstance(service);
 
-    // worker factory that can be used to create workers for specific task lists
+    // worker factory that can be used to create workers for specific task queues
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    // Worker that listens on a task list and hosts both workflow and activity implementations.
-    Worker worker = factory.newWorker(TASK_LIST);
+    // Worker that listens on a task queue and hosts both workflow and activity implementations.
+    Worker worker = factory.newWorker(TASK_QUEUE);
     // Workflows are stateful. So you need a type to create instances.
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     // Activities are stateless and thread safe. So a shared instance is used.
     worker.registerActivitiesImplementations(new HelloActivityImpl(), new ByeActivityImpl());
-    // Start listening to the workflow and activity task lists.
+    // Start listening to the workflow and activity task queues.
     factory.start();
 
     // Start a workflow execution. Usually this is done from another program.
-    // Uses task list from the GreetingWorkflow @WorkflowMethod annotation.
+    // Uses task queue from the GreetingWorkflow @WorkflowMethod annotation.
     GreetingWorkflow workflow =
         client.newWorkflowStub(
-            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
+            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
     // Execute a workflow waiting for it to complete. See {@link
     // io.temporal.samples.hello.HelloSignal}
     // for an example of starting workflow without waiting synchronously for its result.

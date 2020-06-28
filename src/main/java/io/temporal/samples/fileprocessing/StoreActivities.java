@@ -25,20 +25,20 @@ import java.net.URL;
 @ActivityInterface
 public interface StoreActivities {
 
-  final class TaskListFileNamePair {
-    private String hostTaskList;
+  final class TaskQueueFileNamePair {
+    private String hostTaskQueue;
     private String fileName;
 
-    public TaskListFileNamePair(String hostTaskList, String fileName) {
-      this.hostTaskList = hostTaskList;
+    public TaskQueueFileNamePair(String hostTaskQueue, String fileName) {
+      this.hostTaskQueue = hostTaskQueue;
       this.fileName = fileName;
     }
 
     /** Jackson needs it */
-    public TaskListFileNamePair() {}
+    public TaskQueueFileNamePair() {}
 
-    public String getHostTaskList() {
-      return hostTaskList;
+    public String getHostTaskQueue() {
+      return hostTaskQueue;
     }
 
     public String getFileName() {
@@ -65,7 +65,7 @@ public interface StoreActivities {
    * Downloads file to local disk.
    *
    * @param url remote file location
-   * @return local task list and downloaded file name
+   * @return local task queue and downloaded file name
    */
-  TaskListFileNamePair download(URL url);
+  TaskQueueFileNamePair download(URL url);
 }
