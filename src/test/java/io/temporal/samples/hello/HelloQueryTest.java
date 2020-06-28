@@ -58,10 +58,10 @@ public class HelloQueryTest {
   public void setUp() {
     testEnv = TestWorkflowEnvironment.newInstance();
 
-    worker = testEnv.newWorker(HelloQuery.TASK_LIST);
+    worker = testEnv.newWorker(HelloQuery.TASK_QUEUE);
     // Comment the above line and uncomment the below one to see how the TestWatcher rule prints
     // the history of the stuck workflow as its decision task is never picked up.
-    // worker = testEnv.newWorker("InvalidTaskList");
+    // worker = testEnv.newWorker("InvalidTaskQueue");
 
     worker.registerWorkflowImplementationTypes(HelloQuery.GreetingWorkflowImpl.class);
     testEnv.start();
@@ -76,9 +76,9 @@ public class HelloQueryTest {
 
   @Test(timeout = 5000)
   public void testQuery() {
-    // Get a workflow stub using the same task list the worker uses.
+    // Get a workflow stub using the same task queue the worker uses.
     WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder().setTaskList(HelloQuery.TASK_LIST).build();
+        WorkflowOptions.newBuilder().setTaskQueue(HelloQuery.TASK_QUEUE).build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
 
     // Start workflow asynchronously to not use another thread to query.

@@ -34,32 +34,32 @@ import java.lang.management.ManagementFactory;
  */
 public class FileProcessingWorker {
 
-  static final String TASK_LIST = "FileProcessing";
+  static final String TASK_QUEUE = "FileProcessing";
 
   public static void main(String[] args) {
 
-    String hostSpecifiTaskList = ManagementFactory.getRuntimeMXBean().getName();
+    String hostSpecifiTaskQueue = ManagementFactory.getRuntimeMXBean().getName();
 
     // gRPC stubs wrapper that talks to the local docker instance of temporal service.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
     // client that can be used to start and signal workflows
     WorkflowClient client = WorkflowClient.newInstance(service);
 
-    // worker factory that can be used to create workers for specific task lists
+    // worker factory that can be used to create workers for specific task queues
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    // Worker that listens on a task list and hosts both workflow and activity implementations.
-    final Worker workerForCommonTaskList = factory.newWorker(TASK_LIST);
-    workerForCommonTaskList.registerWorkflowImplementationTypes(FileProcessingWorkflowImpl.class);
-    StoreActivitiesImpl storeActivityImpl = new StoreActivitiesImpl(hostSpecifiTaskList);
-    workerForCommonTaskList.registerActivitiesImplementations(storeActivityImpl);
+    // Worker that listens on a task queue and hosts both workflow and activity implementations.
+    final Worker workerForCommonTaskQueue = factory.newWorker(TASK_QUEUE);
+    workerForCommonTaskQueue.registerWorkflowImplementationTypes(FileProcessingWorkflowImpl.class);
+    StoreActivitiesImpl storeActivityImpl = new StoreActivitiesImpl(hostSpecifiTaskQueue);
+    workerForCommonTaskQueue.registerActivitiesImplementations(storeActivityImpl);
 
-    // Get worker to poll the host-specific task list.
-    final Worker workerForHostSpecificTaskList = factory.newWorker(hostSpecifiTaskList);
-    workerForHostSpecificTaskList.registerActivitiesImplementations(storeActivityImpl);
+    // Get worker to poll the host-specific task queue.
+    final Worker workerForHostSpecificTaskQueue = factory.newWorker(hostSpecifiTaskQueue);
+    workerForHostSpecificTaskQueue.registerActivitiesImplementations(storeActivityImpl);
 
     // Start all workers created by this factory.
     factory.start();
-    System.out.println("Worker started for task list: " + TASK_LIST);
-    System.out.println("Worker Started for activity task List: " + hostSpecifiTaskList);
+    System.out.println("Worker started for task queue: " + TASK_QUEUE);
+    System.out.println("Worker Started for activity task Queue: " + hostSpecifiTaskQueue);
   }
 }

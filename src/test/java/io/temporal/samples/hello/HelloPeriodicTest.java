@@ -20,7 +20,7 @@
 package io.temporal.samples.hello;
 
 import static io.temporal.samples.hello.HelloPeriodic.PERIODIC_WORKFLOW_ID;
-import static io.temporal.samples.hello.HelloPeriodic.TASK_LIST;
+import static io.temporal.samples.hello.HelloPeriodic.TASK_QUEUE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
@@ -74,7 +74,7 @@ public class HelloPeriodicTest {
   @Before
   public void setUp() {
     testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(TASK_LIST);
+    worker = testEnv.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
     client = testEnv.getWorkflowClient();
@@ -90,12 +90,12 @@ public class HelloPeriodicTest {
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
     testEnv.start();
 
-    // Get a workflow stub using the same task list the worker uses.
+    // Get a workflow stub using the same task queue the worker uses.
     GreetingWorkflow workflow =
         client.newWorkflowStub(
             GreetingWorkflow.class,
             WorkflowOptions.newBuilder()
-                .setTaskList(TASK_LIST)
+                .setTaskQueue(TASK_QUEUE)
                 .setWorkflowId(PERIODIC_WORKFLOW_ID)
                 .build());
     // Execute a workflow waiting for it to complete.
@@ -125,12 +125,12 @@ public class HelloPeriodicTest {
     worker.registerActivitiesImplementations(activities);
     testEnv.start();
 
-    // Get a workflow stub using the same task list the worker uses.
+    // Get a workflow stub using the same task queue the worker uses.
     GreetingWorkflow workflow =
         client.newWorkflowStub(
             GreetingWorkflow.class,
             WorkflowOptions.newBuilder()
-                .setTaskList(TASK_LIST)
+                .setTaskQueue(TASK_QUEUE)
                 .setWorkflowId(PERIODIC_WORKFLOW_ID)
                 .build());
     // Execute a workflow waiting for it to complete.

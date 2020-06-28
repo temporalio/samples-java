@@ -61,7 +61,7 @@ public class HelloActivityRetryTest {
   @Before
   public void setUp() {
     testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(HelloActivityRetry.TASK_LIST);
+    worker = testEnv.newWorker(HelloActivityRetry.TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
     client = testEnv.getWorkflowClient();
@@ -78,7 +78,7 @@ public class HelloActivityRetryTest {
     testEnv.start();
 
     WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder().setTaskList(HelloActivityRetry.TASK_LIST).build();
+        WorkflowOptions.newBuilder().setTaskQueue(HelloActivityRetry.TASK_QUEUE).build();
 
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     // Execute a workflow waiting for it to complete.
@@ -98,9 +98,9 @@ public class HelloActivityRetryTest {
     worker.registerActivitiesImplementations(activities);
     testEnv.start();
 
-    // Get a workflow stub using the same task list the worker uses.
+    // Get a workflow stub using the same task queue the worker uses.
     WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder().setTaskList(HelloActivityRetry.TASK_LIST).build();
+        WorkflowOptions.newBuilder().setTaskQueue(HelloActivityRetry.TASK_QUEUE).build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");
