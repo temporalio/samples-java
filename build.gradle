@@ -1,7 +1,10 @@
+// Run 'gradle checkUpdates' to find out which dependencies have newer versions
+
 plugins {
     id 'net.minecrell.licenser' version '0.4.1'
     id 'com.github.sherter.google-java-format' version '0.8'
     id "net.ltgt.errorprone" version "0.6"
+    id 'name.remal.check-updates' version '1.0.200'
 }
 
 apply plugin: 'java'
