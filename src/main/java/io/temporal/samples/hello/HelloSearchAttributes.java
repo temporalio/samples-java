@@ -38,7 +38,8 @@ import io.temporal.workflowservice.v1.DescribeWorkflowExecutionRequest;
 import io.temporal.workflowservice.v1.DescribeWorkflowExecutionResponse;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -53,7 +54,6 @@ public class HelloSearchAttributes {
   /** Workflow interface has to have at least one method annotated with @WorkflowMethod. */
   @WorkflowInterface
   public interface GreetingWorkflow {
-    /** @return greeting string */
     @WorkflowMethod
     String getGreeting(String name);
   }
@@ -161,7 +161,8 @@ public class HelloSearchAttributes {
 
   // CustomDatetimeField takes times encoded in the  RFC 3339 format.
   private static String generateDateTimeFieldValue() {
-    return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").format(new Date());
+    return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+        .format(LocalDateTime.now(ZoneId.systemDefault()));
   }
 
   // example for extract value from search attributes

@@ -67,12 +67,6 @@ public class HelloCron {
             GreetingActivities.class,
             ActivityOptions.newBuilder().setScheduleToCloseTimeout(Duration.ofSeconds(10)).build());
 
-    /**
-     * Stub used to terminate this workflow run and create the next one with the same ID atomically.
-     */
-    private final GreetingWorkflow continueAsNew =
-        Workflow.newContinueAsNewStub(GreetingWorkflow.class);
-
     @Override
     public void greet(String name) {
       activities.greet("Hello " + name + "!");

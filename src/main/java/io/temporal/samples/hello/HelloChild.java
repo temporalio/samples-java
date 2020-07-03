@@ -40,7 +40,6 @@ public class HelloChild {
   /** The parent workflow interface. */
   @WorkflowInterface
   public interface GreetingWorkflow {
-    /** @return greeting string */
     @WorkflowMethod
     String getGreeting(String name);
   }
