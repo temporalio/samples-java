@@ -1,7 +1,10 @@
+// Run 'gradle checkUpdates' to find out which dependencies have newer versions
+
 plugins {
     id 'net.minecrell.licenser' version '0.4.1'
-    id 'com.github.sherter.google-java-format' version '0.8'
-    id "net.ltgt.errorprone" version "0.6"
+    id 'com.github.sherter.google-java-format' version '0.9'
+    id "net.ltgt.errorprone" version "1.2.1"
+    id 'name.remal.check-updates' version '1.0.201'
 }
 
 apply plugin: 'java'
@@ -27,16 +30,16 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'io.temporal', name: 'temporal-sdk', version: '0.25.0-SNAPSHOT'
-    implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.9'
+    implementation group: 'io.temporal', name: 'temporal-sdk', version: '0.26.0-SNAPSHOT'
+    implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
     implementation  group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 
-    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'junit', name: 'junit', version: '4.13'
     testImplementation group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
-    testImplementation group: 'org.powermock', name: 'powermock-api-mockito', version: '1.7.3'
+    testImplementation group: 'org.powermock', name: 'powermock-api-mockito', version: '1.7.4'
 
     errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
-    errorprone("com.google.errorprone:error_prone_core:2.3.1")
+    errorprone("com.google.errorprone:error_prone_core:2.4.0")
 }
 
 compileJava {
