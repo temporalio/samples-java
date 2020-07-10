@@ -81,7 +81,7 @@ public class HelloCron {
     }
   }
 
-  public static void main(String[] args) throws InterruptedException {
+  public static void main(String[] args) {
     // gRPC stubs wrapper that talks to the local docker instance of temporal service.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
     // client that can be used to start and signal workflows
