@@ -21,9 +21,9 @@ package io.temporal.samples.hello;
 
 import static org.junit.Assert.assertEquals;
 
+import io.temporal.api.enums.v1.WorkflowIdReusePolicy;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.enums.v1.WorkflowIdReusePolicy;
 import io.temporal.samples.hello.HelloSignal.GreetingWorkflow;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
