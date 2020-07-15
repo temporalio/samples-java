@@ -22,11 +22,11 @@ package io.temporal.samples.updatabletimer;
 import static io.temporal.samples.updatabletimer.DynamicSleepWorkflowWorker.DYNAMIC_SLEEP_WORKFLOW_ID;
 import static io.temporal.samples.updatabletimer.DynamicSleepWorkflowWorker.TASK_QUEUE;
 
+import io.temporal.api.common.v1.WorkflowExecution;
+import io.temporal.api.enums.v1.WorkflowIdReusePolicy;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowExecutionAlreadyStarted;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.common.v1.WorkflowExecution;
-import io.temporal.enums.v1.WorkflowIdReusePolicy;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

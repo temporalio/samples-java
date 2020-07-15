@@ -43,7 +43,6 @@ public class HelloActivity {
   /** Workflow interface has to have at least one method annotated with @WorkflowMethod. */
   @WorkflowInterface
   public interface GreetingWorkflow {
-    /** @return greeting string */
     @WorkflowMethod
     String getGreeting(String name);
   }

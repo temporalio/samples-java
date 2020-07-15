@@ -22,23 +22,24 @@ package io.temporal.samples.hello;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityMethod;
 import io.temporal.activity.ActivityOptions;
+import io.temporal.api.common.v1.Payload;
+import io.temporal.api.common.v1.SearchAttributes;
+import io.temporal.api.common.v1.WorkflowExecution;
+import io.temporal.api.workflowservice.v1.DescribeWorkflowExecutionRequest;
+import io.temporal.api.workflowservice.v1.DescribeWorkflowExecutionResponse;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.common.converter.DataConverter;
-import io.temporal.common.v1.Payload;
-import io.temporal.common.v1.SearchAttributes;
-import io.temporal.common.v1.WorkflowExecution;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
-import io.temporal.workflowservice.v1.DescribeWorkflowExecutionRequest;
-import io.temporal.workflowservice.v1.DescribeWorkflowExecutionResponse;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -53,7 +54,6 @@ public class HelloSearchAttributes {
   /** Workflow interface has to have at least one method annotated with @WorkflowMethod. */
   @WorkflowInterface
   public interface GreetingWorkflow {
-    /** @return greeting string */
     @WorkflowMethod
     String getGreeting(String name);
   }
@@ -161,7 +161,8 @@ public class HelloSearchAttributes {
 
   // CustomDatetimeField takes times encoded in the  RFC 3339 format.
   private static String generateDateTimeFieldValue() {
-    return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").format(new Date());
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
+    return ZonedDateTime.now(ZoneId.systemDefault()).format(formatter);
   }
 
   // example for extract value from search attributes

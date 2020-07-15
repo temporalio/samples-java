@@ -45,8 +45,8 @@ public class HelloSignal {
   @WorkflowInterface
   public interface GreetingWorkflow {
     /**
-     * @return list of greeting strings that were received through the waitForNameMethod. This
-     *     method will block until the number of greetings specified are received.
+     * list of greeting strings that were received through the waitForNameMethod. This method will
+     * block until the number of greetings specified are received.
      */
     @WorkflowMethod
     List<String> getGreetings();

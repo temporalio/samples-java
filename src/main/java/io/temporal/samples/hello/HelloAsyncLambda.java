@@ -43,7 +43,6 @@ public class HelloAsyncLambda {
 
   @WorkflowInterface
   public interface GreetingWorkflow {
-    /** @return greeting string */
     @WorkflowMethod
     String getGreeting(String name);
   }

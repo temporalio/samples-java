@@ -25,9 +25,9 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
+import io.temporal.api.common.v1.WorkflowExecution;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.common.v1.WorkflowExecution;
 import io.temporal.samples.hello.HelloCron.GreetingActivities;
 import io.temporal.samples.hello.HelloCron.GreetingWorkflow;
 import io.temporal.samples.hello.HelloCron.GreetingWorkflowImpl;
