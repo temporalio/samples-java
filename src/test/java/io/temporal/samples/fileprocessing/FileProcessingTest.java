@@ -23,9 +23,9 @@ import static io.temporal.samples.fileprocessing.FileProcessingWorker.TASK_QUEUE
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.*;
 
+import io.temporal.api.enums.v1.TimeoutType;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.enums.v1.TimeoutType;
 import io.temporal.failure.TimeoutFailure;
 import io.temporal.samples.fileprocessing.StoreActivities.TaskQueueFileNamePair;
 import io.temporal.testing.TestWorkflowEnvironment;
