@@ -93,9 +93,9 @@ public class HelloChildTest {
   @Ignore // TODO: Find out how to deal with cglib based mocks
   public void testMockedChild() {
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
-    // As new mock is created on each decision the only last one is useful to verify calls.
+    // As new mock is created on each workflow task the only last one is useful to verify calls.
     AtomicReference<GreetingChild> lastChildMock = new AtomicReference<>();
-    // Factory is called to create a new workflow object on each decision.
+    // Factory is called to create a new workflow object on each workflow task.
     worker.addWorkflowImplementationFactory(
         GreetingChild.class,
         () -> {

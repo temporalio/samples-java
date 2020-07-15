@@ -36,10 +36,10 @@ import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -161,8 +161,8 @@ public class HelloSearchAttributes {
 
   // CustomDatetimeField takes times encoded in the  RFC 3339 format.
   private static String generateDateTimeFieldValue() {
-    return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
-        .format(LocalDateTime.now(ZoneId.systemDefault()));
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
+    return ZonedDateTime.now(ZoneId.systemDefault()).format(formatter);
   }
 
   // example for extract value from search attributes

@@ -32,7 +32,7 @@ repositories {
 dependencies {
     implementation group: 'io.temporal', name: 'temporal-sdk', version: '0.26.0-SNAPSHOT'
     implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
-    implementation  group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 
     testImplementation group: 'junit', name: 'junit', version: '4.13'
     testImplementation group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
@@ -53,4 +53,29 @@ task execute(type: JavaExec) {
 
 license {
     header rootProject.file('license-header.txt')
+}
+
+task runHello {
+    doLast {
+        // Cron and Periodic are not in the list as they take long time to stop
+        ["io.temporal.samples.hello.HelloActivity",
+         "io.temporal.samples.hello.HelloActivityRetry",
+         "io.temporal.samples.hello.HelloAsync",
+         "io.temporal.samples.hello.HelloAsyncActivityCompletion",
+         "io.temporal.samples.hello.HelloAsyncLambda",
+         "io.temporal.samples.hello.HelloChild",
+         "io.temporal.samples.hello.HelloException",
+         "io.temporal.samples.hello.HelloPolymorphicActivity",
+         "io.temporal.samples.hello.HelloQuery",
+         "io.temporal.samples.hello.HelloSaga",
+         "io.temporal.samples.hello.HelloSearchAttributes",
+         "io.temporal.samples.hello.HelloSignal"
+        ].each { mainClass ->
+            println mainClass
+            javaexec {
+                classpath = sourceSets.main.runtimeClasspath
+                main = mainClass
+            }
+        }
+    }
 }

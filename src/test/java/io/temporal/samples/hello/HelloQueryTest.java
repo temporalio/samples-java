@@ -60,7 +60,7 @@ public class HelloQueryTest {
 
     worker = testEnv.newWorker(HelloQuery.TASK_QUEUE);
     // Comment the above line and uncomment the below one to see how the TestWatcher rule prints
-    // the history of the stuck workflow as its decision task is never picked up.
+    // the history of the stuck workflow as its workflow task is never picked up.
     // worker = testEnv.newWorker("InvalidTaskQueue");
 
     worker.registerWorkflowImplementationTypes(HelloQuery.GreetingWorkflowImpl.class);
