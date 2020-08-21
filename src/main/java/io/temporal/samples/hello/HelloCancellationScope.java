@@ -24,12 +24,15 @@ import io.temporal.activity.ActivityCancellationType;
 import io.temporal.activity.ActivityExecutionContext;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityOptions;
-import io.temporal.client.ActivityCancelledException;
+import io.temporal.client.ActivityCompletionException;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.failure.ActivityFailure;
+import io.temporal.failure.CanceledFailure;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import io.temporal.worker.WorkerOptions;
 import io.temporal.workflow.Async;
 import io.temporal.workflow.CancellationScope;
 import io.temporal.workflow.Promise;
@@ -47,8 +50,6 @@ import java.util.Random;
  *
  * <p>Note that ActivityOptions.cancellationType is set to WAIT_CANCELLATION_COMPLETED. Otherwise
  * the activity completion promise is not going to wait for the activity to finish cancellation.
- *
- * <p>TODO(maxim): Unit test
  */
 public class HelloCancellationScope {
 
@@ -67,7 +68,7 @@ public class HelloCancellationScope {
 
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
-    private static String[] greetings =
+    private static final String[] greetings =
         new String[] {"Hello", "Bye", "Hola", "Привет", "Oi", "Hallo"};
 
     private final GreetingActivities activities =
@@ -97,13 +98,23 @@ public class HelloCancellationScope {
       // Get the result from one of the Promises.
       String result = null;
       for (int i = 0; i < greetings.length; i++) {
-        if (results[i].isCompleted()) {
-          result = results[i].get();
+        Promise<String> r = results[i];
+        if (r.isCompleted() && r.getFailure() == null) {
+          result = r.get();
           break;
         }
       }
-      // Wait for all activities to complete.
-      Promise.allOf(results).get();
+      // Wait for all activities to complete ignoring cancellations
+      // Cannot use allOf as it fails on any promise failure
+      for (int i = 0; i < greetings.length; i++) {
+        try {
+          results[i].get();
+        } catch (ActivityFailure e) {
+          if (!(e.getCause() instanceof CanceledFailure)) {
+            throw e;
+          }
+        }
+      }
       return result;
     }
   }
@@ -114,23 +125,36 @@ public class HelloCancellationScope {
     public String composeGreeting(String greeting, String name) {
       ActivityExecutionContext context = Activity.getExecutionContext();
       Random random = new Random();
-      int count = random.nextInt(30);
-      System.out.println("Activity for " + greeting + " going to take " + count + " seconds");
-      for (int i = 0; i < count; i++) {
-        try {
-          Thread.sleep(1000);
-        } catch (InterruptedException e) {
-          // Empty
-        }
+      int seconds = random.nextInt(30) + 2;
+      System.out.println("Activity for " + greeting + " going to take " + seconds + " seconds");
+      for (int i = 0; i < seconds; i++) {
+        sleep(1);
         try {
           context.heartbeat(i);
-        } catch (ActivityCancelledException e) {
-          System.out.println("Activity for " + greeting + " was cancelled");
+        } catch (ActivityCompletionException e) {
+          // Simulate cleanup
+          seconds = random.nextInt(5);
+          System.out.println(
+              "Activity for "
+                  + greeting
+                  + " was cancelled. Cleanup is expected to take "
+                  + seconds
+                  + " seconds.");
+          sleep(seconds);
+          System.out.println("Activity for " + greeting + " finished cancellation");
           throw e;
         }
       }
       System.out.println("Activity for " + greeting + " completed");
       return greeting + " " + name + "!";
+    }
+
+    private void sleep(int seconds) {
+      try {
+        Thread.sleep(seconds * 1000);
+      } catch (InterruptedException ee) {
+        // Empty
+      }
     }
   }
 
@@ -143,7 +167,13 @@ public class HelloCancellationScope {
     // worker factory that can be used to create workers for specific task queues
     WorkerFactory factory = WorkerFactory.newInstance(client);
     // Worker that listens on a task queue and hosts both workflow and activity implementations.
-    Worker worker = factory.newWorker(TASK_QUEUE);
+    Worker worker =
+        factory.newWorker(
+            TASK_QUEUE,
+            WorkerOptions.newBuilder()
+                .setMaxConcurrentActivityExecutionSize(100)
+                .setActivityPollThreadCount(1)
+                .build());
     // Workflows are stateful. So you need a type to create instances.
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     // Activities are stateless and thread safe. So a shared instance is used.
