@@ -1,102 +1,118 @@
 # Java Temporal Samples
 These samples demonstrate various capabilities of Java Temporal client and server. You can learn more about Temporal at:
+* [temporal.io](https://temporal.io)
 * [Temporal Service](https://github.com/temporalio/temporal)
 * [Temporal Java Client](https://github.com/temporalio/temporal-java-sdk)
 * [Go Temporal Client](https://github.com/temporalio/temporal-go-sdk)
 
-## Overview of the Samples
+## Setup
 
-* **HelloWorld Samples**
+### macOS Specific
+Due to issues with default hostname resolution 
+(see [this StackOverflow question](https://stackoverflow.com/questions/33289695/inetaddress-getlocalhost-slow-to-run-30-seconds) for more details), 
+macOS Users may see gRPC `DEADLINE_EXCEEDED` errors when running the samples or any other gRPC related code.
 
-    The following samples demonstrate:
+To solve the problem add the following entries to your `/etc/hosts` file (where my-macbook is your hostname):
 
-  * **HelloActivity**: a single activity workflow
-  * **HelloActivityRetry**: how to retry an activity
-  * **HelloAsync**: how to call activities asynchronously and wait for them using Promises
-  * **HelloAsyncLambda**: how to run part of a workflow asynchronously in a separate task (thread)
-  * **HelloAsyncActivityCompletion**: an asynchronous activity implementation
-  * **HelloChild**: a child workflow
-  * **HelloException**: exception propagation and wrapping
-  * **HelloQuery**: a query
-  * **HelloSignal**: sending and handling a signal
-  * **HelloPeriodic**: a sample workflow that executes an activity periodically forever
+```conf
+127.0.0.1   my-macbook
+::1         my-macbook
+```
 
-* **FileProcessing** demonstrates task routing features. The sample workflow downloads a file, processes it, and uploads
-    the result to a destination. The first activity can be picked up by any worker. However, the second and third activities
-    must be executed on the same host as the first one.
-
-## Get the Samples
+### Get the Samples
 
 Run the following commands:
 
-     git clone https://github.com/temporalio/temporal-java-samples
-     cd temporal-java-samples
+     git clone https://github.com/temporalio/java-samples
+     cd java-samples
 
-## Import into IntelliJ
+### Build the Samples
+
+      ./gradlew build
+
+### Import into IntelliJ
 
 In the IntelliJ user interface, navigate to **File**->**New**->**Project from Existing Sources**.
 
 Select the cloned directory. In the **Import Project page**, select **Import project from external model**,
 choose **Gradle** and then click **Next**->**Finish**.
 
-## Build the Samples
+### Run Temporal Server
 
-      ./gradlew build
+Samples require Temporal service to run. We recommend a locally running version of Temporal Server 
+managed through [Docker Compose](https://docs.docker.com/compose/gettingstarted/):
 
-## Run Temporal Server
-
-Run Temporal Server using Docker Compose:
-
-     curl -L https://github.com/temporalio/temporal/releases/download/v0.26.0/docker.tar.gz | tar -xz --strip-components 1 docker/docker-compose.yml
+     curl -L https://github.com/temporalio/temporal/releases/latest/download/docker.tar.gz | tar -xz --strip-components 1 docker/docker-compose.yml
      docker-compose up
 
 If this does not work, see the instructions for running Temporal Server at https://github.com/temporalio/temporal/blob/master/README.md.
 
-## See Temporal UI (Not Available yet!)
+## See Temporal UI
 
 The Temporal Server running in a docker container includes a Web UI.
 
 Connect to [http://localhost:8088](http://localhost:8088).
 
-Enter the *sample* domain. You'll see a "No Results" page. After running any sample, change the 
-filter in the
-top right corner from "Open" to "Closed" to see the list of the completed workflows.
-
 Click on a *RUN ID* of a workflow to see more details about it. Try different view formats to get a different level
 of details about the execution history.
 
-## Install Temporal CLI
+## Install Temporal CLI (tctl)
 
-[Command Line Interface Documentation](https://docs.temporal.io/docs/08_running_temporal/02_cli)
+[Command Line Interface Documentation](https://docs.temporal.io/docs/tctl)
 
-## Run the samples
+## Samples
 
 Each sample has specific requirements for running it. The following sections contain information about
 how to run each of the samples after you've built them using the preceding instructions.
 
-Don't forget to check unit tests found under src/test/java!
+Don't forget to check unit tests found under [src/test/java](https://github.com/temporalio/java-samples/tree/master/src/test/java/io/temporal/samples)!
 
-### Hello World
+### HelloWorld
 
-To run the hello world samples:
+Each Hello World sample  demonstrates one feature of the SDK in a single file. Note that single file format is 
+used for sample brevity and is not something we recommend for real applications.
 
-    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivity
-    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivityRetry
-    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAsync
-    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAsyncActivityCompletion
-    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAsyncLambda
-    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloChild
-    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloException
-    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloPeriodic
-    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloCron
-    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloQuery
-    ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSignal
+  * **[HelloActivity](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloActivity.java)**: a single activity workflow
+  * **[HelloActivityRetry](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloActivityRetry.java)**: how to retry an activity
+  * **[HelloAsync](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloAsync.java)**: how to call activities asynchronously and wait for them using Promises
+  * **[HelloAsyncActivityCompletion](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloAsyncActivityCompletion.java)**: an asynchronous activity implementation
+  * **[HelloAsyncLambda](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloAsyncLambda.java)**: how to run part of a workflow asynchronously in a separate task (thread)
+  * **[HelloCancellationScope](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloCancellationScope.java)**: how to explicitly cancel parts of a workflow
+  * **[HelloChild](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloChild.java)**: a child workflow
+  * **[HelloCron](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloCron.java)**: a workflow that is executed according to a cron schedule
+  * **[HelloPeriodic](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloPeriodic.java)**: a workflow that executes some logic periodically 
+  * **[HelloException](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloException.java)**: exception propagation and wrapping
+  * **[HelloPolymorphicActivity](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloPolymorphicActivity.java)**: activities that extend a common interface
+  * **[HelloQuery](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloQuery.java)**: demonstrates how to query a state of a single workflow
+  * **[HelloSignal](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloSignal.java)**: sending and handling a signal
+  * **[HelloSaga](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloSaga.java)**: SAGA pattern support
+  * **[HelloSearchAttributes](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloSearchAttributes.java)**: Custom search attributes that can be used to find workflows using predicates
+  
+  To run the hello world samples:
+  
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivity
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivityRetry
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAsync
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAsyncActivityCompletion
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAsyncLambda
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloCancellationScope
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloChild
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloCron
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloException
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloPeriodic
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloPolymorphicActivity
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloQuery
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSaga
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSignal
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSearchAttributes
 
 ### File Processing
-
-This sample has two executables. Execute each command in a separate terminal window. The first command
+[FileProcessing](https://github.com/temporalio/java-samples/tree/master/src/main/java/io/temporal/samples/fileprocessing) 
+demonstrates task routing features. The sample workflow downloads a file, processes it, and uploads the result to a destination. Any worker can pick up the first activity. However, the second and third activity must be executed on the same host as the first one.
+    
+The sample has two executables. Execute each command in a separate terminal window. The first command
 runs the worker that hosts the workflow and activities implementation. To demonstrate that activities
-execute together, we recommend that you run more than one instance of this worker.
+execute together, we recommend running more than one instance of this worker.
 
     ./gradlew -q execute -PmainClass=io.temporal.samples.fileprocessing.FileProcessingWorker
 
@@ -104,24 +120,77 @@ The second command starts workflows. Each invocation starts a new workflow execu
 
     ./gradlew -q execute -PmainClass=io.temporal.samples.fileprocessing.FileProcessingStarter
     
-### Trip Booking
+### Booking SAGA
 
-Temporal implementation of the [Camunda BPMN trip booking example](https://github.com/berndruecker/trip-booking-saga-java)
-
-Demonstrates Temporal approach to SAGA.
+[Booking SAGA](https://github.com/temporalio/java-samples/tree/master/src/main/java/io/temporal/samples/bookingsaga) 
+is a Temporal take on Camunda BPMN trip booking example.
 
 To run:
 
     ./gradlew -q execute -PmainClass=io.temporal.samples.bookingsaga.TripBookingSaga
+
+### Money Transfer
+
+Basic [Money Transfer](https://github.com/temporalio/java-samples/tree/master/src/main/java/io/temporal/samples/moneytransfer) example.
+
+Money Transfer example has three separate processes. One to host workflow code, 
+another activity, and the third one to request transfers.
+
+Start workflow worker:
+
+    ./gradlew -q execute -PmainClass=io.temporal.samples.moneytransfer.AccountTransferWorker
     
-The produced exception trace is part of the sample, so don't get confused by it.
+Start activity worker:
 
-### Notes for MacOSX Users
-Due to issues with default hostname resolution (see https://stackoverflow.com/questions/33289695/inetaddress-getlocalhost-slow-to-run-30-seconds), MacOSX Users may see gRPC DEADLINE_EXCEEDED errors in normal operation.
+    ./gradlew -q execute -PmainClass=io.temporal.samples.moneytransfer.AccountActivityWorker
+    
+Execute once per requested transfer:
 
-This can be solved by adding the following entries to your `/etc/hosts` file (where my-macbook is your hostname):
+    ./gradlew -q execute -PmainClass=io.temporal.samples.moneytransfer.TransferRequester
 
-```conf
-127.0.0.1   my-macbook
-::1         my-macbook
-```
+### Money Batch
+
+[The sample](https://github.com/temporalio/java-samples/tree/master/src/main/java/io/temporal/samples/moneybatch) 
+demonstrates a situation when a single deposit should be initiated for multiple withdrawals. 
+For example, a seller might want to be paid once per fixed number of transactions. 
+The sample can be easily extended to perform a payment based on more complex criteria like a specific time 
+or accumulated amount.
+
+The sample also demonstrates *signal with start* way of starting workflows. If the workflow is already running, it 
+just receives the signal. If it is not running, then it is started first, and then the signal is delivered to it. 
+You can think about *signal with start* as a lazy way to create workflows when signaling them.
+
+Money Batch example has three separate processes. One to host workflow code, 
+another activity, and the third one to request transfers.
+
+Start workflow worker:
+
+    ./gradlew -q execute -PmainClass=io.temporal.samples.moneybatch.AccountTransferWorker
+    
+Start activity worker:
+
+    ./gradlew -q execute -PmainClass=io.temporal.samples.moneybatch.AccountActivityWorker
+    
+Execute at least three times to request three transfers (example batch size):
+
+    ./gradlew -q execute -PmainClass=io.temporal.samples.moneybatch.TransferRequester
+
+### Updatable Timer
+
+The [Updatable Timer](https://github.com/temporalio/java-samples/tree/master/src/main/java/io/temporal/samples/updatabletimer) sample
+demonstrates a helper class which relies on Workflow.await to implement a blocking sleep that can be updated at any moment.
+
+Money Batch example has three separate processes. One to host workflow code, 
+another to start workflow execution, and the third one to send signals to request timer updates.
+
+Start workflow worker:
+
+    ./gradlew -q execute -PmainClass=io.temporal.samples.updatabletimer.DynamicSleepWorkflowWorker
+    
+Start workflow execution:
+
+    ./gradlew -q execute -PmainClass=io.temporal.samples.updatabletimer.DynamicSleepWorkflowStarter
+    
+Extend timer duration:
+    
+    ./gradlew -q execute -PmainClass=io.temporal.samples.updatabletimer.WakeUpTimeUpdater

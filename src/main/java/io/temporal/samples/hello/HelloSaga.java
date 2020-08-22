@@ -35,7 +35,11 @@ import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 
-/** Demonstrates implementing saga transaction and compensation logic using Temporal. */
+/**
+ * Demonstrates implementing saga transaction and compensation logic using Temporal.
+ *
+ * @see io.temporal.samples.bookingsaga.TripBookingSaga for another SAGA example.
+ */
 public class HelloSaga {
   static final String TASK_QUEUE = "HelloSaga";
 
