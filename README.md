@@ -2,8 +2,8 @@
 These samples demonstrate various capabilities of Java Temporal client and server. You can learn more about Temporal at:
 * [temporal.io](https://temporal.io)
 * [Temporal Service](https://github.com/temporalio/temporal)
-* [Temporal Java Client](https://github.com/temporalio/temporal-java-sdk)
-* [Go Temporal Client](https://github.com/temporalio/temporal-go-sdk)
+* [Temporal Java SDK](https://github.com/temporalio/temporal-java-sdk)
+* [Temporal Go SDK](https://github.com/temporalio/temporal-go-sdk)
 
 ## Setup
 
@@ -32,10 +32,13 @@ Run the following commands:
 
 ### Import into IntelliJ
 
-In the IntelliJ user interface, navigate to **File**->**New**->**Project from Existing Sources**.
+It is possible to run the samples from the command line, but if you prefer the IntelliJ here are the import steps:
 
-Select the cloned directory. In the **Import Project page**, select **Import project from external model**,
-choose **Gradle** and then click **Next**->**Finish**.
+* Navigate to **File**->**New**->**Project from Existing Sources**.
+* Select the cloned directory.
+* In the **Import Project page**, select **Import project from external model**
+* Choose **Gradle** and then click **Next**
+* Click **Finish**.
 
 ### Run Temporal Server
 
