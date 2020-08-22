@@ -40,6 +40,8 @@ import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -81,34 +83,25 @@ public class HelloCancellationScope {
 
     @Override
     public String getGreeting(String name) {
-      Promise<String>[] results = new Promise[greetings.length];
+      List<Promise<String>> results = new ArrayList<>(greetings.length);
       CancellationScope scope =
           Workflow.newCancellationScope(
               () -> {
-                for (int i = 0; i < greetings.length; i++) {
-                  results[i] = Async.function(activities::composeGreeting, greetings[i], name);
+                for (String greeting : greetings) {
+                  results.add(Async.function(activities::composeGreeting, greeting, name));
                 }
               });
       // As code inside the scope is non blocking the run doesn't block.
       scope.run();
       // Wait for one of the activities to complete.
-      Promise.anyOf(results).get();
-      // Cancel all other activities
+      String result = Promise.anyOf(results).get();
+      // Cancel uncompleted activities
       scope.cancel();
-      // Get the result from one of the Promises.
-      String result = null;
-      for (int i = 0; i < greetings.length; i++) {
-        Promise<String> r = results[i];
-        if (r.isCompleted() && r.getFailure() == null) {
-          result = r.get();
-          break;
-        }
-      }
       // Wait for all activities to complete ignoring cancellations
       // Cannot use allOf as it fails on any promise failure
-      for (int i = 0; i < greetings.length; i++) {
+      for (Promise<String> activityResult : results) {
         try {
-          results[i].get();
+          activityResult.get();
         } catch (ActivityFailure e) {
           if (!(e.getCause() instanceof CanceledFailure)) {
             throw e;
@@ -132,6 +125,13 @@ public class HelloCancellationScope {
         try {
           context.heartbeat(i);
         } catch (ActivityCompletionException e) {
+          // There are multiple reasons for heartbeat throwing an exception.
+          // All of them are modeled as subclasses of the ActivityCompletionException.
+          // The main three reasons are:
+          // * activity cancellation,
+          // * activity not existing (due to timeout for example) from the service point of view
+          // * worker shutdown requested
+
           // Simulate cleanup
           seconds = random.nextInt(5);
           System.out.println(
@@ -159,14 +159,9 @@ public class HelloCancellationScope {
   }
 
   public static void main(String[] args) {
-    // gRPC stubs wrapper that talks to the local docker instance of temporal service.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
-    // client that can be used to start and signal workflows
     WorkflowClient client = WorkflowClient.newInstance(service);
-
-    // worker factory that can be used to create workers for specific task queues
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    // Worker that listens on a task queue and hosts both workflow and activity implementations.
     Worker worker =
         factory.newWorker(
             TASK_QUEUE,
@@ -174,19 +169,13 @@ public class HelloCancellationScope {
                 .setMaxConcurrentActivityExecutionSize(100)
                 .setActivityPollThreadCount(1)
                 .build());
-    // Workflows are stateful. So you need a type to create instances.
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
-    // Activities are stateless and thread safe. So a shared instance is used.
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
-    // Start listening to the workflow and activity task queues.
     factory.start();
 
-    // Start a workflow execution. Usually this is done from another program.\n'
-    // Uses task queue from the GreetingWorkflow @WorkflowMethod annotation.
     GreetingWorkflow workflow =
         client.newWorkflowStub(
             GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
-    // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");
     System.out.println(greeting);
     System.exit(0);
