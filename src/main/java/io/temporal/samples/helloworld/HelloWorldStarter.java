@@ -1,5 +1,5 @@
 package io.temporal.samples.helloworld;
-// @@@START java-hello-world-sample-workflow-starter
+// @@@SNIPSTART java-hello-world-sample-workflow-starter
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
@@ -7,6 +7,7 @@ import io.temporal.serviceclient.WorkflowServiceStubs;
 public class HelloWorldStarter {
 
   public static void main(String args[]) throws Exception {
+
     // gRPC stubs wrapper that talks to the local docker instance of temporal service.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
     // client that can be used to start and signal workflows
@@ -15,11 +16,11 @@ public class HelloWorldStarter {
     final String TASK_QUEUE = "java-hello-world-task-queue";
     // Start a workflow execution.
     // Uses task queue from the GreetingWorkflow @WorkflowMethod annotation.
-    HelloWorldWorkflowInterface workflow =
+    HelloWorldWorkflow workflow =
         client.newWorkflowStub(
-            HelloWorldWorkflowInterface.class,
+            HelloWorldWorkflow.class,
             WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
-    // Execute a workflow waiting for it to complete.
+    // Use the Workflow method to get the
     String greeting = workflow.getGreeting("World");
     // Print the greeting to the console
     System.out.println(greeting);
@@ -27,4 +28,4 @@ public class HelloWorldStarter {
     System.exit(0);
   }
 }
-// @@@END
+// @@@SNIPEND

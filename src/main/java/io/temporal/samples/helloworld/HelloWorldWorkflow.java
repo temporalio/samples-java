@@ -1,20 +1,12 @@
 package io.temporal.samples.helloworld;
-// @@@START java-hello-world-sample-workflow
-import io.temporal.activity.ActivityOptions;
-import io.temporal.workflow.Workflow;
-import java.time.Duration;
+// @@@SNIPSTART java-hello-world-sample-workflow-interface
+import io.temporal.workflow.WorkflowInterface;
+import io.temporal.workflow.WorkflowMethod;
 
-public class HelloWorldWorkflow implements HelloWorldWorkflowInterface {
+@WorkflowInterface
+public interface HelloWorldWorkflow {
 
-  private final HelloWorldActivityInterface activities =
-      Workflow.newActivityStub(
-          HelloWorldActivityInterface.class,
-          ActivityOptions.newBuilder().setScheduleToCloseTimeout(Duration.ofSeconds(2)).build());
-
-  @Override
-  public String getGreeting(String name) {
-
-    return activities.composeGreeting(name);
-  }
+  @WorkflowMethod
+  String getGreeting(String name);
 }
-// @@@END
+// @@@SNIPEND

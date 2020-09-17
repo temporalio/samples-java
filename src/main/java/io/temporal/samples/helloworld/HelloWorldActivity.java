@@ -1,11 +1,12 @@
 package io.temporal.samples.helloworld;
-// @@@START java-hello-world-sample-activity
+// @@@SNIPSTART java-hello-world-sample-activity-interface
+import io.temporal.activity.ActivityInterface;
+import io.temporal.activity.ActivityMethod;
 
-public class HelloWorldActivity implements HelloWorldActivityInterface {
+@ActivityInterface
+public interface HelloWorldActivity {
 
-  @Override
-  public String composeGreeting(String name) {
-    return "Hello " + name + "!";
-  }
+  @ActivityMethod
+  String composeGreeting(String name);
 }
-// @@@END
+// @@@SNIPEND

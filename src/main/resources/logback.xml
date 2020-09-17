@@ -16,7 +16,7 @@
      express or implied. See the License for the specific language governing
      permissions and limitations under the License.
 -->
-
+<!-- @@@SNIPSTART java-samples-logback-dependency-configuration -->
 <configuration>
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <!-- encoders are assigned the type
@@ -30,3 +30,4 @@
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>
+<!-- @@@SNIPEND -->
