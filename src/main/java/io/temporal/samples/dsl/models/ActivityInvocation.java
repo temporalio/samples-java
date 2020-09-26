@@ -31,13 +31,13 @@ public class ActivityInvocation {
     ActivityStub stub =
         Workflow.newUntypedActivityStub(
             ActivityOptions.newBuilder()
-                .setStartToCloseTimeout(Duration.ofMinutes(1))
+                .setStartToCloseTimeout(Duration.ofMinutes(5))
                 .setTaskQueue("dsl")
                 .build());
 
     String results = stub.execute(name, String.class, new Object[] {args});
 
-    if (Strings.isNullOrEmpty(this.result)) {
+    if (!Strings.isNullOrEmpty(this.result)) {
       bindings.put(this.result, results);
     }
 

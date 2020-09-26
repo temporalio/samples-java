@@ -11,18 +11,17 @@ root:
   sequence:
     elements:
       - activity:
-          name: SampleActivities1
+          name: GetInfo1
           arguments:
             - arg1
           result: result1
       - activity:
-          name: SampleActivities2
+          name: GetInfo2
           arguments:
             - result1
           result: result2
       - activity:
-          name: SampleActivities3
+          name: GetInfo3
           arguments:
-            - arg2
             - result2
           result: result3

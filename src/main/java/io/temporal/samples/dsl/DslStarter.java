@@ -19,7 +19,9 @@ public class DslStarter {
   private static final String TASK_QUEUE = "dsl";
 
   public static void main(String[] args) throws IOException {
-    Path resourceDirectory = Paths.get("src", "main", "resources", "dsl", "workflow1.yaml");
+    // Path resourceDirectory = Paths.get("src", "main", "resources", "dsl", "workflow1.yaml");
+    Path resourceDirectory = Paths.get("src", "main", "resources", "dsl", "workflow2.yaml");
+
     String absolutePath = resourceDirectory.toFile().getAbsolutePath();
 
     ObjectMapper objectMapper =

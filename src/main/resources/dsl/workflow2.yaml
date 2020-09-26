@@ -18,7 +18,7 @@ root:
   sequence:
     elements:
       - activity:
-          name: SampleActivity1
+          name: GetInfo1
           arguments:
             - arg1
           result: result1
@@ -27,12 +27,12 @@ root:
             - sequence:
                 elements:
                   - activity:
-                      name: SampleActivity2
+                      name: GetInfo2
                       arguments:
                         - result1
                       result: result2
                   - activity:
-                      name: SampleActivity3
+                      name: GetInfo3
                       arguments:
                         - arg2
                         - result2
@@ -40,18 +40,18 @@ root:
             - sequence:
                 elements:
                   - activity:
-                      name: SampleActivity4
+                      name: GetInfo4
                       arguments:
                         - result1
                       result: result4
                   - activity:
-                      name: SampleActivity5
+                      name: GetInfo5
                       arguments:
                         - arg3
                         - result4
                       result: result5
       - activity:
-          name: SampleActivity1
+          name: GetInfo1
           arguments:
             - result3
             - result5
