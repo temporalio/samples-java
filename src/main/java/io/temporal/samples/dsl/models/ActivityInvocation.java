@@ -41,7 +41,7 @@ public class ActivityInvocation {
     //                                                   ^
     // cast to Object for a varargs call
     // cast to Object[] for a non-varargs call and to suppress this warning
-    String results = stub.execute(name, String.class, args);
+    String results = stub.execute(name, String.class, new Object[] {args});
 
     if (Strings.isNullOrEmpty(this.result)) {
       bindings.put(this.result, results);
