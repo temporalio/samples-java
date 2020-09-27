@@ -2,8 +2,8 @@
 These samples demonstrate various capabilities of Java Temporal client and server. You can learn more about Temporal at:
 * [temporal.io](https://temporal.io)
 * [Temporal Service](https://github.com/temporalio/temporal)
-* [Temporal Java SDK](https://github.com/temporalio/temporal-java-sdk)
-* [Temporal Go SDK](https://github.com/temporalio/temporal-go-sdk)
+* [Temporal Java SDK](https://github.com/temporalio/sdk-java)
+* [Temporal Go SDK](https://github.com/temporalio/sdk-go)
 
 ## Setup
 
@@ -23,8 +23,8 @@ To solve the problem add the following entries to your `/etc/hosts` file (where 
 
 Run the following commands:
 
-     git clone https://github.com/temporalio/java-samples
-     cd java-samples
+     git clone https://github.com/temporalio/samples-java
+     cd samples-java
 
 ### Build the Samples
 
@@ -68,28 +68,28 @@ of details about the execution history.
 Each sample has specific requirements for running it. The following sections contain information about
 how to run each of the samples after you've built them using the preceding instructions.
 
-Don't forget to check unit tests found under [src/test/java](https://github.com/temporalio/java-samples/tree/master/src/test/java/io/temporal/samples)!
+Don't forget to check unit tests found under [src/test/java](https://github.com/temporalio/samples-java/tree/master/src/test/java/io/temporal/samples)!
 
 ### HelloWorld
 
 Each Hello World sample  demonstrates one feature of the SDK in a single file. Note that single file format is 
 used for sample brevity and is not something we recommend for real applications.
 
-  * **[HelloActivity](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloActivity.java)**: a single activity workflow
-  * **[HelloActivityRetry](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloActivityRetry.java)**: how to retry an activity
-  * **[HelloAsync](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloAsync.java)**: how to call activities asynchronously and wait for them using Promises
-  * **[HelloAsyncActivityCompletion](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloAsyncActivityCompletion.java)**: an asynchronous activity implementation
-  * **[HelloAsyncLambda](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloAsyncLambda.java)**: how to run part of a workflow asynchronously in a separate task (thread)
-  * **[HelloCancellationScope](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloCancellationScope.java)**: how to explicitly cancel parts of a workflow
-  * **[HelloChild](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloChild.java)**: a child workflow
-  * **[HelloCron](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloCron.java)**: a workflow that is executed according to a cron schedule
-  * **[HelloPeriodic](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloPeriodic.java)**: a workflow that executes some logic periodically 
-  * **[HelloException](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloException.java)**: exception propagation and wrapping
-  * **[HelloPolymorphicActivity](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloPolymorphicActivity.java)**: activities that extend a common interface
-  * **[HelloQuery](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloQuery.java)**: demonstrates how to query a state of a single workflow
-  * **[HelloSignal](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloSignal.java)**: sending and handling a signal
-  * **[HelloSaga](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloSaga.java)**: SAGA pattern support
-  * **[HelloSearchAttributes](https://github.com/temporalio/java-samples/blob/master/src/main/java/io/temporal/samples/hello/HelloSearchAttributes.java)**: Custom search attributes that can be used to find workflows using predicates
+  * **[HelloActivity](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloActivity.java)**: a single activity workflow
+  * **[HelloActivityRetry](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloActivityRetry.java)**: how to retry an activity
+  * **[HelloAsync](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloAsync.java)**: how to call activities asynchronously and wait for them using Promises
+  * **[HelloAsyncActivityCompletion](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloAsyncActivityCompletion.java)**: an asynchronous activity implementation
+  * **[HelloAsyncLambda](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloAsyncLambda.java)**: how to run part of a workflow asynchronously in a separate task (thread)
+  * **[HelloCancellationScope](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloCancellationScope.java)**: how to explicitly cancel parts of a workflow
+  * **[HelloChild](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloChild.java)**: a child workflow
+  * **[HelloCron](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloCron.java)**: a workflow that is executed according to a cron schedule
+  * **[HelloPeriodic](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloPeriodic.java)**: a workflow that executes some logic periodically 
+  * **[HelloException](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloException.java)**: exception propagation and wrapping
+  * **[HelloPolymorphicActivity](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloPolymorphicActivity.java)**: activities that extend a common interface
+  * **[HelloQuery](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloQuery.java)**: demonstrates how to query a state of a single workflow
+  * **[HelloSignal](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloSignal.java)**: sending and handling a signal
+  * **[HelloSaga](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloSaga.java)**: SAGA pattern support
+  * **[HelloSearchAttributes](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloSearchAttributes.java)**: Custom search attributes that can be used to find workflows using predicates
   
   To run the hello world samples:
   
@@ -110,7 +110,7 @@ used for sample brevity and is not something we recommend for real applications.
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSearchAttributes
 
 ### File Processing
-[FileProcessing](https://github.com/temporalio/java-samples/tree/master/src/main/java/io/temporal/samples/fileprocessing) 
+[FileProcessing](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/fileprocessing) 
 demonstrates task routing features. The sample workflow downloads a file, processes it, and uploads the result to a destination. Any worker can pick up the first activity. However, the second and third activity must be executed on the same host as the first one.
     
 The sample has two executables. Execute each command in a separate terminal window. The first command
@@ -125,7 +125,7 @@ The second command starts workflows. Each invocation starts a new workflow execu
     
 ### Booking SAGA
 
-[Booking SAGA](https://github.com/temporalio/java-samples/tree/master/src/main/java/io/temporal/samples/bookingsaga) 
+[Booking SAGA](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/bookingsaga) 
 is a Temporal take on Camunda BPMN trip booking example.
 
 To run:
@@ -134,7 +134,7 @@ To run:
 
 ### Money Transfer
 
-Basic [Money Transfer](https://github.com/temporalio/java-samples/tree/master/src/main/java/io/temporal/samples/moneytransfer) example.
+Basic [Money Transfer](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/moneytransfer) example.
 
 Money Transfer example has three separate processes. One to host workflow code, 
 another activity, and the third one to request transfers.
@@ -153,7 +153,7 @@ Execute once per requested transfer:
 
 ### Money Batch
 
-[The sample](https://github.com/temporalio/java-samples/tree/master/src/main/java/io/temporal/samples/moneybatch) 
+[The sample](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/moneybatch) 
 demonstrates a situation when a single deposit should be initiated for multiple withdrawals. 
 For example, a seller might want to be paid once per fixed number of transactions. 
 The sample can be easily extended to perform a payment based on more complex criteria like a specific time 
@@ -180,7 +180,7 @@ Execute at least three times to request three transfers (example batch size):
 
 ### Updatable Timer
 
-The [Updatable Timer](https://github.com/temporalio/java-samples/tree/master/src/main/java/io/temporal/samples/updatabletimer) sample
+The [Updatable Timer](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/updatabletimer) sample
 demonstrates a helper class which relies on Workflow.await to implement a blocking sleep that can be updated at any moment.
 
 Money Batch example has three separate processes. One to host workflow code, 
