@@ -12,19 +12,19 @@ root:
     elements:
       - activity:
           name: SampleActivity1
-          method: SampleActivity1.getInfo
+          method: getInfo
           arguments:
             - arg1
           result: result1
       - activity:
           name: SampleActivity2
-          method: SampleActivity2.getInfo
+          method: getInfo
           arguments:
             - result1
           result: result2
       - activity:
           name: SampleActivity3
-          method: SampleActivity3.getInfo
+          method: getInfo
           arguments:
             - result2
           result: result3

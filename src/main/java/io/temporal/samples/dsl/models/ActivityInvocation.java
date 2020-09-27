@@ -36,7 +36,9 @@ public class ActivityInvocation {
                 .setTaskQueue("dsl")
                 .build());
 
-    String results = stub.execute(this.method, String.class, new Object[] {args});
+    String methodNameDescriptor =
+        this.name + this.method.substring(0, 1).toUpperCase() + this.method.substring(1);
+    String results = stub.execute(methodNameDescriptor, String.class, new Object[] {args});
 
     if (!Strings.isNullOrEmpty(this.result)) {
       bindings.put(this.result, results);

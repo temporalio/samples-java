@@ -2,36 +2,30 @@ package io.temporal.samples.dsl;
 
 import io.temporal.activity.Activity;
 import io.temporal.activity.ActivityInterface;
-import io.temporal.activity.ActivityMethod;
 
 public class SampleActivities {
   @ActivityInterface(namePrefix = "SampleActivity1")
   public interface SampleActivities1 {
-    @ActivityMethod(name = "SampleActivity1.getInfo")
     String getInfo();
   }
 
   @ActivityInterface(namePrefix = "SampleActivity2")
   public interface SampleActivities2 {
-    @ActivityMethod(name = "SampleActivity2.getInfo")
     String getInfo();
   }
 
   @ActivityInterface(namePrefix = "SampleActivity3")
   public interface SampleActivities3 {
-    @ActivityMethod(name = "SampleActivity3.getInfo")
     String getInfo();
   }
 
   @ActivityInterface(namePrefix = "SampleActivity4")
   public interface SampleActivities4 {
-    @ActivityMethod(name = "SampleActivity4.getInfo")
     String getInfo();
   }
 
   @ActivityInterface(namePrefix = "SampleActivity5")
   public interface SampleActivities5 {
-    @ActivityMethod(name = "SampleActivity5.getInfo")
     String getInfo();
   }
 
