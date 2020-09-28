@@ -10,19 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class Parrallel {
+public class Parallel  {
   public Statement branches[];
 
   @JsonCreator
-  public Parrallel(@JsonProperty("branches") Statement branches[]) {
+  public Parallel(@JsonProperty("branches") Statement branches[]) {
     this.branches = branches;
   }
 
   public void execute(Map<String, String> bindings) {
-    // You can use the context passed in to activity as a way to cancel the activity like standard
-    // GO way.
-    // Cancelling a parent context will cancel all the derived contexts as well.
-
     // In the parallel block, we want to execute all of them in parallel and wait for all of them.
     // if one activity fails then we want to cancel all the rest of them as well.
     List<Promise<Void>> results = new ArrayList<>(bindings.size());

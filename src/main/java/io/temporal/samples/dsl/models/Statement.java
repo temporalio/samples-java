@@ -7,21 +7,21 @@ import java.util.Map;
 public class Statement {
   public ActivityInvocation activity;
   public Sequence sequence;
-  public Parrallel parrallel;
+  public Parallel parallel;
 
   @JsonCreator
   public Statement(
       @JsonProperty("sequence") Sequence sequence,
       @JsonProperty("activity") ActivityInvocation activity,
-      @JsonProperty("parallel") Parrallel parrallel) {
+      @JsonProperty("parallel") Parallel parallel) {
     this.activity = activity;
     this.sequence = sequence;
-    this.parrallel = parrallel;
+    this.parallel = parallel;
   }
 
   public Void execute(Map<String, String> bindings) {
-    if (this.parrallel != null) {
-      this.parrallel.execute(bindings);
+    if (this.parallel != null) {
+      this.parallel.execute(bindings);
     }
 
     if (this.sequence != null) {

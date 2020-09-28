@@ -6,7 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.samples.dsl.models.Workflow;
+import io.temporal.samples.dsl.models.DslWorkflow;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -29,7 +29,7 @@ public class DslStarter {
     objectMapper.enable(MapperFeature.INFER_CREATOR_FROM_CONSTRUCTOR_PROPERTIES);
     objectMapper.findAndRegisterModules();
 
-    Workflow workflow = objectMapper.readValue(new File(absolutePath), Workflow.class);
+    DslWorkflow dslWorkflow = objectMapper.readValue(new File(absolutePath), DslWorkflow.class);
 
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
     WorkflowClient client = WorkflowClient.newInstance(service);
@@ -48,6 +48,6 @@ public class DslStarter {
     SimpleDSLWorkflow interpreter =
         client.newWorkflowStub(
             SimpleDSLWorkflow.class, WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
-    interpreter.execute(workflow);
+    interpreter.execute(dslWorkflow);
   }
 }
