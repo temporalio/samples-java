@@ -34,7 +34,7 @@ dependencies {
     implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 
-    testImplementation group: 'junit', name: 'junit', version: '4.13'
+    testImplementation group: 'junit', name: 'junit', version: '4.13.1'
     testImplementation group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
     testImplementation group: 'org.powermock', name: 'powermock-api-mockito', version: '1.7.4'
 
