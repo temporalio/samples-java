@@ -95,7 +95,7 @@ public class HelloActivityRetry {
       lastInvocationTime = System.currentTimeMillis();
       if (++callCount < 4) {
         System.out.println("composeGreeting activity is going to fail");
-        throw new IllegalStateException("not yet");
+        throw new IllegalArgumentException("not yet");
       }
       System.out.println("composeGreeting activity is going to complete");
       return greeting + " " + name + "!";
