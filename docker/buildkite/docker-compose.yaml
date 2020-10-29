@@ -1,0 +1,12 @@
+version: '3.5'
+
+services:
+  unit-test:
+    build:
+      context: ../../
+      dockerfile: ./docker/buildkite/Dockerfile
+    command: "./gradlew --no-daemon test"
+    environment:
+      - "USER=unittest"
+    volumes:
+      - "../../:/temporal-java-samples"
