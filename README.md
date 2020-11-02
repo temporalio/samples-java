@@ -45,8 +45,10 @@ It is possible to run the samples from the command line, but if you prefer the I
 Samples require Temporal service to run. We recommend a locally running version of Temporal Server 
 managed through [Docker Compose](https://docs.docker.com/compose/gettingstarted/):
 
+```
      curl -L https://github.com/temporalio/temporal/releases/latest/download/docker.tar.gz | tar -xz --strip-components 1 docker/docker-compose.yml
      docker-compose up
+```
 
 If this does not work, see the instructions for running Temporal Server at https://github.com/temporalio/temporal/blob/master/README.md.
 
