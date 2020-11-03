@@ -4,7 +4,7 @@ plugins {
     id 'net.minecrell.licenser' version '0.4.1'
     id 'com.github.sherter.google-java-format' version '0.9'
     id "net.ltgt.errorprone" version "1.3.0"
-    id 'name.remal.check-updates' version '1.1.0'
+    id 'name.remal.check-updates' version '1.1.4'
 }
 
 apply plugin: 'java'
@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.0.1'
+    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.0.2'
     implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 
