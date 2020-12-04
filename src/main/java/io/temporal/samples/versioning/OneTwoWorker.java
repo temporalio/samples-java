@@ -23,6 +23,7 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import io.temporal.worker.WorkerOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +60,7 @@ public class OneTwoWorker {
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
     WorkflowClient client = WorkflowClient.newInstance(service);
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    final Worker worker = factory.newWorker(TASK_QUEUE);
+    final Worker worker = factory.newWorker(TASK_QUEUE, WorkerOptions.newBuilder().build());
     worker.registerWorkflowImplementationTypes(OneTwoWorkflowImpl.class);
     // TODO uncomment to test other scenarios
     //    worker.registerWorkflowImplementationTypes(OneTwoVersionedWorkflowImpl.class); // Use
