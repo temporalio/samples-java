@@ -62,9 +62,13 @@ public class OneTwoWorker {
     final Worker worker = factory.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(OneTwoWorkflowImpl.class);
     // TODO uncomment to test other scenarios
-    //    worker.registerWorkflowImplementationTypes(OneTwoVersionedWorkflowImpl.class); // Use versioning to avoid non-deterministic failure
-    //    worker.registerWorkflowImplementationTypes(OneTwoWorkflowWithActivityRetry.class); // Activity retry policy
-    //    worker.registerWorkflowImplementationTypes(OneTwoSleepyWorkflowImpl.class); // Deadlock detection example
+    //    worker.registerWorkflowImplementationTypes(OneTwoVersionedWorkflowImpl.class); // Use
+    // versioning to avoid non-deterministic failure
+    //    worker.registerWorkflowImplementationTypes(OneTwoWorkflowWithActivityRetry.class); //
+    // Activity retry policy
+    //    worker.registerWorkflowImplementationTypes(OneTwoSleepyWorkflowImpl.class); // Deadlock
+    // detection example
+    //    worker.registerWorkflowImplementationTypes(OneTwoWorkflowWithRandom.class); // Side effects
     worker.registerActivitiesImplementations(new OneTwoActivitiesImpl());
     factory.start();
     logger.info("Worker started for task queue: " + TASK_QUEUE);
