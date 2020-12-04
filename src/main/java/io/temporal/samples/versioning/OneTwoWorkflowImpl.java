@@ -39,6 +39,8 @@ public class OneTwoWorkflowImpl implements OneTwoWorkflow {
     OneTwoActivities activities = Workflow.newActivityStub(OneTwoActivities.class, options);
 
     int number = activities.one();
+    //    int number = activities.two(); // TODO uncomment while workflow is running to see
+    // non-deterministic error after the signal.
 
     Workflow.await(() -> signaled);
 

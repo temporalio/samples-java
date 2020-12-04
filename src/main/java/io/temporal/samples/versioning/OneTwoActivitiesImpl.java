@@ -19,9 +19,19 @@
 
 package io.temporal.samples.versioning;
 
+import io.temporal.activity.Activity;
+
 public class OneTwoActivitiesImpl implements OneTwoActivities {
   @Override
   public int one() {
+    return 1;
+  }
+
+  @Override
+  public int oneWithRetries(int attempts) {
+    if (Activity.getExecutionContext().getInfo().getAttempt() < attempts) {
+      throw new RuntimeException("Planned failure");
+    }
     return 1;
   }
 

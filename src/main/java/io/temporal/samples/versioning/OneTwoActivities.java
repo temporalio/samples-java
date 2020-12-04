@@ -26,5 +26,7 @@ public interface OneTwoActivities {
 
   int one();
 
+  int oneWithRetries(int attempts);
+
   int two();
 }
