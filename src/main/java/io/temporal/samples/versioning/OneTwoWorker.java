@@ -61,10 +61,10 @@ public class OneTwoWorker {
     WorkerFactory factory = WorkerFactory.newInstance(client);
     final Worker worker = factory.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(OneTwoWorkflowImpl.class);
-    //    worker.registerWorkflowImplementationTypes(OneTwoVersionedWorkflowImpl.class); // TODO
-    // uncomment to test versioning
-    //    worker.registerWorkflowImplementationTypes(OneTwoWorkflowWithActivityRetry.class); // TODO
-    // uncomment to test activity retry
+    // TODO uncomment to test other scenarios
+    //    worker.registerWorkflowImplementationTypes(OneTwoVersionedWorkflowImpl.class);
+    //    worker.registerWorkflowImplementationTypes(OneTwoWorkflowWithActivityRetry.class);
+    //    worker.registerWorkflowImplementationTypes(OneTwoSleepyWorkflowImpl.class);
     worker.registerActivitiesImplementations(new OneTwoActivitiesImpl());
     factory.start();
     logger.info("Worker started for task queue: " + TASK_QUEUE);
