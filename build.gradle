@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.0.3'
+    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.0.4'
     implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 
