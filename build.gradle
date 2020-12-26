@@ -60,6 +60,7 @@ task runHello {
     doLast {
         // Cron and Periodic are not in the list as they take long time to stop
         ["io.temporal.samples.hello.HelloActivity",
+         "io.temporal.samples.hello.HelloLocalActivity",
          "io.temporal.samples.hello.HelloActivityRetry",
          "io.temporal.samples.hello.HelloAsync",
          "io.temporal.samples.hello.HelloAsyncActivityCompletion",
