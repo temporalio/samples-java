@@ -39,7 +39,7 @@ dependencies {
     testImplementation group: 'org.powermock', name: 'powermock-api-mockito', version: '1.7.4'
 
     errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
-    errorprone("com.google.errorprone:error_prone_core:2.4.0")
+    errorprone("com.google.errorprone:error_prone_core:2.5.1")
 }
 
 compileJava {
