@@ -1,12 +1,9 @@
 version: '3.5'
 
 services:
-  unit-test:
+  worker:
     build:
       context: ../../
       dockerfile: ./docker/buildkite/Dockerfile
-    command: "./gradlew --no-daemon test"
-    environment:
-      - "USER=unittest"
-    volumes:
-      - "../../:/temporal-java-samples"
+    command: "./gradlew -q execute -PmainClass=io.temporal.samples.complex.Worker"
+

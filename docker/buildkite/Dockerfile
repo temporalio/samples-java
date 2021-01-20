@@ -13,4 +13,5 @@ RUN apk update && apk add --virtual wget ca-certificates wget && apk add protobu
 RUN apk add --virtual git
 
 RUN mkdir /temporal-java-samples
+COPY . /temporal-java-samples
 WORKDIR /temporal-java-samples
