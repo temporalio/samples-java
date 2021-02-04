@@ -20,7 +20,7 @@
 package io.temporal.samples.fileprocessing;
 
 import static io.temporal.samples.fileprocessing.FileProcessingWorker.TASK_QUEUE;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import io.temporal.api.enums.v1.TimeoutType;
@@ -102,7 +102,7 @@ public class FileProcessingTest {
   @Test
   public void testHappyPath() {
     StoreActivities activities = mock(StoreActivities.class);
-    when(activities.download(anyObject()))
+    when(activities.download(any()))
         .thenReturn(new TaskQueueFileNamePair(HOST_NAME_1, FILE_NAME_UNPROCESSED));
     worker.registerActivitiesImplementations(activities);
 
@@ -128,13 +128,13 @@ public class FileProcessingTest {
 
     verifyNoMoreInteractions(activities, activitiesHost1);
 
-    verifyZeroInteractions(activitiesHost2);
+    verifyNoInteractions(activitiesHost2);
   }
 
   @Test
   public void testHostFailover() {
     StoreActivities activities = mock(StoreActivities.class);
-    when(activities.download(anyObject()))
+    when(activities.download(any()))
         .thenReturn(new TaskQueueFileNamePair(HOST_NAME_1, FILE_NAME_UNPROCESSED))
         .thenReturn(new TaskQueueFileNamePair(HOST_NAME_2, FILE_NAME_UNPROCESSED));
 
