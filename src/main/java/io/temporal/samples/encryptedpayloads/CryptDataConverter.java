@@ -31,7 +31,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Optional;
-import java.util.Map;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
@@ -107,9 +106,7 @@ public class CryptDataConverter implements DataConverter {
 
     Payload innerPayload = optionalPayload.get();
 
-    Map<String, ByteString> metadata = innerPayload.getMetadataMap();
-    ByteString encoding = metadata.get(EncodingKeys.METADATA_ENCODING_KEY);
-
+    ByteString encoding = innerPayload.getMetadataOrDefault(EncodingKeys.METADATA_ENCODING_KEY, null);
     if (encoding == null) {
       return optionalPayload;
     }
@@ -132,9 +129,7 @@ public class CryptDataConverter implements DataConverter {
 
   @Override
   public <T> T fromPayload(Payload payload, Class<T> valueClass, Type valueType) {
-    Map<String, ByteString> metadata = payload.getMetadataMap();
-    ByteString encoding = metadata.get(EncodingKeys.METADATA_WRAPPED_ENCODING_KEY);
-
+    ByteString encoding = innerPayload.getMetadataOrDefault(METADATA_WRAPPED_ENCODING_KEY, null);
     if (encoding == null) {
       return converter.fromPayload(payload, valueClass, valueType);
     }
