@@ -129,7 +129,7 @@ public class CryptDataConverter implements DataConverter {
 
   @Override
   public <T> T fromPayload(Payload payload, Class<T> valueClass, Type valueType) {
-    ByteString encoding = innerPayload.getMetadataOrDefault(METADATA_WRAPPED_ENCODING_KEY, null);
+    ByteString encoding = payload.getMetadataOrDefault(EncodingKeys.METADATA_WRAPPED_ENCODING_KEY, null);
     if (encoding == null) {
       return converter.fromPayload(payload, valueClass, valueType);
     }
