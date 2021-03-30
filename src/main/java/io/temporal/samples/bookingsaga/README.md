@@ -4,4 +4,4 @@ Temporal implementation of the [Camunda BPMN trip booking example](https://githu
 
 Demonstrates Temporal approach to SAGA.
 
-Don't forget to check [TripBookingWorkflowTest](https://github.com/temporalio/temporal-java-samples/blob/master/src/test/java/com/uber/temporal/samples/bookingsaga/TripBookingWorkflowTest.java) unit test.
+Don't forget to check [TripBookingWorkflowTest](https://github.com/temporalio/samples-java/blob/master/src/test/java/io/temporal/samples/bookingsaga/TripBookingWorkflowTest.java) unit test.
