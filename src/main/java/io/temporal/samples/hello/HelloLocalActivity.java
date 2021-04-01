@@ -30,7 +30,6 @@ import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
-
 import java.time.Duration;
 
 /**
@@ -77,7 +76,7 @@ public class HelloLocalActivity {
     }
   }
 
-  static class GreetingActivitiesImpl implements GreetingActivities {
+  static class GreetingLocalActivityImpl implements GreetingActivities {
     @Override
     public String composeGreeting(String greeting, String name) {
       return greeting + " " + name + "!";
@@ -97,7 +96,7 @@ public class HelloLocalActivity {
     // Workflows are stateful. So you need a type to create instances.
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     // Activities are stateless and thread safe. So a shared instance is used.
-    worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
+    worker.registerActivitiesImplementations(new GreetingLocalActivityImpl());
     // Start listening to the workflow and activity task queues.
     factory.start();
 
