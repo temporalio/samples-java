@@ -30,68 +30,142 @@ import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 
-/** Demonstrates query capability. Requires a local instance of Temporal server to be running. */
+/**
+ * Sample Temporal workflow that demonstrates the workflow query capability.
+ *
+ * <p>To execute this example a locally running Temporal service instance is required. You can
+ * follow instructions on how to set up your Temporal service here:
+ * https://github.com/temporalio/temporal/blob/master/README.md#download-and-start-temporal-server-locally
+ */
 public class HelloQuery {
 
-  static final String TASK_QUEUE = "HelloQuery";
+  // Define the task queue name
+  static final String TASK_QUEUE = "HelloQueryTaskQueue";
 
+  // Define our workflow unique id
+  static final String WORKFLOW_ID = "HelloQueryWorkflow";
+
+  /**
+   * Define the Workflow Interface. It must contain at least one method annotated
+   * with @WorkflowMethod
+   *
+   * @see io.temporal.workflow.WorkflowInterface
+   * @see io.temporal.workflow.WorkflowMethod
+   */
   @WorkflowInterface
   public interface GreetingWorkflow {
 
     @WorkflowMethod
     void createGreeting(String name);
 
-    /** Returns greeting as a query value. */
+    // Workflow query method. Used to return our greeting as a query value
     @QueryMethod
     String queryGreeting();
   }
 
-  /** GreetingWorkflow implementation that updates greeting after sleeping for 5 seconds. */
+  // Define the workflow implementation. It implements our createGreeting and
+  // queryGreeting workflow methods
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
     private String greeting;
 
     @Override
     public void createGreeting(String name) {
+      // We set the value of greeting to "Hello" first.
       greeting = "Hello " + name + "!";
-      // Workflow code always uses WorkflowThread.sleep
-      // and Workflow.currentTimeMillis instead of standard Java ones.
+      /*
+       * Note that our createGreeting workflow method has return type of void.
+       * It only sets the greeting and does not return it.
+       *
+       * Also note that inside a workflow method you should always
+       * use Workflow.sleep or Workflow.currentTimeMillis rather than the
+       * equivalent standard Java ones.
+       */
       Workflow.sleep(Duration.ofSeconds(2));
+
+      // after two seconds we change the value of our greeting to "Bye"
       greeting = "Bye " + name + "!";
     }
 
+    // our workflow query method returns the greeting
     @Override
     public String queryGreeting() {
       return greeting;
     }
   }
 
+  /**
+   * With our Workflow and Activities defined, we can now start execution. The main method is our
+   * workflow starter.
+   */
   public static void main(String[] args) throws InterruptedException {
-    // gRPC stubs wrapper that talks to the local docker instance of temporal service.
+    /*
+     * Define the workflow service. It is a gRPC stubs wrapper which talks to the docker instance of
+     * our locally running Temporal service.
+     */
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
-    // client that can be used to start and signal workflows
+
+    /*
+     * Define the workflow client. It is a Temporal service client used to start, signal, and query
+     * workflows
+     */
     WorkflowClient client = WorkflowClient.newInstance(service);
 
-    // worker factory that can be used to create workers for specific task queues
+    /*
+     * Define the workflow factory. It is used to create workflow workers for a specific task queue.
+     */
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    // Worker that listens on a task queue and hosts both workflow and activity implementations.
+
+    /*
+     * Define the workflow worker. Workflow workers listen to a defined task queue and process
+     * workflows and activities.
+     */
     Worker worker = factory.newWorker(TASK_QUEUE);
+
+    /*
+     * Register our workflow implementation with the worker. Since workflows are stateful in nature,
+     * we need to register our workflow type.
+     */
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
+
+    // Start all the workers registered for a specific task queue.
     factory.start();
 
-    // Get a workflow stub using the same task queue the worker uses.
-    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build();
+    // Create our workflow options
+    WorkflowOptions workflowOptions =
+        WorkflowOptions.newBuilder().setWorkflowId(WORKFLOW_ID).setTaskQueue(TASK_QUEUE).build();
+
+    // Create our workflow client stub. It is used to start our workflow execution.
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
-    // Start workflow asynchronously to not use another thread to query.
+
+    // Start our workflow asynchronously to not use another thread to query.
     WorkflowClient.start(workflow::createGreeting, "World");
+
     // After start for getGreeting returns, the workflow is guaranteed to be started.
     // So we can send a signal to it using workflow stub.
 
-    System.out.println(workflow.queryGreeting()); // Should print Hello...
-    // Note that inside a workflow only WorkflowThread.sleep is allowed. Outside
-    // WorkflowThread.sleep is not allowed.
+    /*
+     * Query our workflow to get the current value of greeting.
+     * Remember that original the workflow methods sets this value to "Hello"
+     * So here we should get "Hello World".
+     */
+    System.out.println(workflow.queryGreeting());
+
+    /*
+     * Sleep for 2.5 seconds. This value is set because remember in our
+     * workflow method the value of the greeting is updated after 2 seconds.
+     *
+     * Also note since here we are not inside a Workflow method, we can use the
+     * standard Java Thread.sleep.
+     */
     Thread.sleep(2500);
-    System.out.println(workflow.queryGreeting()); // Should print Bye ...
+
+    /*
+     * Query our workflow to get the current value of greeting.
+     *
+     * Now we should get "Bye World".
+     */
+    System.out.println(workflow.queryGreeting());
     System.exit(0);
   }
 }
