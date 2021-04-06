@@ -39,7 +39,6 @@ import java.util.List;
  * follow instructions on how to set up your Temporal service here:
  * https://github.com/temporalio/temporal/blob/master/README.md#download-and-start-temporal-server-locally
  */
-// @SuppressWarnings("ALL")
 public class HelloSignal {
 
   // Define the task queue name
