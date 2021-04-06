@@ -106,8 +106,7 @@ public class HelloPeriodicTest {
     ListClosedWorkflowExecutionsRequest request =
         ListClosedWorkflowExecutionsRequest.newBuilder()
             .setNamespace(testEnv.getNamespace())
-            .setExecutionFilter(
-                WorkflowExecutionFilter.newBuilder().setWorkflowId(WORKFLOW_ID))
+            .setExecutionFilter(WorkflowExecutionFilter.newBuilder().setWorkflowId(WORKFLOW_ID))
             .build();
     ListClosedWorkflowExecutionsResponse listResponse =
         testEnv.getWorkflowService().blockingStub().listClosedWorkflowExecutions(request);

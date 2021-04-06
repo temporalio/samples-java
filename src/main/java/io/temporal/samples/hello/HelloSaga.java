@@ -219,8 +219,8 @@ public class HelloSaga {
          * First we show how to compensate sync child workflow invocations. We first create a child
          * workflow stub and execute its "execute" method. Then we create a stub of the child
          * compensation workflow and register it with Saga. At this point this compensation workflow
-         * is not invoked. It is invoked explicitly when we actually want to invoke compensation (via
-         * saga.compensate()).
+         * is not invoked. It is invoked explicitly when we actually want to invoke compensation
+         * (via saga.compensate()).
          */
         ChildWorkflowOperation op1 = Workflow.newChildWorkflowStub(ChildWorkflowOperation.class);
         op1.execute(10);
