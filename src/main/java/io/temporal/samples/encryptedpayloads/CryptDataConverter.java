@@ -36,16 +36,11 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-class EncodingKeys {
-  static final String METADATA_ENCODING_KEY = "encoding";
-  static final String METADATA_WRAPPED_ENCODING_KEY = "wrapped-encoding";
-
-  static final String METADATA_ENCODING_RAW_NAME = "binary/plain";
-  static final ByteString METADATA_ENCODING_RAW = ByteString.copyFrom(METADATA_ENCODING_RAW_NAME,
-      StandardCharsets.UTF_8);
-}
-
 public class CryptDataConverter implements DataConverter {
+  static final String METADATA_ENCODING_KEY = "encoding";
+  static final ByteString METADATA_ENCODING =
+      ByteString.copyFrom("binary/encrypted", StandardCharsets.UTF_8);
+
   private static final String CIPHER = "AES/GCM/NoPadding";
   private static final int GCM_NONCE_LENGTH_BYTE = 12;
   private static final int GCM_TAG_LENGTH_BIT = 128;
@@ -58,7 +53,8 @@ public class CryptDataConverter implements DataConverter {
   }
 
   private SecretKey getKey() {
-    // Key can be fetched from KMS or other secure storage.
+    // Key must be fetched from KMS or other secure storage.
+    // Hard coded here only for example purposes.
     return new SecretKeySpec("test-key-test-key-test-key-test!".getBytes(UTF_8), "AES");
   }
 
@@ -76,7 +72,11 @@ public class CryptDataConverter implements DataConverter {
     cipher.init(Cipher.ENCRYPT_MODE, key, new GCMParameterSpec(GCM_TAG_LENGTH_BIT, nonce));
 
     byte[] encryptedData = cipher.doFinal(plainData);
-    byte[] result = ByteBuffer.allocate(nonce.length + encryptedData.length).put(nonce).put(encryptedData).array();
+    byte[] result =
+        ByteBuffer.allocate(nonce.length + encryptedData.length)
+            .put(nonce)
+            .put(encryptedData)
+            .array();
 
     return result;
   }
@@ -98,6 +98,10 @@ public class CryptDataConverter implements DataConverter {
 
   @Override
   public <T> Optional<Payload> toPayload(T value) throws DataConverterException {
+    return converter.toPayload(value);
+  }
+
+  public <T> Optional<Payload> toEncryptedPayload(T value) throws DataConverterException {
     Optional<Payload> optionalPayload = converter.toPayload(value);
 
     if (!optionalPayload.isPresent()) {
@@ -106,46 +110,38 @@ public class CryptDataConverter implements DataConverter {
 
     Payload innerPayload = optionalPayload.get();
 
-    ByteString encoding = innerPayload.getMetadataOrDefault(EncodingKeys.METADATA_ENCODING_KEY, null);
-    if (encoding == null) {
-      return optionalPayload;
-    }
-
     byte[] encryptedData;
     try {
-      encryptedData = encrypt(innerPayload.getData().toByteArray());
+      encryptedData = encrypt(innerPayload.toByteArray());
     } catch (Throwable e) {
       throw new DataConverterException(e);
     }
 
-    Payload encryptedPayload = Payload.newBuilder(innerPayload)
-      .setData(ByteString.copyFrom(encryptedData))
-      .putMetadata(EncodingKeys.METADATA_ENCODING_KEY, EncodingKeys.METADATA_ENCODING_RAW)
-      .putMetadata(EncodingKeys.METADATA_WRAPPED_ENCODING_KEY, encoding)
-      .build();
+    Payload encryptedPayload =
+        Payload.newBuilder()
+            .putMetadata(METADATA_ENCODING_KEY, METADATA_ENCODING)
+            .setData(ByteString.copyFrom(encryptedData))
+            .build();
 
     return Optional.of(encryptedPayload);
   }
 
   @Override
   public <T> T fromPayload(Payload payload, Class<T> valueClass, Type valueType) {
-    ByteString encoding = payload.getMetadataOrDefault(EncodingKeys.METADATA_WRAPPED_ENCODING_KEY, null);
-    if (encoding == null) {
+    ByteString encoding = payload.getMetadataOrDefault(METADATA_ENCODING_KEY, null);
+    if (!encoding.equals(METADATA_ENCODING)) {
       return converter.fromPayload(payload, valueClass, valueType);
     }
 
     byte[] plainData;
+    Payload decryptedPayload;
+
     try {
       plainData = decrypt(payload.getData().toByteArray());
+      decryptedPayload = Payload.parseFrom(plainData);
     } catch (Throwable e) {
       throw new DataConverterException(e);
     }
-
-    Payload decryptedPayload = Payload.newBuilder(payload)
-      .setData(ByteString.copyFrom(plainData))
-      .removeMetadata(EncodingKeys.METADATA_WRAPPED_ENCODING_KEY)
-      .putMetadata(EncodingKeys.METADATA_ENCODING_KEY, encoding)
-      .build();
 
     return converter.fromPayload(decryptedPayload, valueClass, valueType);
   }
@@ -158,7 +154,7 @@ public class CryptDataConverter implements DataConverter {
     try {
       Payloads.Builder result = Payloads.newBuilder();
       for (Object value : values) {
-        Optional<Payload> payload = toPayload(value);
+        Optional<Payload> payload = toEncryptedPayload(value);
         if (payload.isPresent()) {
           result.addPayloads(payload.get());
         } else {
@@ -174,7 +170,8 @@ public class CryptDataConverter implements DataConverter {
   }
 
   @Override
-  public <T> T fromPayloads(int index, Optional<Payloads> content, Class<T> parameterType, Type genericParameterType)
+  public <T> T fromPayloads(
+      int index, Optional<Payloads> content, Class<T> parameterType, Type genericParameterType)
       throws DataConverterException {
     if (!content.isPresent()) {
       return (T) Defaults.defaultValue((Class<?>) parameterType);
