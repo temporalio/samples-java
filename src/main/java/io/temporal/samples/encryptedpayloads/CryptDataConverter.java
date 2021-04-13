@@ -42,6 +42,13 @@ public class CryptDataConverter implements DataConverter {
       ByteString.copyFrom("binary/encrypted", StandardCharsets.UTF_8);
 
   private static final String CIPHER = "AES/GCM/NoPadding";
+
+  static final String METADATA_ENCRYPTION_CIPHER_KEY = "encryption-cipher";
+  static final ByteString METADATA_ENCRYPTION_CIPHER =
+      ByteString.copyFrom(CIPHER, StandardCharsets.UTF_8);
+
+  static final String METADATA_ENCRYPTION_KEY_ID_KEY = "encryption-key-id";
+
   private static final int GCM_NONCE_LENGTH_BYTE = 12;
   private static final int GCM_TAG_LENGTH_BIT = 128;
   private static final Charset UTF_8 = StandardCharsets.UTF_8;
@@ -52,7 +59,16 @@ public class CryptDataConverter implements DataConverter {
     this.converter = converter;
   }
 
-  private SecretKey getKey() {
+  private String getKeyId() {
+    // Currently there is no context available to vary which key is used.
+    // Use a fixed key for all payloads.
+    // This still supports key rotation as the key ID is recorded on payloads allowing
+    // decryption to use a previous key.
+
+    return "test";
+  }
+
+  private SecretKey getKey(String keyId) {
     // Key must be fetched from KMS or other secure storage.
     // Hard coded here only for example purposes.
     return new SecretKeySpec("test-key-test-key-test-key-test!".getBytes(UTF_8), "AES");
@@ -64,8 +80,7 @@ public class CryptDataConverter implements DataConverter {
     return nonce;
   }
 
-  private byte[] encrypt(byte[] plainData) throws Exception {
-    SecretKey key = this.getKey();
+  private byte[] encrypt(byte[] plainData, SecretKey key) throws Exception {
     byte[] nonce = getNonce(GCM_NONCE_LENGTH_BYTE);
 
     Cipher cipher = Cipher.getInstance(CIPHER);
@@ -81,8 +96,7 @@ public class CryptDataConverter implements DataConverter {
     return result;
   }
 
-  private byte[] decrypt(byte[] encryptedDataWithNonce) throws Exception {
-    SecretKey key = this.getKey();
+  private byte[] decrypt(byte[] encryptedDataWithNonce, SecretKey key) throws Exception {
     ByteBuffer buffer = ByteBuffer.wrap(encryptedDataWithNonce);
 
     byte[] nonce = new byte[GCM_NONCE_LENGTH_BYTE];
@@ -110,9 +124,12 @@ public class CryptDataConverter implements DataConverter {
 
     Payload innerPayload = optionalPayload.get();
 
+    String keyId = getKeyId();
+    SecretKey key = getKey(keyId);
+
     byte[] encryptedData;
     try {
-      encryptedData = encrypt(innerPayload.toByteArray());
+      encryptedData = encrypt(innerPayload.toByteArray(), key);
     } catch (Throwable e) {
       throw new DataConverterException(e);
     }
@@ -120,6 +137,8 @@ public class CryptDataConverter implements DataConverter {
     Payload encryptedPayload =
         Payload.newBuilder()
             .putMetadata(METADATA_ENCODING_KEY, METADATA_ENCODING)
+            .putMetadata(METADATA_ENCRYPTION_CIPHER_KEY, METADATA_ENCRYPTION_CIPHER)
+            .putMetadata(METADATA_ENCRYPTION_KEY_ID_KEY, ByteString.copyFromUtf8(keyId))
             .setData(ByteString.copyFrom(encryptedData))
             .build();
 
@@ -133,11 +152,19 @@ public class CryptDataConverter implements DataConverter {
       return converter.fromPayload(payload, valueClass, valueType);
     }
 
+    String keyId;
+    try {
+      keyId = payload.getMetadataOrThrow(METADATA_ENCRYPTION_KEY_ID_KEY).toString(UTF_8);
+    } catch (Exception e) {
+      throw new DataConverterException(payload, valueClass, e);
+    }
+    SecretKey key = getKey(keyId);
+
     byte[] plainData;
     Payload decryptedPayload;
 
     try {
-      plainData = decrypt(payload.getData().toByteArray());
+      plainData = decrypt(payload.getData().toByteArray(), key);
       decryptedPayload = Payload.parseFrom(plainData);
     } catch (Throwable e) {
       throw new DataConverterException(e);
