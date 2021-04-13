@@ -59,8 +59,11 @@ public class HelloSearchAttributes {
   static final String WORKFLOW_ID = "HelloSearchAttributesWorkflow";
 
   /**
-   * Define the Workflow Interface. It must contain at least one method annotated
-   * with @WorkflowMethod
+   * Define the Workflow Interface. It must contain one method annotated with @WorkflowMethod.
+   *
+   * <p>Workflow code includes core processing logic. It that shouldn't contain any heavyweight
+   * computations, non-deterministic code, network calls, database operations, etc. All those things
+   * should be handled by Activities.
    *
    * @see io.temporal.workflow.WorkflowInterface
    * @see io.temporal.workflow.WorkflowMethod
@@ -69,16 +72,18 @@ public class HelloSearchAttributes {
   public interface GreetingWorkflow {
 
     /**
-     * Define the workflow method. This method is executed when the workflow is started. The
-     * workflow completes when the workflow method finishes execution.
+     * This method is executed when the workflow is started. The workflow completes when the
+     * workflow method finishes execution.
      */
     @WorkflowMethod
     String getGreeting(String name);
   }
 
   /**
-   * Define the Activity Interface. Workflow methods can call activities during execution.
-   * Annotating activity methods with @ActivityMethod is optional
+   * Define the Activity Interface. Activities are building blocks of any temporal workflow and
+   * contain any business logic that could perform long running computation, network calls, etc.
+   *
+   * <p>Annotating activity methods with @ActivityMethod is optional
    *
    * @see io.temporal.activity.ActivityInterface
    * @see io.temporal.activity.ActivityMethod
@@ -89,11 +94,11 @@ public class HelloSearchAttributes {
     String composeGreeting(String greeting, String name);
   }
 
-  // Define the workflow implementation. It implements our getGreeting workflow method
+  // Define the workflow implementation which implements our getGreeting workflow method.
   public static class GreetingWorkflowImpl implements HelloActivity.GreetingWorkflow {
 
     /**
-     * Define the GreetingActivities stub. Activity stubs implements activity interfaces and proxy
+     * Define the GreetingActivities stub. Activity stubs implement activity interfaces and proxy
      * calls to it to Temporal activity invocations. Since Temporal activities are reentrant, a
      * single activity stub can be used for multiple activity invocations.
      *
@@ -125,14 +130,12 @@ public class HelloSearchAttributes {
   }
 
   /**
-   * With our Workflow and Activities defined, we can now start execution. The main method is our
-   * workflow starter.
+   * With our Workflow and Activities defined, we can now start execution. The main method starts
+   * the worker and then the workflow.
    */
   public static void main(String[] args) {
-    /*
-     * Define the workflow service. It is a gRPC stubs wrapper which talks to the docker instance of
-     * our locally running Temporal service.
-     */
+
+    // Define the workflow service.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
 
     /*
@@ -153,8 +156,9 @@ public class HelloSearchAttributes {
     Worker worker = factory.newWorker(TASK_QUEUE);
 
     /*
-     * Register our workflow implementation with the worker. Since workflows are stateful in nature,
-     * we need to register our workflow type.
+     * Register our workflow implementation with the worker.
+     * Workflow implementations must be known to the worker at runtime in
+     * order to dispatch workflow tasks.
      */
     worker.registerWorkflowImplementationTypes(HelloSearchAttributes.GreetingWorkflowImpl.class);
 
@@ -164,7 +168,10 @@ public class HelloSearchAttributes {
     */
     worker.registerActivitiesImplementations(new HelloSearchAttributes.GreetingActivitiesImpl());
 
-    // Start all the workers registered for a specific task queue.
+    /*
+     * Start all the workers registered for a specific task queue.
+     * The started workers then start polling for workflows and activities.
+     */
     factory.start();
 
     // Set our workflow options.
@@ -176,7 +183,7 @@ public class HelloSearchAttributes {
             .setSearchAttributes(generateSearchAttributes())
             .build();
 
-    // Create our workflow client stub. It is used to start our workflow execution.
+    // Create the workflow client stub. It is used to start our workflow execution.
     HelloSearchAttributes.GreetingWorkflow workflow =
         client.newWorkflowStub(HelloSearchAttributes.GreetingWorkflow.class, workflowOptions);
 

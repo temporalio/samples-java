@@ -50,8 +50,11 @@ public class HelloAsyncLambda {
   static final String WORKFLOW_ID = "HelloAsyncLambdaWorkflow";
 
   /**
-   * Define the Workflow Interface. It must contain at least one method annotated
-   * with @WorkflowMethod
+   * Define the Workflow Interface. It must contain one method annotated with @WorkflowMethod.
+   *
+   * <p>Workflow code includes core processing logic. It that shouldn't contain any heavyweight
+   * computations, non-deterministic code, network calls, database operations, etc. All those things
+   * should be handled by Activities.
    *
    * @see io.temporal.workflow.WorkflowInterface
    * @see io.temporal.workflow.WorkflowMethod
@@ -60,16 +63,18 @@ public class HelloAsyncLambda {
   public interface GreetingWorkflow {
 
     /**
-     * Define the workflow method. This method is executed when the workflow is started. The
-     * workflow completes when the workflow method finishes execution.
+     * This method is executed when the workflow is started. The workflow completes when the
+     * workflow method finishes execution.
      */
     @WorkflowMethod
     String getGreeting(String name);
   }
 
   /**
-   * Define the Activity Interface. Workflow methods can call activities during execution.
-   * Annotating activity methods with @ActivityMethod is optional
+   * Define the Activity Interface. Activities are building blocks of any temporal workflow and
+   * contain any business logic that could perform long running computation, network calls, etc.
+   *
+   * <p>Annotating activity methods with @ActivityMethod is optional
    *
    * @see io.temporal.activity.ActivityInterface
    * @see io.temporal.activity.ActivityMethod
@@ -81,13 +86,14 @@ public class HelloAsyncLambda {
     String composeGreeting(String greeting, String name);
   }
 
-  // Define the workflow implementation. It implements our getGreeting workflow method
+  // Define the workflow implementation which implements our getGreeting workflow method.
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
     /**
-     * Define the GreetingActivities stub. Activity stubs implements activity interfaces and proxy
-     * calls to it to Temporal activity invocations. Since Temporal activities are reentrant, a
-     * single activity stub can be used for multiple activity invocations.
+     * Define the GreetingActivities stub. Activity stubs are proxies for activity invocations that
+     * are executed outside of the workflow thread on the activity worker, that can be on a
+     * different host. Temporal is going to dispatch the activity results back to the workflow and
+     * unblock the stub as soon as activity is completed on the activity worker.
      *
      * <p>Let's take a look at each {@link ActivityOptions} defined:
      *
@@ -143,14 +149,12 @@ public class HelloAsyncLambda {
   }
 
   /**
-   * With our Workflow and Activities defined, we can now start execution. The main method is our
-   * workflow starter.
+   * With our Workflow and Activities defined, we can now start execution. The main method starts
+   * the worker and then the workflow.
    */
   public static void main(String[] args) {
-    /*
-     * Define the workflow service. It is a gRPC stubs wrapper which talks to the docker instance of
-     * our locally running Temporal service.
-     */
+
+    // Define the workflow service.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
 
     /*
@@ -171,8 +175,9 @@ public class HelloAsyncLambda {
     Worker worker = factory.newWorker(TASK_QUEUE);
 
     /*
-     * Register our workflow implementation with the worker. Since workflows are stateful in nature,
-     * we need to register our workflow type.
+     * Register our workflow implementation with the worker.
+     * Workflow implementations must be known to the worker at runtime in
+     * order to dispatch workflow tasks.
      */
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
@@ -182,14 +187,17 @@ public class HelloAsyncLambda {
      */
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
 
-    // Start all the workers registered for a specific task queue.
+    /*
+     * Start all the workers registered for a specific task queue.
+     * The started workers then start polling for workflows and activities.
+     */
     factory.start();
 
     // Define our workflow options
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder().setWorkflowId(WORKFLOW_ID).setTaskQueue(TASK_QUEUE).build();
 
-    // Create our workflow client stub. It is used to start our workflow execution.
+    // Create the workflow client stub. It is used to start our workflow execution.
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
 
     /*

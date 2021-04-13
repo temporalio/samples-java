@@ -44,12 +44,11 @@ public class HelloChild {
   // Define the task queue name
   static final String TASK_QUEUE = "HelloChildTaskQueue";
 
-  // Define our workflow unique id
+  // Define the workflow unique id
   static final String WORKFLOW_ID = "HelloChildWorkflow";
 
   /**
-   * Define the parent workflow interface. It must contain at least one method annotated
-   * with @WorkflowMethod
+   * Define the parent workflow interface. It must contain one method annotated with @WorkflowMethod
    *
    * @see io.temporal.workflow.WorkflowInterface
    * @see io.temporal.workflow.WorkflowMethod
@@ -66,8 +65,7 @@ public class HelloChild {
   }
 
   /**
-   * Define the child workflow Interface. It must contain at least one method annotated
-   * with @WorkflowMethod
+   * Define the child workflow Interface. It must contain one method annotated with @WorkflowMethod
    *
    * @see io.temporal.workflow.WorkflowInterface
    * @see io.temporal.workflow.WorkflowMethod
@@ -83,7 +81,7 @@ public class HelloChild {
     String composeGreeting(String greeting, String name);
   }
 
-  // Define the parent workflow implementation. It implements our getGreeting workflow method
+  // Define the parent workflow implementation. It implements the getGreeting workflow method
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
     @Override
@@ -98,7 +96,7 @@ public class HelloChild {
       // Use child.composeGreeting("Hello", name) to call synchronously.
 
       /*
-       * Invoke our child workflows composeGreeting workflow method.
+       * Invoke the child workflows composeGreeting workflow method.
        * This call is non-blocking and returns immediately returning a {@link io.temporal.workflow.Promise}
        *
        * You can use child.composeGreeting("Hello", name) instead to call the child workflow method synchronously.
@@ -111,7 +109,7 @@ public class HelloChild {
   }
 
   /**
-   * Define the parent workflow implementation. It implements our getGreeting workflow method
+   * Define the parent workflow implementation. It implements the getGreeting workflow method
    *
    * <p>Note that a workflow implementation must always be public for the Temporal library to be
    * able to create its instances.
@@ -125,15 +123,12 @@ public class HelloChild {
   }
 
   /**
-   * With our workflow, and child workflow defined, we can now start execution. The main method is
-   * our workflow starter.
+   * With the workflow, and child workflow defined, we can now start execution. The main method is
+   * the workflow starter.
    */
   public static void main(String[] args) {
 
-    /*
-     * Define the workflow service. It is a gRPC stubs wrapper which talks to the docker instance of
-     * our locally running Temporal service.
-     */
+    // Define the workflow service.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
 
     /*
@@ -154,19 +149,22 @@ public class HelloChild {
     Worker worker = factory.newWorker(TASK_QUEUE);
 
     /*
-     * Register our parent and child workflow implementation with the worker.
+     * Register the parent and child workflow implementation with the worker.
      * Since workflows are stateful in nature,
-     * we need to register our workflow types.
+     * we need to register the workflow types.
      */
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class, GreetingChildImpl.class);
 
-    // Start all the workers registered for a specific task queue.
+    /*
+     * Start all the workers registered for a specific task queue.
+     * The started workers then start polling for workflows and activities.
+     */
     factory.start();
 
     // Start a workflow execution. Usually this is done from another program.
     // Uses task queue from the GreetingWorkflow @WorkflowMethod annotation.
 
-    // Create our parent workflow client stub. It is used to start our parent workflow execution.
+    // Create our parent workflow client stub. It is used to start the parent workflow execution.
     GreetingWorkflow workflow =
         client.newWorkflowStub(
             GreetingWorkflow.class,

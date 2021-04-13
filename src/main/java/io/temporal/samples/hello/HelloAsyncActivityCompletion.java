@@ -46,12 +46,15 @@ public class HelloAsyncActivityCompletion {
   // Define the task queue name
   static final String TASK_QUEUE = "HelloAsyncActivityCompletionTaskQueue";
 
-  // Define our workflow unique id
+  // Define the workflow unique id
   static final String WORKFLOW_ID = "HelloAsyncActivityCompletionWorkflow";
 
   /**
-   * Define the Workflow Interface. It must contain at least one method annotated
-   * with @WorkflowMethod
+   * Define the Workflow Interface. It must contain one method annotated with @WorkflowMethod.
+   *
+   * <p>Workflow code includes core processing logic. It that shouldn't contain any heavyweight
+   * computations, non-deterministic code, network calls, database operations, etc. All those things
+   * should be handled by Activities.
    *
    * @see io.temporal.workflow.WorkflowInterface
    * @see io.temporal.workflow.WorkflowMethod
@@ -60,16 +63,18 @@ public class HelloAsyncActivityCompletion {
   public interface GreetingWorkflow {
 
     /**
-     * Define the workflow method. This method is executed when the workflow is started. The
-     * workflow completes when the workflow method finishes execution.
+     * This method is executed when the workflow is started. The workflow completes when the
+     * workflow method finishes execution.
      */
     @WorkflowMethod
     String getGreeting(String name);
   }
 
   /**
-   * Define the Activity Interface. Workflow methods can call activities during execution.
-   * Annotating activity methods with @ActivityMethod is optional
+   * Define the Activity Interface. Activities are building blocks of any temporal workflow and
+   * contain any business logic that could perform long running computation, network calls, etc.
+   *
+   * <p>Annotating activity methods with @ActivityMethod is optional
    *
    * @see io.temporal.activity.ActivityInterface
    * @see io.temporal.activity.ActivityMethod
@@ -77,22 +82,22 @@ public class HelloAsyncActivityCompletion {
   @ActivityInterface
   public interface GreetingActivities {
 
-    /** Define your activity method which can be called during workflow execution */
-    @ActivityMethod
+    /** Define the activity method which can be called during workflow execution */
     String composeGreeting(String greeting, String name);
   }
 
-  // Define the workflow implementation. It implements our getGreeting workflow method
+  // Define the workflow implementation which implements the getGreeting workflow method.
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
     /**
-     * Define the GreetingActivities stub. Activity stubs implements activity interfaces and proxy
-     * calls to it to Temporal activity invocations. Since Temporal activities are reentrant, a
-     * single activity stub can be used for multiple activity invocations.
+     * Define the GreetingActivities stub. Activity stubs are proxies for activity invocations that
+     * are executed outside of the workflow thread on the activity worker, that can be on a
+     * different host. Temporal is going to dispatch the activity results back to the workflow and
+     * unblock the stub as soon as activity is completed on the activity worker.
      *
      * <p>Let's take a look at each {@link ActivityOptions} defined:
      *
-     * <p>The "setScheduleToCloseTimeout" option sets the overall timeout that our workflow is
+     * <p>The "setScheduleToCloseTimeout" option sets the overall timeout that the workflow is
      * willing to wait for activity to complete. For this example it is set to 10 seconds.
      */
     private final GreetingActivities activities =
@@ -108,7 +113,7 @@ public class HelloAsyncActivityCompletion {
   }
 
   /**
-   * Implementation of our workflow activity interface. It overwrites our defined composeGreeting
+   * Implementation of our workflow activity interface. It overwrites the defined composeGreeting
    * activity method.
    */
   static class GreetingActivitiesImpl implements GreetingActivities {
@@ -118,7 +123,7 @@ public class HelloAsyncActivityCompletion {
      * will use this client alongside with {@link
      * io.temporal.activity.ActivityExecutionContext#doNotCompleteOnReturn()} which means our
      * activity method will not complete when it returns, however is expected to be completed
-     * asynchronously using our client.
+     * asynchronously using the client.
      */
     private final ActivityCompletionClient completionClient;
 
@@ -136,19 +141,19 @@ public class HelloAsyncActivityCompletion {
       byte[] taskToken = context.getTaskToken();
 
       /*
-       * For our example we will use a {@link java.util.concurrent.ForkJoinPool} to execute our
-       * activity. In real-life applications this could be any service. Our composeGreetingAsync
+       * For the example we will use a {@link java.util.concurrent.ForkJoinPool} to execute our
+       * activity. In real-life applications this could be any service. The composeGreetingAsync
        * method is the one that will actually complete workflow action execution.
        */
       ForkJoinPool.commonPool().execute(() -> composeGreetingAsync(taskToken, greeting, name));
       context.doNotCompleteOnReturn();
 
-      // Since we have set doNotCompleteOnReturn(), our workflow action method return value is
+      // Since we have set doNotCompleteOnReturn(), the workflow action method return value is
       // ignored.
       return "ignored";
     }
 
-    // Method that will complete action execution using our defined ActivityCompletionClient
+    // Method that will complete action execution using the defined ActivityCompletionClient
     private void composeGreetingAsync(byte[] taskToken, String greeting, String name) {
       String result = greeting + " " + name + "!";
 
@@ -158,15 +163,12 @@ public class HelloAsyncActivityCompletion {
   }
 
   /**
-   * With our Workflow and Activities defined, we can now start execution. The main method is our
-   * workflow starter.
+   * With our Workflow and Activities defined, we can now start execution. The main method starts
+   * the worker and then the workflow.
    */
   public static void main(String[] args) throws ExecutionException, InterruptedException {
 
-    /*
-     * Define the workflow service. It is a gRPC stubs wrapper which talks to the docker instance of
-     * our locally running Temporal service.
-     */
+    // Define the workflow service.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
 
     /*
@@ -187,8 +189,9 @@ public class HelloAsyncActivityCompletion {
     Worker worker = factory.newWorker(TASK_QUEUE);
 
     /*
-     * Register our workflow implementation with the worker. Since workflows are stateful in nature,
-     * we need to register our workflow type.
+     * Register our workflow implementation with the worker.
+     * Workflow implementations must be known to the worker at runtime in
+     * order to dispatch workflow tasks.
      */
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
@@ -200,10 +203,13 @@ public class HelloAsyncActivityCompletion {
     ActivityCompletionClient completionClient = client.newActivityCompletionClient();
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl(completionClient));
 
-    // Start all the workers registered for a specific task queue.
+    /*
+     * Start all the workers registered for a specific task queue.
+     * The started workers then start polling for workflows and activities.
+     */
     factory.start();
 
-    // Create our workflow client stub. It is used to start our workflow execution.
+    // Create the workflow client stub. It is used to start our workflow execution.
     GreetingWorkflow workflow =
         client.newWorkflowStub(
             GreetingWorkflow.class,

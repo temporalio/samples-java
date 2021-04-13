@@ -46,8 +46,11 @@ public class HelloQuery {
   static final String WORKFLOW_ID = "HelloQueryWorkflow";
 
   /**
-   * Define the Workflow Interface. It must contain at least one method annotated
-   * with @WorkflowMethod
+   * Define the Workflow Interface. It must contain one method annotated with @WorkflowMethod.
+   *
+   * <p>Workflow code includes core processing logic. It that shouldn't contain any heavyweight
+   * computations, non-deterministic code, network calls, database operations, etc. All those things
+   * should be handled by Activities.
    *
    * @see io.temporal.workflow.WorkflowInterface
    * @see io.temporal.workflow.WorkflowMethod
@@ -63,8 +66,8 @@ public class HelloQuery {
     String queryGreeting();
   }
 
-  // Define the workflow implementation. It implements our createGreeting and
-  // queryGreeting workflow methods
+  // Define the workflow implementation which implements our createGreeting and
+  // queryGreeting workflow methods.
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
     private String greeting;
@@ -95,14 +98,12 @@ public class HelloQuery {
   }
 
   /**
-   * With our Workflow and Activities defined, we can now start execution. The main method is our
-   * workflow starter.
+   * With our Workflow and Activities defined, we can now start execution. The main method starts
+   * the worker and then the workflow.
    */
   public static void main(String[] args) throws InterruptedException {
-    /*
-     * Define the workflow service. It is a gRPC stubs wrapper which talks to the docker instance of
-     * our locally running Temporal service.
-     */
+
+    // Define the workflow service.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
 
     /*
@@ -123,19 +124,23 @@ public class HelloQuery {
     Worker worker = factory.newWorker(TASK_QUEUE);
 
     /*
-     * Register our workflow implementation with the worker. Since workflows are stateful in nature,
-     * we need to register our workflow type.
+     * Register our workflow implementation with the worker.
+     * Workflow implementations must be known to the worker at runtime in
+     * order to dispatch workflow tasks.
      */
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
-    // Start all the workers registered for a specific task queue.
+    /*
+     * Start all the workers registered for a specific task queue.
+     * The started workers then start polling for workflows and activities.
+     */
     factory.start();
 
     // Create our workflow options
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder().setWorkflowId(WORKFLOW_ID).setTaskQueue(TASK_QUEUE).build();
 
-    // Create our workflow client stub. It is used to start our workflow execution.
+    // Create the workflow client stub. It is used to start our workflow execution.
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
 
     // Start our workflow asynchronously to not use another thread to query.

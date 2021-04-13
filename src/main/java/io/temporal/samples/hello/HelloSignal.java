@@ -44,12 +44,15 @@ public class HelloSignal {
   // Define the task queue name
   static final String TASK_QUEUE = "HelloSignalTaskQueue";
 
-  // Define our workflow unique id
+  // Define the workflow unique id
   static final String WORKFLOW_ID = "HelloSignalWorkflow";
 
   /**
-   * Define the Workflow Interface. It must contain at least one method annotated
-   * with @WorkflowMethod
+   * Define the Workflow Interface. It must contain one method annotated with @WorkflowMethod.
+   *
+   * <p>Workflow code includes core processing logic. It that shouldn't contain any heavyweight
+   * computations, non-deterministic code, network calls, database operations, etc. All those things
+   * should be handled by Activities.
    *
    * @see io.temporal.workflow.WorkflowInterface
    * @see io.temporal.workflow.WorkflowMethod
@@ -57,8 +60,8 @@ public class HelloSignal {
   @WorkflowInterface
   public interface GreetingWorkflow {
     /**
-     * Define the workflow method. This method is executed when the workflow is started. The
-     * workflow completes when the workflow method finishes execution.
+     * This method is executed when the workflow is started. The workflow completes when the
+     * workflow method finishes execution.
      */
     @WorkflowMethod
     List<String> getGreetings();
@@ -74,7 +77,7 @@ public class HelloSignal {
     void exit();
   }
 
-  // Define the workflow implementation. It implements our getGreetings workflow method
+  // Define the workflow implementation which implements the getGreetings workflow method.
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
     // messageQueue holds up to 10 messages (received from signals)
@@ -89,7 +92,7 @@ public class HelloSignal {
         // Block current thread until the unblocking condition is evaluated to true
         Workflow.await(() -> !messageQueue.isEmpty() || exit);
         if (messageQueue.isEmpty() && exit) {
-          // no messages in queue and exit signal was sent, return our received messages
+          // no messages in queue and exit signal was sent, return the received messages
           return receivedMessages;
         }
         String message = messageQueue.remove(0);
@@ -109,14 +112,12 @@ public class HelloSignal {
   }
 
   /**
-   * With our Workflow and Activities defined, we can now start execution. The main method is our
-   * workflow starter.
+   * With the Workflow and Activities defined, we can now start execution. The main method starts
+   * the worker and then the workflow.
    */
   public static void main(String[] args) throws Exception {
-    /*
-     * Define the workflow service. It is a gRPC stubs wrapper which talks to the docker instance of
-     * our locally running Temporal service.
-     */
+
+    // Define the workflow service.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
 
     /*
@@ -137,19 +138,23 @@ public class HelloSignal {
     Worker worker = factory.newWorker(TASK_QUEUE);
 
     /*
-     * Register our workflow implementation with the worker. Since workflows are stateful in nature,
-     * we need to register our workflow type.
+     * Register the workflow implementation with the worker.
+     * Workflow implementations must be known to the worker at runtime in
+     * order to dispatch workflow tasks.
      */
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
-    // Start all the workers registered for a specific task queue.
+    /*
+     * Start all the workers registered for a specific task queue.
+     * The started workers then start polling for workflows and activities.
+     */
     factory.start();
 
-    // Create our workflow options
+    // Create the workflow options
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).setWorkflowId(WORKFLOW_ID).build();
 
-    // Create our workflow client stub. It is used to start our workflow execution.
+    // Create the workflow client stub. It is used to start the workflow execution.
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
 
     // Start workflow asynchronously and call its getGreeting workflow method
@@ -159,9 +164,9 @@ public class HelloSignal {
     // So we can send a signal to it using the workflow stub.
     // This workflow keeps receiving signals until exit is called
 
-    // When our workflow is started the getGreetings will block for the previously defined
+    // When the workflow is started the getGreetings will block for the previously defined
     // conditions
-    // Send our first signal to our workflow
+    // Send the first workflow signal
     workflow.waitForName("World");
 
     /*

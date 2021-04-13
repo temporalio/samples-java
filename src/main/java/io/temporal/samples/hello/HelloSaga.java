@@ -52,12 +52,11 @@ public class HelloSaga {
   // Define the task queue name
   static final String TASK_QUEUE = "HelloSagaTaskQueue";
 
-  // Define our workflow unique id
+  // Define the workflow unique id
   static final String WORKFLOW_ID = "HelloSagaTaskWorkflow";
 
   /**
-   * Define the child workflow interface. It must contain at least one method annotated
-   * with @WorkflowMethod
+   * Define the child workflow interface. It must contain one method annotated with @WorkflowMethod
    *
    * @see io.temporal.workflow.WorkflowInterface
    * @see io.temporal.workflow.WorkflowMethod
@@ -73,16 +72,17 @@ public class HelloSaga {
     void execute(int amount);
   }
 
-  // Define the child workflow implementation. It implements our execute workflow method
+  // Define the child workflow implementation. It implements the execute workflow method
   public static class ChildWorkflowOperationImpl implements ChildWorkflowOperation {
 
     /**
-     * Define the ActivityOperation stub. Activity stubs implements activity interfaces and proxy
-     * calls to it to Temporal activity invocations. Since Temporal activities are reentrant, a
-     * single activity stub can be used for multiple activity invocations.
+     * Define the ActivityOperation stub. Activity stubs are proxies for activity invocations that
+     * are executed outside of the workflow thread on the activity worker, that can be on a
+     * different host. Temporal is going to dispatch the activity results back to the workflow and
+     * unblock the stub as soon as activity is completed on the activity worker.
      *
      * <p>Let's take a look at each {@link ActivityOptions} defined: The "setScheduleToCloseTimeout"
-     * option sets the overall timeout that our workflow is willing to wait for activity to
+     * option sets the overall timeout that the workflow is willing to wait for activity to
      * complete. For this example it is set to 10 seconds.
      */
     ActivityOperation activity =
@@ -97,7 +97,7 @@ public class HelloSaga {
   }
 
   /**
-   * Define the child workflow compensation interface. It must contain at least one method annotated
+   * Define the child workflow compensation interface. It must contain one method annotated
    * with @WorkflowMethod
    *
    * @see io.temporal.workflow.WorkflowInterface
@@ -115,17 +115,18 @@ public class HelloSaga {
     void compensate(int amount);
   }
 
-  // Define the child workflow compensation implementation. It implements our compensate child
+  // Define the child workflow compensation implementation. It implements the compensate child
   // workflow method
   public static class ChildWorkflowCompensationImpl implements ChildWorkflowCompensation {
 
     /**
-     * Define the ActivityOperation stub. Activity stubs implements activity interfaces and proxy
-     * calls to it to Temporal activity invocations. Since Temporal activities are reentrant, a
-     * single activity stub can be used for multiple activity invocations.
+     * Define the ActivityOperation stub. Activity stubs are proxies for activity invocations that
+     * are executed outside of the workflow thread on the activity worker, that can be on a
+     * different host. Temporal is going to dispatch activity results back to the workflow and
+     * unblock the stub as soon as activity is completed on the activity worker.
      *
      * <p>Let's take a look at each {@link ActivityOptions} defined: The "setScheduleToCloseTimeout"
-     * option sets the overall timeout that our workflow is willing to wait for activity to
+     * option sets the overall timeout that the workflow is willing to wait for activity to
      * complete. For this example it is set to 10 seconds.
      */
     ActivityOperation activity =
@@ -140,8 +141,10 @@ public class HelloSaga {
   }
 
   /**
-   * Define the Activity Interface. Workflow methods can call activities during execution.
-   * Annotating activity methods with @ActivityMethod is optional
+   * Define the Activity Interface. Activities are building blocks of any temporal workflow and
+   * contain any business logic that could perform long running computation, network calls, etc.
+   *
+   * <p>Annotating activity methods with @ActivityMethod is optional
    *
    * @see io.temporal.activity.ActivityInterface
    * @see io.temporal.activity.ActivityMethod
@@ -156,7 +159,7 @@ public class HelloSaga {
   }
 
   /**
-   * Implementation of our workflow activity interface. It overwrites our defined execute and
+   * Implementation of the workflow activity interface. It overwrites the defined execute and
    * compensate activity methods.
    */
   public static class ActivityOperationImpl implements ActivityOperation {
@@ -173,8 +176,7 @@ public class HelloSaga {
   }
 
   /**
-   * Define the main workflow interface. It must contain at least one method annotated
-   * with @WorkflowMethod
+   * Define the main workflow interface. It must contain one method annotated with @WorkflowMethod
    *
    * @see io.temporal.workflow.WorkflowInterface
    * @see io.temporal.workflow.WorkflowMethod
@@ -183,23 +185,24 @@ public class HelloSaga {
   public interface SagaWorkflow {
 
     /**
-     * Define the workflow method. This method is executed when the workflow is started. The
-     * workflow completes when the workflow method finishes execution.
+     * This method is executed when the workflow is started. The workflow completes when the
+     * workflow method finishes execution.
      */
     @WorkflowMethod
     void execute();
   }
 
-  // Define the main workflow implementation. It implements our execute workflow method
+  // Define the main workflow implementation. It implements the execute workflow method
   public static class SagaWorkflowImpl implements SagaWorkflow {
 
     /**
-     * Define the GreetingActivities stub. Activity stubs implements activity interfaces and proxy
-     * calls to it to Temporal activity invocations. Since Temporal activities are reentrant, a
-     * single activity stub can be used for multiple activity invocations.
+     * Define the ActivityOperation stub. Activity stubs are proxies for activity invocations that
+     * are executed outside of the workflow thread on the activity worker, that can be on a
+     * different host. Temporal is going to dispatch activity results back to the workflow and
+     * unblock the stub as soon as activity is completed on the activity worker.
      *
      * <p>Let's take a look at each {@link ActivityOptions} defined: The "setScheduleToCloseTimeout"
-     * option sets the overall timeout that our workflow is willing to wait for activity to
+     * option sets the overall timeout that the workflow is willing to wait for activity to
      * complete. For this example it is set to 2 seconds.
      */
     ActivityOperation activity =
@@ -272,14 +275,12 @@ public class HelloSaga {
   }
 
   /**
-   * With our Workflow and Activities defined, we can now start execution. The main method is our
-   * workflow starter.
+   * With our Workflow and Activities defined, we can now start execution. The main method starts
+   * the worker and then the workflow.
    */
   public static void main(String[] args) {
-    /*
-     * Define the workflow service. It is a gRPC stubs wrapper which talks to the docker instance of
-     * our locally running Temporal service.
-     */
+
+    // Define the workflow service.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
 
     /*
@@ -314,14 +315,17 @@ public class HelloSaga {
     */
     worker.registerActivitiesImplementations(new ActivityOperationImpl());
 
-    // Start all the workers registered for a specific task queue.
+    /*
+     * Start all the workers registered for a specific task queue.
+     * The started workers then start polling for workflows and activities.
+     */
     factory.start();
 
     // Create our workflow options
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder().setWorkflowId(WORKFLOW_ID).setTaskQueue(TASK_QUEUE).build();
 
-    // Create our workflow client stub. It is used to start our workflow execution.
+    // Create the workflow client stub. It is used to start our workflow execution.
     HelloSaga.SagaWorkflow workflow =
         client.newWorkflowStub(HelloSaga.SagaWorkflow.class, workflowOptions);
 

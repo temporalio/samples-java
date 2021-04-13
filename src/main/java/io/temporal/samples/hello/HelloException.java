@@ -21,7 +21,6 @@ package io.temporal.samples.hello;
 
 import com.google.common.base.Throwables;
 import io.temporal.activity.ActivityInterface;
-import io.temporal.activity.ActivityMethod;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowException;
@@ -48,12 +47,11 @@ public class HelloException {
   // Define the task queue name
   static final String TASK_QUEUE = "HelloExceptionTaskQueue";
 
-  // Define our workflow unique id
+  // Define the workflow unique id
   static final String WORKFLOW_ID = "HelloExceptionWorkflow";
 
   /**
-   * Define the parent workflow interface. It must contain at least one method annotated
-   * with @WorkflowMethod
+   * Define the parent workflow interface. It must contain one method annotated with @WorkflowMethod
    *
    * @see io.temporal.workflow.WorkflowInterface
    * @see io.temporal.workflow.WorkflowMethod
@@ -70,8 +68,7 @@ public class HelloException {
   }
 
   /**
-   * Define the child workflow interface. It must contain at least one method annotated
-   * with @WorkflowMethod
+   * Define the child workflow interface. It must contain one method annotated with @WorkflowMethod
    *
    * @see io.temporal.workflow.WorkflowInterface
    * @see io.temporal.workflow.WorkflowMethod
@@ -88,8 +85,10 @@ public class HelloException {
   }
 
   /**
-   * Define the Activity Interface. Workflow methods can call activities during execution.
-   * Annotating activity methods with @ActivityMethod is optional
+   * Define the Activity Interface. Activities are building blocks of any temporal workflow and
+   * contain any business logic that could perform long running computation, network calls, etc.
+   *
+   * <p>Annotating activity methods with @ActivityMethod is optional
    *
    * @see io.temporal.activity.ActivityInterface
    * @see io.temporal.activity.ActivityMethod
@@ -97,34 +96,34 @@ public class HelloException {
   @ActivityInterface
   public interface GreetingActivities {
 
-    @ActivityMethod
     String composeGreeting(String greeting, String name);
   }
 
-  // Define the parent workflow implementation. It implements our getGreeting workflow method
+  // Define the parent workflow implementation. It implements the getGreeting workflow method
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
     @Override
     public String getGreeting(String name) {
 
-      // Create our child workflow stub
+      // Create the child workflow stub
       GreetingChild child = Workflow.newChildWorkflowStub(GreetingChild.class);
       // Execute the child workflow
       return child.composeGreeting("Hello", name);
     }
   }
 
-  // Define the child workflow implementation. It implements our composeGreeting workflow method
+  // Define the child workflow implementation. It implements the composeGreeting workflow method
   public static class GreetingChildImpl implements GreetingChild {
 
     /**
-     * Define the GreetingActivities stub. Activity stubs implements activity interfaces and proxy
-     * calls to it to Temporal activity invocations. Since Temporal activities are reentrant, a
-     * single activity stub can be used for multiple activity invocations.
+     * Define the GreetingActivities stub. Activity stubs are proxies for activity invocations that
+     * are executed outside of the workflow thread on the activity worker, that can be on a
+     * different host. Temporal is going to dispatch the activity results back to the workflow and
+     * unblock the stub as soon as activity is completed on the activity worker.
      *
      * <p>Let's take a look at each {@link ActivityOptions} defined:
      *
-     * <p>The "setScheduleToCloseTimeout" option sets the overall timeout that our workflow is
+     * <p>The "setScheduleToCloseTimeout" option sets the overall timeout that the workflow is
      * willing to wait for activity to complete. For this example it is set to 10 seconds.
      */
     private final GreetingActivities activities =
@@ -139,19 +138,19 @@ public class HelloException {
   }
 
   /**
-   * Implementation of our workflow activity interface. It overwrites our defined composeGreeting
+   * Implementation of the workflow activity interface. It overwrites the defined composeGreeting
    * activity method.
    */
   static class GreetingActivitiesImpl implements GreetingActivities {
     @Override
     public String composeGreeting(String greeting, String name) {
       try {
-        // here we simulate IOException being thrown inside our activity method
-        // in order to show how it propagates through our workflow execution
+        // here we simulate IOException being thrown inside the activity method
+        // in order to show how it propagates through the workflow execution
         throw new IOException(greeting + " " + name + "!");
       } catch (IOException e) {
         /*
-         * Instead of adding our thrown exception to the activity method signature
+         * Instead of adding the thrown exception to the activity method signature
          * wrap it using Workflow.wrap before re-throwing it.
          * The original checked exception will be unwrapped and attached as the cause to the
          * {@link io.temporal.failure.ActivityFailure}
@@ -162,15 +161,12 @@ public class HelloException {
   }
 
   /**
-   * With our Workflow and Activities defined, we can now start execution. The main method is our
-   * workflow starter.
+   * With our Workflow and Activities defined, we can now start execution. The main method starts
+   * the worker and then the workflow.
    */
   public static void main(String[] args) {
 
-    /*
-     * Define the workflow service. It is a gRPC stubs wrapper which talks to the docker instance of
-     * our locally running Temporal service.
-     */
+    // Define the workflow service.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
 
     /*
@@ -202,14 +198,17 @@ public class HelloException {
     */
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
 
-    // Start all the workers registered for a specific task queue.
+    /*
+     * Start all the workers registered for a specific task queue.
+     * The started workers then start polling for workflows and activities.
+     */
     factory.start();
 
     // Create our workflow options
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder().setWorkflowId(WORKFLOW_ID).setTaskQueue(TASK_QUEUE).build();
 
-    // Create our workflow client stub. It is used to start our workflow execution.
+    // Create the workflow client stub. It is used to start our workflow execution.
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
 
     try {
