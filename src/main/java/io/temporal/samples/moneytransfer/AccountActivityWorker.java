@@ -26,7 +26,7 @@ import io.temporal.worker.WorkerFactory;
 
 public class AccountActivityWorker {
 
-  static final String TASK_QUEUE = "AccountTransfer";
+  public static final String TASK_QUEUE = "AccountTransfer";
 
   @SuppressWarnings("CatchAndPrintStackTrace")
   public static void main(String[] args) {

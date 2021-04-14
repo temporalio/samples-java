@@ -42,36 +42,69 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
- * TODO(maxim): This sample is broken. https://github.com/temporalio/temporal-java-samples/issues/10
+ * Sample Temporal workflow that demonstrates workflow search attributes.
+ *
+ * <p>To execute this example a locally running Temporal service instance is required. You can
+ * follow instructions on how to set up your Temporal service here:
+ * https://github.com/temporalio/temporal/blob/master/README.md#download-and-start-temporal-server-locally
  */
 public class HelloSearchAttributes {
 
-  static final String TASK_QUEUE = "HelloSearchAttributes";
+  // Define the task queue name
+  static final String TASK_QUEUE = "HelloSearchAttributesTaskQueue";
 
-  /** Workflow interface has to have at least one method annotated with @WorkflowMethod. */
+  // Define our workflow unique id
+  static final String WORKFLOW_ID = "HelloSearchAttributesWorkflow";
+
+  /**
+   * Define the Workflow Interface. It must contain one method annotated with @WorkflowMethod.
+   *
+   * <p>Workflow code includes core processing logic. It that shouldn't contain any heavyweight
+   * computations, non-deterministic code, network calls, database operations, etc. All those things
+   * should be handled by Activities.
+   *
+   * @see io.temporal.workflow.WorkflowInterface
+   * @see io.temporal.workflow.WorkflowMethod
+   */
   @WorkflowInterface
   public interface GreetingWorkflow {
+
+    /**
+     * This method is executed when the workflow is started. The workflow completes when the
+     * workflow method finishes execution.
+     */
     @WorkflowMethod
     String getGreeting(String name);
   }
 
-  /** Activity interface is just a POJI. */
+  /**
+   * Define the Activity Interface. Activities are building blocks of any temporal workflow and
+   * contain any business logic that could perform long running computation, network calls, etc.
+   *
+   * <p>Annotating activity methods with @ActivityMethod is optional
+   *
+   * @see io.temporal.activity.ActivityInterface
+   * @see io.temporal.activity.ActivityMethod
+   */
   @ActivityInterface
   public interface GreetingActivities {
     @ActivityMethod
     String composeGreeting(String greeting, String name);
   }
 
-  /** GreetingWorkflow implementation that calls GreetingsActivities#composeGreeting. */
+  // Define the workflow implementation which implements our getGreeting workflow method.
   public static class GreetingWorkflowImpl implements HelloActivity.GreetingWorkflow {
 
     /**
-     * Activity stub implements activity interface and proxies calls to it to Temporal activity
-     * invocations. Because activities are reentrant, only a single stub can be used for multiple
-     * activity invocations.
+     * Define the GreetingActivities stub. Activity stubs implement activity interfaces and proxy
+     * calls to it to Temporal activity invocations. Since Temporal activities are reentrant, a
+     * single activity stub can be used for multiple activity invocations.
+     *
+     * <p>Let's take a look at each {@link ActivityOptions} defined: The "setScheduleToCloseTimeout"
+     * option sets the overall timeout that our workflow is willing to wait for activity to
+     * complete. For this example it is set to 2 seconds.
      */
     private final GreetingActivities activities =
         Workflow.newActivityStub(
@@ -85,6 +118,10 @@ public class HelloSearchAttributes {
     }
   }
 
+  /**
+   * Implementation of our workflow activity interface. It overwrites our defined composeGreeting
+   * activity method.
+   */
   static class GreetingActivitiesImpl implements GreetingActivities {
     @Override
     public String composeGreeting(String greeting, String name) {
@@ -92,58 +129,101 @@ public class HelloSearchAttributes {
     }
   }
 
+  /**
+   * With our Workflow and Activities defined, we can now start execution. The main method starts
+   * the worker and then the workflow.
+   */
   public static void main(String[] args) {
-    // gRPC stubs wrapper that talks to the local docker instance of temporal service.
+
+    // Define the workflow service.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
-    // client that can be used to start and signal workflows
+
+    /*
+     * Define the workflow client. It is a Temporal service client used to start, signal, and query
+     * workflows
+     */
     WorkflowClient client = WorkflowClient.newInstance(service);
 
-    // worker factory that can be used to create workers for specific task queues
+    /*
+     * Define the workflow factory. It is used to create workflow workers for a specific task queue.
+     */
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    // Worker that listens on a task queue and hosts both workflow and activity implementations.
+
+    /*
+     * Define the workflow worker. Workflow workers listen to a defined task queue and process
+     * workflows and activities.
+     */
     Worker worker = factory.newWorker(TASK_QUEUE);
-    // Workflows are stateful. So you need a type to create instances.
+
+    /*
+     * Register our workflow implementation with the worker.
+     * Workflow implementations must be known to the worker at runtime in
+     * order to dispatch workflow tasks.
+     */
     worker.registerWorkflowImplementationTypes(HelloSearchAttributes.GreetingWorkflowImpl.class);
-    // Activities are stateless and thread safe. So a shared instance is used.
+
+    /*
+     Register our workflow activity implementation with the worker. Since workflow activities are
+     stateless and thread-safe, we need to register a shared instance.
+    */
     worker.registerActivitiesImplementations(new HelloSearchAttributes.GreetingActivitiesImpl());
-    // Start listening to the workflow and activity task queues.
+
+    /*
+     * Start all the workers registered for a specific task queue.
+     * The started workers then start polling for workflows and activities.
+     */
     factory.start();
 
-    // Set search attributes in workflowOptions
-    String workflowID = UUID.randomUUID().toString();
+    // Set our workflow options.
+    // Note that we set our search attributes here
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder()
+            .setWorkflowId(WORKFLOW_ID)
             .setTaskQueue(TASK_QUEUE)
-            .setWorkflowId(workflowID)
             .setSearchAttributes(generateSearchAttributes())
             .build();
-    // Get a workflow stub using the same task queue the worker uses.
+
+    // Create the workflow client stub. It is used to start our workflow execution.
     HelloSearchAttributes.GreetingWorkflow workflow =
         client.newWorkflowStub(HelloSearchAttributes.GreetingWorkflow.class, workflowOptions);
+
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("SearchAttributes");
 
-    WorkflowExecution execution = WorkflowExecution.newBuilder().setWorkflowId(workflowID).build();
+    // Get the workflow execution for the same id as our defined workflow
+    WorkflowExecution execution = WorkflowExecution.newBuilder().setWorkflowId(WORKFLOW_ID).build();
 
+    // Create the DescribeWorkflowExecutionRequest through which we can query our client for our
+    // search queries
     DescribeWorkflowExecutionRequest request =
         DescribeWorkflowExecutionRequest.newBuilder()
             .setNamespace(client.getOptions().getNamespace())
             .setExecution(execution)
             .build();
+
     try {
+      // Get the DescribeWorkflowExecutionResponse from our service
       DescribeWorkflowExecutionResponse resp =
           service.blockingStub().describeWorkflowExecution(request);
+
+      // get all search attributes
       SearchAttributes searchAttributes = resp.getWorkflowExecutionInfo().getSearchAttributes();
+      // Get the specific value of a keyword from the payload.
+      // In this case it is the "CustomKeywordField" with the value of "keys"
+      // You can update the code to extract other defined search attribute as well
       String keyword = getKeywordFromSearchAttribute(searchAttributes);
+      // Print the value of the "CustomKeywordField" field
       System.out.printf("In workflow we get CustomKeywordField is: %s\n", keyword);
     } catch (Exception e) {
       System.out.println(e);
     }
 
+    // Print the workflow execution results
     System.out.println(greeting);
     System.exit(0);
   }
 
+  // Generate our example search option
   private static Map<String, Object> generateSearchAttributes() {
     Map<String, Object> searchAttributes = new HashMap<>();
     searchAttributes.put(
