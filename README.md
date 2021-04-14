@@ -83,6 +83,7 @@ used for sample brevity and is not something we recommend for real applications.
 
   * **[HelloActivity](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloActivity.java)**: a single activity workflow
   * **[HelloActivityRetry](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloActivityRetry.java)**: how to retry an activity
+  * **[HelloActivityExclusiveChoice](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloActivityExclusiveChoice.java)**: how to execute activities based on dynamic input
   * **[HelloAsync](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloAsync.java)**: how to call activities asynchronously and wait for them using Promises
   * **[HelloAsyncActivityCompletion](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloAsyncActivityCompletion.java)**: an asynchronous activity implementation
   * **[HelloAsyncLambda](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloAsyncLambda.java)**: how to run part of a workflow asynchronously in a separate task (thread)
@@ -101,6 +102,7 @@ used for sample brevity and is not something we recommend for real applications.
   
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivity
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivityRetry
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivityExclusiveChoice
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAsync
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAsyncActivityCompletion
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAsyncLambda
