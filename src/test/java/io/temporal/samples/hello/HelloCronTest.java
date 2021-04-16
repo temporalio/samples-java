@@ -19,8 +19,8 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.hello.HelloCron.CRON_WORKFLOW_ID;
 import static io.temporal.samples.hello.HelloCron.TASK_QUEUE;
+import static io.temporal.samples.hello.HelloCron.WORKFLOW_ID;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -90,13 +90,13 @@ public class HelloCronTest {
         WorkflowOptions.newBuilder()
             .setCronSchedule("0 * * * *")
             .setTaskQueue(TASK_QUEUE)
-            .setWorkflowId(CRON_WORKFLOW_ID)
+            .setWorkflowId(WORKFLOW_ID)
             .build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
 
     // Execute a workflow waiting for it to complete.
     WorkflowExecution execution = WorkflowClient.start(workflow::greet, "World");
-    assertEquals(CRON_WORKFLOW_ID, execution.getWorkflowId());
+    assertEquals(WORKFLOW_ID, execution.getWorkflowId());
     // Use TestWorkflowEnvironment.sleep to execute the unit test without really sleeping.
     testEnv.sleep(Duration.ofDays(1));
     verify(activities, atLeast(10)).greet(anyString());

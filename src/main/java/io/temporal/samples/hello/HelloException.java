@@ -35,109 +35,97 @@ import java.io.IOException;
 import java.time.Duration;
 
 /**
- * Demonstrates exception propagation across activity, child workflow and workflow client
- * boundaries. Shows how to deal with checked exceptions.
- * <li>
+ * Sample Temporal workflow that demonstrates exception propagation across workflow activities,
+ * child workflow, parent workflow, and the workflow client.
  *
- *     <ul>
- *       Exceptions thrown by an activity are received by the workflow wrapped into an {@link
- *       io.temporal.workflow.ActivityFailureException}.
- * </ul>
- *
- * <ul>
- *   Exceptions thrown by a child workflow are received by a parent workflow wrapped into a {@link
- *   io.temporal.workflow.ChildWorkflowFailureException}.
- * </ul>
- *
- * <ul>
- *   Exceptions thrown by a workflow are received by a workflow client wrapped into {@link
- *   io.temporal.client.WorkflowFailureException}.
- * </ul>
- *
- * <p>In this example a Workflow Client executes a workflow which executes a child workflow which
- * executes an activity which throws an IOException. The resulting exception stack trace is:
- *
- * <pre>
- * io.temporal.client.WorkflowFailureException: WorkflowType="GreetingWorkflow::getGreeting", WorkflowID="38b9ce7a-e370-4cd8-a9f3-35e7295f7b3d", RunID="37ceb58c-9271-4fca-b5aa-ba06c5495214
- *     at io.temporal.internal.dispatcher.UntypedWorkflowStubImpl.getResult(UntypedWorkflowStubImpl.java:139)
- *     at io.temporal.internal.dispatcher.UntypedWorkflowStubImpl.getResult(UntypedWorkflowStubImpl.java:111)
- *     at io.temporal.internal.dispatcher.WorkflowExternalInvocationHandler.startWorkflow(WorkflowExternalInvocationHandler.java:187)
- *     at io.temporal.internal.dispatcher.WorkflowExternalInvocationHandler.invoke(WorkflowExternalInvocationHandler.java:113)
- *     at com.sun.proxy.$Proxy2.getGreeting(Unknown Source)
- *     at io.temporal.samples.hello.HelloException.main(HelloException.java:117)
- * Caused by: io.temporal.workflow.ChildWorkflowFailureException: WorkflowType="GreetingChild::composeGreeting", ID="37ceb58c-9271-4fca-b5aa-ba06c5495214:1", RunID="47859b47-da4c-4225-876a-462421c98c72, EventID=10
- *     at java.lang.Thread.getStackTrace(Thread.java:1559)
- *     at io.temporal.internal.dispatcher.ChildWorkflowInvocationHandler.executeChildWorkflow(ChildWorkflowInvocationHandler.java:114)
- *     at io.temporal.internal.dispatcher.ChildWorkflowInvocationHandler.invoke(ChildWorkflowInvocationHandler.java:71)
- *     at com.sun.proxy.$Proxy5.composeGreeting(Unknown Source:0)
- *     at io.temporal.samples.hello.HelloException$GreetingWorkflowImpl.getGreeting(HelloException.java:70)
- *     at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method:0)
- *     at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
- *     at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
- *     at java.lang.reflect.Method.invoke(Method.java:498)
- *     at io.temporal.internal.worker.POJOWorkflowImplementationFactory$POJOWorkflowImplementation.execute(POJOWorkflowImplementationFactory.java:160)
- * Caused by: io.temporal.workflow.ActivityFailureException: ActivityType="GreetingActivities::composeGreeting" ActivityID="1", EventID=7
- *     at java.lang.Thread.getStackTrace(Thread.java:1559)
- *     at io.temporal.internal.dispatcher.ActivityInvocationHandler.invoke(ActivityInvocationHandler.java:75)
- *     at com.sun.proxy.$Proxy6.composeGreeting(Unknown Source:0)
- *     at io.temporal.samples.hello.HelloException$GreetingChildImpl.composeGreeting(HelloException.java:85)
- *     ... 5 more
- * Caused by: java.io.IOException: Hello World!
- *     at io.temporal.samples.hello.HelloException$GreetingActivitiesImpl.composeGreeting(HelloException.java:93)
- *     at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method:0)
- *     at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
- *     at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
- *     at java.lang.reflect.Method.invoke(Method.java:498)
- *     at io.temporal.internal.worker.POJOActivityImplementationFactory$POJOActivityImplementation.execute(POJOActivityImplementationFactory.java:162)
- *
- * </pre>
- *
- * Note that there is only one level of wrapping when crossing logical process boundaries. And that
- * wrapper exception adds a lot of relevant information about failure.
- *
- * <p>{@link IOException} is a checked exception. The standard Java way of adding <code>
- * throws IOException</code> to activity, child and workflow interfaces is not going to help. It is
- * because at all levels it is never received directly, but in wrapped form. Propagating it without
- * wrapping would not allow adding additional context information like activity, child workflow and
- * parent workflow types and IDs. The Temporal library solution is to provide a special wrapper
- * method {@link Workflow#wrap(Exception)} which wraps a checked exception in a special runtime
- * exception. It is special because the framework strips it when chaining exceptions across logical
- * process boundaries. In this example IOException is directly attached to ActivityFailureException
- * besides being wrapped when rethrown.
+ * <p>To execute this example a locally running Temporal service instance is required. You can
+ * follow instructions on how to set up your Temporal service here:
+ * https://github.com/temporalio/temporal/blob/master/README.md#download-and-start-temporal-server-locally
  */
 public class HelloException {
 
-  static final String TASK_QUEUE = "HelloException";
+  // Define the task queue name
+  static final String TASK_QUEUE = "HelloExceptionTaskQueue";
 
+  // Define the workflow unique id
+  static final String WORKFLOW_ID = "HelloExceptionWorkflow";
+
+  /**
+   * Define the parent workflow interface. It must contain one method annotated with @WorkflowMethod
+   *
+   * @see io.temporal.workflow.WorkflowInterface
+   * @see io.temporal.workflow.WorkflowMethod
+   */
   @WorkflowInterface
   public interface GreetingWorkflow {
+
+    /**
+     * Define the parent workflow method. This method is executed when the workflow is started. The
+     * workflow completes when the workflow method finishes execution.
+     */
     @WorkflowMethod
     String getGreeting(String name);
   }
 
+  /**
+   * Define the child workflow interface. It must contain one method annotated with @WorkflowMethod
+   *
+   * @see io.temporal.workflow.WorkflowInterface
+   * @see io.temporal.workflow.WorkflowMethod
+   */
   @WorkflowInterface
   public interface GreetingChild {
+
+    /**
+     * Define the child workflow method. This method is executed when the workflow is started. The
+     * workflow completes when the workflow method finishes execution.
+     */
     @WorkflowMethod
     String composeGreeting(String greeting, String name);
   }
 
+  /**
+   * Define the Activity Interface. Activities are building blocks of any temporal workflow and
+   * contain any business logic that could perform long running computation, network calls, etc.
+   *
+   * <p>Annotating activity methods with @ActivityMethod is optional
+   *
+   * @see io.temporal.activity.ActivityInterface
+   * @see io.temporal.activity.ActivityMethod
+   */
   @ActivityInterface
   public interface GreetingActivities {
+
     String composeGreeting(String greeting, String name);
   }
 
-  /** Parent implementation that calls GreetingChild#composeGreeting. */
+  // Define the parent workflow implementation. It implements the getGreeting workflow method
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
     @Override
     public String getGreeting(String name) {
+
+      // Create the child workflow stub
       GreetingChild child = Workflow.newChildWorkflowStub(GreetingChild.class);
+      // Execute the child workflow
       return child.composeGreeting("Hello", name);
     }
   }
 
-  /** Child workflow implementation. */
+  // Define the child workflow implementation. It implements the composeGreeting workflow method
   public static class GreetingChildImpl implements GreetingChild {
+
+    /**
+     * Define the GreetingActivities stub. Activity stubs are proxies for activity invocations that
+     * are executed outside of the workflow thread on the activity worker, that can be on a
+     * different host. Temporal is going to dispatch the activity results back to the workflow and
+     * unblock the stub as soon as activity is completed on the activity worker.
+     *
+     * <p>Let's take a look at each {@link ActivityOptions} defined:
+     *
+     * <p>The "setScheduleToCloseTimeout" option sets the overall timeout that the workflow is
+     * willing to wait for activity to complete. For this example it is set to 10 seconds.
+     */
     private final GreetingActivities activities =
         Workflow.newActivityStub(
             GreetingActivities.class,
@@ -149,46 +137,107 @@ public class HelloException {
     }
   }
 
+  /**
+   * Implementation of the workflow activity interface. It overwrites the defined composeGreeting
+   * activity method.
+   */
   static class GreetingActivitiesImpl implements GreetingActivities {
     @Override
     public String composeGreeting(String greeting, String name) {
       try {
+        // here we simulate IOException being thrown inside the activity method
+        // in order to show how it propagates through the workflow execution
         throw new IOException(greeting + " " + name + "!");
       } catch (IOException e) {
-        // Wrapping the exception as checked exceptions in activity and workflow interface methods
-        // are prohibited.
-        // It will be unwrapped and attached as a cause to the ActivityFailureException.
+        /*
+         * Instead of adding the thrown exception to the activity method signature
+         * wrap it using Workflow.wrap before re-throwing it.
+         * The original checked exception will be unwrapped and attached as the cause to the
+         * {@link io.temporal.failure.ActivityFailure}
+         */
         throw Workflow.wrap(e);
       }
     }
   }
 
+  /**
+   * With our Workflow and Activities defined, we can now start execution. The main method starts
+   * the worker and then the workflow.
+   */
   public static void main(String[] args) {
-    // gRPC stubs wrapper that talks to the local docker instance of temporal service.
+
+    // Define the workflow service.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
-    // client that can be used to start and signal workflows
+
+    /*
+     * Define the workflow client. It is a Temporal service client used to start, signal, and query
+     * workflows
+     */
     WorkflowClient client = WorkflowClient.newInstance(service);
 
-    // worker factory that can be used to create workers for specific task queues
+    /*
+     * Define the workflow factory. It is used to create workflow workers for a specific task queue.
+     */
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    // Worker that listens on a task queue and hosts both workflow and activity implementations.
+
+    /*
+     * Define the workflow worker. Workflow workers listen to a defined task queue and process
+     * workflows and activities.
+     */
     Worker worker = factory.newWorker(TASK_QUEUE);
+
+    /*
+     * Register our workflow parent and child implementations with the worker.
+     * Since workflows are stateful in nature, we need to register our workflow types.
+     */
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class, GreetingChildImpl.class);
+
+    /*
+     Register our workflow activity implementation with the worker. Since workflow activities are
+     stateless and thread-safe, we need to register a shared instance.
+    */
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
+
+    /*
+     * Start all the workers registered for a specific task queue.
+     * The started workers then start polling for workflows and activities.
+     */
     factory.start();
 
-    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build();
+    // Create our workflow options
+    WorkflowOptions workflowOptions =
+        WorkflowOptions.newBuilder().setWorkflowId(WORKFLOW_ID).setTaskQueue(TASK_QUEUE).build();
+
+    // Create the workflow client stub. It is used to start our workflow execution.
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
+
     try {
+      // Execute our parent workflow. This will call the child workflow, which then calls the
+      // defined workflow activity. The workflow activity throws the exception.
       workflow.getGreeting("World");
       throw new IllegalStateException("unreachable");
     } catch (WorkflowException e) {
-      Throwable cause = Throwables.getRootCause(e);
-      // prints "Hello World!"
-      System.out.println(cause.getMessage());
-      // Look at the stack trace which includes the complete information about the location of the
-      // failure.
+
+      /*
+       * Now let's take a look at the actual stack trace. This stack trace should help you better understand
+       * how exception propagation works with Temporal.
+       *
+       * Looking at the stack trace from bottom-up (to understand the propagation) we first have:
+       * 1) Caused by: io.temporal.failure.ApplicationFailure: message='Hello World!', type='java.io.IOException'
+       * this is the IOException thrown by our activity.
+       * 2) Caused by: io.temporal.failure.ActivityFailure - indicates the execution failure of our activity
+       * 3) Caused by: io.temporal.failure.ChildWorkflowFailure - indicates the failure of our child workflow execution
+       * 4) io.temporal.client.WorkflowFailedException - indicates the failure of our workflow execution
+       */
       System.out.println("\nStack Trace:\n" + Throwables.getStackTraceAsString(e));
+
+      /* Now let's see if our original IOException was indeed propagated all the way to our
+       * WorkflowException which we caught in our code.
+       * To do this let's print out its root cause:
+       */
+      Throwable cause = Throwables.getRootCause(e);
+      // here we should get our originally thrown IOException and the message "Hello World"
+      System.out.println("\n Root cause: " + cause.getMessage());
     }
     System.exit(0);
   }

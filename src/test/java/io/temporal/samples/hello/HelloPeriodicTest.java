@@ -19,8 +19,7 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.hello.HelloPeriodic.PERIODIC_WORKFLOW_ID;
-import static io.temporal.samples.hello.HelloPeriodic.TASK_QUEUE;
+import static io.temporal.samples.hello.HelloPeriodic.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -96,19 +95,18 @@ public class HelloPeriodicTest {
             GreetingWorkflow.class,
             WorkflowOptions.newBuilder()
                 .setTaskQueue(TASK_QUEUE)
-                .setWorkflowId(PERIODIC_WORKFLOW_ID)
+                .setWorkflowId(WORKFLOW_ID)
                 .build());
     // Execute a workflow waiting for it to complete.
     WorkflowExecution execution = WorkflowClient.start(workflow::greetPeriodically, "World");
-    assertEquals(PERIODIC_WORKFLOW_ID, execution.getWorkflowId());
+    assertEquals(WORKFLOW_ID, execution.getWorkflowId());
     // Validate that workflow was continued as new at least once.
     // Use TestWorkflowEnvironment.sleep to execute the unit test without really sleeping.
     testEnv.sleep(Duration.ofMinutes(3));
     ListClosedWorkflowExecutionsRequest request =
         ListClosedWorkflowExecutionsRequest.newBuilder()
             .setNamespace(testEnv.getNamespace())
-            .setExecutionFilter(
-                WorkflowExecutionFilter.newBuilder().setWorkflowId(PERIODIC_WORKFLOW_ID))
+            .setExecutionFilter(WorkflowExecutionFilter.newBuilder().setWorkflowId(WORKFLOW_ID))
             .build();
     ListClosedWorkflowExecutionsResponse listResponse =
         testEnv.getWorkflowService().blockingStub().listClosedWorkflowExecutions(request);
@@ -131,11 +129,11 @@ public class HelloPeriodicTest {
             GreetingWorkflow.class,
             WorkflowOptions.newBuilder()
                 .setTaskQueue(TASK_QUEUE)
-                .setWorkflowId(PERIODIC_WORKFLOW_ID)
+                .setWorkflowId(WORKFLOW_ID)
                 .build());
     // Execute a workflow waiting for it to complete.
     WorkflowExecution execution = WorkflowClient.start(workflow::greetPeriodically, "World");
-    assertEquals(PERIODIC_WORKFLOW_ID, execution.getWorkflowId());
+    assertEquals(WORKFLOW_ID, execution.getWorkflowId());
     // Use TestWorkflowEnvironment.sleep to execute the unit test without really sleeping.
     testEnv.sleep(Duration.ofMinutes(1));
     verify(activities, atLeast(5)).greet(anyString());
