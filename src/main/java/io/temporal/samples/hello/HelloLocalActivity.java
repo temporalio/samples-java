@@ -33,21 +33,49 @@ import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 
 /**
- * Hello World Temporal workflow that executes a single activity. Requires a local instance the
+ * <p>
+ * Hello World Temporal workflow that executes a single local activity. Requires a local instance the
  * Temporal service to be running.
+ * </p>
+ * <p>
+ * Some of the Activities are very short lived and do not need the queing semantic, flow control, rate limiting
+ * and routing capabilities. For these Temporal supports so called local Activity feature. Local Activities are
+ * executed in the same worker process as the Workflow that invoked them. Consider using local Activities for functions
+ * that are:
+ * </p>
+ * <ul>
+ * <li>no longer than a few seconds</li>
+ * <li>do not require global rate limiting</li>
+ * <li>do not require routing to specific workers or pools of workers</li>
+ * <li>can be implemented in the same binary as the Workflow that invokes them</li>
+ *</ul>
+ *
+ * <p>
+ * The main benefit of local Activities is that they are much more efficient in utilizing Temporal service resources
+ * and have much lower latency overhead comparing to the usual Activity invocation.
+ * </p>
  */
 public class HelloLocalActivity {
 
   static final String TASK_QUEUE = "HelloLocalActivity";
 
-  /** Workflow interface has to have at least one method annotated with @WorkflowMethod. */
+  /**
+   * Define the Workflow Interface. It must contain one method annotated with @WorkflowMethod.
+   *
+   * <p>Workflow code includes core processing logic. It that shouldn't contain any heavyweight
+   * computations, non-deterministic code, network calls, database operations, etc. All those things
+   * should be handled by Activities.
+   *
+   * @see io.temporal.workflow.WorkflowInterface
+   * @see io.temporal.workflow.WorkflowMethod
+   */
   @WorkflowInterface
   public interface GreetingWorkflow {
     @WorkflowMethod
     String getGreeting(String name);
   }
 
-  /** Activity interface is just a POJI. */
+  /** Activity interface is just a POJO. */
   @ActivityInterface
   public interface GreetingActivities {
     @ActivityMethod
