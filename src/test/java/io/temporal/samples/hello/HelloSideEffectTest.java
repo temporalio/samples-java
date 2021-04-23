@@ -71,7 +71,7 @@ public class HelloSideEffectTest {
             WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
     // Execute a workflow waiting for it to complete.
     String result = workflow.execute();
-    // make sure the result is same as the query result after its completion
+    // make sure the result is same as the query result after workflow completion
     assertEquals(result, workflow.getResult());
   }
 }
