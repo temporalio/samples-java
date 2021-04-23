@@ -93,9 +93,9 @@ public class HelloActivityRetry {
      * different host. Temporal is going to dispatch the activity results back to the workflow and
      * unblock the stub as soon as activity is completed on the activity worker.
      *
-     * <p>Let's take a look at each {@link ActivityOptions} defined: The "setScheduleToCloseTimeout"
-     * option sets the overall timeout that our workflow is willing to wait for activity to
-     * complete. For this example it is set to 10 seconds.
+     * <p>Let's take a look at each {@link ActivityOptions} defined: The "setStartToCloseTimeout"
+     * option sets the maximum time of a single Activity execution attempt. For this example it is
+     * set to 10 seconds.
      *
      * <p>Let's take a look at each {@link RetryOptions} defined: The "setInitialInterval" option
      * sets the interval of the first retry. It is set to 1 second. The "setDoNotRetry" option is a
@@ -108,7 +108,7 @@ public class HelloActivityRetry {
         Workflow.newActivityStub(
             GreetingActivities.class,
             ActivityOptions.newBuilder()
-                .setScheduleToCloseTimeout(Duration.ofSeconds(10))
+                .setStartToCloseTimeout(Duration.ofSeconds(10))
                 .setRetryOptions(
                     RetryOptions.newBuilder()
                         .setInitialInterval(Duration.ofSeconds(1))

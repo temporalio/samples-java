@@ -119,20 +119,18 @@ public class HelloPolymorphicActivity {
      *
      * <p>For this example we define two activity stubs, one for each of the defined activities.
      *
-     * <p>Let's take a look at each {@link ActivityOptions} defined: The "setScheduleToCloseTimeout"
-     * option sets the overall timeout that the workflow is willing to wait for activity to
-     * complete. For this example it is set to 2 seconds for each of the defined activities.
+     * <p>Let's take a look at each {@link ActivityOptions} defined: The "setStartToCloseTimeout"
+     * option sets the maximum time of a single Activity execution attempt. For this example it is
+     * set to 2 seconds.
      */
     private final GreetingActivity[] activities =
         new GreetingActivity[] {
           Workflow.newActivityStub(
               HelloActivity.class,
-              ActivityOptions.newBuilder()
-                  .setScheduleToCloseTimeout(Duration.ofSeconds(2))
-                  .build()),
+              ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(2)).build()),
           Workflow.newActivityStub(
               ByeActivity.class,
-              ActivityOptions.newBuilder().setScheduleToCloseTimeout(Duration.ofSeconds(2)).build())
+              ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(2)).build())
         };
 
     @Override

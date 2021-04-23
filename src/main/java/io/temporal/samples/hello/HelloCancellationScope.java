@@ -110,8 +110,8 @@ public class HelloCancellationScope {
      *
      * <p>Let's take a look at each {@link ActivityOptions} defined:
      *
-     * <p>The "setScheduleToCloseTimeout" option sets the overall timeout that our workflow is
-     * willing to wait for activity to complete. For this example it is set to 10 seconds.
+     * <p>The "setStartToCloseTimeout" option sets the maximum time of a single Activity execution
+     * attempt. For this example it is set to 10 seconds.
      *
      * <p>The "setCancellationType" option means that in case of activity cancellation the activity
      * should fail with {@link CanceledFailure}. We set
@@ -123,7 +123,7 @@ public class HelloCancellationScope {
         Workflow.newActivityStub(
             GreetingActivities.class,
             ActivityOptions.newBuilder()
-                .setScheduleToCloseTimeout(Duration.ofSeconds(100))
+                .setStartToCloseTimeout(Duration.ofSeconds(10))
                 .setCancellationType(ActivityCancellationType.WAIT_CANCELLATION_COMPLETED)
                 .build());
 

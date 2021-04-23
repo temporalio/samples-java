@@ -100,14 +100,14 @@ public class HelloPeriodic {
      * different host. Temporal is going to dispatch the activity results back to the workflow and
      * unblock the stub as soon as activity is completed on the activity worker.
      *
-     * <p>Let's take a look at each {@link ActivityOptions} defined: The "setScheduleToCloseTimeout"
-     * option sets the overall timeout that the workflow is willing to wait for activity to
-     * complete. For this example it is set to ten seconds.
+     * <p>Let's take a look at each {@link ActivityOptions} defined: The "setStartToCloseTimeout"
+     * option sets the maximum time of a single Activity execution attempt. For this example it is
+     * set to 10 seconds.
      */
     private final GreetingActivities activities =
         Workflow.newActivityStub(
             GreetingActivities.class,
-            ActivityOptions.newBuilder().setScheduleToCloseTimeout(Duration.ofSeconds(10)).build());
+            ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(10)).build());
 
     // Create our workflow stub that can be used to continue this workflow as a new run
     // We use this because we want each workflow execution to be a separate workflow invocation
