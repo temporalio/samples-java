@@ -26,10 +26,11 @@ import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
-import io.temporal.worker.WorkerFactoryOptions;
+import io.temporal.workflow.QueryMethod;
 import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
+import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.Random;
 import java.util.UUID;
@@ -73,7 +74,13 @@ public class HelloSideEffect {
      * workflow method finishes execution.
      */
     @WorkflowMethod
-    String start();
+    String execute();
+
+    @QueryMethod
+    int getSafeRandomInt();
+
+    @QueryMethod
+    int getUnsafeRandomInt();
   }
 
   /**
@@ -89,7 +96,7 @@ public class HelloSideEffect {
   public interface SideEffectActivities {
 
     // Define your activity method which can be called during workflow execution
-    String doSomething(String input);
+    String greet(String greeting);
   }
 
   // Define the workflow implementation which implements our execute workflow method.
@@ -101,90 +108,71 @@ public class HelloSideEffect {
      * different host. Temporal is going to dispatch the activity results back to the workflow and
      * unblock the stub as soon as activity is completed on the activity worker.
      *
-     * <p>Let's take a look at each {@link ActivityOptions} defined: The "setScheduleToCloseTimeout"
-     * option sets the overall timeout that our workflow is willing to wait for activity to
-     * complete. For this example it is set to 2 seconds.
+     * <p>Let's take a look at each {@link ActivityOptions} defined: The "setStartToCloseTimeout"
+     * option sets maximum time of a single Activity execution attempt. For this example it is set
+     * to 2 seconds.
      */
     private final SideEffectActivities activities =
         Workflow.newActivityStub(
             SideEffectActivities.class,
-            ActivityOptions.newBuilder().setScheduleToCloseTimeout(Duration.ofSeconds(2)).build());
+            ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(2)).build());
 
-    int randomInt, savedRandomInt;
-    String randomID, savedRandomID;
-    int sideEffectsRandomInt, savedSideEffectsRandomInt;
-    String sideEffectsRandomID, savedSideEffectsRandomID;
-    int unsafeRandomInt, savedUnsafeRandomInt;
+    int randomInt, sideEffectsRandomInt, unsafeRandomInt;
+    String randomUUID, sideEffectsRandomUUID;
 
     @Override
-    public String start() {
+    public String execute() {
 
       // Replay-safe way to create random number using Workflow.newRandom
       randomInt = Workflow.newRandom().nextInt();
-      savedRandomInt = Workflow.sideEffect(int.class, () -> randomInt);
 
       // Replay-safe way to create random uuid
-      randomID = Workflow.randomUUID().toString();
-      savedRandomID = Workflow.sideEffect(String.class, () -> randomID);
+      randomUUID = Workflow.randomUUID().toString();
 
       /*
        * Random number using side effects. Note that this value is recorded in workflow history.
        * On replay the same value is returned so determinism is guaranteed.
        */
-      sideEffectsRandomInt = Workflow.sideEffect(int.class, () -> new Random().nextInt());
-      savedSideEffectsRandomInt = Workflow.sideEffect(int.class, () -> sideEffectsRandomInt);
+      sideEffectsRandomInt =
+          Workflow.sideEffect(
+              int.class,
+              () -> {
+                Random random = new SecureRandom();
+                return random.nextInt();
+              });
 
       /*
        * Random ID using side effects. Note that this value is recorded in workflow history.
        * On replay the same value is returned so determinism is guaranteed.
        */
-      sideEffectsRandomID = Workflow.sideEffect(String.class, UUID.randomUUID()::toString);
-      savedSideEffectsRandomID = Workflow.sideEffect(String.class, () -> sideEffectsRandomID);
+      sideEffectsRandomUUID = Workflow.sideEffect(String.class, UUID.randomUUID()::toString);
 
       /**
-       * Let's now show unsafe (not-deterministic way) If we use the new Random().nextInt() it will
-       * be re-evaluated on replay However savedUnsafeRandomInt use sideEffect and will have the
-       * save return value on replay.
+       * Unsafe (not-deterministic way). We can query this after workflow execution to show that
+       * it's value changes.
        */
       unsafeRandomInt = new Random().nextInt();
-      savedUnsafeRandomInt = Workflow.sideEffect(int.class, () -> unsafeRandomInt);
 
-      /**
-       * Execute activity (sync) - with sticky exec disabled (see WorkerFactory creation in main)
-       */
-      String result = activities.doSomething("Hello");
+      /** Execute activity (sync) */
+      return activities.greet("World!");
+    }
 
-      if (randomInt != savedRandomInt) {
-        throw new IllegalStateException("Random ints not equal");
-      }
+    @Override
+    public int getSafeRandomInt() {
+      return randomInt;
+    }
 
-      if (sideEffectsRandomInt != savedSideEffectsRandomInt) {
-        throw new IllegalStateException("Sideffect random ints not equal");
-      }
-
-      if (!randomID.equals(savedRandomID)) {
-        throw new IllegalStateException("Random IDs not equal");
-      }
-
-      if (!sideEffectsRandomID.equals(savedSideEffectsRandomID)) {
-        throw new IllegalStateException("Sideffect random IDs not equal");
-      }
-
-      // This check will fail as unsafeRandomInt it was created not safely
-      // and breaks workflow determinism
-      if (unsafeRandomInt != savedUnsafeRandomInt) {
-        return "Unsafely created random numbers are not equal";
-      }
-
-      return result;
+    @Override
+    public int getUnsafeRandomInt() {
+      return unsafeRandomInt;
     }
   }
 
   /** Simple activity implementation. */
   static class SideEffectActivitiesImpl implements SideEffectActivities {
     @Override
-    public String doSomething(String input) {
-      return "Received input: " + input;
+    public String greet(String greeting) {
+      return "Hello " + greeting;
     }
   }
 
@@ -205,15 +193,8 @@ public class HelloSideEffect {
 
     /*
      * Define the workflow factory. It is used to create workflow workers for a specific task queue.
-     * For this example we set the setWorkflowHostLocalTaskQueueScheduleToStartTimeout to zero
-     * (to disable sticky execution)
      */
-    WorkerFactory factory =
-        WorkerFactory.newInstance(
-            client,
-            WorkerFactoryOptions.newBuilder()
-                .setWorkflowHostLocalTaskQueueScheduleToStartTimeout(Duration.ZERO)
-                .build());
+    WorkerFactory factory = WorkerFactory.newInstance(client);
 
     /*
      * Define the workflow worker. Workflow workers listen to a defined task queue and process
@@ -256,11 +237,20 @@ public class HelloSideEffect {
      * See {@link io.temporal.samples.hello.HelloSignal} for an example of starting workflow
      * without waiting synchronously for its result.
      */
-    String result = workflow.start();
+    String result = workflow.execute();
 
-    // Note that result should be
-    // "Unsafely created random numbers are not equal"
+    // Query workflow to see random int which uses Workflow.SideEffects
+    // It's value should not change on each query (deterministic)
+    System.out.println("First query safe random int: " + workflow.getSafeRandomInt());
+    System.out.println("Second query safe random int: " + workflow.getSafeRandomInt());
+
+    // Query workflow to see the unsafeRandomInt change each time (non-deterministic)
+    System.out.println("First query unsafe random int: " + workflow.getUnsafeRandomInt());
+    System.out.println("Second query unsafe random int: " + workflow.getUnsafeRandomInt());
+
+    // Print workflow result
     System.out.println(result);
+
     System.exit(0);
   }
 }
