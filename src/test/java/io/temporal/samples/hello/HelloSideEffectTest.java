@@ -24,16 +24,15 @@ import static org.junit.Assert.assertEquals;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.testing.TestEnvironmentOptions;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
+import io.temporal.worker.WorkerFactoryOptions;
+import java.time.Duration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * Note that TestWorkflowEnvironment does not disable sticky execution, so our workflow will return
- * the activity results.
- */
 public class HelloSideEffectTest {
   private TestWorkflowEnvironment testEnv;
   private Worker worker;
@@ -41,7 +40,15 @@ public class HelloSideEffectTest {
 
   @Before
   public void setUp() {
-    testEnv = TestWorkflowEnvironment.newInstance();
+    TestEnvironmentOptions testEnvironmentOptions =
+        TestEnvironmentOptions.newBuilder()
+            .setWorkerFactoryOptions(
+                WorkerFactoryOptions.newBuilder()
+                    .setWorkflowHostLocalTaskQueueScheduleToStartTimeout(Duration.ZERO)
+                    .build())
+            .build();
+
+    testEnv = TestWorkflowEnvironment.newInstance(testEnvironmentOptions);
     worker = testEnv.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(HelloSideEffect.SideEffectWorkflowImpl.class);
     client = testEnv.getWorkflowClient();
@@ -64,6 +71,6 @@ public class HelloSideEffectTest {
             WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
     // Execute a workflow waiting for it to complete.
     String result = workflow.start();
-    assertEquals("Received input: Hello", result);
+    assertEquals("Unsafely created random numbers are not equal", result);
   }
 }
