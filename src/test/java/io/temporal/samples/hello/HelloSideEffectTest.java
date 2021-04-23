@@ -21,7 +21,6 @@ package io.temporal.samples.hello;
 
 import static io.temporal.samples.hello.HelloActivity.TASK_QUEUE;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
@@ -72,13 +71,7 @@ public class HelloSideEffectTest {
             WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
     // Execute a workflow waiting for it to complete.
     String result = workflow.execute();
-    assertEquals("Hello World!", result);
-
-    // query the workflow unsafe random int twice and compare
-
-    int unsafe1 = workflow.getUnsafeRandomInt();
-    int unsafe2 = workflow.getUnsafeRandomInt();
-
-    assertNotEquals(unsafe1, unsafe2);
+    // make sure the result is same as the query result after its completion
+    assertEquals(result, workflow.getResult());
   }
 }

@@ -77,10 +77,7 @@ public class HelloSideEffect {
     String execute();
 
     @QueryMethod
-    int getSafeRandomInt();
-
-    @QueryMethod
-    int getUnsafeRandomInt();
+    String getResult();
   }
 
   /**
@@ -95,8 +92,10 @@ public class HelloSideEffect {
   @ActivityInterface
   public interface SideEffectActivities {
 
-    // Define your activity method which can be called during workflow execution
-    String greet(String greeting);
+    // Define your activity methods which can be called during workflow execution
+    String sayHello(String greeting);
+
+    String sayGoodBye(String greeting);
   }
 
   // Define the workflow implementation which implements our execute workflow method.
@@ -117,8 +116,9 @@ public class HelloSideEffect {
             SideEffectActivities.class,
             ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(2)).build());
 
-    int randomInt, sideEffectsRandomInt, unsafeRandomInt;
-    String randomUUID, sideEffectsRandomUUID;
+    int randomInt, sideEffectsRandomInt;
+    UUID randomUUID;
+    String result;
 
     @Override
     public String execute() {
@@ -127,7 +127,7 @@ public class HelloSideEffect {
       randomInt = Workflow.newRandom().nextInt();
 
       // Replay-safe way to create random uuid
-      randomUUID = Workflow.randomUUID().toString();
+      randomUUID = Workflow.randomUUID();
 
       /*
        * Random number using side effects. Note that this value is recorded in workflow history.
@@ -141,38 +141,35 @@ public class HelloSideEffect {
                 return random.nextInt();
               });
 
-      /*
-       * Random ID using side effects. Note that this value is recorded in workflow history.
-       * On replay the same value is returned so determinism is guaranteed.
-       */
-      sideEffectsRandomUUID = Workflow.sideEffect(String.class, UUID.randomUUID()::toString);
-
       /**
-       * Unsafe (not-deterministic way). We can query this after workflow execution to show that
-       * it's value changes.
+       * Since our randoms are all created safely (using SideEffects or Workflow deterministic
+       * methods) the workflow result should be same as the queries ran after workflow completion.
+       * In the case we did not use safe methods, the queries could have a different result.
        */
-      unsafeRandomInt = new Random().nextInt();
-
-      /** Execute activity (sync) */
-      return activities.greet("World!");
+      if ((randomUUID.version() + randomInt + sideEffectsRandomInt) % 2 == 0) {
+        result = activities.sayHello("World");
+      } else {
+        result = activities.sayGoodBye("World!");
+      }
+      return result;
     }
 
     @Override
-    public int getSafeRandomInt() {
-      return randomInt;
-    }
-
-    @Override
-    public int getUnsafeRandomInt() {
-      return unsafeRandomInt;
+    public String getResult() {
+      return result;
     }
   }
 
   /** Simple activity implementation. */
   static class SideEffectActivitiesImpl implements SideEffectActivities {
     @Override
-    public String greet(String greeting) {
+    public String sayHello(String greeting) {
       return "Hello " + greeting;
+    }
+
+    @Override
+    public String sayGoodBye(String greeting) {
+      return "Goodbye " + greeting;
     }
   }
 
@@ -239,17 +236,11 @@ public class HelloSideEffect {
      */
     String result = workflow.execute();
 
-    // Query workflow to see random int which uses Workflow.SideEffects
-    // It's value should not change on each query (deterministic)
-    System.out.println("First query safe random int: " + workflow.getSafeRandomInt());
-    System.out.println("Second query safe random int: " + workflow.getSafeRandomInt());
-
-    // Query workflow to see the unsafeRandomInt change each time (non-deterministic)
-    System.out.println("First query unsafe random int: " + workflow.getUnsafeRandomInt());
-    System.out.println("Second query unsafe random int: " + workflow.getUnsafeRandomInt());
-
     // Print workflow result
     System.out.println(result);
+
+    // Note that query should return the exact same result
+    System.out.println(workflow.getResult());
 
     System.exit(0);
   }
