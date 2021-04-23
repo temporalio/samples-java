@@ -116,6 +116,7 @@ used for sample brevity and is not something we recommend for real applications.
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSaga
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSignal
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSearchAttributes
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSideEffect
 
 ### File Processing
 [FileProcessing](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/fileprocessing)
