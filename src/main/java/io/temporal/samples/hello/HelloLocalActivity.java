@@ -38,7 +38,7 @@ import java.time.Duration;
  * Temporal service to be running.
  * </p>
  * <p>
- * Some of the Activities are very short lived and do not need the queing semantic, flow control, rate limiting
+ * Some of the Activities are very short lived and do not need the queuing semantic, flow control, rate limiting
  * and routing capabilities. For these Temporal supports so called local Activity feature. Local Activities are
  * executed in the same worker process as the Workflow that invoked them. Consider using local Activities for functions
  * that are:
