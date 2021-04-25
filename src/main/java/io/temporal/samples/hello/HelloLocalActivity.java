@@ -94,7 +94,7 @@ public class HelloLocalActivity {
         Workflow.newLocalActivityStub(
             GreetingActivities.class,
             LocalActivityOptions.newBuilder()
-                .setScheduleToCloseTimeout(Duration.ofSeconds(2))
+                .setStartToCloseTimeout(Duration.ofSeconds(2))
                 .build());
 
     @Override
