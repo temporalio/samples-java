@@ -39,10 +39,13 @@ import java.util.UUID;
  * Sample Temporal workflow that shows use of workflow SideEffect.
  *
  * <p>Workflow methods must be deterministic. In order to execute non-deterministic code, such as
- * random number generation as shown in this example, you should use Workflow.SideEffect
+ * random number generation as shown in this example, you should use Workflow.SideEffect.
+ * Workflow.SideEffect is typically used for very quick-running operations, where as
+ * Workflow Activities or Local Activities, which can also execute non-deterministic code,
+ * are meant for more expensive operations.
  *
  * <p>Note: you should not use SideEffect function to modify the workflow state. For that you should
- * only use the SideEffects return value!
+ * only use the SideEffect's return value!
  *
  * <p>To execute this example a locally running Temporal service instance is required. You can
  * follow instructions on how to set up your Temporal service here:
@@ -59,7 +62,7 @@ public class HelloSideEffect {
   /**
    * Define the Workflow Interface. It must contain one method annotated with @WorkflowMethod.
    *
-   * <p>Workflow code includes core processing logic. It that shouldn't contain any heavyweight
+   * <p>Workflow code includes core processing logic. It shouldn't contain any heavyweight
    * computations, non-deterministic code, network calls, database operations, etc. All those things
    * should be handled by Activities.
    *

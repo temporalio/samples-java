@@ -81,22 +81,24 @@ Don't forget to check unit tests found under [src/test/java](https://github.com/
 Each Hello World sample  demonstrates one feature of the SDK in a single file. Note that single file format is
 used for sample brevity and is not something we recommend for real applications.
 
-  * **[HelloActivity](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloActivity.java)**: a single activity workflow
-  * **[HelloActivityRetry](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloActivityRetry.java)**: how to retry an activity
-  * **[HelloActivityExclusiveChoice](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloActivityExclusiveChoice.java)**: how to execute activities based on dynamic input
-  * **[HelloAsync](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloAsync.java)**: how to call activities asynchronously and wait for them using Promises
-  * **[HelloAsyncActivityCompletion](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloAsyncActivityCompletion.java)**: an asynchronous activity implementation
-  * **[HelloAsyncLambda](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloAsyncLambda.java)**: how to run part of a workflow asynchronously in a separate task (thread)
-  * **[HelloCancellationScope](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloCancellationScope.java)**: how to explicitly cancel parts of a workflow
-  * **[HelloChild](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloChild.java)**: a child workflow
-  * **[HelloCron](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloCron.java)**: a workflow that is executed according to a cron schedule
-  * **[HelloPeriodic](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloPeriodic.java)**: a workflow that executes some logic periodically
-  * **[HelloException](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloException.java)**: exception propagation and wrapping
-  * **[HelloPolymorphicActivity](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloPolymorphicActivity.java)**: activities that extend a common interface
-  * **[HelloQuery](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloQuery.java)**: demonstrates how to query a state of a single workflow
-  * **[HelloSignal](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloSignal.java)**: sending and handling a signal
+  * **[HelloActivity](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloActivity.java)**: Single activity workflow
+  * **[HelloActivityRetry](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloActivityRetry.java)**: How to retry an activity
+  * **[HelloActivityExclusiveChoice](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloActivityExclusiveChoice.java)**: How to execute activities based on dynamic input
+  * **[HelloAsync](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloAsync.java)**: How to call activities asynchronously and wait for them using Promises
+  * **[HelloAsyncActivityCompletion](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloAsyncActivityCompletion.java)**: Asynchronous activity implementation
+  * **[HelloAsyncLambda](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloAsyncLambda.java)**: How to run part of a workflow asynchronously in a separate task (thread)
+  * **[HelloCancellationScope](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloCancellationScope.java)**: How to explicitly cancel parts of a workflow
+  * **[HelloChild](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloChild.java)**: Child workflow
+  * **[HelloCron](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloCron.java)**: Workflow that is executed according to a cron schedule
+  * **[HelloPeriodic](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloPeriodic.java)**: Workflow that executes some logic periodically 
+  * **[HelloException](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloException.java)**: Exception propagation and wrapping
+  * **[HelloPolymorphicActivity](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloPolymorphicActivity.java)**: Activities that extend a common interface
+  * **[HelloQuery](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloQuery.java)**: Demonstrates how to query a state of a single workflow
+  * **[HelloSignal](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloSignal.java)**: Sending and handling a signal
   * **[HelloSaga](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloSaga.java)**: SAGA pattern support
   * **[HelloSearchAttributes](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloSearchAttributes.java)**: Custom search attributes that can be used to find workflows using predicates
+  * **[HelloSideEffect](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloSideEffect.java)**: Demonstrates the use of workflow SideEffect
+
 
   To run the hello world samples:
 
