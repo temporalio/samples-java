@@ -40,9 +40,9 @@ import java.util.UUID;
  *
  * <p>Workflow methods must be deterministic. In order to execute non-deterministic code, such as
  * random number generation as shown in this example, you should use Workflow.SideEffect.
- * Workflow.SideEffect is typically used for very quick-running operations, where as
- * Workflow Activities or Local Activities, which can also execute non-deterministic code,
- * are meant for more expensive operations.
+ * Workflow.SideEffect is typically used for very quick-running operations, where as Workflow
+ * Activities or Local Activities, which can also execute non-deterministic code, are meant for more
+ * expensive operations.
  *
  * <p>Note: you should not use SideEffect function to modify the workflow state. For that you should
  * only use the SideEffect's return value!
