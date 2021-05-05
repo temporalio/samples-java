@@ -19,16 +19,12 @@
 
 package io.temporal.samples.hello;
 
-import com.google.common.base.Throwables;
 import io.temporal.activity.Activity;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityOptions;
-import io.temporal.api.common.v1.WorkflowExecution;
 import io.temporal.client.WorkflowClient;
-import io.temporal.client.WorkflowException;
 import io.temporal.client.WorkflowExecutionAlreadyStarted;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.client.WorkflowStub;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -36,79 +32,115 @@ import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
-import java.util.Optional;
 import java.util.Random;
 
 /**
- * Demonstrates a workflow that executes an activity periodically with random delay. Note that the
- * looping approach is useful when the delay between invocations is dynamically calculated. Use
- * existing cron feature demonstrated by {@link HelloCron} sample for a fixed periodic execution.
+ * Sample Temporal workflow that demonstrates periodic workflow execution with a random delay. To
+ * learn about periodic execution with a fixed delay (defined by a cron), check out the {@link
+ * HelloCron} example.
  *
- * <p>Requires a local instance of Temporal server to be running.
+ * <p>To execute this example a locally running Temporal service instance is required. You can
+ * follow instructions on how to set up the Temporal service here:
+ * https://github.com/temporalio/temporal/blob/master/README.md#download-and-start-temporal-server-locally
  */
 public class HelloPeriodic {
 
-  static final String TASK_QUEUE = "HelloPeriodic";
-  static final String PERIODIC_WORKFLOW_ID = "HelloPeriodic";
+  // Define the task queue name
+  static final String TASK_QUEUE = "HelloPeriodicTaskQueue";
 
+  // Define the workflow unique id
+  static final String WORKFLOW_ID = "HelloPeriodicWorkflow";
+
+  /**
+   * Define the Workflow Interface. It must contain one method annotated with @WorkflowMethod.
+   *
+   * <p>Workflow code includes core processing logic. It that shouldn't contain any heavyweight
+   * computations, non-deterministic code, network calls, database operations, etc. All those things
+   * should be handled by Activities.
+   *
+   * @see io.temporal.workflow.WorkflowInterface
+   * @see io.temporal.workflow.WorkflowMethod
+   */
   @WorkflowInterface
   public interface GreetingWorkflow {
+
     /**
-     * Use single fixed ID to ensure that there is at most one instance running. To run multiple
-     * instances set different IDs through WorkflowOptions passed to the
-     * WorkflowClient.newWorkflowStub call.
+     * This method is executed when the workflow is started. The workflow completes when the
+     * workflow method finishes execution.
      */
     @WorkflowMethod
     void greetPeriodically(String name);
   }
 
+  /**
+   * Define the Activity Interface. Activities are building blocks of any temporal workflow and
+   * contain any business logic that could perform long running computation, network calls, etc.
+   *
+   * <p>Annotating activity methods with @ActivityMethod is optional
+   *
+   * @see io.temporal.activity.ActivityInterface
+   * @see io.temporal.activity.ActivityMethod
+   */
   @ActivityInterface
   public interface GreetingActivities {
+
+    // Define your activity method which can be called during workflow execution
     void greet(String greeting);
   }
 
-  /**
-   * GreetingWorkflow implementation that calls {@link #greetPeriodically(String)} continuously with
-   * a specified interval.
-   */
+  // Define the workflow implementation which implements the greetPeriodically workflow method.
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
-    /**
-     * This value is so low just to make the example interesting to watch. In real life you would
-     * use something like 100 or a value that matches a business cycle. For example if it runs once
-     * an hour 24 would make sense.
-     */
-    private final int CONTINUE_AS_NEW_FREQUENCEY = 10;
-
-    /** To ensure determinism use {@link Workflow#newRandom()} to create random generators. */
+    // Here we introduce a random delay between periodic executions
     private final Random random = Workflow.newRandom();
 
+    /**
+     * Define the GreetingActivities stub. Activity stubs are proxies for activity invocations that
+     * are executed outside of the workflow thread on the activity worker, that can be on a
+     * different host. Temporal is going to dispatch the activity results back to the workflow and
+     * unblock the stub as soon as activity is completed on the activity worker.
+     *
+     * <p>In the {@link ActivityOptions} definition the "setStartToCloseTimeout" option sets the
+     * maximum time of a single Activity execution attempt. For this example it is set to 10
+     * seconds.
+     */
     private final GreetingActivities activities =
         Workflow.newActivityStub(
             GreetingActivities.class,
-            ActivityOptions.newBuilder().setScheduleToCloseTimeout(Duration.ofSeconds(10)).build());
+            ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(10)).build());
 
-    /**
-     * Stub used to terminate this workflow run and create the next one with the same ID atomically.
-     */
+    // Create our workflow stub that can be used to continue this workflow as a new run
+    // We use this because we want each workflow execution to be a separate workflow invocation
     private final GreetingWorkflow continueAsNew =
         Workflow.newContinueAsNewStub(GreetingWorkflow.class);
 
     @Override
     public void greetPeriodically(String name) {
-      // Loop the predefined number of times then continue this workflow as new.
-      // This is needed to periodically truncate the history size.
-      for (int i = 0; i < CONTINUE_AS_NEW_FREQUENCEY; i++) {
+
+      // Loop as many times as defined in CONTINUE_AS_NEW_FREQUENCY
+      /*
+       * Here we define how many times we want to execute our workflow activity periodically.
+       * The value is set to 10 for the sake of the example. In real applications it would make
+       * more sense to set this to a higher value that matches a business cycle (for example once
+       * per 24 hours, etc).
+       */
+      int CONTINUE_AS_NEW_FREQUENCY = 10;
+
+      for (int i = 0; i < CONTINUE_AS_NEW_FREQUENCY; i++) {
+        // execute our activity method and sleep for a random amount of time
         int delayMillis = random.nextInt(10000);
         activities.greet("Hello " + name + "! Sleeping for " + delayMillis + " milliseconds.");
         Workflow.sleep(delayMillis);
       }
-      // Current workflow run stops executing after this call.
+      // Stop execution of the current workflow and start a new execution
       continueAsNew.greetPeriodically(name);
-      // unreachable line
     }
   }
 
+  /**
+   * Implementation of our workflow activity interface. It overwrites our defined greet activity
+   * method.
+   */
   static class GreetingActivitiesImpl implements GreetingActivities {
     @Override
     public void greet(String greeting) {
@@ -117,59 +149,66 @@ public class HelloPeriodic {
     }
   }
 
+  /**
+   * With our Workflow and Activities defined, we can now start execution. The main method starts
+   * the worker and then the workflow.
+   */
   public static void main(String[] args) throws InterruptedException {
-    // gRPC stubs wrapper that talks to the local docker instance of temporal service.
+
+    // Define the workflow service.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
-    // client that can be used to start and signal workflows
+
+    /*
+     * Define the workflow client. It is a Temporal service client used to start, signal, and query
+     * workflows
+     */
     WorkflowClient client = WorkflowClient.newInstance(service);
 
-    // worker factory that can be used to create workers for specific task queues
+    /*
+     * Define the workflow factory. It is used to create workflow workers for a specific task queue.
+     */
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    // Worker that listens on a task queue and hosts both workflow and activity implementations.
+
+    /*
+     * Define the workflow worker. Workflow workers listen to a defined task queue and process
+     * workflows and activities.
+     */
     Worker worker = factory.newWorker(TASK_QUEUE);
-    // Workflows are stateful. So you need a type to create instances.
+
+    /*
+     * Register our workflow implementation with the worker.
+     * Workflow implementations must be known to the worker at runtime in
+     * order to dispatch workflow tasks.
+     */
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
-    // Activities are stateless and thread safe. So a shared instance is used.
+
+    /*
+     Register our workflow activity implementation with the worker. Since workflow activities are
+     stateless and thread-safe, we need to register a shared instance.
+    */
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
-    // Start listening to the workflow and activity task queues.
+
+    /*
+     * Start all the workers registered for a specific task queue.
+     * The started workers then start polling for workflows and activities.
+     */
     factory.start();
 
-    // To ensure that this daemon type workflow is always running try to start it periodically
-    // ignoring the duplicated exception.
-    // It is only to protect from application level failures.
-    // Failures of a workflow worker don't lead to workflow failures.
-    WorkflowExecution execution = null;
-    while (true) {
-      // Print reason of failure of the previous run, before restarting.
-      if (execution != null) {
-        WorkflowStub workflow = client.newUntypedWorkflowStub(execution, Optional.empty());
-        try {
-          workflow.getResult(Void.class);
-        } catch (WorkflowException e) {
-          System.out.println("Previous instance failed:\n" + Throwables.getStackTraceAsString(e));
-        }
-      }
-      // New stub instance should be created for each new workflow start.
-      GreetingWorkflow workflow =
-          client.newWorkflowStub(
-              GreetingWorkflow.class,
-              // At most one instance.
-              WorkflowOptions.newBuilder()
-                  .setWorkflowId(PERIODIC_WORKFLOW_ID)
-                  .setTaskQueue(TASK_QUEUE)
-                  .build());
-      try {
-        execution = WorkflowClient.start(workflow::greetPeriodically, "World");
-        System.out.println("Started " + execution);
-      } catch (WorkflowExecutionAlreadyStarted e) {
-        System.out.println("Still running as " + e.getExecution());
-      } catch (Throwable e) {
-        e.printStackTrace();
-        System.exit(1);
-      }
-      // This value is so low just for the sample purpose. In production workflow
-      // it is usually much higher.
-      Thread.sleep(10000);
+    // Create the workflow client stub. It is used to start our workflow execution.
+    GreetingWorkflow workflow =
+        client.newWorkflowStub(
+            GreetingWorkflow.class,
+            // At most one instance.
+            WorkflowOptions.newBuilder()
+                .setWorkflowId(WORKFLOW_ID)
+                .setTaskQueue(TASK_QUEUE)
+                .build());
+
+    try {
+      // execute our workflow
+      WorkflowClient.start(workflow::greetPeriodically, "World");
+    } catch (WorkflowExecutionAlreadyStarted e) {
+      System.out.println("Started: " + e.getMessage());
     }
   }
 }

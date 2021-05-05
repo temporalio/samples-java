@@ -44,7 +44,7 @@ public class TransferRequester {
     // client that can be used to start and signal workflows
     WorkflowClient workflowClient = WorkflowClient.newInstance(service);
 
-    // now we can start running instances of our saga - its state will be persisted
+    // now we can start running instances of the saga - its state will be persisted
     WorkflowOptions options = WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build();
     AccountTransferWorkflow transferWorkflow =
         workflowClient.newWorkflowStub(AccountTransferWorkflow.class, options);

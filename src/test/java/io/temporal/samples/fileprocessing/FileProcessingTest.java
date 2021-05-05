@@ -32,10 +32,7 @@ import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestWatcher;
 import org.junit.rules.Timeout;
 import org.junit.runner.Description;
@@ -85,6 +82,7 @@ public class FileProcessingTest {
 
   @Before
   public void setUp() {
+
     testEnv = TestWorkflowEnvironment.newInstance();
     worker = testEnv.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(FileProcessingWorkflowImpl.class);
@@ -142,8 +140,7 @@ public class FileProcessingTest {
 
     StoreActivities activitiesHost1 = mock(StoreActivities.class);
     when(activitiesHost1.process(FILE_NAME_UNPROCESSED))
-        .thenThrow(
-            new TimeoutFailure("simulated", null, TimeoutType.TIMEOUT_TYPE_SCHEDULE_TO_START));
+        .thenThrow(new TimeoutFailure("simulated", null, TimeoutType.TIMEOUT_TYPE_START_TO_CLOSE));
     workerHost1.registerActivitiesImplementations(activitiesHost1);
 
     StoreActivities activitiesHost2 = mock(StoreActivities.class);
