@@ -110,9 +110,8 @@ public class HelloSideEffect {
      * different host. Temporal is going to dispatch the activity results back to the workflow and
      * unblock the stub as soon as activity is completed on the activity worker.
      *
-     * <p>Let's take a look at each {@link ActivityOptions} defined: The "setStartToCloseTimeout"
-     * option sets maximum time of a single Activity execution attempt. For this example it is set
-     * to 2 seconds.
+     * <p>In the {@link ActivityOptions} definition the "setStartToCloseTimeout" option sets maximum
+     * time of a single Activity execution attempt. For this example it is set to 2 seconds.
      */
     private final SideEffectActivities activities =
         Workflow.newActivityStub(

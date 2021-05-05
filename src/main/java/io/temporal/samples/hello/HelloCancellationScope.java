@@ -108,10 +108,9 @@ public class HelloCancellationScope {
      * different host. Temporal is going to dispatch the activity results back to the workflow and
      * unblock the stub as soon as activity is completed on the activity worker.
      *
-     * <p>Let's take a look at each {@link ActivityOptions} defined:
-     *
-     * <p>The "setScheduleToCloseTimeout" option sets the overall timeout that our workflow is
-     * willing to wait for activity to complete. For this example it is set to 10 seconds.
+     * <p>In the {@link ActivityOptions} definition the "setStartToCloseTimeout" option sets the
+     * maximum time of a single Activity execution attempt. For this example it is set to 10
+     * seconds.
      *
      * <p>The "setCancellationType" option means that in case of activity cancellation the activity
      * should fail with {@link CanceledFailure}. We set
@@ -123,7 +122,7 @@ public class HelloCancellationScope {
         Workflow.newActivityStub(
             GreetingActivities.class,
             ActivityOptions.newBuilder()
-                .setScheduleToCloseTimeout(Duration.ofSeconds(100))
+                .setStartToCloseTimeout(Duration.ofSeconds(10))
                 .setCancellationType(ActivityCancellationType.WAIT_CANCELLATION_COMPLETED)
                 .build());
 
@@ -262,9 +261,8 @@ public class HelloCancellationScope {
      * Define the workflow worker. Workflow workers listen to a defined task queue and process
      * workflows and activities.
      *
-     * Let's take a look at each WorkerOption defined:
-     *
-     * The "setMaxConcurrentActivityExecutionSize" option sets the max number of parallel activity executions allowed
+     * In the {@link ActivityOptions} definition the
+     * "setMaxConcurrentActivityExecutionSize" option sets the max number of parallel activity executions allowed
      * The "setActivityPollThreadCount" option sets the number of simultaneous poll requests on the activity task queue
      */
     Worker worker =

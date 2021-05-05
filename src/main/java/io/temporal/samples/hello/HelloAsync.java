@@ -94,15 +94,14 @@ public class HelloAsync {
      * different host. Temporal is going to dispatch the activity results back to the workflow and
      * unblock the stub as soon as activity is completed on the activity worker.
      *
-     * <p>Let's take a look at each {@link ActivityOptions} defined:
-     *
-     * <p>The "setScheduleToCloseTimeout" option sets the overall timeout that our workflow is
-     * willing to wait for activity to complete. For this example it is set to 10 seconds.
+     * <p>In the {@link ActivityOptions} definition the "setStartToCloseTimeout" option sets the
+     * maximum time of a single Activity execution attempt. For this example it is set to 10
+     * seconds.
      */
     private final GreetingActivities activities =
         Workflow.newActivityStub(
             GreetingActivities.class,
-            ActivityOptions.newBuilder().setScheduleToCloseTimeout(Duration.ofSeconds(10)).build());
+            ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(10)).build());
 
     @Override
     public String getGreeting(String name) {

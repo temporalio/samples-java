@@ -25,6 +25,7 @@ import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowException;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.common.RetryOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -121,15 +122,21 @@ public class HelloException {
      * different host. Temporal is going to dispatch the activity results back to the workflow and
      * unblock the stub as soon as activity is completed on the activity worker.
      *
-     * <p>Let's take a look at each {@link ActivityOptions} defined:
-     *
-     * <p>The "setScheduleToCloseTimeout" option sets the overall timeout that the workflow is
-     * willing to wait for activity to complete. For this example it is set to 10 seconds.
+     * <p>In the {@link ActivityOptions} definition the"setStartToCloseTimeout" option sets the
+     * maximum time of a single Activity execution attempt. For this example it is set to 10
+     * seconds.
      */
     private final GreetingActivities activities =
         Workflow.newActivityStub(
             GreetingActivities.class,
-            ActivityOptions.newBuilder().setScheduleToCloseTimeout(Duration.ofSeconds(10)).build());
+            ActivityOptions.newBuilder()
+                .setStartToCloseTimeout(Duration.ofMinutes(1))
+                .setRetryOptions(
+                    RetryOptions.newBuilder()
+                        .setInitialInterval(Duration.ofSeconds(1))
+                        .setMaximumAttempts(2)
+                        .build())
+                .build());
 
     @Override
     public String composeGreeting(String greeting, String name) {
@@ -219,7 +226,7 @@ public class HelloException {
     } catch (WorkflowException e) {
 
       /*
-       * Now let's take a look at the actual stack trace. This stack trace should help you better understand
+       * This stack trace should help you better understand
        * how exception propagation works with Temporal.
        *
        * Looking at the stack trace from bottom-up (to understand the propagation) we first have:
