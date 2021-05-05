@@ -44,7 +44,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Sample Temporal workflow that demonstrates workflow search attributes.
+ * Sample Temporal workflow that demonstrates setting up and retrieving workflow search attributes.
  *
  * <p>To execute this example a locally running Temporal service instance is required. You can
  * follow instructions on how to set up your Temporal service here:
@@ -245,7 +245,7 @@ public class HelloSearchAttributes {
     return ZonedDateTime.now(ZoneId.systemDefault()).format(formatter);
   }
 
-  // example for extract value from search attributes
+  // example for extracting a value from search attributes
   private static String getKeywordFromSearchAttribute(SearchAttributes searchAttributes) {
     Payload field = searchAttributes.getIndexedFieldsOrThrow("CustomKeywordField");
     DataConverter dataConverter = DataConverter.getDefaultInstance();
