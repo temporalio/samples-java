@@ -122,9 +122,9 @@ public class HelloException {
      * different host. Temporal is going to dispatch the activity results back to the workflow and
      * unblock the stub as soon as activity is completed on the activity worker.
      *
-     * <p>Let's take a look at each {@link ActivityOptions} defined: The "setStartToCloseTimeout"
-     * option sets the maximum time of a single Activity execution attempt. For this example it is
-     * set to 10 seconds.
+     * <p>In the {@link ActivityOptions} definition the"setStartToCloseTimeout" option sets the
+     * maximum time of a single Activity execution attempt. For this example it is set to 10
+     * seconds.
      */
     private final GreetingActivities activities =
         Workflow.newActivityStub(
@@ -226,7 +226,7 @@ public class HelloException {
     } catch (WorkflowException e) {
 
       /*
-       * Now let's take a look at the actual stack trace. This stack trace should help you better understand
+       * This stack trace should help you better understand
        * how exception propagation works with Temporal.
        *
        * Looking at the stack trace from bottom-up (to understand the propagation) we first have:

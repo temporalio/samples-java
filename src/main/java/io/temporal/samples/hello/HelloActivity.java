@@ -92,9 +92,9 @@ public class HelloActivity {
      * different host. Temporal is going to dispatch the activity results back to the workflow and
      * unblock the stub as soon as activity is completed on the activity worker.
      *
-     * <p>Let's take a look at each {@link ActivityOptions} defined: The "setStartToCloseTimeout"
-     * option sets the overall timeout that our workflow is willing to wait for activity to
-     * complete. For this example it is set to 2 seconds.
+     * <p>In the {@link ActivityOptions} definition the "setStartToCloseTimeout" option sets the
+     * overall timeout that our workflow is willing to wait for activity to complete. For this
+     * example it is set to 2 seconds.
      */
     private final GreetingActivities activities =
         Workflow.newActivityStub(

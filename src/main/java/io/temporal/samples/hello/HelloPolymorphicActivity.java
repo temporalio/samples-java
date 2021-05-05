@@ -119,9 +119,8 @@ public class HelloPolymorphicActivity {
      *
      * <p>For this example we define two activity stubs, one for each of the defined activities.
      *
-     * <p>Let's take a look at each {@link ActivityOptions} defined: The "setStartToCloseTimeout"
-     * option sets the maximum time of a single Activity execution attempt. For this example it is
-     * set to 2 seconds.
+     * <p>In the {@link ActivityOptions} definition the "setStartToCloseTimeout" option sets the
+     * maximum time of a single Activity execution attempt. For this example it is set to 2 seconds.
      */
     private final GreetingActivity[] activities =
         new GreetingActivity[] {

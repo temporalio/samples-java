@@ -102,9 +102,8 @@ public class HelloSearchAttributes {
      * calls to it to Temporal activity invocations. Since Temporal activities are reentrant, a
      * single activity stub can be used for multiple activity invocations.
      *
-     * <p>Let's take a look at each {@link ActivityOptions} defined: The "setStartToCloseTimeout"
-     * option sets the maximum time of a single Activity execution attempt. For this example it is
-     * set to 2 seconds.
+     * <p>In the {@link ActivityOptions} definition the "setStartToCloseTimeout" option sets the
+     * maximum time of a single Activity execution attempt. For this example it is set to 2 seconds.
      */
     private final GreetingActivities activities =
         Workflow.newActivityStub(
