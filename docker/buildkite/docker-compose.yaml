@@ -10,3 +10,14 @@ services:
       - "USER=unittest"
     volumes:
       - "../../:/temporal-java-samples"
+
+  fossa:
+    build:
+      context: ../../
+      dockerfile: ./docker/buildkite/Dockerfile
+    command: /bin/sh
+    environment:
+      - BUILDKITE_BRANCH
+      - FOSSA_API_KEY
+    volumes:
+      - "../../:/temporal-java-samples"
