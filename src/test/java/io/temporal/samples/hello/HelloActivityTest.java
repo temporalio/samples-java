@@ -90,4 +90,12 @@ public class HelloActivityTest {
     String greeting = workflow.getGreeting("World");
     assertEquals("Hello World!", greeting);
   }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void testMockedActivityWithoutSettings() {
+    // Mocking activity that has method-level annotations
+    // with no withoutAnnotations() setting results in a failure
+    GreetingActivities activities = mock(GreetingActivities.class);
+    worker.registerActivitiesImplementations(activities);
+  }
 }
