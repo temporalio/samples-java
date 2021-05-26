@@ -43,7 +43,13 @@ public class FileProcessingWorkflowImpl implements FileProcessingWorkflow {
     // Create activity clients.
     ActivityOptions ao =
         ActivityOptions.newBuilder()
-            .setScheduleToCloseTimeout(Duration.ofSeconds(10))
+            .setStartToCloseTimeout(Duration.ofSeconds(20))
+            .setRetryOptions(
+                RetryOptions.newBuilder()
+                    .setInitialInterval(Duration.ofSeconds(1))
+                    .setMaximumAttempts(4)
+                    .setDoNotRetry(IllegalArgumentException.class.getName())
+                    .build())
             .setTaskQueue(FileProcessingWorker.TASK_QUEUE)
             .build();
     this.defaultTaskQueueStore = Workflow.newActivityStub(StoreActivities.class, ao);
@@ -67,7 +73,13 @@ public class FileProcessingWorkflowImpl implements FileProcessingWorkflow {
     ActivityOptions hostActivityOptions =
         ActivityOptions.newBuilder()
             .setTaskQueue(downloaded.getHostTaskQueue())
-            .setScheduleToCloseTimeout(Duration.ofSeconds(10))
+            .setStartToCloseTimeout(Duration.ofSeconds(10))
+            .setRetryOptions(
+                RetryOptions.newBuilder()
+                    .setInitialInterval(Duration.ofSeconds(1))
+                    .setMaximumAttempts(4)
+                    .setDoNotRetry(IllegalArgumentException.class.getName())
+                    .build())
             .build();
     StoreActivities hostSpecificStore =
         Workflow.newActivityStub(StoreActivities.class, hostActivityOptions);

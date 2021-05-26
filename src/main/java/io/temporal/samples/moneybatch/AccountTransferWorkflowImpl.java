@@ -31,7 +31,6 @@ public class AccountTransferWorkflowImpl implements AccountTransferWorkflow {
   private final ActivityOptions options =
       ActivityOptions.newBuilder()
           .setStartToCloseTimeout(Duration.ofSeconds(5))
-          .setScheduleToStartTimeout(Duration.ofHours(1))
           .setRetryOptions(
               RetryOptions.newBuilder()
                   .setInitialInterval(Duration.ofSeconds(1))
