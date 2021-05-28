@@ -1,6 +1,6 @@
 # Java Temporal Samples
 
-[![FOSSA Status](https://app.fossa.com/api/projects/custom%2B18405%2Fgithub.com%2Ftemporalio%2Fsamples-java.svg?type=shield)](https://app.fossa.com/projects/custom%2B18405%2Fgithub.com%2Ftemporalio%2Fsamples-java?ref=badge_shield)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ftemporalio%2Ftemporal-java-samples.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Ftemporalio%2Ftemporal-java-samples?ref=badge_shield)
 
 These samples demonstrate various capabilities of Java Temporal client and server. You can learn more about Temporal at:
 * [temporal.io](https://temporal.io)
@@ -95,6 +95,7 @@ used for sample brevity and is not something we recommend for real applications.
   * **[HelloCron](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloCron.java)**: Workflow that is executed according to a cron schedule
   * **[HelloPeriodic](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloPeriodic.java)**: Workflow that executes some logic periodically 
   * **[HelloException](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloException.java)**: Exception propagation and wrapping
+  * **[HelloLocalActivity](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloLocalActivity.java)**: Workflow with a [local activity](https://docs.temporal.io/docs/concept-activities/#local-activities)
   * **[HelloPolymorphicActivity](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloPolymorphicActivity.java)**: Activities that extend a common interface
   * **[HelloQuery](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloQuery.java)**: Demonstrates how to query a state of a single workflow
   * **[HelloSignal](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloSignal.java)**: Sending and handling a signal
@@ -115,6 +116,7 @@ used for sample brevity and is not something we recommend for real applications.
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloChild
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloCron
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloException
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloLocalActivity
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloPeriodic
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloPolymorphicActivity
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloQuery
