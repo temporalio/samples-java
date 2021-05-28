@@ -19,9 +19,9 @@
 
 package io.temporal.samples.common;
 
+import io.temporal.api.common.v1.WorkflowExecution;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowStub;
-import io.temporal.proto.common.WorkflowExecution;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import java.util.Optional;
 
@@ -33,7 +33,7 @@ import java.util.Optional;
  */
 public class QueryWorkflowExecution {
 
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
     if (args.length < 2 || args.length > 3) {
       System.err.println(
           "Usage: java "

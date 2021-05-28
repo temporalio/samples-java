@@ -1,7 +1,10 @@
+// Run 'gradle checkUpdates' to find out which dependencies have newer versions
+
 plugins {
-    id 'net.minecrell.licenser' version '0.4.1'
-    id 'com.github.sherter.google-java-format' version '0.8'
-    id "net.ltgt.errorprone" version "0.6"
+    id 'org.cadixdev.licenser' version '0.6.0'
+    id 'com.github.sherter.google-java-format' version '0.9'
+    id "net.ltgt.errorprone" version "2.0.1"
+    id 'name.remal.check-updates' version '1.3.1'
 }
 
 apply plugin: 'java'
@@ -27,16 +30,17 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'io.temporal', name: 'temporal-sdk', version: '0.23.1'
-    implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.9'
-    implementation  group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.0.7'
+    implementation group: 'commons-configuration', name: 'commons-configuration', version: '20041012.002804'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
 
-    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'io.temporal', name: 'temporal-testing', version: '1.0.7'
+    testImplementation group: 'junit', name: 'junit', version: '4.13.2'
     testImplementation group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
-    testImplementation group: 'org.powermock', name: 'powermock-api-mockito', version: '1.7.3'
+    testImplementation group: 'org.powermock', name: 'powermock-api-mockito', version: '1.7.4'
 
     errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
-    errorprone("com.google.errorprone:error_prone_core:2.3.1")
+    errorprone("com.google.errorprone:error_prone_core:2.7.1")
 }
 
 compileJava {
@@ -50,4 +54,31 @@ task execute(type: JavaExec) {
 
 license {
     header rootProject.file('license-header.txt')
+}
+
+// Executes most of the hello workflows as a sanity check
+task runHello {
+    doLast {
+        // Cron and Periodic are not in the list as they take long time to stop
+        ["io.temporal.samples.hello.HelloActivity",
+         "io.temporal.samples.hello.HelloActivityExclusiveChoice",
+         "io.temporal.samples.hello.HelloActivityRetry",
+         "io.temporal.samples.hello.HelloAsync",
+         "io.temporal.samples.hello.HelloAsyncActivityCompletion",
+         "io.temporal.samples.hello.HelloAsyncLambda",
+         "io.temporal.samples.hello.HelloChild",
+         "io.temporal.samples.hello.HelloException",
+         "io.temporal.samples.hello.HelloPolymorphicActivity",
+         "io.temporal.samples.hello.HelloQuery",
+         "io.temporal.samples.hello.HelloSaga",
+         "io.temporal.samples.hello.HelloSearchAttributes",
+         "io.temporal.samples.hello.HelloSignal"
+        ].each { mainClass ->
+            println mainClass
+            javaexec {
+                classpath = sourceSets.main.runtimeClasspath
+                main = mainClass
+            }
+        }
+    }
 }

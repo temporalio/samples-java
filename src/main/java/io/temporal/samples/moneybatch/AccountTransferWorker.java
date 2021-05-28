@@ -32,10 +32,10 @@ public class AccountTransferWorker {
     WorkflowClient client = WorkflowClient.newInstance(service);
     WorkerFactory factory = WorkerFactory.newInstance(client);
 
-    Worker worker = factory.newWorker(AccountActivityWorker.TASK_LIST);
+    Worker worker = factory.newWorker(AccountActivityWorker.TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(AccountTransferWorkflowImpl.class);
 
     factory.start();
-    System.out.println("Worker started for task list: " + AccountActivityWorker.TASK_LIST);
+    System.out.println("Worker started for task queue: " + AccountActivityWorker.TASK_QUEUE);
   }
 }

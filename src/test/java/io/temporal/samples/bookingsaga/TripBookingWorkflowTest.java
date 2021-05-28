@@ -19,7 +19,7 @@
 
 package io.temporal.samples.bookingsaga;
 
-import static io.temporal.samples.bookingsaga.TripBookingSaga.TASK_LIST;
+import static io.temporal.samples.bookingsaga.TripBookingSaga.TASK_QUEUE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
@@ -28,6 +28,7 @@ import static org.mockito.Mockito.*;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowException;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.failure.ApplicationFailure;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
 import org.junit.After;
@@ -43,7 +44,7 @@ public class TripBookingWorkflowTest {
   @Before
   public void setUp() {
     testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(TASK_LIST);
+    worker = testEnv.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(TripBookingWorkflowImpl.class);
 
     client = testEnv.getWorkflowClient();
@@ -65,12 +66,15 @@ public class TripBookingWorkflowTest {
 
     TripBookingWorkflow workflow =
         client.newWorkflowStub(
-            TripBookingWorkflow.class, WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
+            TripBookingWorkflow.class,
+            WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
     try {
       workflow.bookTrip("trip1");
       fail("unreachable");
     } catch (WorkflowException e) {
-      assertEquals("Flight booking did not work", e.getCause().getCause().getMessage());
+      assertEquals(
+          "Flight booking did not work",
+          ((ApplicationFailure) e.getCause().getCause()).getOriginalMessage());
     }
   }
 
@@ -88,12 +92,15 @@ public class TripBookingWorkflowTest {
 
     TripBookingWorkflow workflow =
         client.newWorkflowStub(
-            TripBookingWorkflow.class, WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
+            TripBookingWorkflow.class,
+            WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
     try {
       workflow.bookTrip("trip1");
       fail("unreachable");
     } catch (WorkflowException e) {
-      assertEquals("Flight booking did not work", e.getCause().getCause().getMessage());
+      assertEquals(
+          "Flight booking did not work",
+          ((ApplicationFailure) e.getCause().getCause()).getOriginalMessage());
     }
 
     verify(activities).cancelHotel(eq("HotelBookingID1"), eq("trip1"));

@@ -20,7 +20,6 @@
 package io.temporal.samples.hello;
 
 import io.temporal.activity.ActivityInterface;
-import io.temporal.activity.ActivityMethod;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
@@ -33,40 +32,74 @@ import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 
 /**
- * Hello World Temporal workflow that executes a single activity. Requires a local instance the
- * Temporal service to be running.
+ * Sample Temporal workflow that executes a single workflow activity.
+ *
+ * <p>To execute this example a locally running Temporal service instance is required. You can
+ * follow instructions on how to set up your Temporal service here:
+ * https://github.com/temporalio/temporal/blob/master/README.md#download-and-start-temporal-server-locally
  */
 public class HelloActivity {
 
-  static final String TASK_LIST = "HelloActivity";
+  // Define the task queue name
+  static final String TASK_QUEUE = "HelloActivityTaskQueue";
 
-  /** Workflow interface has to have at least one method annotated with @WorkflowMethod. */
+  // Define our workflow unique id
+  static final String WORKFLOW_ID = "HelloActivityWorkflow";
+
+  /**
+   * Define the Workflow Interface. It must contain one method annotated with @WorkflowMethod.
+   *
+   * <p>Workflow code includes core processing logic. It that shouldn't contain any heavyweight
+   * computations, non-deterministic code, network calls, database operations, etc. All those things
+   * should be handled by Activities.
+   *
+   * @see io.temporal.workflow.WorkflowInterface
+   * @see io.temporal.workflow.WorkflowMethod
+   */
   @WorkflowInterface
   public interface GreetingWorkflow {
-    /** @return greeting string */
+
+    /**
+     * This method is executed when the workflow is started. The workflow completes when the
+     * workflow method finishes execution.
+     */
     @WorkflowMethod
     String getGreeting(String name);
   }
 
-  /** Activity interface is just a POJI. */
+  /**
+   * Define the Activity Interface. Activities are building blocks of any temporal workflow and
+   * contain any business logic that could perform long running computation, network calls, etc.
+   *
+   * <p>Annotating activity methods with @ActivityMethod is optional
+   *
+   * @see io.temporal.activity.ActivityInterface
+   * @see io.temporal.activity.ActivityMethod
+   */
   @ActivityInterface
   public interface GreetingActivities {
-    @ActivityMethod
+
+    // Define your activity method which can be called during workflow execution
     String composeGreeting(String greeting, String name);
   }
 
-  /** GreetingWorkflow implementation that calls GreetingsActivities#composeGreeting. */
+  // Define the workflow implementation which implements our getGreeting workflow method.
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
     /**
-     * Activity stub implements activity interface and proxies calls to it to Temporal activity
-     * invocations. Because activities are reentrant, only a single stub can be used for multiple
-     * activity invocations.
+     * Define the GreetingActivities stub. Activity stubs are proxies for activity invocations that
+     * are executed outside of the workflow thread on the activity worker, that can be on a
+     * different host. Temporal is going to dispatch the activity results back to the workflow and
+     * unblock the stub as soon as activity is completed on the activity worker.
+     *
+     * <p>In the {@link ActivityOptions} definition the "setStartToCloseTimeout" option sets the
+     * overall timeout that our workflow is willing to wait for activity to complete. For this
+     * example it is set to 2 seconds.
      */
     private final GreetingActivities activities =
         Workflow.newActivityStub(
             GreetingActivities.class,
-            ActivityOptions.newBuilder().setScheduleToCloseTimeout(Duration.ofSeconds(2)).build());
+            ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(2)).build());
 
     @Override
     public String getGreeting(String name) {
@@ -75,6 +108,7 @@ public class HelloActivity {
     }
   }
 
+  /** Simple activity implementation, that concatenates two strings. */
   static class GreetingActivitiesImpl implements GreetingActivities {
     @Override
     public String composeGreeting(String greeting, String name) {
@@ -82,32 +116,70 @@ public class HelloActivity {
     }
   }
 
+  /**
+   * With our Workflow and Activities defined, we can now start execution. The main method starts
+   * the worker and then the workflow.
+   */
   public static void main(String[] args) {
-    // gRPC stubs wrapper that talks to the local docker instance of temporal service.
+
+    // Define the workflow service.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
-    // client that can be used to start and signal workflows
+
+    /*
+     * Define the workflow client. It is a Temporal service client used to start, signal, and query
+     * workflows
+     */
     WorkflowClient client = WorkflowClient.newInstance(service);
 
-    // worker factory that can be used to create workers for specific task lists
+    /*
+     * Define the workflow factory. It is used to create workflow workers for a specific task queue.
+     */
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    // Worker that listens on a task list and hosts both workflow and activity implementations.
-    Worker worker = factory.newWorker(TASK_LIST);
-    // Workflows are stateful. So you need a type to create instances.
+
+    /*
+     * Define the workflow worker. Workflow workers listen to a defined task queue and process
+     * workflows and activities.
+     */
+    Worker worker = factory.newWorker(TASK_QUEUE);
+
+    /*
+     * Register our workflow implementation with the worker.
+     * Workflow implementations must be known to the worker at runtime in
+     * order to dispatch workflow tasks.
+     */
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
-    // Activities are stateless and thread safe. So a shared instance is used.
+
+    /*
+     Register our workflow activity implementation with the worker. Since workflow activities are
+     stateless and thread-safe, we need to register a shared instance.
+    */
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
-    // Start listening to the workflow and activity task lists.
+
+    /*
+     * Start all the workers registered for a specific task queue.
+     * The started workers then start polling for workflows and activities.
+     */
     factory.start();
 
-    // Start a workflow execution. Usually this is done from another program.
-    // Uses task list from the GreetingWorkflow @WorkflowMethod annotation.
+    // Create the workflow client stub. It is used to start our workflow execution.
     GreetingWorkflow workflow =
         client.newWorkflowStub(
-            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskList(TASK_LIST).build());
-    // Execute a workflow waiting for it to complete. See {@link
-    // io.temporal.samples.hello.HelloSignal}
-    // for an example of starting workflow without waiting synchronously for its result.
+            GreetingWorkflow.class,
+            WorkflowOptions.newBuilder()
+                .setWorkflowId(WORKFLOW_ID)
+                .setTaskQueue(TASK_QUEUE)
+                .build());
+
+    /*
+     * Execute our workflow and wait for it to complete. The call to our getGreeting method is
+     * synchronous.
+     *
+     * See {@link io.temporal.samples.hello.HelloSignal} for an example of starting workflow
+     * without waiting synchronously for its result.
+     */
     String greeting = workflow.getGreeting("World");
+
+    // Display workflow execution results
     System.out.println(greeting);
     System.exit(0);
   }

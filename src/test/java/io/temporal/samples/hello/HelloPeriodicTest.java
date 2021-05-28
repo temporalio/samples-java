@@ -19,21 +19,20 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.hello.HelloPeriodic.PERIODIC_WORKFLOW_ID;
-import static io.temporal.samples.hello.HelloPeriodic.TASK_LIST;
+import static io.temporal.samples.hello.HelloPeriodic.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
+import io.temporal.api.common.v1.WorkflowExecution;
+import io.temporal.api.enums.v1.WorkflowExecutionStatus;
+import io.temporal.api.filter.v1.WorkflowExecutionFilter;
+import io.temporal.api.workflow.v1.WorkflowExecutionInfo;
+import io.temporal.api.workflowservice.v1.ListClosedWorkflowExecutionsRequest;
+import io.temporal.api.workflowservice.v1.ListClosedWorkflowExecutionsResponse;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.proto.common.WorkflowExecution;
-import io.temporal.proto.execution.WorkflowExecutionInfo;
-import io.temporal.proto.execution.WorkflowExecutionStatus;
-import io.temporal.proto.filter.WorkflowExecutionFilter;
-import io.temporal.proto.workflowservice.ListClosedWorkflowExecutionsRequest;
-import io.temporal.proto.workflowservice.ListClosedWorkflowExecutionsResponse;
 import io.temporal.samples.hello.HelloPeriodic.GreetingActivities;
 import io.temporal.samples.hello.HelloPeriodic.GreetingActivitiesImpl;
 import io.temporal.samples.hello.HelloPeriodic.GreetingWorkflow;
@@ -74,7 +73,7 @@ public class HelloPeriodicTest {
   @Before
   public void setUp() {
     testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(TASK_LIST);
+    worker = testEnv.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
     client = testEnv.getWorkflowClient();
@@ -90,31 +89,31 @@ public class HelloPeriodicTest {
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
     testEnv.start();
 
-    // Get a workflow stub using the same task list the worker uses.
+    // Get a workflow stub using the same task queue the worker uses.
     GreetingWorkflow workflow =
         client.newWorkflowStub(
             GreetingWorkflow.class,
             WorkflowOptions.newBuilder()
-                .setTaskList(TASK_LIST)
-                .setWorkflowId(PERIODIC_WORKFLOW_ID)
+                .setTaskQueue(TASK_QUEUE)
+                .setWorkflowId(WORKFLOW_ID)
                 .build());
     // Execute a workflow waiting for it to complete.
     WorkflowExecution execution = WorkflowClient.start(workflow::greetPeriodically, "World");
-    assertEquals(PERIODIC_WORKFLOW_ID, execution.getWorkflowId());
+    assertEquals(WORKFLOW_ID, execution.getWorkflowId());
     // Validate that workflow was continued as new at least once.
     // Use TestWorkflowEnvironment.sleep to execute the unit test without really sleeping.
     testEnv.sleep(Duration.ofMinutes(3));
     ListClosedWorkflowExecutionsRequest request =
         ListClosedWorkflowExecutionsRequest.newBuilder()
             .setNamespace(testEnv.getNamespace())
-            .setExecutionFilter(
-                WorkflowExecutionFilter.newBuilder().setWorkflowId(PERIODIC_WORKFLOW_ID))
+            .setExecutionFilter(WorkflowExecutionFilter.newBuilder().setWorkflowId(WORKFLOW_ID))
             .build();
     ListClosedWorkflowExecutionsResponse listResponse =
         testEnv.getWorkflowService().blockingStub().listClosedWorkflowExecutions(request);
     assertTrue(listResponse.getExecutionsCount() > 1);
     for (WorkflowExecutionInfo e : listResponse.getExecutionsList()) {
-      assertEquals(WorkflowExecutionStatus.ContinuedAsNew, e.getStatus());
+      assertEquals(
+          WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_CONTINUED_AS_NEW, e.getStatus());
     }
   }
 
@@ -124,17 +123,17 @@ public class HelloPeriodicTest {
     worker.registerActivitiesImplementations(activities);
     testEnv.start();
 
-    // Get a workflow stub using the same task list the worker uses.
+    // Get a workflow stub using the same task queue the worker uses.
     GreetingWorkflow workflow =
         client.newWorkflowStub(
             GreetingWorkflow.class,
             WorkflowOptions.newBuilder()
-                .setTaskList(TASK_LIST)
-                .setWorkflowId(PERIODIC_WORKFLOW_ID)
+                .setTaskQueue(TASK_QUEUE)
+                .setWorkflowId(WORKFLOW_ID)
                 .build());
     // Execute a workflow waiting for it to complete.
     WorkflowExecution execution = WorkflowClient.start(workflow::greetPeriodically, "World");
-    assertEquals(PERIODIC_WORKFLOW_ID, execution.getWorkflowId());
+    assertEquals(WORKFLOW_ID, execution.getWorkflowId());
     // Use TestWorkflowEnvironment.sleep to execute the unit test without really sleeping.
     testEnv.sleep(Duration.ofMinutes(1));
     verify(activities, atLeast(5)).greet(anyString());

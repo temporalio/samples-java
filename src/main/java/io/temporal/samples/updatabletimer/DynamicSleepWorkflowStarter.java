@@ -20,13 +20,13 @@
 package io.temporal.samples.updatabletimer;
 
 import static io.temporal.samples.updatabletimer.DynamicSleepWorkflowWorker.DYNAMIC_SLEEP_WORKFLOW_ID;
-import static io.temporal.samples.updatabletimer.DynamicSleepWorkflowWorker.TASK_LIST;
+import static io.temporal.samples.updatabletimer.DynamicSleepWorkflowWorker.TASK_QUEUE;
 
-import io.temporal.client.DuplicateWorkflowException;
+import io.temporal.api.common.v1.WorkflowExecution;
+import io.temporal.api.enums.v1.WorkflowIdReusePolicy;
 import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowExecutionAlreadyStarted;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.proto.common.WorkflowExecution;
-import io.temporal.proto.common.WorkflowIdReusePolicy;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,9 +43,10 @@ public class DynamicSleepWorkflowStarter {
         client.newWorkflowStub(
             DynamicSleepWorkflow.class,
             WorkflowOptions.newBuilder()
-                .setTaskList(TASK_LIST)
+                .setTaskQueue(TASK_QUEUE)
                 .setWorkflowId(DYNAMIC_SLEEP_WORKFLOW_ID)
-                .setWorkflowIdReusePolicy(WorkflowIdReusePolicy.AllowDuplicate)
+                .setWorkflowIdReusePolicy(
+                    WorkflowIdReusePolicy.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE)
                 .build());
 
     try {
@@ -53,7 +54,7 @@ public class DynamicSleepWorkflowStarter {
       WorkflowExecution execution =
           WorkflowClient.start(workflow::execute, System.currentTimeMillis() + 60000);
       logger.info("Workflow started: " + execution);
-    } catch (DuplicateWorkflowException e) {
+    } catch (WorkflowExecutionAlreadyStarted e) {
       logger.info("Workflow already running: " + e.getExecution());
     }
   }

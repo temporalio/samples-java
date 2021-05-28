@@ -21,9 +21,9 @@ package io.temporal.samples.hello;
 
 import static org.junit.Assert.assertEquals;
 
+import io.temporal.api.enums.v1.WorkflowIdReusePolicy;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.proto.common.WorkflowIdReusePolicy;
 import io.temporal.samples.hello.HelloSignal.GreetingWorkflow;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
@@ -60,7 +60,7 @@ public class HelloSignalTest {
   public void setUp() {
     testEnv = TestWorkflowEnvironment.newInstance();
 
-    worker = testEnv.newWorker(HelloSignal.TASK_LIST);
+    worker = testEnv.newWorker(HelloSignal.TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(HelloSignal.GreetingWorkflowImpl.class);
     testEnv.start();
 
@@ -74,11 +74,12 @@ public class HelloSignalTest {
 
   @Test
   public void testSignal() {
-    // Get a workflow stub using the same task list the worker uses.
+    // Get a workflow stub using the same task queue the worker uses.
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder()
-            .setTaskList(HelloSignal.TASK_LIST)
-            .setWorkflowIdReusePolicy(WorkflowIdReusePolicy.RejectDuplicate)
+            .setTaskQueue(HelloSignal.TASK_QUEUE)
+            .setWorkflowIdReusePolicy(
+                WorkflowIdReusePolicy.WORKFLOW_ID_REUSE_POLICY_REJECT_DUPLICATE)
             .build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
 

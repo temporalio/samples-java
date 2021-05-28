@@ -19,15 +19,15 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.hello.HelloCron.CRON_WORKFLOW_ID;
-import static io.temporal.samples.hello.HelloCron.TASK_LIST;
+import static io.temporal.samples.hello.HelloCron.TASK_QUEUE;
+import static io.temporal.samples.hello.HelloCron.WORKFLOW_ID;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
+import io.temporal.api.common.v1.WorkflowExecution;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.proto.common.WorkflowExecution;
 import io.temporal.samples.hello.HelloCron.GreetingActivities;
 import io.temporal.samples.hello.HelloCron.GreetingWorkflow;
 import io.temporal.samples.hello.HelloCron.GreetingWorkflowImpl;
@@ -67,7 +67,7 @@ public class HelloCronTest {
   @Before
   public void setUp() {
     testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(HelloCron.TASK_LIST);
+    worker = testEnv.newWorker(HelloCron.TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
     client = testEnv.getWorkflowClient();
@@ -89,14 +89,14 @@ public class HelloCronTest {
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder()
             .setCronSchedule("0 * * * *")
-            .setTaskList(TASK_LIST)
-            .setWorkflowId(CRON_WORKFLOW_ID)
+            .setTaskQueue(TASK_QUEUE)
+            .setWorkflowId(WORKFLOW_ID)
             .build();
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
 
     // Execute a workflow waiting for it to complete.
     WorkflowExecution execution = WorkflowClient.start(workflow::greet, "World");
-    assertEquals(CRON_WORKFLOW_ID, execution.getWorkflowId());
+    assertEquals(WORKFLOW_ID, execution.getWorkflowId());
     // Use TestWorkflowEnvironment.sleep to execute the unit test without really sleeping.
     testEnv.sleep(Duration.ofDays(1));
     verify(activities, atLeast(10)).greet(anyString());

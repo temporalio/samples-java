@@ -21,7 +21,7 @@ package io.temporal.samples.bookingsaga;
 
 import io.temporal.activity.ActivityOptions;
 import io.temporal.common.RetryOptions;
-import io.temporal.workflow.ActivityException;
+import io.temporal.failure.ActivityFailure;
 import io.temporal.workflow.Saga;
 import io.temporal.workflow.Workflow;
 import java.time.Duration;
@@ -30,7 +30,7 @@ public class TripBookingWorkflowImpl implements TripBookingWorkflow {
 
   private final ActivityOptions options =
       ActivityOptions.newBuilder()
-          .setScheduleToCloseTimeout(Duration.ofHours(1))
+          .setStartToCloseTimeout(Duration.ofHours(1))
           // disable retries for example to run faster
           .setRetryOptions(RetryOptions.newBuilder().setMaximumAttempts(1).build())
           .build();
@@ -51,7 +51,7 @@ public class TripBookingWorkflowImpl implements TripBookingWorkflow {
 
       String flightReservationID = activities.bookFlight(name);
       saga.addCompensation(activities::cancelFlight, flightReservationID, name);
-    } catch (ActivityException e) {
+    } catch (ActivityFailure e) {
       saga.compensate();
       throw e;
     }
