@@ -57,7 +57,7 @@ public class FileProcessingTest {
     }
   }
 
-  @Rule public Timeout globalTimeout = Timeout.seconds(2);
+  @Rule public Timeout globalTimeout = Timeout.seconds(5);
 
   /** Prints a history of the workflow under test in case of a test failure. */
   @Rule

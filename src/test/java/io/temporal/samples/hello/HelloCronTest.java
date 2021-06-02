@@ -45,7 +45,7 @@ import org.junit.runner.Description;
 /** Unit test for {@link HelloCron}. Doesn't use an external Temporal service. */
 public class HelloCronTest {
 
-  @Rule public Timeout globalTimeout = Timeout.seconds(2);
+  @Rule public Timeout globalTimeout = Timeout.seconds(3);
 
   /** Prints a history of the workflow under test in case of a test failure. */
   @Rule
