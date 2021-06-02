@@ -20,6 +20,7 @@
 package io.temporal.samples.hello;
 
 import io.temporal.activity.ActivityInterface;
+import io.temporal.activity.ActivityMethod;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
@@ -80,6 +81,7 @@ public class HelloActivity {
   public interface GreetingActivities {
 
     // Define your activity method which can be called during workflow execution
+    @ActivityMethod(name = "greet")
     String composeGreeting(String greeting, String name);
   }
 

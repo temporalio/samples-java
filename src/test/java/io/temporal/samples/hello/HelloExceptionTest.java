@@ -22,7 +22,7 @@ package io.temporal.samples.hello;
 import static io.temporal.samples.hello.HelloException.TASK_QUEUE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
@@ -42,7 +42,6 @@ import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
@@ -134,7 +133,6 @@ public class HelloExceptionTest {
   }
 
   @Test(timeout = 100000)
-  @Ignore // TODO(maxim): Find workaround for mockito breaking reflection
   public void testChildWorkflowTimeout() {
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     // Mock a child that times out.

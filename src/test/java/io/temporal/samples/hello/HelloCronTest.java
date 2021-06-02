@@ -22,7 +22,7 @@ package io.temporal.samples.hello;
 import static io.temporal.samples.hello.HelloCron.TASK_QUEUE;
 import static io.temporal.samples.hello.HelloCron.WORKFLOW_ID;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import io.temporal.api.common.v1.WorkflowExecution;

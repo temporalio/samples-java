@@ -23,6 +23,7 @@ import static io.temporal.samples.hello.HelloLocalActivity.TASK_QUEUE;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
@@ -73,7 +74,10 @@ public class HelloLocalActivityTest {
 
   @Test
   public void testMockedActivity() {
-    GreetingActivities activities = mock(GreetingActivities.class);
+    // withoutAnnotations() is required to stop Mockito from copying
+    // method-level annotations from the GreetingActivities interface
+    GreetingActivities activities =
+        mock(GreetingActivities.class, withSettings().withoutAnnotations());
     when(activities.composeGreeting("Hello", "World")).thenReturn("Hello World!");
     worker.registerActivitiesImplementations(activities);
     testEnv.start();

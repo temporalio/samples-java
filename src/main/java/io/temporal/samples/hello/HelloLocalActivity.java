@@ -33,27 +33,24 @@ import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 
 /**
- * <p>
- * Hello World Temporal workflow that executes a single local activity. Requires a local instance the
- * Temporal service to be running.
- * </p>
- * <p>
- * Some of the Activities are very short lived and do not need the queuing semantic, flow control, rate limiting
- * and routing capabilities. For these Temporal supports so called local Activity feature. Local Activities are
- * executed in the same worker process as the Workflow that invoked them. Consider using local Activities for functions
- * that are:
- * </p>
- * <ul>
- * <li>no longer than a few seconds</li>
- * <li>do not require global rate limiting</li>
- * <li>do not require routing to specific workers or pools of workers</li>
- * <li>can be implemented in the same binary as the Workflow that invokes them</li>
- *</ul>
+ * Hello World Temporal workflow that executes a single local activity. Requires a local instance
+ * the Temporal service to be running.
  *
- * <p>
- * The main benefit of local Activities is that they are much more efficient in utilizing Temporal service resources
- * and have much lower latency overhead comparing to the usual Activity invocation.
- * </p>
+ * <p>Some of the Activities are very short lived and do not need the queuing semantic, flow
+ * control, rate limiting and routing capabilities. For these Temporal supports so called local
+ * Activity feature. Local Activities are executed in the same worker process as the Workflow that
+ * invoked them. Consider using local Activities for functions that are:
+ *
+ * <ul>
+ *   <li>no longer than a few seconds
+ *   <li>do not require global rate limiting
+ *   <li>do not require routing to specific workers or pools of workers
+ *   <li>can be implemented in the same binary as the Workflow that invokes them
+ * </ul>
+ *
+ * <p>The main benefit of local Activities is that they are much more efficient in utilizing
+ * Temporal service resources and have much lower latency overhead comparing to the usual Activity
+ * invocation.
  */
 public class HelloLocalActivity {
 
