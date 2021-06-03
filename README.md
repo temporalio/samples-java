@@ -1,85 +1,73 @@
-# Java Temporal Samples
+# Temporal Java SDK Samples
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ftemporalio%2Ftemporal-java-samples.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Ftemporalio%2Ftemporal-java-samples?ref=badge_shield)
 
-These samples demonstrate various capabilities of Java Temporal client and server. You can learn more about Temporal at:
-* [temporal.io](https://temporal.io)
-* [Temporal Service](https://github.com/temporalio/temporal)
-* [Temporal Java SDK](https://github.com/temporalio/sdk-java)
-* [Temporal Go SDK](https://github.com/temporalio/sdk-go)
+This repository contains sample Workflow applications that demonstrate various capabilities of the Temporal using the [Java SDK](https://github.com/temporalio/sdk-java).
 
-## Setup
+- Temporal Server repo: https://github.com/temporalio/temporal
+- Temporal Java SDK repo: https://github.com/temporalio/sdk-java
+- Java SDK docs: https://docs.temporal.io/docs/go/introduction
 
-### macOS Specific
-Due to issues with default hostname resolution
-(see [this StackOverflow question](https://stackoverflow.com/questions/33289695/inetaddress-getlocalhost-slow-to-run-30-seconds) for more details),
-macOS Users may see gRPC `DEADLINE_EXCEEDED` errors when running the samples or any other gRPC related code.
+## Table of Contents
 
-To solve the problem add the following entries to your `/etc/hosts` file (where my-macbook is your hostname):
+- [How to use](#How-to-use)
+- [Temporal Web UI](#Temporal-Web-UI)
+- [Run the Samples](#Run-the-Samples)
+    - [Hello World Samples](#Hello-World-Samples)
+    - [File Processing Sample](#File-Processing-Sample)
+    - [Booking SAGA Sample](#Booking-SAGA-Sample)
+    - [Money Transfer Sample](#Money-Transfer-Sample)
+    - [Money Batch Sample](#Money-Batch-Sample)
+    - [Updatable Timer Sample](#Updatable-Timer-Sample)
+- [IDE Integration](#IDE-Integration)
 
-```conf
-127.0.0.1   my-macbook
-::1         my-macbook
-```
+## How to use
 
-### Get the Samples
+1. Clone this repository:
 
-Run the following commands:
+       git clone https://github.com/temporalio/samples-java
+       cd samples-java
 
-     git clone https://github.com/temporalio/samples-java
-     cd samples-java
+2. Build the examples and run tests:
 
-### Build the Samples
+       ./gradlew build
 
-      ./gradlew build
+3. You need a locally running Temporal Server instance to run the samples. We recommend a locally running
+   version of the Temporal Server managed via [Docker Compose](https://docs.docker.com/compose/gettingstarted/):
 
-### Import into IntelliJ
+       git clone https://github.com/temporalio/docker-compose.git
+       cd  docker-compose
+       docker-compose up
 
-It is possible to run the samples from the command line, but if you prefer the IntelliJ here are the import steps:
+Alternatively you could install the Temporal Server on Kubernetes / Minicube using the [Temporal Helm charts](https://github.com/temporalio/helm-charts).
+Note that in this case you should use the [Temporal CLI (tctl)](https://docs.temporal.io/docs/system-tools/tctl/) tool to create a namespace called "default":
 
-* Navigate to **File**->**New**->**Project from Existing Sources**.
-* Select the cloned directory.
-* In the **Import Project page**, select **Import project from external model**
-* Choose **Gradle** and then click **Next**
-* Click **Finish**.
+       tctl --ns default n re 
 
-### Run Temporal Server
-
-To run the examples a running Temporal service is required. We recommend a locally running
-version of the Temporal Server managed via [Docker Compose](https://docs.docker.com/compose/gettingstarted/).
-In order to set this up, follow instructions below:
-
-
-Samples require Temporal service to run. We recommend a locally running version of Temporal Server
-managed through [Docker Compose](https://docs.docker.com/compose/gettingstarted/):
-
-     git clone https://github.com/temporalio/docker-compose.git
-     cd  docker-compose
-     docker-compose up
-
-This will start the Temporal service locally and allow you to execute the samples.
-
-## See Temporal UI
+## Temporal Web UI
 
 The Temporal Server running in a docker container includes a Web UI.
 
 Connect to [http://localhost:8088](http://localhost:8088).
 
-Click on a *RUN ID* of a workflow to see more details about it. Try different view formats to get a different level
-of details about the execution history.
+If you have deployed Temporal Server on Kubernetes using Helm Charts, you can use the kubectl command-line tool
+to forward your local machine ports to the Temporal Web UI:
 
-## Install Temporal CLI (tctl)
+        kubectl port-forward services/temporaltest-web 8088:8088
+        kubectl port-forward services/temporaltest-frontend-headless 7233:7233
 
-[Command Line Interface Documentation](https://docs.temporal.io/docs/system-tools/tctl)
+With this you should be able to access the Temporal Web UI with [http://localhost:8088](http://localhost:8088). 
 
-## Samples
+## Run the Samples
 
-Each sample has specific requirements for running it. The following sections contain information about
-how to run each of the samples after you've built them using the preceding instructions.
+The following sections describe all available samples and how to run them.
 
-Don't forget to check unit tests found under [src/test/java](https://github.com/temporalio/samples-java/tree/master/src/test/java/io/temporal/samples)!
+Each sample has an associated unit test. You should definitely check these out as they demonstrate
+the Temporal Java SDK testing API. 
 
-### HelloWorld
+All tests are available under [src/test/java](https://github.com/temporalio/samples-java/tree/master/src/test/java/io/temporal/samples)
+
+### Hello World Samples
 
 Each Hello World sample  demonstrates one feature of the SDK in a single file. Note that single file format is
 used for sample brevity and is not something we recommend for real applications.
@@ -103,8 +91,9 @@ used for sample brevity and is not something we recommend for real applications.
   * **[HelloSearchAttributes](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloSearchAttributes.java)**: Custom search attributes that can be used to find workflows using predicates
   * **[HelloSideEffect](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloSideEffect.java)**: Demonstrates the use of workflow SideEffect
 
+####  Running Hello World Samples
 
-  To run the hello world samples:
+  To run each hello world samples, use one of the following commands:
 
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivity
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivityRetry
@@ -125,9 +114,13 @@ used for sample brevity and is not something we recommend for real applications.
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSearchAttributes
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSideEffect
 
-### File Processing
+### File Processing Sample
+
 [FileProcessing](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/fileprocessing)
-demonstrates task routing features. The sample workflow downloads a file, processes it, and uploads the result to a destination. Any worker can pick up the first activity. However, the second and third activity must be executed on the same host as the first one.
+demonstrates task routing features. 
+The sample workflow downloads a file, processes it, and uploads the result to a destination. Any worker can pick up the first activity. However, the second and third activity must be executed on the same host as the first one.
+
+####  Running the File Processing Sample
 
 The sample has two executables. Execute each command in a separate terminal window. The first command
 runs the worker that hosts the workflow and activities implementation. To demonstrate that activities
@@ -139,20 +132,22 @@ The second command starts workflows. Each invocation starts a new workflow execu
 
     ./gradlew -q execute -PmainClass=io.temporal.samples.fileprocessing.FileProcessingStarter
 
-### Booking SAGA
+### Booking SAGA Sample
 
 [Booking SAGA](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/bookingsaga)
 is a Temporal take on Camunda BPMN trip booking example.
 
-To run:
+####  Running the Booking Saga Sample
 
     ./gradlew -q execute -PmainClass=io.temporal.samples.bookingsaga.TripBookingSaga
 
-### Money Transfer
+### Money Transfer Sample
 
 Basic [Money Transfer](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/moneytransfer) example.
 
-Money Transfer example has three separate processes. One to host workflow code,
+####  Running the Money Transfer Sample
+
+Money Transfer sample has three separate processes. One to host workflow code,
 another activity, and the third one to request transfers.
 
 Start workflow worker:
@@ -167,7 +162,7 @@ Execute once per requested transfer:
 
     ./gradlew -q execute -PmainClass=io.temporal.samples.moneytransfer.TransferRequester
 
-### Money Batch
+### Money Batch Sample
 
 [The sample](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/moneybatch)
 demonstrates a situation when a single deposit should be initiated for multiple withdrawals.
@@ -175,11 +170,13 @@ For example, a seller might want to be paid once per fixed number of transaction
 The sample can be easily extended to perform a payment based on more complex criteria like a specific time
 or accumulated amount.
 
-The sample also demonstrates *signal with start* way of starting workflows. If the workflow is already running, it
+The sample also demonstrates the *signal with start* way of starting workflows. If the workflow is already running, it
 just receives the signal. If it is not running, then it is started first, and then the signal is delivered to it.
 You can think about *signal with start* as a lazy way to create workflows when signaling them.
 
-Money Batch example has three separate processes. One to host workflow code,
+####  Running the Money Batch Sample
+
+Money Batch sample has three separate processes. One to host workflow code,
 another activity, and the third one to request transfers.
 
 Start workflow worker:
@@ -194,12 +191,14 @@ Execute at least three times to request three transfers (example batch size):
 
     ./gradlew -q execute -PmainClass=io.temporal.samples.moneybatch.TransferRequester
 
-### Updatable Timer
+### Updatable Timer Sample
 
 The [Updatable Timer](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/updatabletimer) sample
 demonstrates a helper class which relies on Workflow.await to implement a blocking sleep that can be updated at any moment.
 
-Money Batch example has three separate processes. One to host workflow code,
+####  Running the Updatable Timer Sample
+
+Update Timer sample has three separate processes. One to host workflow code,
 another to start workflow execution, and the third one to send signals to request timer updates.
 
 Start workflow worker:
@@ -213,3 +212,16 @@ Start workflow execution:
 Extend timer duration:
 
     ./gradlew -q execute -PmainClass=io.temporal.samples.updatabletimer.WakeUpTimeUpdater
+
+
+### IDE Integration
+
+#### IntelliJ
+
+It is possible to run the samples from the command line, but if you prefer IntelliJ here are the import steps:
+
+* Navigate to **File**->**New**->**Project from Existing Sources**.
+* Select the cloned directory.
+* In the **Import Project page**, select **Import project from external model**
+* Choose **Gradle** and then click **Next**
+* Click **Finish**.
