@@ -50,7 +50,7 @@ The Temporal Server running in a docker container includes a Web UI.
 
 Connect to [http://localhost:8088](http://localhost:8088).
 
-If you have deployed Temporal Server on Kubernetes using Helm Charts, you can use the kubectl command-line tool
+If you have deployed the Temporal Server on Kubernetes using Helm Charts, you can use the kubectl command-line tool
 to forward your local machine ports to the Temporal Web UI:
 
         kubectl port-forward services/temporaltest-web 8088:8088
