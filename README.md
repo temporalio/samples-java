@@ -6,7 +6,7 @@ This repository contains sample Workflow applications that demonstrate various c
 
 - Temporal Server repo: https://github.com/temporalio/temporal
 - Temporal Java SDK repo: https://github.com/temporalio/sdk-java
-- Java SDK docs: https://docs.temporal.io/docs/go/introduction
+- Java SDK docs: https://docs.temporal.io/docs/java/introduction/
 
 ## Table of Contents
 
