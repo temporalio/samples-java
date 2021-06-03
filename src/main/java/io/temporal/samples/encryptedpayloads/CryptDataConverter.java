@@ -53,7 +53,7 @@ public class CryptDataConverter implements DataConverter {
   private static final int GCM_TAG_LENGTH_BIT = 128;
   private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
-  private DataConverter converter;
+  private final DataConverter converter;
 
   public CryptDataConverter(DataConverter converter) {
     this.converter = converter;
@@ -65,13 +65,13 @@ public class CryptDataConverter implements DataConverter {
     // This still supports key rotation as the key ID is recorded on payloads allowing
     // decryption to use a previous key.
 
-    return "test";
+    return "test-key-test-key-test-key-test!";
   }
 
   private SecretKey getKey(String keyId) {
     // Key must be fetched from KMS or other secure storage.
     // Hard coded here only for example purposes.
-    return new SecretKeySpec("test-key-test-key-test-key-test!".getBytes(UTF_8), "AES");
+    return new SecretKeySpec(keyId.getBytes(UTF_8), "AES");
   }
 
   private static byte[] getNonce(int size) {
@@ -87,13 +87,10 @@ public class CryptDataConverter implements DataConverter {
     cipher.init(Cipher.ENCRYPT_MODE, key, new GCMParameterSpec(GCM_TAG_LENGTH_BIT, nonce));
 
     byte[] encryptedData = cipher.doFinal(plainData);
-    byte[] result =
-        ByteBuffer.allocate(nonce.length + encryptedData.length)
-            .put(nonce)
-            .put(encryptedData)
-            .array();
-
-    return result;
+    return ByteBuffer.allocate(nonce.length + encryptedData.length)
+        .put(nonce)
+        .put(encryptedData)
+        .array();
   }
 
   private byte[] decrypt(byte[] encryptedDataWithNonce, SecretKey key) throws Exception {
