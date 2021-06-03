@@ -2,7 +2,7 @@
 
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ftemporalio%2Ftemporal-java-samples.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Ftemporalio%2Ftemporal-java-samples?ref=badge_shield)
 
-This repository contains sample Workflow applications that demonstrate various capabilities of the Temporal using the [Java SDK](https://github.com/temporalio/sdk-java).
+This repository contains sample Workflow applications that demonstrate various capabilities of Temporal using the [Java SDK](https://github.com/temporalio/sdk-java).
 
 - Temporal Server repo: https://github.com/temporalio/temporal
 - Temporal Java SDK repo: https://github.com/temporalio/sdk-java
