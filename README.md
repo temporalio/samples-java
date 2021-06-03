@@ -93,7 +93,7 @@ used for sample brevity and is not something we recommend for real applications.
 
 ####  Running Hello World Samples
 
-  To run each hello world samples, use one of the following commands:
+  To run each hello world sample, use one of the following commands:
 
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivity
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivityRetry
