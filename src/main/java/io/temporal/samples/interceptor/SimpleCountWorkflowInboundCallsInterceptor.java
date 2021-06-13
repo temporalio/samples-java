@@ -22,10 +22,13 @@ package io.temporal.samples.interceptor;
 import io.temporal.common.interceptors.WorkflowInboundCallsInterceptor;
 import io.temporal.common.interceptors.WorkflowInboundCallsInterceptorBase;
 import io.temporal.common.interceptors.WorkflowOutboundCallsInterceptor;
-import io.temporal.samples.interceptor.collector.CountCollector;
+import io.temporal.workflow.Workflow;
+import io.temporal.workflow.WorkflowInfo;
 
 public class SimpleCountWorkflowInboundCallsInterceptor
     extends WorkflowInboundCallsInterceptorBase {
+
+  private WorkflowInfo workflowInfo;
 
   public SimpleCountWorkflowInboundCallsInterceptor(WorkflowInboundCallsInterceptor next) {
     super(next);
@@ -33,30 +36,25 @@ public class SimpleCountWorkflowInboundCallsInterceptor
 
   @Override
   public void init(WorkflowOutboundCallsInterceptor outboundCalls) {
+    this.workflowInfo = Workflow.getInfo();
     super.init(new SimpleCountWorkflowOutboundCallsInterceptor(outboundCalls));
   }
 
   @Override
   public WorkflowOutput execute(WorkflowInput input) {
-
+    Counter.add(this.workflowInfo.getWorkflowId(), Counter.NUM_OF_WORKFLOW_EXECUTIONS);
     return super.execute(input);
   }
 
   @Override
   public void handleSignal(SignalInput input) {
-    CountCollector.SignalCollector signalCollector = new CountCollector.SignalCollector();
-    signalCollector.setSignalName(input.getSignalName());
-    signalCollector.setSignalValues(input.getArguments());
-    InterceptorStarter.interceptor.getCountCollector().getSignalsInfoList().add(signalCollector);
+    Counter.add(this.workflowInfo.getWorkflowId(), Counter.NUM_OF_SIGNALS);
     super.handleSignal(input);
   }
 
   @Override
   public QueryOutput handleQuery(QueryInput input) {
-    CountCollector.QueriesCollector queriesCollector = new CountCollector.QueriesCollector();
-    queriesCollector.setQueryName(input.getQueryName());
-    queriesCollector.setQueryValues(input.getArguments());
-    InterceptorStarter.interceptor.getCountCollector().getQueriesInfoList().add(queriesCollector);
+    Counter.add(this.workflowInfo.getWorkflowId(), Counter.NUM_OF_QUERIES);
     return super.handleQuery(input);
   }
 }

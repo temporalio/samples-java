@@ -19,13 +19,15 @@
 
 package io.temporal.samples.interceptor.workflow;
 
+import io.temporal.workflow.ChildWorkflowOptions;
 import io.temporal.workflow.Workflow;
+import java.time.Duration;
 
 public class MyWorkflowImpl implements MyWorkflow {
 
   private String name;
   private String title;
-  private boolean exit;
+  private boolean exit = false;
 
   @Override
   public String exec() {
@@ -34,11 +36,14 @@ public class MyWorkflowImpl implements MyWorkflow {
     Workflow.await(() -> name != null && title != null);
 
     // execute child workflow
-    MyChildWorkflow child = Workflow.newChildWorkflowStub(MyChildWorkflow.class);
+    ChildWorkflowOptions childWorkflowOptions =
+        ChildWorkflowOptions.newBuilder().setWorkflowId("TestInterceptorChildWorkflow").build();
+    MyChildWorkflow child =
+        Workflow.newChildWorkflowStub(MyChildWorkflow.class, childWorkflowOptions);
     String result = child.execChild(name, title);
 
     // wait for exit signal
-    Workflow.await(() -> exit == true);
+    Workflow.await(Duration.ofSeconds(5), () -> exit != false);
 
     return result;
   }

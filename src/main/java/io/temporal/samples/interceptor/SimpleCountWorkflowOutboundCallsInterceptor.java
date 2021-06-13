@@ -28,19 +28,11 @@ public class SimpleCountWorkflowOutboundCallsInterceptor
 
   public SimpleCountWorkflowOutboundCallsInterceptor(WorkflowOutboundCallsInterceptor next) {
     super(next);
-
-    InterceptorStarter.interceptor
-        .getCountCollector()
-        .getWorkflowInfoList()
-        .add(Workflow.getInfo());
   }
 
   @Override
   public <R> ChildWorkflowOutput<R> executeChildWorkflow(ChildWorkflowInput<R> input) {
-    InterceptorStarter.interceptor
-        .getCountCollector()
-        .getExecutedChildWorkflowNamesList()
-        .add(input.getWorkflowType() + " : " + input.getWorkflowId());
+    Counter.add(Workflow.getInfo().getWorkflowId(), Counter.NUM_OF_CHILD_WORKFLOW_EXECUTIONS);
     return super.executeChildWorkflow(input);
   }
 }

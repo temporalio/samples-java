@@ -21,6 +21,7 @@ package io.temporal.samples.interceptor;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.client.WorkflowStub;
 import io.temporal.samples.interceptor.activities.MyActivitiesImpl;
 import io.temporal.samples.interceptor.workflow.MyChildWorkflowImpl;
 import io.temporal.samples.interceptor.workflow.MyWorkflow;
@@ -68,11 +69,24 @@ public class InterceptorStarter {
     String name = workflow.queryName();
     String title = workflow.queryTitle();
 
+    // Send exit signal to workflow
     workflow.exit();
 
+    // Wait for workflow completion via WorkflowStub
+    WorkflowStub untyped = WorkflowStub.fromTyped(workflow);
+    String result = untyped.getResult(String.class);
+
+    // Print workflow
+    logger.info("Workflow Result: " + result);
+
+    // Print the Query results
+    logger.info("Query results: ");
     logger.info("Name: " + name);
     logger.info("Title: " + title);
-    logger.info(interceptor.getCountCollector().toString());
+
+    // Print the Counter Info
+    logger.info("Collected Counter Info: ");
+    logger.info(Counter.getInfo());
 
     System.exit(0);
   }

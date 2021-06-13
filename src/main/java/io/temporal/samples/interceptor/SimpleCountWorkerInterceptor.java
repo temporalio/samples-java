@@ -22,11 +22,8 @@ package io.temporal.samples.interceptor;
 import io.temporal.common.interceptors.ActivityInboundCallsInterceptor;
 import io.temporal.common.interceptors.WorkerInterceptor;
 import io.temporal.common.interceptors.WorkflowInboundCallsInterceptor;
-import io.temporal.samples.interceptor.collector.CountCollector;
 
 public class SimpleCountWorkerInterceptor implements WorkerInterceptor {
-
-  private CountCollector countCollector = new CountCollector();
 
   @Override
   public WorkflowInboundCallsInterceptor interceptWorkflow(WorkflowInboundCallsInterceptor next) {
@@ -36,9 +33,5 @@ public class SimpleCountWorkerInterceptor implements WorkerInterceptor {
   @Override
   public ActivityInboundCallsInterceptor interceptActivity(ActivityInboundCallsInterceptor next) {
     return new SimpleCountActivityInboundCallsInterceptor(next);
-  }
-
-  public CountCollector getCountCollector() {
-    return countCollector;
   }
 }

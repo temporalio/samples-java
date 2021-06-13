@@ -23,6 +23,7 @@ import static org.junit.Assert.*;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.client.WorkflowStub;
 import io.temporal.samples.interceptor.activities.MyActivitiesImpl;
 import io.temporal.samples.interceptor.workflow.MyChildWorkflowImpl;
 import io.temporal.samples.interceptor.workflow.MyWorkflow;
@@ -37,6 +38,8 @@ import org.junit.Test;
 
 public class CountInterceptorTest {
 
+  private static final String WORKFLOW_ID = "TestInterceptorWorkflow";
+  private static final String CHILD_WORKFLOW_ID = "TestInterceptorChildWorkflow";
   private static final String TASK_QUEUE = "test-queue";
 
   private TestWorkflowEnvironment testEnv;
@@ -50,7 +53,7 @@ public class CountInterceptorTest {
         TestEnvironmentOptions.newBuilder()
             .setWorkerFactoryOptions(
                 WorkerFactoryOptions.newBuilder()
-                    .setWorkerInterceptors(InterceptorStarter.interceptor)
+                    .setWorkerInterceptors(new SimpleCountWorkerInterceptor())
                     .build())
             .build();
 
@@ -71,7 +74,11 @@ public class CountInterceptorTest {
   public void testInterceptor() {
     MyWorkflow workflow =
         client.newWorkflowStub(
-            MyWorkflow.class, WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
+            MyWorkflow.class,
+            WorkflowOptions.newBuilder()
+                .setTaskQueue(TASK_QUEUE)
+                .setWorkflowId(WORKFLOW_ID)
+                .build());
 
     testEnv.start();
 
@@ -82,27 +89,28 @@ public class CountInterceptorTest {
     String name = workflow.queryName();
     String title = workflow.queryTitle();
 
+    workflow.exit();
+
+    // Wait for workflow completion via WorkflowStub
+    WorkflowStub untyped = WorkflowStub.fromTyped(workflow);
+    String result = untyped.getResult(String.class);
+
+    assertNotNull(result);
+
     assertNotNull(name);
     assertEquals("John", name);
     assertNotNull(title);
     assertEquals("Customer", title);
 
-    try {
-      Thread.sleep(2000);
-    } catch (Exception e) {
-      fail("Thread.sleep error");
-    }
+    System.out.println("***** IFNO:" + Counter.getInfo());
 
-    // this count includes both workflow and child workflow (thus 2)
-    assertEquals(
-        2, InterceptorStarter.interceptor.getCountCollector().getWorkflowInfoList().size());
-    assertEquals(
-        2,
-        InterceptorStarter.interceptor
-            .getCountCollector()
-            .getActivitiesExecutionContextList()
-            .size());
-    assertEquals(1, InterceptorStarter.interceptor.getCountCollector().getSignalsInfoList().size());
-    assertEquals(2, InterceptorStarter.interceptor.getCountCollector().getQueriesInfoList().size());
+    assertEquals(1, Counter.getNumOfWorkflowExecutions(WORKFLOW_ID));
+    assertEquals(1, Counter.getNumOfChildWorkflowExecutions(WORKFLOW_ID));
+    // parent workflow does not execute any activities
+    assertEquals(0, Counter.getNumOfActivityExecutions(WORKFLOW_ID));
+    // child workflow executes 2 activities
+    assertEquals(2, Counter.getNumOfActivityExecutions(CHILD_WORKFLOW_ID));
+    assertEquals(2, Counter.getNumOfSignals(WORKFLOW_ID));
+    assertEquals(2, Counter.getNumOfQueries(WORKFLOW_ID));
   }
 }
