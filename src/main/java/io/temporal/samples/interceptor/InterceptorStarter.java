@@ -29,12 +29,16 @@ import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.worker.WorkerFactoryOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InterceptorStarter {
 
   public static SimpleCountWorkerInterceptor interceptor = new SimpleCountWorkerInterceptor();
   private static final String TEST_QUEUE = "test-queue";
   private static final String WORKFLOW_ID = "TestInterceptorWorkflow";
+
+  private static final Logger logger = LoggerFactory.getLogger(SimpleCountWorkerInterceptor.class);
 
   public static void main(String[] args) {
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
@@ -66,9 +70,9 @@ public class InterceptorStarter {
 
     workflow.exit();
 
-    System.out.println("Name: " + name);
-    System.out.println("Title: " + title);
-    System.out.println(interceptor.getCountCollector().toString());
+    logger.info("Name: " + name);
+    logger.info("Title: " + title);
+    logger.info(interceptor.getCountCollector().toString());
 
     System.exit(0);
   }
