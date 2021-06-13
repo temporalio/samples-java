@@ -33,6 +33,8 @@ import io.temporal.worker.WorkerFactoryOptions;
 public class InterceptorStarter {
 
   public static SimpleCountWorkerInterceptor interceptor = new SimpleCountWorkerInterceptor();
+  private static final String TEST_QUEUE = "test-queue";
+  private static final String WORKFLOW_ID = "TestInterceptorWorkflow";
 
   public static void main(String[] args) {
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
@@ -45,16 +47,13 @@ public class InterceptorStarter {
 
     WorkerFactory factory = WorkerFactory.newInstance(client, wfo);
 
-    Worker worker = factory.newWorker("test-queue");
+    Worker worker = factory.newWorker(TEST_QUEUE);
     worker.registerWorkflowImplementationTypes(MyWorkflowImpl.class, MyChildWorkflowImpl.class);
     worker.registerActivitiesImplementations(new MyActivitiesImpl());
     factory.start();
 
     WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder()
-            .setWorkflowId("TestWorkflow")
-            .setTaskQueue("test-queue")
-            .build();
+        WorkflowOptions.newBuilder().setWorkflowId(WORKFLOW_ID).setTaskQueue(TEST_QUEUE).build();
 
     MyWorkflow workflow = client.newWorkflowStub(MyWorkflow.class, workflowOptions);
 
