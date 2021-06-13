@@ -65,15 +65,12 @@ public class InterceptorStarter {
     String name = workflow.queryName();
     String title = workflow.queryTitle();
 
+    workflow.exit();
+
     System.out.println("Name: " + name);
     System.out.println("Title: " + title);
+    System.out.println(interceptor.getCountCollector().toString());
 
-    try {
-      Thread.sleep(2500);
-      System.out.println(interceptor.getCountCollector().toString());
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
     System.exit(0);
   }
 }

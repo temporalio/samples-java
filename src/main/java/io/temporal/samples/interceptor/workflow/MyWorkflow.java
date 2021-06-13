@@ -32,6 +32,9 @@ public interface MyWorkflow {
   @SignalMethod
   void signalNameAndTitle(String greeting, String title);
 
+  @SignalMethod
+  void exit();
+
   @QueryMethod
   String queryName();
 

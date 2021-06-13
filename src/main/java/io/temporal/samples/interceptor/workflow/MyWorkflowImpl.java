@@ -20,12 +20,12 @@
 package io.temporal.samples.interceptor.workflow;
 
 import io.temporal.workflow.Workflow;
-import java.time.Duration;
 
 public class MyWorkflowImpl implements MyWorkflow {
 
   private String name;
   private String title;
+  private boolean exit;
 
   @Override
   public String exec() {
@@ -37,7 +37,8 @@ public class MyWorkflowImpl implements MyWorkflow {
     MyChildWorkflow child = Workflow.newChildWorkflowStub(MyChildWorkflow.class);
     String result = child.execChild(name, title);
 
-    Workflow.sleep(Duration.ofSeconds(2));
+    // wait for exit signal
+    Workflow.await(() -> exit == true);
 
     return result;
   }
@@ -56,5 +57,10 @@ public class MyWorkflowImpl implements MyWorkflow {
   @Override
   public String queryTitle() {
     return title;
+  }
+
+  @Override
+  public void exit() {
+    this.exit = true;
   }
 }
