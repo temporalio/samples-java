@@ -26,7 +26,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/** Simple counter class. Note: in your applications you should use CDI for example instead. */
+/**
+ * Simple counter class. Static impl just for the sake of the sample. Note: in your applications you
+ * should use CDI for example instead.
+ */
 public class Counter {
   private static Map<String, Map<String, Integer>> perWorkflowIdMap =
       Collections.synchronizedMap(new HashMap<>());
@@ -89,6 +92,11 @@ public class Counter {
     return stringBuilder.toString();
   }
 
+  /**
+   * Creates a default counter info map for a workflowid
+   *
+   * @return default counter info map
+   */
   private static Map<String, Integer> getDefaultInfoMap() {
     return Stream.of(
             new AbstractMap.SimpleImmutableEntry<>(NUM_OF_WORKFLOW_EXECUTIONS, 0),

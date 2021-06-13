@@ -32,17 +32,17 @@ public class MyWorkflowImpl implements MyWorkflow {
   @Override
   public String exec() {
 
-    // wait for a greeting
+    // Wait for a greeting info
     Workflow.await(() -> name != null && title != null);
 
-    // execute child workflow
+    // Execute child workflow
     ChildWorkflowOptions childWorkflowOptions =
         ChildWorkflowOptions.newBuilder().setWorkflowId("TestInterceptorChildWorkflow").build();
     MyChildWorkflow child =
         Workflow.newChildWorkflowStub(MyChildWorkflow.class, childWorkflowOptions);
     String result = child.execChild(name, title);
 
-    // wait for exit signal
+    // Wait for exit signal
     Workflow.await(Duration.ofSeconds(5), () -> exit != false);
 
     return result;
