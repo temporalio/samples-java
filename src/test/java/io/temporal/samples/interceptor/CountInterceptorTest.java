@@ -102,8 +102,6 @@ public class CountInterceptorTest {
     assertNotNull(title);
     assertEquals("Customer", title);
 
-    System.out.println("***** IFNO:" + Counter.getInfo());
-
     assertEquals(1, Counter.getNumOfWorkflowExecutions(WORKFLOW_ID));
     assertEquals(1, Counter.getNumOfChildWorkflowExecutions(WORKFLOW_ID));
     // parent workflow does not execute any activities
