@@ -19,6 +19,7 @@ This repository contains sample Workflow applications that demonstrate various c
     - [Money Transfer Sample](#Money-Transfer-Sample)
     - [Money Batch Sample](#Money-Batch-Sample)
     - [Updatable Timer Sample](#Updatable-Timer-Sample)
+    - [Workflow Interceptor Sample](#Workflow-Interceptor-Sample)
 - [IDE Integration](#IDE-Integration)
 
 ## How to use
@@ -213,6 +214,16 @@ Extend timer duration:
 
     ./gradlew -q execute -PmainClass=io.temporal.samples.updatabletimer.WakeUpTimeUpdater
 
+### Workflow Interceptor Sample
+
+The [Workflow Interceptor](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/interceptor) sample
+demonstrates how to create and register a simple Workflow Interceptor.
+
+####  Running the Workflow Interceptor Sample
+
+Run the starter:
+
+    ./gradlew -q execute -PmainClass=io.temporal.samples.interceptor.InterceptorStarter
 
 ### IDE Integration
 
