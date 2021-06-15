@@ -77,6 +77,7 @@ used for sample brevity and is not something we recommend for real applications.
   * **[HelloActivityRetry](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloActivityRetry.java)**: How to retry an activity
   * **[HelloActivityExclusiveChoice](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloActivityExclusiveChoice.java)**: How to execute activities based on dynamic input
   * **[HelloAsync](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloAsync.java)**: How to call activities asynchronously and wait for them using Promises
+  * **[HelloParallelActivity](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloParallelActivity.java)**: How to call multiple parallel activities asynchronously and wait for them using Promise.allOf
   * **[HelloAsyncActivityCompletion](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloAsyncActivityCompletion.java)**: Asynchronous activity implementation
   * **[HelloAsyncLambda](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloAsyncLambda.java)**: How to run part of a workflow asynchronously in a separate task (thread)
   * **[HelloCancellationScope](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloCancellationScope.java)**: How to explicitly cancel parts of a workflow
@@ -100,6 +101,7 @@ used for sample brevity and is not something we recommend for real applications.
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivityRetry
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivityExclusiveChoice
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAsync
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloParallelActivity
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAsyncActivityCompletion
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAsyncLambda
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloCancellationScope
