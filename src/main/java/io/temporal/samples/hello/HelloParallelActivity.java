@@ -29,6 +29,7 @@ import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.*;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -64,7 +65,7 @@ public class HelloParallelActivity {
      * workflow method finishes execution.
      */
     @WorkflowMethod
-    List<String> getGreetings(String... names);
+    List<String> getGreetings(List<String> names);
   }
 
   /**
@@ -110,7 +111,7 @@ public class HelloParallelActivity {
             ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(2)).build());
 
     @Override
-    public List<String> getGreetings(String... names) {
+    public List<String> getGreetings(List<String> names) {
       List<String> results = new ArrayList();
 
       List<Promise<String>> promiseList = new ArrayList<>();
@@ -192,7 +193,8 @@ public class HelloParallelActivity {
      * synchronous.
      *
      */
-    List<String> results = workflow.getGreetings("John", "Mary", "Michael", "Jennet");
+    List<String> results =
+        workflow.getGreetings(Arrays.asList("John", "Mary", "Michael", "Jennet"));
 
     // Display workflow execution results
     for (String result : results) {

@@ -25,6 +25,7 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -63,7 +64,8 @@ public class HelloParallelActivityTest {
     HelloParallelActivity.MultiGreetingWorkflow workflow =
         client.newWorkflowStub(HelloParallelActivity.MultiGreetingWorkflow.class, workflowOptions);
     // Execute a workflow waiting for it to complete.
-    List<String> results = workflow.getGreetings("John", "Marry", "Michael", "Janet");
+    List<String> results =
+        workflow.getGreetings(Arrays.asList("John", "Marry", "Michael", "Janet"));
     assertEquals(4, results.size());
   }
 }
