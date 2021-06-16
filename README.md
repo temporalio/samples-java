@@ -83,6 +83,7 @@ used for sample brevity and is not something we recommend for real applications.
   * **[HelloCancellationScope](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloCancellationScope.java)**: How to explicitly cancel parts of a workflow
   * **[HelloChild](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloChild.java)**: Child workflow
   * **[HelloCron](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloCron.java)**: Workflow that is executed according to a cron schedule
+  * **[HelloDynamic](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloDynamic.java)**: Displays the use of DynamicWorkflow and DynamicActivity interfaces
   * **[HelloPeriodic](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloPeriodic.java)**: Workflow that executes some logic periodically 
   * **[HelloException](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloException.java)**: Exception propagation and wrapping
   * **[HelloLocalActivity](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloLocalActivity.java)**: Workflow with a [local activity](https://docs.temporal.io/docs/concept-activities/#local-activities)
@@ -107,6 +108,7 @@ used for sample brevity and is not something we recommend for real applications.
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloCancellationScope
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloChild
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloCron
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloDynamic
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloException
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloLocalActivity
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloPeriodic
