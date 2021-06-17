@@ -19,6 +19,8 @@
 
 package io.temporal.samples.hello;
 
+import io.temporal.activity.Activity;
+import io.temporal.activity.ActivityCancellationType;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
@@ -26,7 +28,6 @@ import io.temporal.client.WorkflowFailedException;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
 import io.temporal.failure.ActivityFailure;
-import io.temporal.failure.CanceledFailure;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -97,12 +98,16 @@ public class HelloDetachedCancellationScope {
     @Override
     public String sayHello(String name) {
       // Simulate some long-running activity so we can cancel workflow before it completes
-      try {
-        Thread.sleep(5 * 1000);
-      } catch (Exception e) {
-        e.printStackTrace();
+      for (int i = 0; i < Integer.MAX_VALUE; i++) {
+        try {
+          Thread.sleep(200);
+        } catch (InterruptedException e) {
+          // Rethrow the exception as runtime one
+          throw Activity.wrap(e);
+        }
+        Activity.getExecutionContext().heartbeat(i);
       }
-      return "Hello " + name + "!";
+      return "unreachable";
     }
 
     @Override
@@ -118,7 +123,10 @@ public class HelloDetachedCancellationScope {
     private final GreetingActivities activities =
         Workflow.newActivityStub(
             GreetingActivities.class,
-            ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(10)).build());
+            ActivityOptions.newBuilder()
+                .setStartToCloseTimeout(Duration.ofSeconds(10))
+                .setCancellationType(ActivityCancellationType.WAIT_CANCELLATION_COMPLETED)
+                .build());
 
     @Override
     public String getGreeting(String name) {
@@ -126,22 +134,12 @@ public class HelloDetachedCancellationScope {
         this.greeting = activities.sayHello(name);
         return greeting;
       } catch (ActivityFailure af) {
-        // When we cancel the workflow during activity execution
-        // we get ActivityFailure
-        // If its cause is CanceledFailure then run our detached scope
-        if (af.getCause() instanceof CanceledFailure) {
-          // Create a CancellationScope that is not linked to a parent scope
-          // This can be used to do cleanup code after workflow has been cancelled
-          CancellationScope detached =
-              Workflow.newDetachedCancellationScope(() -> greeting = activities.sayGoodBye(name));
-          detached.run();
-          // return greeting after scope ran
-          return greeting;
-        } else {
-          // If we got here and cause is not workflow cancellation
-          // we can handle the ActivityFailure, for sake of example just rethrow
-          throw af;
-        }
+        // Create a CancellationScope that is not linked to a parent scope
+        // This can be used to do cleanup code after workflow has been cancelled
+        CancellationScope detached =
+            Workflow.newDetachedCancellationScope(() -> greeting = activities.sayGoodBye(name));
+        detached.run();
+        throw af;
       }
     }
 
@@ -151,7 +149,7 @@ public class HelloDetachedCancellationScope {
     }
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws InterruptedException {
 
     // Define the workflow service.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
@@ -203,6 +201,8 @@ public class HelloDetachedCancellationScope {
     WorkflowClient.start(workflow::getGreeting, "John");
 
     WorkflowStub workflowStub = WorkflowStub.fromTyped(workflow);
+
+    Thread.sleep(1000);
 
     // Cancel Workflow execution
     // This can be done from a different client for example
