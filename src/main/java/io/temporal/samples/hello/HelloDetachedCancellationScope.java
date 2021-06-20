@@ -102,7 +102,7 @@ public class HelloDetachedCancellationScope {
         try {
           Thread.sleep(200);
         } catch (InterruptedException e) {
-          // Rethrow the exception as runtime one
+          // Wrap and re-throw the exception.
           throw Activity.wrap(e);
         }
         Activity.getExecutionContext().heartbeat(i);
