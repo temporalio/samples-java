@@ -211,8 +211,8 @@ public class HelloDetachedCancellationScope {
     String result;
 
     try {
-      // Wait for workflow results
-      // Because we cancelled the workflow we should get WorkflowFailedException
+      // Wait for Workflow Execution results
+      // Because we cancelled the Workflow Execution we should get WorkflowFailedException
       result = workflowStub.getResult(6, TimeUnit.SECONDS, String.class, String.class);
     } catch (TimeoutException | WorkflowFailedException e) {
       // Query the Workflow Execution to get the result which was set by the detached cancellation scope run
