@@ -135,7 +135,7 @@ public class HelloDetachedCancellationScope {
         return greeting;
       } catch (ActivityFailure af) {
         // Create a CancellationScope that is not linked to a parent scope
-        // This can be used to do cleanup code after workflow has been cancelled
+        // This can be used in the "cleanup" code after the Workflow Execution has been cancelled.
         CancellationScope detached =
             Workflow.newDetachedCancellationScope(() -> greeting = activities.sayGoodBye(name));
         detached.run();
