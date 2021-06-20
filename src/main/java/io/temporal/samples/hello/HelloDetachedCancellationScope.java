@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Sample Temporal workflow that shows how to run some cleanup code when a workflow has been
+ * This sample Temporal Workflow Definition demonstrates how to run "cleanup" code when a Workflow Execution has been
  * explicitly cancelled.
  *
  * <p>To execute this example a locally running Temporal service instance is required. You can
