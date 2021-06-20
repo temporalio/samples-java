@@ -204,8 +204,8 @@ public class HelloDetachedCancellationScope {
 
     Thread.sleep(1000);
 
-    // Cancel Workflow execution
-    // This can be done from a different client for example
+    // Cancel the Workflow Execution
+    // Note that this can be done from a different client.
     workflowStub.cancel();
 
     String result;
