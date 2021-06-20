@@ -189,7 +189,7 @@ public class HelloDetachedCancellationScope {
      */
     factory.start();
 
-    // Create the workflow client stub. It is used to start our workflow execution.
+    // Create the Workflow client stub in order to start our Workflow Execution.
     GreetingWorkflow workflow =
         client.newWorkflowStub(
             GreetingWorkflow.class,
