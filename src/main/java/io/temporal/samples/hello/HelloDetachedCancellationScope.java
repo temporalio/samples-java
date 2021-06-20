@@ -97,7 +97,7 @@ public class HelloDetachedCancellationScope {
   static class GreetingActivitiesImpl implements GreetingActivities {
     @Override
     public String sayHello(String name) {
-      // Simulate some long-running activity so we can cancel workflow before it completes
+      // This simulates a long-running Activity Execution so we can cancel the Workflow Execution before it completes.
       for (int i = 0; i < Integer.MAX_VALUE; i++) {
         try {
           Thread.sleep(200);
