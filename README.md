@@ -81,6 +81,7 @@ used for sample brevity and is not something we recommend for real applications.
   * **[HelloAsyncActivityCompletion](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloAsyncActivityCompletion.java)**: Asynchronous activity implementation
   * **[HelloAsyncLambda](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloAsyncLambda.java)**: How to run part of a workflow asynchronously in a separate task (thread)
   * **[HelloCancellationScope](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloCancellationScope.java)**: How to explicitly cancel parts of a workflow
+  * **[HelloDetachedCancellationScope](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloDetachedCancellationScope.java)**: How to execute cleanup code after workflow as explicitly cancelled
   * **[HelloChild](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloChild.java)**: Child workflow
   * **[HelloCron](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloCron.java)**: Workflow that is executed according to a cron schedule
   * **[HelloDynamic](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloDynamic.java)**: Displays the use of DynamicWorkflow and DynamicActivity interfaces
@@ -106,6 +107,7 @@ used for sample brevity and is not something we recommend for real applications.
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAsyncActivityCompletion
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAsyncLambda
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloCancellationScope
+      ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloDetachedCancellationScope
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloChild
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloCron
       ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloDynamic
