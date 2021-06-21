@@ -43,9 +43,6 @@ import java.time.Duration;
  * in this example.
  *
  * @see io.temporal.samples.bookingsaga.TripBookingSaga for another SAGA example.
- *     <p>To execute this example a locally running Temporal service instance is required. You can
- *     follow instructions on how to set up your Temporal service here:
- *     https://github.com/temporalio/temporal/blob/master/README.md#download-and-start-temporal-server-locally
  */
 public class HelloSaga {
 
@@ -141,10 +138,11 @@ public class HelloSaga {
   }
 
   /**
-   * Define the Activity Interface. Activities are building blocks of any temporal workflow and
-   * contain any business logic that could perform long running computation, network calls, etc.
+   * This is the Activity Definition's Interface. Activities are building blocks of any Temporal
+   * Workflow and contain any business logic that could perform long running computation, network
+   * calls, etc.
    *
-   * <p>Annotating activity methods with @ActivityMethod is optional
+   * <p>Annotating Activity Definition methods with @ActivityMethod is optional.
    *
    * @see io.temporal.activity.ActivityInterface
    * @see io.temporal.activity.ActivityMethod
@@ -185,8 +183,8 @@ public class HelloSaga {
   public interface SagaWorkflow {
 
     /**
-     * This method is executed when the workflow is started. The workflow completes when the
-     * workflow method finishes execution.
+     * This is the method that is executed when the Workflow Execution is started. The Workflow
+     * Execution completes when this method finishes execution.
      */
     @WorkflowMethod
     void execute();
@@ -283,8 +281,7 @@ public class HelloSaga {
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
 
     /*
-     * Define the workflow client. It is a Temporal service client used to start, signal, and query
-     * workflows
+     * Get a Workflow service client which can be used to start, Signal, and Query Workflow Executions.
      */
     WorkflowClient client = WorkflowClient.newInstance(service);
 
@@ -308,10 +305,10 @@ public class HelloSaga {
         HelloSaga.ChildWorkflowOperationImpl.class,
         HelloSaga.ChildWorkflowCompensationImpl.class);
 
-    /*
-     Register our workflow activity implementation with the worker. Since workflow activities are
-     stateless and thread-safe, we need to register a shared instance.
-    */
+    /**
+     * Register our Activity Types with the Worker. Since Activities are stateless and thread-safe,
+     * the Activity Type is a shared instance.
+     */
     worker.registerActivitiesImplementations(new ActivityOperationImpl());
 
     /*

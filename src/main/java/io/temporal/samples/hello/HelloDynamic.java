@@ -92,12 +92,13 @@ public class HelloDynamic {
    * starts the worker and then the workflow.
    */
   public static void main(String[] arg) {
-    // Define the workflow service.
+
+    // Get a Workflow service stub.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
 
     /**
-     * Define the workflow client. It is a Temporal service client used to start, signal, and query
-     * workflows
+     * Get a Workflow service client which can be used to start, Signal, and Query Workflow
+     * Executions.
      */
     WorkflowClient client = WorkflowClient.newInstance(service);
 
@@ -125,8 +126,8 @@ public class HelloDynamic {
     worker.registerActivitiesImplementations(new DynamicGreetingActivityImpl());
 
     /**
-     * Start all the workers registered for a specific task queue. The started workers then start
-     * polling for workflows and activities.
+     * Start all the Workers that are in this process. The Workers will then start polling for
+     * Workflow Tasks and Activity Tasks.
      */
     factory.start();
 

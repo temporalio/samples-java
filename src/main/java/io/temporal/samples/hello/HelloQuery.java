@@ -30,13 +30,7 @@ import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 
-/**
- * Sample Temporal workflow that demonstrates the workflow query capability.
- *
- * <p>To execute this example a locally running Temporal service instance is required. You can
- * follow instructions on how to set up your Temporal service here:
- * https://github.com/temporalio/temporal/blob/master/README.md#download-and-start-temporal-server-locally
- */
+/** Sample Temporal workflow that demonstrates the workflow query capability. */
 public class HelloQuery {
 
   // Define the task queue name
@@ -46,11 +40,11 @@ public class HelloQuery {
   static final String WORKFLOW_ID = "HelloQueryWorkflow";
 
   /**
-   * Define the Workflow Interface. It must contain one method annotated with @WorkflowMethod.
+   * The Workflow Definition's Interface must contain one method annotated with @WorkflowMethod.
    *
-   * <p>Workflow code includes core processing logic. It that shouldn't contain any heavyweight
-   * computations, non-deterministic code, network calls, database operations, etc. All those things
-   * should be handled by Activities.
+   * <p>Workflow Definitions should not contain any heavyweight computations, non-deterministic
+   * code, network calls, database operations, etc. Those things should be handled by the
+   * Activities.
    *
    * @see io.temporal.workflow.WorkflowInterface
    * @see io.temporal.workflow.WorkflowMethod
@@ -107,8 +101,7 @@ public class HelloQuery {
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
 
     /*
-     * Define the workflow client. It is a Temporal service client used to start, signal, and query
-     * workflows
+     * Get a Workflow service client which can be used to start, Signal, and Query Workflow Executions.
      */
     WorkflowClient client = WorkflowClient.newInstance(service);
 

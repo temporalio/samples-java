@@ -37,12 +37,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * This sample Temporal Workflow Definition demonstrates how to run "cleanup" code when a Workflow Execution has been
- * explicitly cancelled.
- *
- * <p>To execute this example a locally running Temporal service instance is required. You can
- * follow instructions on how to set up your Temporal service here:
- * https://github.com/temporalio/temporal/blob/master/README.md#download-and-start-temporal-server-locally
+ * This sample Temporal Workflow Definition demonstrates how to run "cleanup" code when a Workflow
+ * Execution has been explicitly cancelled.
  */
 public class HelloDetachedCancellationScope {
 
@@ -53,11 +49,11 @@ public class HelloDetachedCancellationScope {
   static final String WORKFLOW_ID = "HelloDetachedCancellationWorkflow";
 
   /**
-   * Define the Workflow Interface. It must contain one method annotated with @WorkflowMethod.
+   * The Workflow Definition's Interface must contain one method annotated with @WorkflowMethod.
    *
-   * <p>Workflow code includes core processing logic. It that shouldn't contain any heavyweight
-   * computations, non-deterministic code, network calls, database operations, etc. All those things
-   * should be handled by Activities.
+   * <p>Workflow Definitions should not contain any heavyweight computations, non-deterministic
+   * code, network calls, database operations, etc. Those things should be handled by the
+   * Activities.
    *
    * @see io.temporal.workflow.WorkflowInterface
    * @see io.temporal.workflow.WorkflowMethod
@@ -66,8 +62,8 @@ public class HelloDetachedCancellationScope {
   public interface GreetingWorkflow {
 
     /**
-     * This method is executed when the workflow is started. The workflow completes when the
-     * workflow method finishes execution.
+     * This is the method that is executed when the Workflow Execution is started. The Workflow
+     * Execution completes when this method finishes execution.
      */
     @WorkflowMethod
     String getGreeting(String name);
@@ -78,10 +74,11 @@ public class HelloDetachedCancellationScope {
   }
 
   /**
-   * Define the Activity Interface. Activities are building blocks of any temporal workflow and
-   * contain any business logic that could perform long running computation, network calls, etc.
+   * This is the Activity Definition's Interface. Activities are building blocks of any Temporal
+   * Workflow and contain any business logic that could perform long running computation, network
+   * calls, etc.
    *
-   * <p>Annotating activity methods with @ActivityMethod is optional
+   * <p>Annotating Activity Definition methods with @ActivityMethod is optional.
    *
    * @see io.temporal.activity.ActivityInterface
    * @see io.temporal.activity.ActivityMethod
@@ -93,11 +90,12 @@ public class HelloDetachedCancellationScope {
     String sayGoodBye(String name);
   }
 
-  /** Implementation of the Greeting Activity. */
+  /** This is the Greeting Activity Definition. */
   static class GreetingActivitiesImpl implements GreetingActivities {
     @Override
     public String sayHello(String name) {
-      // This simulates a long-running Activity Execution so we can cancel the Workflow Execution before it completes.
+      // This simulates a long-running Activity Execution so we can cancel the Workflow Execution
+      // before it completes.
       for (int i = 0; i < Integer.MAX_VALUE; i++) {
         try {
           Thread.sleep(200);
@@ -116,7 +114,7 @@ public class HelloDetachedCancellationScope {
     }
   }
 
-  /** Define the workflow implementation which implements our getGreeting workflow method. */
+  /** This is the Workflow Definition which implements our getGreeting method. */
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
     private String greeting;
 
@@ -151,12 +149,12 @@ public class HelloDetachedCancellationScope {
 
   public static void main(String[] args) throws InterruptedException {
 
-    // Define the workflow service.
+    // Get a Workflow service stub.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
 
     /**
-     * Define the workflow client. It is a Temporal service client used to start, signal, and query
-     * workflows
+     * Get a Workflow service client which can be used to start, Signal, and Query Workflow
+     * Executions.
      */
     WorkflowClient client = WorkflowClient.newInstance(service);
 
@@ -172,20 +170,20 @@ public class HelloDetachedCancellationScope {
     Worker worker = factory.newWorker(TASK_QUEUE);
 
     /**
-     * Register our workflow implementation with the worker. Workflow implementations must be known
-     * to the worker at runtime in order to dispatch workflow tasks.
+     * Register our Workflow Types with the Worker. Workflow Types must be known to the Worker at
+     * runtime.
      */
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
     /**
-     * Register our workflow activity implementation with the worker. Since workflow activities are
-     * stateless and thread-safe, we need to register a shared instance.
+     * Register our Activity Types with the Worker. Since Activities are stateless and thread-safe,
+     * the Activity Type is a shared instance.
      */
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
 
     /**
-     * Start all the workers registered for a specific task queue. The started workers then start
-     * polling for workflows and activities.
+     * Start all the Workers that are in this process. The Workers will then start polling for
+     * Workflow Tasks and Activity Tasks.
      */
     factory.start();
 
@@ -215,7 +213,8 @@ public class HelloDetachedCancellationScope {
       // Because we cancelled the Workflow Execution we should get WorkflowFailedException
       result = workflowStub.getResult(6, TimeUnit.SECONDS, String.class, String.class);
     } catch (TimeoutException | WorkflowFailedException e) {
-      // Query the Workflow Execution to get the result which was set by the detached cancellation scope run
+      // Query the Workflow Execution to get the result which was set by the detached cancellation
+      // scope run
       result = workflowStub.query("queryGreeting", String.class);
     }
 
