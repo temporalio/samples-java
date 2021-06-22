@@ -31,9 +31,9 @@ import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 
 /**
- * Sample Temporal workflow that demonstrates use of a child workflow. Child workflows allow you to
- * group your workflow logic into small logical and reusable units that solve a particular problem.
- * They can be typically reused by multiple other workflows.
+ * Sample Temporal Workflow Definition that demonstrates the execution of a Child Workflow. Child workflows allow you to
+ * group your Workflow logic into small logical and reusable units that solve a particular problem.
+ * They can be typically reused by multiple other Workflows.
  */
 public class HelloChild {
 
