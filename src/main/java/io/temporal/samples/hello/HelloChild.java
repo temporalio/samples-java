@@ -31,13 +31,9 @@ import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 
 /**
- * Sample Temporal workflow that demonstrates use of a child workflow. Child workflows allow you to
- * group your workflow logic into small logical and reusable units that solve a particular problem.
- * They can be typically reused by multiple other workflows.
- *
- * <p>To execute this example a locally running Temporal service instance is required. You can
- * follow instructions on how to set up your Temporal service here:
- * https://github.com/temporalio/temporal/blob/master/README.md#download-and-start-temporal-server-locally
+ * Sample Temporal Workflow Definition that demonstrates the execution of a Child Workflow. Child workflows allow you to
+ * group your Workflow logic into small logical and reusable units that solve a particular problem.
+ * They can be typically reused by multiple other Workflows.
  */
 public class HelloChild {
 
@@ -128,12 +124,11 @@ public class HelloChild {
    */
   public static void main(String[] args) {
 
-    // Define the workflow service.
+    // Get a Workflow service stub.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
 
     /*
-     * Define the workflow client. It is a Temporal service client used to start, signal, and query
-     * workflows
+     * Get a Workflow service client which can be used to start, Signal, and Query Workflow Executions.
      */
     WorkflowClient client = WorkflowClient.newInstance(service);
 

@@ -32,13 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Sample Temporal workflow that executes multiple Activity methods in parallel.
- *
- * <p>To execute this example a locally running Temporal service instance is required. You can
- * follow instructions on how to set up your Temporal service here:
- * https://github.com/temporalio/temporal/blob/master/README.md#download-and-start-temporal-server-locally
- */
+/** Sample Temporal workflow that executes multiple Activity methods in parallel. */
 public class HelloParallelActivity {
 
   // Define the task queue name
@@ -48,11 +42,11 @@ public class HelloParallelActivity {
   static final String WORKFLOW_ID = "HelloParallelActivityWorkflow";
 
   /**
-   * Define the Workflow Interface. It must contain one method annotated with @WorkflowMethod.
+   * The Workflow Definition's Interface must contain one method annotated with @WorkflowMethod.
    *
-   * <p>Workflow code includes core processing logic. It that shouldn't contain any heavyweight
-   * computations, non-deterministic code, network calls, database operations, etc. All those things
-   * should be handled by Activities.
+   * <p>Workflow Definitions should not contain any heavyweight computations, non-deterministic
+   * code, network calls, database operations, etc. Those things should be handled by the
+   * Activities.
    *
    * @see io.temporal.workflow.WorkflowInterface
    * @see io.temporal.workflow.WorkflowMethod
@@ -61,18 +55,19 @@ public class HelloParallelActivity {
   public interface MultiGreetingWorkflow {
 
     /**
-     * This method is executed when the workflow is started. The workflow completes when the
-     * workflow method finishes execution.
+     * This is the method that is executed when the Workflow Execution is started. The Workflow
+     * Execution completes when this method finishes execution.
      */
     @WorkflowMethod
     List<String> getGreetings(List<String> names);
   }
 
   /**
-   * Define the Activity Interface. Activities are building blocks of any temporal workflow and
-   * contain any business logic that could perform long running computation, network calls, etc.
+   * This is the Activity Definition's Interface. Activities are building blocks of any Temporal
+   * Workflow and contain any business logic that could perform long running computation, network
+   * calls, etc.
    *
-   * <p>Annotating activity methods with @ActivityMethod is optional
+   * <p>Annotating Activity Definition methods with @ActivityMethod is optional.
    *
    * @see io.temporal.activity.ActivityInterface
    * @see io.temporal.activity.ActivityMethod
@@ -144,8 +139,7 @@ public class HelloParallelActivity {
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
 
     /*
-     * Define the workflow client. It is a Temporal service client used to start, signal, and query
-     * workflows
+     * Get a Workflow service client which can be used to start, Signal, and Query Workflow Executions.
      */
     WorkflowClient client = WorkflowClient.newInstance(service);
 
@@ -167,10 +161,10 @@ public class HelloParallelActivity {
      */
     worker.registerWorkflowImplementationTypes(MultiGreetingWorkflowImpl.class);
 
-    /*
-     Register our workflow activity implementation with the worker. Since workflow activities are
-     stateless and thread-safe, we need to register a shared instance.
-    */
+    /**
+     * Register our Activity Types with the Worker. Since Activities are stateless and thread-safe,
+     * the Activity Type is a shared instance.
+     */
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
 
     /*

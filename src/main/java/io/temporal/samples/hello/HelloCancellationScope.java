@@ -45,13 +45,9 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Sample Temporal workflow that demonstrates parallel invocation of multiple workflow activities
- * with cancellation scope. When one of the invoked activities finishes, we cancel execution of the
- * other activities and wait for their cancellation to complete.
- *
- * <p>To execute this example a locally running Temporal service instance is required. You can
- * follow instructions on how to set up your Temporal service here:
- * https://github.com/temporalio/temporal/blob/master/README.md#download-and-start-temporal-server-locally
+ * Sample Temporal Workflow Definition that demonstrates parallel Activity Executions
+ * with a Cancellation Scope. When one of the Activity Executions finish, we cancel the execution of the
+ * other Activities and wait for their cancellation to complete.
  */
 public class HelloCancellationScope {
 
@@ -62,11 +58,11 @@ public class HelloCancellationScope {
   static final String WORKFLOW_ID = "HelloCancellationScopeWorkflow";
 
   /**
-   * Define the Workflow Interface. It must contain one method annotated with @WorkflowMethod.
+   * The Workflow Definition's Interface must contain one method annotated with @WorkflowMethod.
    *
-   * <p>Workflow code includes core processing logic. It that shouldn't contain any heavyweight
-   * computations, non-deterministic code, network calls, database operations, etc. All those things
-   * should be handled by Activities.
+   * <p>Workflow Definitions should not contain any heavyweight computations, non-deterministic
+   * code, network calls, database operations, etc. Those things should be handled by the
+   * Activities.
    *
    * @see io.temporal.workflow.WorkflowInterface
    * @see io.temporal.workflow.WorkflowMethod
@@ -75,18 +71,19 @@ public class HelloCancellationScope {
   public interface GreetingWorkflow {
 
     /**
-     * This method is executed when the workflow is started. The workflow completes when the
-     * workflow method finishes execution.
+     * This is the method that is executed when the Workflow Execution is started. The Workflow
+     * Execution completes when this method finishes execution.
      */
     @WorkflowMethod
     String getGreeting(String name);
   }
 
   /**
-   * Define the Activity Interface. Activities are building blocks of any temporal workflow and
-   * contain any business logic that could perform long running computation, network calls, etc.
+   * This is the Activity Definition's Interface. Activities are building blocks of any Temporal
+   * Workflow and contain any business logic that could perform long running computation, network
+   * calls, etc.
    *
-   * <p>Annotating activity methods with @ActivityMethod is optional
+   * <p>Annotating Activity Definition methods with @ActivityMethod is optional.
    *
    * @see io.temporal.activity.ActivityInterface
    * @see io.temporal.activity.ActivityMethod
@@ -243,12 +240,11 @@ public class HelloCancellationScope {
    */
   public static void main(String[] args) {
 
-    // Define the workflow service.
+    // Get a Workflow service stub.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
 
     /*
-     * Define the workflow client. It is a Temporal service client used to start, signal, and query
-     * workflows
+     * Get a Workflow service client which can be used to start, Signal, and Query Workflow Executions.
      */
     WorkflowClient client = WorkflowClient.newInstance(service);
 
@@ -280,9 +276,9 @@ public class HelloCancellationScope {
      */
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
-    /*
-     * Register our workflow activity implementation with the worker. Since workflow activities are
-     * stateless and thread-safe, we need to register a shared instance.
+    /**
+     * Register our Activity Types with the Worker. Since Activities are stateless and thread-safe,
+     * the Activity Type is a shared instance.
      */
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
 

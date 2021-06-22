@@ -34,10 +34,6 @@ import java.util.List;
 /**
  * Sample Temporal workflow that demonstrates how to use workflow signal methods to signal from
  * external sources.
- *
- * <p>To execute this example a locally running Temporal service instance is required. You can
- * follow instructions on how to set up your Temporal service here:
- * https://github.com/temporalio/temporal/blob/master/README.md#download-and-start-temporal-server-locally
  */
 public class HelloSignal {
 
@@ -48,11 +44,11 @@ public class HelloSignal {
   static final String WORKFLOW_ID = "HelloSignalWorkflow";
 
   /**
-   * Define the Workflow Interface. It must contain one method annotated with @WorkflowMethod.
+   * The Workflow Definition's Interface must contain one method annotated with @WorkflowMethod.
    *
-   * <p>Workflow code includes core processing logic. It that shouldn't contain any heavyweight
-   * computations, non-deterministic code, network calls, database operations, etc. All those things
-   * should be handled by Activities.
+   * <p>Workflow Definitions should not contain any heavyweight computations, non-deterministic
+   * code, network calls, database operations, etc. Those things should be handled by the
+   * Activities.
    *
    * @see io.temporal.workflow.WorkflowInterface
    * @see io.temporal.workflow.WorkflowMethod
@@ -60,8 +56,8 @@ public class HelloSignal {
   @WorkflowInterface
   public interface GreetingWorkflow {
     /**
-     * This method is executed when the workflow is started. The workflow completes when the
-     * workflow method finishes execution.
+     * This is the method that is executed when the Workflow Execution is started. The Workflow
+     * Execution completes when this method finishes execution.
      */
     @WorkflowMethod
     List<String> getGreetings();
@@ -117,12 +113,11 @@ public class HelloSignal {
    */
   public static void main(String[] args) throws Exception {
 
-    // Define the workflow service.
+    // Get a Workflow service stub.
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
 
     /*
-     * Define the workflow client. It is a Temporal service client used to start, signal, and query
-     * workflows
+     * Get a Workflow service client which can be used to start, Signal, and Query Workflow Executions.
      */
     WorkflowClient client = WorkflowClient.newInstance(service);
 

@@ -33,13 +33,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Sample Temporal workflow demonstrating how to run an activity based on dynamic input.
- *
- * <p>To execute this example a locally running Temporal service instance is required. You can
- * follow instructions on how to set up your Temporal service here:
- * https://github.com/temporalio/temporal/blob/master/README.md#download-and-start-temporal-server-locally
- */
+/** Sample Temporal Workflow Definition demonstrating how to execute an Activity based on dynamic input. */
 public class HelloActivityExclusiveChoice {
 
   // Define the task queue name
@@ -190,8 +184,7 @@ public class HelloActivityExclusiveChoice {
     WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
 
     /*
-     * Define the workflow client. It is a Temporal service client used to start, signal, and query
-     * workflows
+     * Get a Workflow service client which can be used to start, Signal, and Query Workflow Executions.
      */
     WorkflowClient client = WorkflowClient.newInstance(service);
 
@@ -212,10 +205,10 @@ public class HelloActivityExclusiveChoice {
      */
     worker.registerWorkflowImplementationTypes(PurchaseFruitsWorkflowImpl.class);
 
-    /*
-     Register our workflow activity implementation with the worker. Since workflow activities are
-     stateless and thread-safe, we need to register a shared instance.
-    */
+    /**
+     * Register our Activity Types with the Worker. Since Activities are stateless and thread-safe,
+     * the Activity Type is a shared instance.
+     */
     worker.registerActivitiesImplementations(new OrderFruitsActivitiesImpl());
 
     // Start all the workers registered for a specific task queue.
