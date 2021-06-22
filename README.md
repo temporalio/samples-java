@@ -43,7 +43,7 @@ This repository contains sample Workflow applications that demonstrate various c
 Alternatively you could install the Temporal Server on Kubernetes / Minicube using the [Temporal Helm charts](https://github.com/temporalio/helm-charts).
 Note that in this case you should use the [Temporal CLI (tctl)](https://docs.temporal.io/docs/system-tools/tctl/) tool to create a namespace called "default":
 
-       tctl --ns default n re 
+       tctl --ns default n re
 
 ## Temporal Web UI
 
@@ -57,14 +57,16 @@ to forward your local machine ports to the Temporal Web UI:
         kubectl port-forward services/temporaltest-web 8088:8088
         kubectl port-forward services/temporaltest-frontend-headless 7233:7233
 
-With this you should be able to access the Temporal Web UI with [http://localhost:8088](http://localhost:8088). 
+With this you should be able to access the Temporal Web UI with [http://localhost:8088](http://localhost:8088).
 
 ## Run the Samples
+
+<!-- @@@SNIPSTART samples-java-readme-samples-directory -->
 
 The following sections describe all available samples and how to run them.
 
 Each sample has an associated unit test. You should definitely check these out as they demonstrate
-the Temporal Java SDK testing API. 
+the Temporal Java SDK testing API.
 
 All tests are available under [src/test/java](https://github.com/temporalio/samples-java/tree/master/src/test/java/io/temporal/samples)
 
@@ -85,7 +87,7 @@ used for sample brevity and is not something we recommend for real applications.
   * **[HelloChild](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloChild.java)**: Child workflow
   * **[HelloCron](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloCron.java)**: Workflow that is executed according to a cron schedule
   * **[HelloDynamic](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloDynamic.java)**: Displays the use of DynamicWorkflow and DynamicActivity interfaces
-  * **[HelloPeriodic](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloPeriodic.java)**: Workflow that executes some logic periodically 
+  * **[HelloPeriodic](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloPeriodic.java)**: Workflow that executes some logic periodically
   * **[HelloException](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloException.java)**: Exception propagation and wrapping
   * **[HelloLocalActivity](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloLocalActivity.java)**: Workflow with a [local activity](https://docs.temporal.io/docs/concept-activities/#local-activities)
   * **[HelloPolymorphicActivity](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloPolymorphicActivity.java)**: Activities that extend a common interface
@@ -124,7 +126,7 @@ used for sample brevity and is not something we recommend for real applications.
 ### File Processing Sample
 
 [FileProcessing](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/fileprocessing)
-demonstrates task routing features. 
+demonstrates task routing features.
 The sample workflow downloads a file, processes it, and uploads the result to a destination. Any worker can pick up the first activity. However, the second and third activity must be executed on the same host as the first one.
 
 ####  Running the File Processing Sample
@@ -230,6 +232,8 @@ demonstrates how to create and register a simple Workflow Interceptor.
 Run the starter:
 
     ./gradlew -q execute -PmainClass=io.temporal.samples.interceptor.InterceptorStarter
+
+<!-- @@@SNIPEND -->
 
 ### IDE Integration
 
