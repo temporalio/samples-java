@@ -45,9 +45,9 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Sample Temporal workflow that demonstrates parallel invocation of multiple workflow activities
- * with cancellation scope. When one of the invoked activities finishes, we cancel execution of the
- * other activities and wait for their cancellation to complete.
+ * Sample Temporal Workflow Definition that demonstrates parallel Activity Executions
+ * with a Cancellation Scope. When one of the Activity Executions finish, we cancel the execution of the
+ * other Activities and wait for their cancellation to complete.
  */
 public class HelloCancellationScope {
 
