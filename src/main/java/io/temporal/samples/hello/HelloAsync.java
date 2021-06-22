@@ -33,7 +33,7 @@ import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 
-/** Sample Temporal workflow that demonstrates asynchronous activity invocation. */
+/** Sample Temporal Workflow Definition that demonstrates  an asynchronous Activity Execution. */
 public class HelloAsync {
 
   // Define the task queue name
