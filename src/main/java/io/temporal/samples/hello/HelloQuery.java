@@ -30,7 +30,7 @@ import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 
-/** Sample Temporal workflow that demonstrates the workflow query capability. */
+/** Sample Temporal Workflow Definition that demonstrates how to Query a Workflow. */
 public class HelloQuery {
 
   // Define the task queue name
