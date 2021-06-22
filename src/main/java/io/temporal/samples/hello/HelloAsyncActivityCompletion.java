@@ -34,7 +34,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 
-/** Sample Temporal workflow that demonstrates asynchronous activity implementation. */
+/** Sample Temporal Workflow Definition that demonstrates asynchronous Activity Execution */
 public class HelloAsyncActivityCompletion {
 
   // Define the task queue name
