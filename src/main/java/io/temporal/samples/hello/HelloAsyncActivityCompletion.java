@@ -196,8 +196,8 @@ public class HelloAsyncActivityCompletion {
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl(completionClient));
 
     /**
-     * Start all the workers registered for a specific task queue. The started workers then start
-     * polling for workflows and activities.
+     * Start all the Workers registered for a specific Task Queue. The Workers then start
+     * polling for Workflow Tasks and Activity Tasks.
      */
     factory.start();
 
