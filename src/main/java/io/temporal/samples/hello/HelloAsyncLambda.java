@@ -34,8 +34,7 @@ import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 
 /**
- * Sample Temporal workflow that demonstrates asynchronous invocation of multiple workflow
- * activities.
+ * Sample Temporal Workflow Definition that demonstrates an asynchronous Activity Executions.
  */
 public class HelloAsyncLambda {
 
