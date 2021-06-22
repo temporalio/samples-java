@@ -32,7 +32,7 @@ import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 
-/** Sample Temporal workflow that executes a single workflow activity. */
+/** Sample Temporal Workflow Definition that executes a single Activity. */
 public class HelloActivity {
 
   // Define the task queue name
