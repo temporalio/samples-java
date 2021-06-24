@@ -1,12 +1,9 @@
 # Demo Workflow Interceptor
 
-The sample demonstrates the use of a simple Workflow Interceptor
-that counts the number of workflow, child workflow and activities executions
-as well as the number of time the workflow signals and queries.
+The sample demonstrates the use of a simple Workflow Interceptor that counts the number of Workflow Executions, Child Workflow Executions, and Activity Executions as well as the number of Signals and Queries.
 
-To run the sample:
+Run the following command to start the sample:
 
-    ./gradlew -q execute -PmainClass=io.temporal.samples.interceptor.InterceptorStarter
-
-
-
+```bash
+./gradlew -q execute -PmainClass=io.temporal.samples.interceptor.InterceptorStarter
+```
