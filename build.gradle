@@ -3,7 +3,7 @@
 plugins {
     id 'org.cadixdev.licenser' version '0.6.1'
     id 'com.github.sherter.google-java-format' version '0.9'
-    id "net.ltgt.errorprone" version "2.0.1"
+    id "net.ltgt.errorprone" version "2.0.2"
     id 'name.remal.check-updates' version '1.4.0'
 }
 

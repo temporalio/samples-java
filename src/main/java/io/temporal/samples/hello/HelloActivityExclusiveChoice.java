@@ -33,7 +33,10 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Sample Temporal Workflow Definition demonstrating how to execute an Activity based on dynamic input. */
+/**
+ * Sample Temporal Workflow Definition demonstrating how to execute an Activity based on dynamic
+ * input.
+ */
 public class HelloActivityExclusiveChoice {
 
   // Define the task queue name
