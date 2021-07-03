@@ -33,6 +33,7 @@ dependencies {
     implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.1.0'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
     implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.12.3'
 
     testImplementation group: 'io.temporal', name: 'temporal-testing', version: '1.1.0'
     testImplementation group: 'io.temporal', name: 'temporal-testing-junit4', version: '1.1.0'
