@@ -19,56 +19,31 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.hello.HelloActivity.TASK_QUEUE;
 import static org.junit.Assert.assertEquals;
 
-import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.testing.TestEnvironmentOptions;
-import io.temporal.testing.TestWorkflowEnvironment;
-import io.temporal.worker.Worker;
-import io.temporal.worker.WorkerFactoryOptions;
-import java.time.Duration;
-import org.junit.After;
-import org.junit.Before;
+import io.temporal.testing.TestWorkflowRule;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class HelloSideEffectTest {
-  private TestWorkflowEnvironment testEnv;
-  private Worker worker;
-  private WorkflowClient client;
 
-  @Before
-  public void setUp() {
-    TestEnvironmentOptions testEnvironmentOptions =
-        TestEnvironmentOptions.newBuilder()
-            .setWorkerFactoryOptions(
-                WorkerFactoryOptions.newBuilder()
-                    .setWorkflowHostLocalTaskQueueScheduleToStartTimeout(Duration.ZERO)
-                    .build())
-            .build();
-
-    testEnv = TestWorkflowEnvironment.newInstance(testEnvironmentOptions);
-    worker = testEnv.newWorker(TASK_QUEUE);
-    worker.registerWorkflowImplementationTypes(HelloSideEffect.SideEffectWorkflowImpl.class);
-    client = testEnv.getWorkflowClient();
-  }
-
-  @After
-  public void tearDown() {
-    testEnv.close();
-  }
+  @Rule
+  public TestWorkflowRule testWorkflowRule =
+      TestWorkflowRule.newBuilder()
+          .setWorkflowTypes(HelloSideEffect.SideEffectWorkflowImpl.class)
+          .setActivityImplementations(new HelloSideEffect.SideEffectActivitiesImpl())
+          .build();
 
   @Test
   public void testSideffectsWorkflow() {
-    worker.registerActivitiesImplementations(new HelloSideEffect.SideEffectActivitiesImpl());
-    testEnv.start();
-
     // Get a workflow stub using the same task queue the worker uses.
     HelloSideEffect.SideEffectWorkflow workflow =
-        client.newWorkflowStub(
-            HelloSideEffect.SideEffectWorkflow.class,
-            WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(
+                HelloSideEffect.SideEffectWorkflow.class,
+                WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build());
     // Execute a workflow waiting for it to complete.
     String result = workflow.execute();
     // make sure the result is same as the query result after workflow completion

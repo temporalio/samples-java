@@ -197,7 +197,7 @@ public class HelloActivityRetry {
      */
     factory.start();
 
-    // et our workflow options
+    // Set our workflow options
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder().setWorkflowId(WORKFLOW_ID).setTaskQueue(TASK_QUEUE).build();
 

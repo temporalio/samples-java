@@ -19,7 +19,6 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.hello.HelloAsyncActivityCompletion.TASK_QUEUE;
 import static org.junit.Assert.assertEquals;
 
 import io.temporal.client.ActivityCompletionClient;
@@ -28,66 +27,42 @@ import io.temporal.client.WorkflowOptions;
 import io.temporal.samples.hello.HelloAsyncActivityCompletion.GreetingActivitiesImpl;
 import io.temporal.samples.hello.HelloAsyncActivityCompletion.GreetingWorkflow;
 import io.temporal.samples.hello.HelloAsyncActivityCompletion.GreetingWorkflowImpl;
-import io.temporal.testing.TestWorkflowEnvironment;
-import io.temporal.worker.Worker;
+import io.temporal.testing.TestWorkflowRule;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.rules.Timeout;
-import org.junit.runner.Description;
 
 /** Unit test for {@link HelloAsyncActivityCompletion}. Doesn't use an external Temporal service. */
 public class HelloAsyncActivityCompletionTest {
 
-  @Rule public Timeout globalTimeout = Timeout.seconds(3);
-
-  /** Prints a history of the workflow under test in case of a test failure. */
   @Rule
-  public TestWatcher watchman =
-      new TestWatcher() {
-        @Override
-        protected void failed(Throwable e, Description description) {
-          if (testEnv != null) {
-            System.err.println(testEnv.getDiagnostics());
-            testEnv.close();
-          }
-        }
-      };
-
-  private TestWorkflowEnvironment testEnv;
-  private Worker worker;
-  private WorkflowClient client;
-
-  @Before
-  public void setUp() {
-    testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(TASK_QUEUE);
-    worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
-
-    client = testEnv.getWorkflowClient();
-  }
-
-  @After
-  public void tearDown() {
-    testEnv.close();
-  }
+  public TestWorkflowRule testWorkflowRule =
+      TestWorkflowRule.newBuilder()
+          .setWorkflowTypes(GreetingWorkflowImpl.class)
+          .setDoNotStart(true)
+          .build();
 
   @Test
   public void testActivityImpl() throws ExecutionException, InterruptedException {
-    ActivityCompletionClient completionClient = client.newActivityCompletionClient();
-    worker.registerActivitiesImplementations(new GreetingActivitiesImpl(completionClient));
-    testEnv.start();
+    ActivityCompletionClient completionClient =
+        testWorkflowRule.getWorkflowClient().newActivityCompletionClient();
+    testWorkflowRule
+        .getWorker()
+        .registerActivitiesImplementations(new GreetingActivitiesImpl(completionClient));
+    testWorkflowRule.getTestEnvironment().start();
 
     GreetingWorkflow workflow =
-        client.newWorkflowStub(
-            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(
+                GreetingWorkflow.class,
+                WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build());
     // Execute a workflow asynchronously.
     CompletableFuture<String> greeting = WorkflowClient.execute(workflow::getGreeting, "World");
     // Wait for workflow completion.
     assertEquals("Hello World!", greeting.get());
+
+    testWorkflowRule.getTestEnvironment().shutdown();
   }
 }

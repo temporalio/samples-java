@@ -19,55 +19,39 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.hello.HelloDetachedCancellationScope.TASK_QUEUE;
 import static org.junit.Assert.assertEquals;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowFailedException;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
-import io.temporal.testing.TestWorkflowEnvironment;
-import io.temporal.worker.Worker;
+import io.temporal.testing.TestWorkflowRule;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 /**
  * Unit test for {@link HelloDetachedCancellationScope}. Doesn't use an external Temporal service.
  */
 public class HelloDetachedCancellationScopeTest {
-  private TestWorkflowEnvironment testEnv;
-  private Worker worker;
-  private WorkflowClient client;
 
-  @Before
-  public void setUp() {
-    testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(TASK_QUEUE);
-    worker.registerWorkflowImplementationTypes(
-        HelloDetachedCancellationScope.GreetingWorkflowImpl.class);
-
-    client = testEnv.getWorkflowClient();
-  }
-
-  @After
-  public void tearDown() {
-    testEnv.close();
-  }
+  @Rule
+  public TestWorkflowRule testWorkflowRule =
+      TestWorkflowRule.newBuilder()
+          .setWorkflowTypes(HelloDetachedCancellationScope.GreetingWorkflowImpl.class)
+          .setActivityImplementations(new HelloDetachedCancellationScope.GreetingActivitiesImpl())
+          .build();
 
   @Test
   public void testDetachedWorkflowScope() {
-    worker.registerActivitiesImplementations(
-        new HelloDetachedCancellationScope.GreetingActivitiesImpl());
-    testEnv.start();
-
     // Get a workflow stub using the same task queue the worker uses.
     HelloDetachedCancellationScope.GreetingWorkflow workflow =
-        client.newWorkflowStub(
-            HelloDetachedCancellationScope.GreetingWorkflow.class,
-            WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(
+                HelloDetachedCancellationScope.GreetingWorkflow.class,
+                WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build());
 
     WorkflowClient.start(workflow::getGreeting, "John");
 

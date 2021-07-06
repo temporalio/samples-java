@@ -19,7 +19,6 @@
 
 package io.temporal.samples.moneybatch;
 
-import static io.temporal.samples.moneybatch.AccountActivityWorker.TASK_QUEUE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -28,63 +27,39 @@ import static org.mockito.Mockito.verify;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
-import io.temporal.testing.TestWorkflowEnvironment;
-import io.temporal.worker.Worker;
+import io.temporal.testing.TestWorkflowRule;
 import java.util.Random;
 import java.util.UUID;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 
 public class TransferWorkflowTest {
 
-  private TestWorkflowEnvironment testEnv;
-  private Worker worker;
-  private WorkflowClient workflowClient;
-
-  /** Prints a history of the workflow under test in case of a test failure. */
   @Rule
-  public TestWatcher watchman =
-      new TestWatcher() {
-        @Override
-        protected void failed(Throwable e, Description description) {
-          if (testEnv != null) {
-            System.err.println(testEnv.getDiagnostics());
-            testEnv.close();
-          }
-        }
-      };
-
-  @Before
-  public void setUp() {
-    testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(TASK_QUEUE);
-    worker.registerWorkflowImplementationTypes(AccountTransferWorkflowImpl.class);
-
-    workflowClient = testEnv.getWorkflowClient();
-  }
-
-  @After
-  public void tearDown() {
-    testEnv.close();
-  }
+  public TestWorkflowRule testWorkflowRule =
+      TestWorkflowRule.newBuilder()
+          .setWorkflowTypes(AccountTransferWorkflowImpl.class)
+          .setDoNotStart(true)
+          .build();
 
   @Test
   public void testTransfer() {
     Account activities = mock(Account.class);
-    worker.registerActivitiesImplementations(activities);
-    testEnv.start();
+    testWorkflowRule.getWorker().registerActivitiesImplementations(activities);
+    testWorkflowRule.getTestEnvironment().start();
 
     String from = "account1";
     String to = "account2";
     int batchSize = 5;
     WorkflowOptions options =
-        WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).setWorkflowId(to).build();
+        WorkflowOptions.newBuilder()
+            .setTaskQueue(testWorkflowRule.getTaskQueue())
+            .setWorkflowId(to)
+            .build();
     AccountTransferWorkflow transferWorkflow =
-        workflowClient.newWorkflowStub(AccountTransferWorkflow.class, options);
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(AccountTransferWorkflow.class, options);
     WorkflowClient.start(transferWorkflow::deposit, to, batchSize);
     Random random = new Random();
     int total = 0;
@@ -96,5 +71,7 @@ public class TransferWorkflowTest {
     // Wait for workflow to finish
     WorkflowStub.fromTyped(transferWorkflow).getResult(Void.class);
     verify(activities).deposit(eq("account2"), any(), eq(total));
+
+    testWorkflowRule.getTestEnvironment().shutdown();
   }
 }

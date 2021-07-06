@@ -19,54 +19,36 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.hello.HelloActivityExclusiveChoice.TASK_QUEUE;
 import static io.temporal.samples.hello.HelloActivityExclusiveChoice.WORKFLOW_ID;
 import static org.junit.Assert.assertEquals;
 
-import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.testing.TestWorkflowEnvironment;
-import io.temporal.worker.Worker;
-import org.junit.After;
-import org.junit.Before;
+import io.temporal.testing.TestWorkflowRule;
+import org.junit.Rule;
 import org.junit.Test;
 
 /** Unit test for {@link HelloActivityExclusiveChoice}. Doesn't use an external Temporal service. */
 public class HelloActivityExclusiveChoiceTest {
 
-  private TestWorkflowEnvironment testEnv;
-  private Worker worker;
-  private WorkflowClient client;
-
-  @Before
-  public void setUp() {
-    testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(TASK_QUEUE);
-    worker.registerWorkflowImplementationTypes(
-        HelloActivityExclusiveChoice.PurchaseFruitsWorkflowImpl.class);
-
-    client = testEnv.getWorkflowClient();
-  }
-
-  @After
-  public void tearDown() {
-    testEnv.close();
-  }
+  @Rule
+  public TestWorkflowRule testWorkflowRule =
+      TestWorkflowRule.newBuilder()
+          .setWorkflowTypes(HelloActivityExclusiveChoice.PurchaseFruitsWorkflowImpl.class)
+          .setActivityImplementations(new HelloActivityExclusiveChoice.OrderFruitsActivitiesImpl())
+          .build();
 
   @Test
   public void testWorkflow() {
-    worker.registerActivitiesImplementations(
-        new HelloActivityExclusiveChoice.OrderFruitsActivitiesImpl());
-    testEnv.start();
-
     // Get a workflow stub using the same task queue the worker uses.
     HelloActivityExclusiveChoice.PurchaseFruitsWorkflow workflow =
-        client.newWorkflowStub(
-            HelloActivityExclusiveChoice.PurchaseFruitsWorkflow.class,
-            WorkflowOptions.newBuilder()
-                .setWorkflowId(WORKFLOW_ID)
-                .setTaskQueue(TASK_QUEUE)
-                .build());
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(
+                HelloActivityExclusiveChoice.PurchaseFruitsWorkflow.class,
+                WorkflowOptions.newBuilder()
+                    .setWorkflowId(WORKFLOW_ID)
+                    .setTaskQueue(testWorkflowRule.getTaskQueue())
+                    .build());
     // Execute a workflow waiting for it to complete.
     HelloActivityExclusiveChoice.ShoppingList shoppingList =
         new HelloActivityExclusiveChoice.ShoppingList();
