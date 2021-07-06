@@ -183,8 +183,8 @@ public class HelloAsyncActivityCompletion {
     Worker worker = factory.newWorker(TASK_QUEUE);
 
     /**
-     * Register our Workflow Types with the Worker. Workflow Types must be known
-     * to the Worker at runtime in order for it to poll for Workflow Tasks.
+     * Register our Workflow Types with the Worker. Workflow Types must be known to the Worker at
+     * runtime in order for it to poll for Workflow Tasks.
      */
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
@@ -196,8 +196,8 @@ public class HelloAsyncActivityCompletion {
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl(completionClient));
 
     /**
-     * Start all the Workers registered for a specific Task Queue. The Workers then start
-     * polling for Workflow Tasks and Activity Tasks.
+     * Start all the Workers registered for a specific Task Queue. The Workers then start polling
+     * for Workflow Tasks and Activity Tasks.
      */
     factory.start();
 

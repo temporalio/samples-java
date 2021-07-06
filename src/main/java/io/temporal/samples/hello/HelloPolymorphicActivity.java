@@ -32,8 +32,8 @@ import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 
 /**
- * Sample Temporal Workflow Definition that demonstrates the execution of multiple Activities which extend a common
- * interface.
+ * Sample Temporal Workflow Definition that demonstrates the execution of multiple Activities which
+ * extend a common interface.
  */
 public class HelloPolymorphicActivity {
 
