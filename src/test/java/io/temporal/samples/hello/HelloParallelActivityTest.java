@@ -21,48 +21,32 @@ package io.temporal.samples.hello;
 
 import static org.junit.Assert.assertEquals;
 
-import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.testing.TestWorkflowEnvironment;
-import io.temporal.worker.Worker;
+import io.temporal.testing.TestWorkflowRule;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 /** Unit test for {@link HelloParallelActivity}. Doesn't use an external Temporal service. */
 public class HelloParallelActivityTest {
 
-  private TestWorkflowEnvironment testEnv;
-  private Worker worker;
-  private WorkflowClient client;
-
-  @Before
-  public void setUp() {
-    testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(HelloParallelActivity.TASK_QUEUE);
-    worker.registerWorkflowImplementationTypes(
-        HelloParallelActivity.MultiGreetingWorkflowImpl.class);
-    worker.registerActivitiesImplementations(new HelloParallelActivity.GreetingActivitiesImpl());
-
-    client = testEnv.getWorkflowClient();
-  }
-
-  @After
-  public void tearDown() {
-    testEnv.close();
-  }
+  @Rule
+  public TestWorkflowRule testWorkflowRule =
+      TestWorkflowRule.newBuilder()
+          .setWorkflowTypes(HelloParallelActivity.MultiGreetingWorkflowImpl.class)
+          .setActivityImplementations(new HelloParallelActivity.GreetingActivitiesImpl())
+          .build();
 
   @Test
   public void testParallelActivity() {
-    testEnv.start();
-
     WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder().setTaskQueue(HelloParallelActivity.TASK_QUEUE).build();
+        WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build();
 
     HelloParallelActivity.MultiGreetingWorkflow workflow =
-        client.newWorkflowStub(HelloParallelActivity.MultiGreetingWorkflow.class, workflowOptions);
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(HelloParallelActivity.MultiGreetingWorkflow.class, workflowOptions);
     // Execute a workflow waiting for it to complete.
     List<String> results =
         workflow.getGreetings(Arrays.asList("John", "Marry", "Michael", "Janet"));

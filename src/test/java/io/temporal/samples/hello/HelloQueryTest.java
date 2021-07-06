@@ -24,62 +24,27 @@ import static org.junit.Assert.assertEquals;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.samples.hello.HelloQuery.GreetingWorkflow;
-import io.temporal.testing.TestWorkflowEnvironment;
-import io.temporal.worker.Worker;
+import io.temporal.testing.TestWorkflowRule;
 import java.time.Duration;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 
 /** Unit test for {@link HelloQuery}. Doesn't use an external Temporal service. */
 public class HelloQueryTest {
 
-  /** Prints a history of the workflow under test in case of a test failure. */
   @Rule
-  public TestWatcher watchman =
-      new TestWatcher() {
-        @Override
-        protected void failed(Throwable e, Description description) {
-          if (testEnv != null) {
-            System.err.println(testEnv.getDiagnostics());
-            testEnv.close();
-          }
-        }
-      };
-
-  private TestWorkflowEnvironment testEnv;
-  private Worker worker;
-  private WorkflowClient client;
-
-  @Before
-  public void setUp() {
-    testEnv = TestWorkflowEnvironment.newInstance();
-
-    worker = testEnv.newWorker(HelloQuery.TASK_QUEUE);
-    // Comment the above line and uncomment the below one to see how the TestWatcher rule prints
-    // the history of the stuck workflow as its workflow task is never picked up.
-    // worker = testEnv.newWorker("InvalidTaskQueue");
-
-    worker.registerWorkflowImplementationTypes(HelloQuery.GreetingWorkflowImpl.class);
-    testEnv.start();
-
-    client = testEnv.getWorkflowClient();
-  }
-
-  @After
-  public void tearDown() {
-    testEnv.close();
-  }
+  public TestWorkflowRule testWorkflowRule =
+      TestWorkflowRule.newBuilder().setWorkflowTypes(HelloQuery.GreetingWorkflowImpl.class).build();
 
   @Test(timeout = 5000)
   public void testQuery() {
     // Get a workflow stub using the same task queue the worker uses.
     WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder().setTaskQueue(HelloQuery.TASK_QUEUE).build();
-    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
+        WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build();
+    GreetingWorkflow workflow =
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(GreetingWorkflow.class, workflowOptions);
 
     // Start workflow asynchronously to not use another thread to query.
     WorkflowClient.start(workflow::createGreeting, "World");
@@ -88,12 +53,12 @@ public class HelloQueryTest {
     // So we can send a signal to it using workflow stub.
     assertEquals("Hello World!", workflow.queryGreeting());
 
-    // Unit tests should call TestWorkflowEnvironment.sleep.
+    // Unit tests should call testWorkflowRule.getTestEnvironment().sleep.
     // It allows skipping the time if workflow is just waiting on a timer
     // and executing tests of long running workflows very fast.
     // Note that this unit test executes under a second and not
     // over 3 as it would if Thread.sleep(3000) was called.
-    testEnv.sleep(Duration.ofSeconds(3));
+    testWorkflowRule.getTestEnvironment().sleep(Duration.ofSeconds(3));
 
     assertEquals("Bye World!", workflow.queryGreeting());
   }

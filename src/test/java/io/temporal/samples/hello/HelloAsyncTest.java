@@ -19,74 +19,45 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.hello.HelloAsync.TASK_QUEUE;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.samples.hello.HelloAsync.GreetingActivities;
 import io.temporal.samples.hello.HelloAsync.GreetingActivitiesImpl;
 import io.temporal.samples.hello.HelloAsync.GreetingWorkflow;
 import io.temporal.samples.hello.HelloAsync.GreetingWorkflowImpl;
-import io.temporal.testing.TestWorkflowEnvironment;
-import io.temporal.worker.Worker;
-import org.junit.After;
-import org.junit.Before;
+import io.temporal.testing.TestWorkflowRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.rules.Timeout;
-import org.junit.runner.Description;
 
 /** Unit test for {@link HelloAsync}. Doesn't use an external Temporal service. */
 public class HelloAsyncTest {
 
-  @Rule public Timeout globalTimeout = Timeout.seconds(3);
-
-  /** Prints a history of the workflow under test in case of a test failure. */
   @Rule
-  public TestWatcher watchman =
-      new TestWatcher() {
-        @Override
-        protected void failed(Throwable e, Description description) {
-          if (testEnv != null) {
-            System.err.println(testEnv.getDiagnostics());
-            testEnv.close();
-          }
-        }
-      };
-
-  private TestWorkflowEnvironment testEnv;
-  private Worker worker;
-  private WorkflowClient client;
-
-  @Before
-  public void setUp() {
-    testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(TASK_QUEUE);
-    worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
-
-    client = testEnv.getWorkflowClient();
-  }
-
-  @After
-  public void tearDown() {
-    testEnv.close();
-  }
+  public TestWorkflowRule testWorkflowRule =
+      TestWorkflowRule.newBuilder()
+          .setWorkflowTypes(GreetingWorkflowImpl.class)
+          .setDoNotStart(true)
+          .build();
 
   @Test
   public void testActivityImpl() {
-    worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
-    testEnv.start();
+    testWorkflowRule.getWorker().registerActivitiesImplementations(new GreetingActivitiesImpl());
+    testWorkflowRule.getTestEnvironment().start();
 
     GreetingWorkflow workflow =
-        client.newWorkflowStub(
-            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(
+                GreetingWorkflow.class,
+                WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build());
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");
     assertEquals("Hello World!\nBye World!", greeting);
+
+    testWorkflowRule.getTestEnvironment().shutdown();
   }
 
   @Test
@@ -94,14 +65,19 @@ public class HelloAsyncTest {
     GreetingActivities activities = mock(GreetingActivities.class);
     when(activities.composeGreeting("Hello", "World")).thenReturn("Hello World!");
     when(activities.composeGreeting("Bye", "World")).thenReturn("Bye World!");
-    worker.registerActivitiesImplementations(activities);
-    testEnv.start();
+    testWorkflowRule.getWorker().registerActivitiesImplementations(activities);
+    testWorkflowRule.getTestEnvironment().start();
 
     GreetingWorkflow workflow =
-        client.newWorkflowStub(
-            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(
+                GreetingWorkflow.class,
+                WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build());
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");
     assertEquals("Hello World!\nBye World!", greeting);
+
+    testWorkflowRule.getTestEnvironment().shutdown();
   }
 }

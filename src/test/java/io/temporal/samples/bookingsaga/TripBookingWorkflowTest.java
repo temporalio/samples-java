@@ -19,41 +19,26 @@
 
 package io.temporal.samples.bookingsaga;
 
-import static io.temporal.samples.bookingsaga.TripBookingSaga.TASK_QUEUE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowException;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.failure.ApplicationFailure;
-import io.temporal.testing.TestWorkflowEnvironment;
-import io.temporal.worker.Worker;
-import org.junit.After;
-import org.junit.Before;
+import io.temporal.testing.TestWorkflowRule;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TripBookingWorkflowTest {
 
-  private TestWorkflowEnvironment testEnv;
-  private Worker worker;
-  private WorkflowClient client;
-
-  @Before
-  public void setUp() {
-    testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(TASK_QUEUE);
-    worker.registerWorkflowImplementationTypes(TripBookingWorkflowImpl.class);
-
-    client = testEnv.getWorkflowClient();
-  }
-
-  @After
-  public void tearDown() {
-    testEnv.close();
-  }
+  @Rule
+  public TestWorkflowRule testWorkflowRule =
+      TestWorkflowRule.newBuilder()
+          .setWorkflowTypes(TripBookingWorkflowImpl.class)
+          .setDoNotStart(true)
+          .build();
 
   /**
    * Not very useful test that validates that the default activities cause workflow to fail. See
@@ -61,13 +46,15 @@ public class TripBookingWorkflowTest {
    */
   @Test
   public void testTripBookingFails() {
-    worker.registerActivitiesImplementations(new TripBookingActivitiesImpl());
-    testEnv.start();
+    testWorkflowRule.getWorker().registerActivitiesImplementations(new TripBookingActivitiesImpl());
+    testWorkflowRule.getTestEnvironment().start();
 
     TripBookingWorkflow workflow =
-        client.newWorkflowStub(
-            TripBookingWorkflow.class,
-            WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(
+                TripBookingWorkflow.class,
+                WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build());
     try {
       workflow.bookTrip("trip1");
       fail("unreachable");
@@ -76,6 +63,8 @@ public class TripBookingWorkflowTest {
           "Flight booking did not work",
           ((ApplicationFailure) e.getCause().getCause()).getOriginalMessage());
     }
+
+    testWorkflowRule.getTestEnvironment().shutdown();
   }
 
   /** Unit test workflow logic using mocked activities. */
@@ -86,14 +75,16 @@ public class TripBookingWorkflowTest {
     when(activities.reserveCar("trip1")).thenReturn("CarBookingID1");
     when(activities.bookFlight("trip1"))
         .thenThrow(new RuntimeException("Flight booking did not work"));
-    worker.registerActivitiesImplementations(activities);
+    testWorkflowRule.getWorker().registerActivitiesImplementations(activities);
 
-    testEnv.start();
+    testWorkflowRule.getTestEnvironment().start();
 
     TripBookingWorkflow workflow =
-        client.newWorkflowStub(
-            TripBookingWorkflow.class,
-            WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(
+                TripBookingWorkflow.class,
+                WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build());
     try {
       workflow.bookTrip("trip1");
       fail("unreachable");
@@ -105,5 +96,7 @@ public class TripBookingWorkflowTest {
 
     verify(activities).cancelHotel(eq("HotelBookingID1"), eq("trip1"));
     verify(activities).cancelCar(eq("CarBookingID1"), eq("trip1"));
+
+    testWorkflowRule.getTestEnvironment().shutdown();
   }
 }

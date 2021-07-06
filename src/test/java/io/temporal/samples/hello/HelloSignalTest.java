@@ -25,63 +25,34 @@ import io.temporal.api.enums.v1.WorkflowIdReusePolicy;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.samples.hello.HelloSignal.GreetingWorkflow;
-import io.temporal.testing.TestWorkflowEnvironment;
-import io.temporal.worker.Worker;
+import io.temporal.testing.TestWorkflowRule;
 import java.time.Duration;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 
 /** Unit test for {@link HelloSignal}. Doesn't use an external Temporal service. */
 public class HelloSignalTest {
 
-  /** Prints a history of the workflow under test in case of a test failure. */
   @Rule
-  public TestWatcher watchman =
-      new TestWatcher() {
-        @Override
-        protected void failed(Throwable e, Description description) {
-          if (testEnv != null) {
-            System.err.println(testEnv.getDiagnostics());
-            testEnv.close();
-          }
-        }
-      };
-
-  private TestWorkflowEnvironment testEnv;
-  private Worker worker;
-  private WorkflowClient client;
-
-  @Before
-  public void setUp() {
-    testEnv = TestWorkflowEnvironment.newInstance();
-
-    worker = testEnv.newWorker(HelloSignal.TASK_QUEUE);
-    worker.registerWorkflowImplementationTypes(HelloSignal.GreetingWorkflowImpl.class);
-    testEnv.start();
-
-    client = testEnv.getWorkflowClient();
-  }
-
-  @After
-  public void tearDown() {
-    testEnv.close();
-  }
+  public TestWorkflowRule testWorkflowRule =
+      TestWorkflowRule.newBuilder()
+          .setWorkflowTypes(HelloSignal.GreetingWorkflowImpl.class)
+          .build();
 
   @Test
   public void testSignal() {
     // Get a workflow stub using the same task queue the worker uses.
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder()
-            .setTaskQueue(HelloSignal.TASK_QUEUE)
+            .setTaskQueue(testWorkflowRule.getTaskQueue())
             .setWorkflowIdReusePolicy(
                 WorkflowIdReusePolicy.WORKFLOW_ID_REUSE_POLICY_REJECT_DUPLICATE)
             .build();
-    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
+    GreetingWorkflow workflow =
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(GreetingWorkflow.class, workflowOptions);
 
     // Start workflow asynchronously to not use another thread to signal.
     WorkflowClient.start(workflow::getGreetings);
@@ -89,7 +60,7 @@ public class HelloSignalTest {
     // After start for getGreeting returns, the workflow is guaranteed to be started.
     // So we can send a signal to it using workflow stub immediately.
     // But just to demonstrate the unit testing of a long running workflow adding a long sleep here.
-    testEnv.sleep(Duration.ofDays(1));
+    testWorkflowRule.getTestEnvironment().sleep(Duration.ofDays(1));
     // This workflow keeps receiving signals until exit is called
     workflow.waitForName("World");
     workflow.waitForName("Universe");

@@ -28,59 +28,38 @@ import io.temporal.samples.interceptor.activities.MyActivitiesImpl;
 import io.temporal.samples.interceptor.workflow.MyChildWorkflowImpl;
 import io.temporal.samples.interceptor.workflow.MyWorkflow;
 import io.temporal.samples.interceptor.workflow.MyWorkflowImpl;
-import io.temporal.testing.TestEnvironmentOptions;
-import io.temporal.testing.TestWorkflowEnvironment;
-import io.temporal.worker.Worker;
+import io.temporal.testing.TestWorkflowRule;
 import io.temporal.worker.WorkerFactoryOptions;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class CountInterceptorTest {
 
   private static final String WORKFLOW_ID = "TestInterceptorWorkflow";
   private static final String CHILD_WORKFLOW_ID = "TestInterceptorChildWorkflow";
-  private static final String TASK_QUEUE = "test-queue";
 
-  private TestWorkflowEnvironment testEnv;
-  private Worker worker;
-  private WorkflowClient client;
-
-  @Before
-  public void setUp() {
-
-    TestEnvironmentOptions testEnvironmentOptions =
-        TestEnvironmentOptions.newBuilder()
-            .setWorkerFactoryOptions(
-                WorkerFactoryOptions.newBuilder()
-                    .setWorkerInterceptors(new SimpleCountWorkerInterceptor())
-                    .build())
-            .build();
-
-    testEnv = TestWorkflowEnvironment.newInstance(testEnvironmentOptions);
-    worker = testEnv.newWorker(TASK_QUEUE);
-    worker.registerWorkflowImplementationTypes(MyWorkflowImpl.class, MyChildWorkflowImpl.class);
-    worker.registerActivitiesImplementations(new MyActivitiesImpl());
-
-    client = testEnv.getWorkflowClient();
-  }
-
-  @After
-  public void tearDown() {
-    testEnv.close();
-  }
+  @Rule
+  public TestWorkflowRule testWorkflowRule =
+      TestWorkflowRule.newBuilder()
+          .setWorkflowTypes(MyWorkflowImpl.class, MyChildWorkflowImpl.class)
+          .setActivityImplementations(new MyActivitiesImpl())
+          .setWorkerFactoryOptions(
+              WorkerFactoryOptions.newBuilder()
+                  .setWorkerInterceptors(new SimpleCountWorkerInterceptor())
+                  .build())
+          .build();
 
   @Test
   public void testInterceptor() {
     MyWorkflow workflow =
-        client.newWorkflowStub(
-            MyWorkflow.class,
-            WorkflowOptions.newBuilder()
-                .setTaskQueue(TASK_QUEUE)
-                .setWorkflowId(WORKFLOW_ID)
-                .build());
-
-    testEnv.start();
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(
+                MyWorkflow.class,
+                WorkflowOptions.newBuilder()
+                    .setTaskQueue(testWorkflowRule.getTaskQueue())
+                    .setWorkflowId(WORKFLOW_ID)
+                    .build());
 
     WorkflowClient.start(workflow::exec);
 

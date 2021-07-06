@@ -19,7 +19,6 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.hello.HelloException.TASK_QUEUE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -27,7 +26,6 @@ import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
 import io.temporal.api.enums.v1.TimeoutType;
-import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowException;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.failure.ActivityFailure;
@@ -38,56 +36,34 @@ import io.temporal.samples.hello.HelloException.GreetingActivities;
 import io.temporal.samples.hello.HelloException.GreetingChildImpl;
 import io.temporal.samples.hello.HelloException.GreetingWorkflow;
 import io.temporal.samples.hello.HelloException.GreetingWorkflowImpl;
-import io.temporal.testing.TestWorkflowEnvironment;
-import io.temporal.worker.Worker;
-import org.junit.After;
-import org.junit.Before;
+import io.temporal.testing.TestWorkflowRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 
 public class HelloExceptionTest {
 
-  /** Prints a history of the workflow under test in case of a test failure. */
   @Rule
-  public TestWatcher watchman =
-      new TestWatcher() {
-        @Override
-        protected void failed(Throwable e, Description description) {
-          if (testEnv != null) {
-            System.err.println(testEnv.getDiagnostics());
-            testEnv.close();
-          }
-        }
-      };
-
-  private TestWorkflowEnvironment testEnv;
-  private Worker worker;
-  private WorkflowClient client;
-
-  @Before
-  public void setUp() {
-    testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(HelloException.TASK_QUEUE);
-
-    client = testEnv.getWorkflowClient();
-  }
-
-  @After
-  public void tearDown() {
-    testEnv.close();
-  }
+  public TestWorkflowRule testWorkflowRule =
+      TestWorkflowRule.newBuilder().setDoNotStart(true).build();
 
   @Test
   public void testIOException() {
-    worker.registerWorkflowImplementationTypes(
-        HelloException.GreetingWorkflowImpl.class, GreetingChildImpl.class);
-    worker.registerActivitiesImplementations(new HelloException.GreetingActivitiesImpl());
-    testEnv.start();
+    testWorkflowRule
+        .getWorker()
+        .registerWorkflowImplementationTypes(
+            HelloException.GreetingWorkflowImpl.class, GreetingChildImpl.class);
+    testWorkflowRule
+        .getWorker()
+        .registerActivitiesImplementations(new HelloException.GreetingActivitiesImpl());
+    testWorkflowRule.getTestEnvironment().start();
 
-    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build();
-    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
+    WorkflowOptions workflowOptions =
+        WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build();
+    GreetingWorkflow workflow =
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(GreetingWorkflow.class, workflowOptions);
+
     try {
       workflow.getGreeting("World");
       throw new IllegalStateException("unreachable");
@@ -99,24 +75,32 @@ public class HelloExceptionTest {
           "Hello World!",
           ((ApplicationFailure) e.getCause().getCause().getCause()).getOriginalMessage());
     }
+
+    testWorkflowRule.getTestEnvironment().shutdown();
   }
 
   @Test
   public void testActivityTimeout() {
-    worker.registerWorkflowImplementationTypes(
-        HelloException.GreetingWorkflowImpl.class, GreetingChildImpl.class);
+    testWorkflowRule
+        .getWorker()
+        .registerWorkflowImplementationTypes(
+            HelloException.GreetingWorkflowImpl.class, GreetingChildImpl.class);
 
     // Mock an activity that times out.
     GreetingActivities activities = mock(GreetingActivities.class);
     when(activities.composeGreeting(anyString(), anyString()))
         .thenThrow(
             new TimeoutFailure("simulated", null, TimeoutType.TIMEOUT_TYPE_SCHEDULE_TO_START));
-    worker.registerActivitiesImplementations(activities);
+    testWorkflowRule.getWorker().registerActivitiesImplementations(activities);
 
-    testEnv.start();
+    testWorkflowRule.getTestEnvironment().start();
 
-    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build();
-    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
+    WorkflowOptions workflowOptions =
+        WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build();
+    GreetingWorkflow workflow =
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     try {
       workflow.getGreeting("World");
       throw new IllegalStateException("unreachable");
@@ -130,26 +114,35 @@ public class HelloExceptionTest {
           TimeoutType.TIMEOUT_TYPE_SCHEDULE_TO_START,
           ((TimeoutFailure) tripleCause).getTimeoutType());
     }
+
+    testWorkflowRule.getTestEnvironment().shutdown();
   }
 
   @Test(timeout = 100000)
   public void testChildWorkflowTimeout() {
-    worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
+    testWorkflowRule.getWorker().registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     // Mock a child that times out.
-    worker.addWorkflowImplementationFactory(
-        HelloException.GreetingChild.class,
-        () -> {
-          GreetingChildImpl child = mock(GreetingChildImpl.class);
-          when(child.composeGreeting(anyString(), anyString()))
-              .thenThrow(
-                  new TimeoutFailure("simulated", null, TimeoutType.TIMEOUT_TYPE_START_TO_CLOSE));
-          return child;
-        });
+    testWorkflowRule
+        .getWorker()
+        .addWorkflowImplementationFactory(
+            HelloException.GreetingChild.class,
+            () -> {
+              GreetingChildImpl child = mock(GreetingChildImpl.class);
+              when(child.composeGreeting(anyString(), anyString()))
+                  .thenThrow(
+                      new TimeoutFailure(
+                          "simulated", null, TimeoutType.TIMEOUT_TYPE_START_TO_CLOSE));
+              return child;
+            });
 
-    testEnv.start();
+    testWorkflowRule.getTestEnvironment().start();
 
-    WorkflowOptions workflowOptions = WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build();
-    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
+    WorkflowOptions workflowOptions =
+        WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build();
+    GreetingWorkflow workflow =
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(GreetingWorkflow.class, workflowOptions);
     try {
       workflow.getGreeting("World");
       throw new IllegalStateException("unreachable");
@@ -157,5 +150,7 @@ public class HelloExceptionTest {
       assertTrue(e.getCause() instanceof ChildWorkflowFailure);
       assertTrue(e.getCause().getCause() instanceof TimeoutFailure);
     }
+
+    testWorkflowRule.getTestEnvironment().shutdown();
   }
 }

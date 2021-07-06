@@ -19,52 +19,44 @@
 
 package io.temporal.samples.moneytransfer;
 
-import static io.temporal.samples.moneytransfer.AccountActivityWorker.TASK_QUEUE;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.testing.TestWorkflowEnvironment;
-import io.temporal.worker.Worker;
-import org.junit.After;
-import org.junit.Before;
+import io.temporal.testing.TestWorkflowRule;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class TransferWorkflowTest {
 
-  private TestWorkflowEnvironment testEnv;
-  private Worker worker;
-  private WorkflowClient workflowClient;
-
-  @Before
-  public void setUp() {
-    testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(TASK_QUEUE);
-    worker.registerWorkflowImplementationTypes(AccountTransferWorkflowImpl.class);
-
-    workflowClient = testEnv.getWorkflowClient();
-  }
-
-  @After
-  public void tearDown() {
-    testEnv.close();
-  }
+  @Rule
+  public TestWorkflowRule testWorkflowRule =
+      TestWorkflowRule.newBuilder()
+          .setWorkflowTypes(AccountTransferWorkflowImpl.class)
+          .setDoNotStart(true)
+          .build();
 
   @Test
   public void testTransfer() {
     Account activities = mock(Account.class);
-    worker.registerActivitiesImplementations(activities);
-    testEnv.start();
-    WorkflowOptions options = WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build();
+    testWorkflowRule.getWorker().registerActivitiesImplementations(activities);
+
+    testWorkflowRule.getTestEnvironment().start();
+
+    WorkflowOptions options =
+        WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build();
     AccountTransferWorkflow workflow =
-        workflowClient.newWorkflowStub(AccountTransferWorkflow.class, options);
-    long starty = testEnv.currentTimeMillis();
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(AccountTransferWorkflow.class, options);
+    long starty = testWorkflowRule.getTestEnvironment().currentTimeMillis();
     workflow.transfer("account1", "account2", "reference1", 123);
     verify(activities).withdraw(eq("account1"), eq("reference1"), eq(123));
     verify(activities).deposit(eq("account2"), eq("reference1"), eq(123));
-    long duration = testEnv.currentTimeMillis() - starty;
+    long duration = testWorkflowRule.getTestEnvironment().currentTimeMillis() - starty;
     System.out.println("Duration: " + duration);
+
+    testWorkflowRule.getTestEnvironment().shutdown();
   }
 }

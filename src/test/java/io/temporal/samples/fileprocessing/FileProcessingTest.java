@@ -19,23 +19,19 @@
 
 package io.temporal.samples.fileprocessing;
 
-import static io.temporal.samples.fileprocessing.FileProcessingWorker.TASK_QUEUE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import io.temporal.api.enums.v1.TimeoutType;
-import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.failure.TimeoutFailure;
 import io.temporal.samples.fileprocessing.StoreActivities.TaskQueueFileNamePair;
-import io.temporal.testing.TestWorkflowEnvironment;
+import io.temporal.testing.TestWorkflowRule;
 import io.temporal.worker.Worker;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.junit.*;
-import org.junit.rules.TestWatcher;
 import org.junit.rules.Timeout;
-import org.junit.runner.Description;
 
 public class FileProcessingTest {
 
@@ -57,44 +53,23 @@ public class FileProcessingTest {
     }
   }
 
+  @Rule
+  public TestWorkflowRule testWorkflowRule =
+      TestWorkflowRule.newBuilder()
+          .setWorkflowTypes(FileProcessingWorkflowImpl.class)
+          .setDoNotStart(true)
+          .build();
+
   @Rule public Timeout globalTimeout = Timeout.seconds(5);
 
-  /** Prints a history of the workflow under test in case of a test failure. */
-  @Rule
-  public TestWatcher watchman =
-      new TestWatcher() {
-        @Override
-        protected void failed(Throwable e, Description description) {
-          if (testEnv != null) {
-            System.err.println(testEnv.getDiagnostics());
-            testEnv.close();
-          }
-        }
-      };
-
-  private TestWorkflowEnvironment testEnv;
-  private Worker worker;
   // Host specific workers.
   private Worker workerHost1;
   private Worker workerHost2;
 
-  private WorkflowClient client;
-
   @Before
   public void setUp() {
-
-    testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(TASK_QUEUE);
-    worker.registerWorkflowImplementationTypes(FileProcessingWorkflowImpl.class);
-    workerHost1 = testEnv.newWorker(HOST_NAME_1);
-    workerHost2 = testEnv.newWorker(HOST_NAME_2);
-
-    client = testEnv.getWorkflowClient();
-  }
-
-  @After
-  public void tearDown() {
-    testEnv.close();
+    workerHost1 = testWorkflowRule.getTestEnvironment().newWorker(HOST_NAME_1);
+    workerHost2 = testWorkflowRule.getTestEnvironment().newWorker(HOST_NAME_2);
   }
 
   @Test
@@ -102,7 +77,7 @@ public class FileProcessingTest {
     StoreActivities activities = mock(StoreActivities.class);
     when(activities.download(any()))
         .thenReturn(new TaskQueueFileNamePair(HOST_NAME_1, FILE_NAME_UNPROCESSED));
-    worker.registerActivitiesImplementations(activities);
+    testWorkflowRule.getWorker().registerActivitiesImplementations(activities);
 
     StoreActivities activitiesHost1 = mock(StoreActivities.class);
     when(activitiesHost1.process(FILE_NAME_UNPROCESSED)).thenReturn(FILE_NAME_PROCESSED);
@@ -111,11 +86,14 @@ public class FileProcessingTest {
     StoreActivities activitiesHost2 = mock(StoreActivities.class);
     workerHost2.registerActivitiesImplementations(activitiesHost2);
 
-    testEnv.start();
+    testWorkflowRule.getTestEnvironment().start();
+
     FileProcessingWorkflow workflow =
-        client.newWorkflowStub(
-            FileProcessingWorkflow.class,
-            WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(
+                FileProcessingWorkflow.class,
+                WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build());
 
     // Execute workflow waiting for completion.
     workflow.processFile(SOURCE, DESTINATION);
@@ -127,6 +105,8 @@ public class FileProcessingTest {
     verifyNoMoreInteractions(activities, activitiesHost1);
 
     verifyNoInteractions(activitiesHost2);
+
+    testWorkflowRule.getTestEnvironment().shutdown();
   }
 
   @Test
@@ -136,7 +116,7 @@ public class FileProcessingTest {
         .thenReturn(new TaskQueueFileNamePair(HOST_NAME_1, FILE_NAME_UNPROCESSED))
         .thenReturn(new TaskQueueFileNamePair(HOST_NAME_2, FILE_NAME_UNPROCESSED));
 
-    worker.registerActivitiesImplementations(activities);
+    testWorkflowRule.getWorker().registerActivitiesImplementations(activities);
 
     StoreActivities activitiesHost1 = mock(StoreActivities.class);
     when(activitiesHost1.process(FILE_NAME_UNPROCESSED))
@@ -148,12 +128,14 @@ public class FileProcessingTest {
 
     workerHost2.registerActivitiesImplementations(activitiesHost2);
 
-    testEnv.start();
+    testWorkflowRule.getTestEnvironment().start();
 
     FileProcessingWorkflow workflow =
-        client.newWorkflowStub(
-            FileProcessingWorkflow.class,
-            WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(
+                FileProcessingWorkflow.class,
+                WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build());
 
     workflow.processFile(SOURCE, DESTINATION);
 
@@ -167,5 +149,7 @@ public class FileProcessingTest {
     verify(activitiesHost2).upload(FILE_NAME_PROCESSED, DESTINATION);
 
     verifyNoMoreInteractions(activities, activitiesHost1, activitiesHost2);
+
+    testWorkflowRule.getTestEnvironment().shutdown();
   }
 }

@@ -19,57 +19,48 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.hello.HelloActivity.TASK_QUEUE;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
-import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.samples.hello.HelloActivity.GreetingActivities;
 import io.temporal.samples.hello.HelloActivity.GreetingActivitiesImpl;
 import io.temporal.samples.hello.HelloActivity.GreetingWorkflow;
 import io.temporal.samples.hello.HelloActivity.GreetingWorkflowImpl;
-import io.temporal.testing.TestWorkflowEnvironment;
-import io.temporal.worker.Worker;
-import org.junit.After;
-import org.junit.Before;
+import io.temporal.testing.TestWorkflowRule;
+import org.junit.Rule;
 import org.junit.Test;
 
 /** Unit test for {@link HelloActivity}. Doesn't use an external Temporal service. */
 public class HelloActivityTest {
 
-  private TestWorkflowEnvironment testEnv;
-  private Worker worker;
-  private WorkflowClient client;
-
-  @Before
-  public void setUp() {
-    testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(TASK_QUEUE);
-    worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
-
-    client = testEnv.getWorkflowClient();
-  }
-
-  @After
-  public void tearDown() {
-    testEnv.close();
-  }
+  @Rule
+  public TestWorkflowRule testWorkflowRule =
+      TestWorkflowRule.newBuilder()
+          .setWorkflowTypes(GreetingWorkflowImpl.class)
+          .setDoNotStart(true)
+          .build();
 
   @Test
   public void testActivityImpl() {
-    worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
-    testEnv.start();
+
+    testWorkflowRule.getWorker().registerActivitiesImplementations(new GreetingActivitiesImpl());
+    testWorkflowRule.getTestEnvironment().start();
 
     // Get a workflow stub using the same task queue the worker uses.
     GreetingWorkflow workflow =
-        client.newWorkflowStub(
-            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(
+                GreetingWorkflow.class,
+                WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build());
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");
     assertEquals("Hello World!", greeting);
+
+    testWorkflowRule.getTestEnvironment().shutdown();
   }
 
   @Test
@@ -79,16 +70,21 @@ public class HelloActivityTest {
     GreetingActivities activities =
         mock(GreetingActivities.class, withSettings().withoutAnnotations());
     when(activities.composeGreeting("Hello", "World")).thenReturn("Hello World!");
-    worker.registerActivitiesImplementations(activities);
-    testEnv.start();
+    testWorkflowRule.getWorker().registerActivitiesImplementations(activities);
+    testWorkflowRule.getTestEnvironment().start();
 
     // Get a workflow stub using the same task queue the worker uses.
     GreetingWorkflow workflow =
-        client.newWorkflowStub(
-            GreetingWorkflow.class, WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build());
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(
+                GreetingWorkflow.class,
+                WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build());
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");
     assertEquals("Hello World!", greeting);
+
+    testWorkflowRule.getTestEnvironment().shutdown();
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -96,6 +92,6 @@ public class HelloActivityTest {
     // Mocking activity that has method-level annotations
     // with no withoutAnnotations() setting results in a failure
     GreetingActivities activities = mock(GreetingActivities.class);
-    worker.registerActivitiesImplementations(activities);
+    testWorkflowRule.getWorker().registerActivitiesImplementations(activities);
   }
 }

@@ -59,10 +59,7 @@ public class HelloDynamic {
       // Define activity options and get ActivityStub
       ActivityStub activity =
           Workflow.newUntypedActivityStub(
-              ActivityOptions.newBuilder()
-                  .setTaskQueue(TASK_QUEUE)
-                  .setStartToCloseTimeout(Duration.ofSeconds(10))
-                  .build());
+              ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(10)).build());
       // Execute the dynamic Activity. Note that the provided Activity name is not
       // explicitly registered with the Worker
       String greetingResult = activity.execute("DynamicACT", String.class, greeting, name, type);

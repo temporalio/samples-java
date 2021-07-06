@@ -37,105 +37,85 @@ import io.temporal.samples.hello.HelloPeriodic.GreetingActivities;
 import io.temporal.samples.hello.HelloPeriodic.GreetingActivitiesImpl;
 import io.temporal.samples.hello.HelloPeriodic.GreetingWorkflow;
 import io.temporal.samples.hello.HelloPeriodic.GreetingWorkflowImpl;
-import io.temporal.testing.TestWorkflowEnvironment;
-import io.temporal.worker.Worker;
+import io.temporal.testing.TestWorkflowRule;
 import java.time.Duration;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.rules.Timeout;
-import org.junit.runner.Description;
 
 /** Unit test for {@link HelloPeriodic}. Doesn't use an external Temporal service. */
 public class HelloPeriodicTest {
 
-  @Rule public Timeout globalTimeout = Timeout.seconds(3);
-
-  /** Prints a history of the workflow under test in case of a test failure. */
   @Rule
-  public TestWatcher watchman =
-      new TestWatcher() {
-        @Override
-        protected void failed(Throwable e, Description description) {
-          if (testEnv != null) {
-            System.err.println(testEnv.getDiagnostics());
-            testEnv.close();
-          }
-        }
-      };
-
-  private TestWorkflowEnvironment testEnv;
-  private Worker worker;
-  private WorkflowClient client;
-
-  @Before
-  public void setUp() {
-    testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(TASK_QUEUE);
-    worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
-
-    client = testEnv.getWorkflowClient();
-  }
-
-  @After
-  public void tearDown() {
-    testEnv.close();
-  }
+  public TestWorkflowRule testWorkflowRule =
+      TestWorkflowRule.newBuilder()
+          .setWorkflowTypes(GreetingWorkflowImpl.class)
+          .setDoNotStart(true)
+          .build();
 
   @Test
   public void testPeriodicActivityInvocation() {
-    worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
-    testEnv.start();
+    testWorkflowRule.getWorker().registerActivitiesImplementations(new GreetingActivitiesImpl());
+    testWorkflowRule.getTestEnvironment().start();
 
     // Get a workflow stub using the same task queue the worker uses.
     GreetingWorkflow workflow =
-        client.newWorkflowStub(
-            GreetingWorkflow.class,
-            WorkflowOptions.newBuilder()
-                .setTaskQueue(TASK_QUEUE)
-                .setWorkflowId(WORKFLOW_ID)
-                .build());
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(
+                GreetingWorkflow.class,
+                WorkflowOptions.newBuilder()
+                    .setTaskQueue(testWorkflowRule.getTaskQueue())
+                    .setWorkflowId(WORKFLOW_ID)
+                    .build());
     // Execute a workflow waiting for it to complete.
     WorkflowExecution execution = WorkflowClient.start(workflow::greetPeriodically, "World");
     assertEquals(WORKFLOW_ID, execution.getWorkflowId());
     // Validate that workflow was continued as new at least once.
     // Use TestWorkflowEnvironment.sleep to execute the unit test without really sleeping.
-    testEnv.sleep(Duration.ofMinutes(3));
+    testWorkflowRule.getTestEnvironment().sleep(Duration.ofMinutes(3));
     ListClosedWorkflowExecutionsRequest request =
         ListClosedWorkflowExecutionsRequest.newBuilder()
-            .setNamespace(testEnv.getNamespace())
+            .setNamespace(testWorkflowRule.getTestEnvironment().getNamespace())
             .setExecutionFilter(WorkflowExecutionFilter.newBuilder().setWorkflowId(WORKFLOW_ID))
             .build();
     ListClosedWorkflowExecutionsResponse listResponse =
-        testEnv.getWorkflowService().blockingStub().listClosedWorkflowExecutions(request);
+        testWorkflowRule
+            .getTestEnvironment()
+            .getWorkflowService()
+            .blockingStub()
+            .listClosedWorkflowExecutions(request);
     assertTrue(listResponse.getExecutionsCount() > 1);
     for (WorkflowExecutionInfo e : listResponse.getExecutionsList()) {
       assertEquals(
           WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_CONTINUED_AS_NEW, e.getStatus());
     }
+
+    testWorkflowRule.getTestEnvironment().shutdown();
   }
 
   @Test
   public void testMockedActivity() {
     GreetingActivities activities = mock(GreetingActivities.class);
-    worker.registerActivitiesImplementations(activities);
-    testEnv.start();
+    testWorkflowRule.getWorker().registerActivitiesImplementations(activities);
+    testWorkflowRule.getTestEnvironment().start();
 
     // Get a workflow stub using the same task queue the worker uses.
     GreetingWorkflow workflow =
-        client.newWorkflowStub(
-            GreetingWorkflow.class,
-            WorkflowOptions.newBuilder()
-                .setTaskQueue(TASK_QUEUE)
-                .setWorkflowId(WORKFLOW_ID)
-                .build());
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(
+                GreetingWorkflow.class,
+                WorkflowOptions.newBuilder()
+                    .setTaskQueue(testWorkflowRule.getTaskQueue())
+                    .setWorkflowId(WORKFLOW_ID)
+                    .build());
     // Execute a workflow waiting for it to complete.
     WorkflowExecution execution = WorkflowClient.start(workflow::greetPeriodically, "World");
     assertEquals(WORKFLOW_ID, execution.getWorkflowId());
     // Use TestWorkflowEnvironment.sleep to execute the unit test without really sleeping.
-    testEnv.sleep(Duration.ofMinutes(1));
+    testWorkflowRule.getTestEnvironment().sleep(Duration.ofMinutes(1));
     verify(activities, atLeast(5)).greet(anyString());
+
+    testWorkflowRule.getTestEnvironment().shutdown();
   }
 }

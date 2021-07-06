@@ -50,7 +50,6 @@ public class FileProcessingWorkflowImpl implements FileProcessingWorkflow {
                     .setMaximumAttempts(4)
                     .setDoNotRetry(IllegalArgumentException.class.getName())
                     .build())
-            .setTaskQueue(FileProcessingWorker.TASK_QUEUE)
             .build();
     this.defaultTaskQueueStore = Workflow.newActivityStub(StoreActivities.class, ao);
   }

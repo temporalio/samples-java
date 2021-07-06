@@ -19,7 +19,6 @@
 
 package io.temporal.samples.hello;
 
-import static io.temporal.samples.hello.HelloCron.TASK_QUEUE;
 import static io.temporal.samples.hello.HelloCron.WORKFLOW_ID;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -31,74 +30,47 @@ import io.temporal.client.WorkflowOptions;
 import io.temporal.samples.hello.HelloCron.GreetingActivities;
 import io.temporal.samples.hello.HelloCron.GreetingWorkflow;
 import io.temporal.samples.hello.HelloCron.GreetingWorkflowImpl;
-import io.temporal.testing.TestWorkflowEnvironment;
-import io.temporal.worker.Worker;
+import io.temporal.testing.TestWorkflowRule;
 import java.time.Duration;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.rules.Timeout;
-import org.junit.runner.Description;
 
 /** Unit test for {@link HelloCron}. Doesn't use an external Temporal service. */
 public class HelloCronTest {
 
-  @Rule public Timeout globalTimeout = Timeout.seconds(3);
-
-  /** Prints a history of the workflow under test in case of a test failure. */
   @Rule
-  public TestWatcher watchman =
-      new TestWatcher() {
-        @Override
-        protected void failed(Throwable e, Description description) {
-          if (testEnv != null) {
-            System.err.println(testEnv.getDiagnostics());
-            testEnv.close();
-          }
-        }
-      };
-
-  private TestWorkflowEnvironment testEnv;
-  private Worker worker;
-  private WorkflowClient client;
-
-  @Before
-  public void setUp() {
-    testEnv = TestWorkflowEnvironment.newInstance();
-    worker = testEnv.newWorker(HelloCron.TASK_QUEUE);
-    worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
-
-    client = testEnv.getWorkflowClient();
-  }
-
-  @After
-  public void tearDown() {
-    testEnv.close();
-  }
+  public TestWorkflowRule testWorkflowRule =
+      TestWorkflowRule.newBuilder()
+          .setWorkflowTypes(GreetingWorkflowImpl.class)
+          .setDoNotStart(true)
+          .build();
 
   @Test
   public void testMockedActivity() {
     GreetingActivities activities = mock(GreetingActivities.class);
-    worker.registerActivitiesImplementations(activities);
-    testEnv.start();
+    testWorkflowRule.getWorker().registerActivitiesImplementations(activities);
+    testWorkflowRule.getTestEnvironment().start();
 
     // Unfortunately the supported cron format of the Java test service is not exactly the same as
     // the temporal service. For example @every is not supported by the unit testing framework.
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder()
             .setCronSchedule("0 * * * *")
-            .setTaskQueue(TASK_QUEUE)
+            .setTaskQueue(testWorkflowRule.getTaskQueue())
             .setWorkflowId(WORKFLOW_ID)
             .build();
-    GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
+    GreetingWorkflow workflow =
+        testWorkflowRule
+            .getWorkflowClient()
+            .newWorkflowStub(GreetingWorkflow.class, workflowOptions);
 
     // Execute a workflow waiting for it to complete.
     WorkflowExecution execution = WorkflowClient.start(workflow::greet, "World");
     assertEquals(WORKFLOW_ID, execution.getWorkflowId());
     // Use TestWorkflowEnvironment.sleep to execute the unit test without really sleeping.
-    testEnv.sleep(Duration.ofDays(1));
+    testWorkflowRule.getTestEnvironment().sleep(Duration.ofDays(1));
     verify(activities, atLeast(10)).greet(anyString());
+
+    testWorkflowRule.getTestEnvironment().shutdown();
   }
 }
