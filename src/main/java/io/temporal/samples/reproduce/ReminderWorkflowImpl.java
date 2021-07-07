@@ -21,6 +21,7 @@ public final class ReminderWorkflowImpl implements ReminderWorkflow {
   public void start() {
     ScheduleReminderSignal signalToProcess = signalQueue.take();
     while (signalToProcess != null) {
+      logger.info("Will process signal {}", signalToProcess);
       processScheduleReminder(signalToProcess);
 
       Workflow.await(
@@ -35,6 +36,7 @@ public final class ReminderWorkflowImpl implements ReminderWorkflow {
   public void scheduleReminder(ScheduleReminderSignal signal) {
     logger.info("Got signal {}", signal);
     signalQueue.put(signal);
+    logger.info("Enqueued signal {}", signal);
   }
 
   private void processScheduleReminder(ScheduleReminderSignal signal) {
@@ -70,5 +72,7 @@ public final class ReminderWorkflowImpl implements ReminderWorkflow {
                           });
             });
     activeScope.run();
+
+    Workflow.getVersion("some-change", Workflow.DEFAULT_VERSION, 1);
   }
 }

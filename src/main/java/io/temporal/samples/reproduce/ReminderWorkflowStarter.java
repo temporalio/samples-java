@@ -8,6 +8,7 @@ import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public final class ReminderWorkflowStarter {
@@ -25,15 +26,24 @@ public final class ReminderWorkflowStarter {
     ReminderWorkflow stub = newWorkflowStub(client);
     WorkflowClient.start(stub::start);
 
-    Thread.sleep(5000L);
+    //    Thread.sleep(5000L);
 
-    factory1.shutdown();
-    factory1.awaitTermination(10, TimeUnit.SECONDS);
-
-    WorkerFactory factory2 = startWorkerFactory(client);
+    //    factory1.shutdown();
+    //    factory1.awaitTermination(10, TimeUnit.SECONDS);
+    //
+    //    WorkerFactory factory2 = startWorkerFactory(client);
 
     scheduleReminder(client, Instant.now().plus(60, ChronoUnit.SECONDS), "Reminder 2");
     scheduleReminder(client, Instant.now().plus(30, ChronoUnit.SECONDS), "Reminder 3");
+
+    client
+        .newUntypedWorkflowStub(WORKFLOW_ID, Optional.empty(), Optional.of("ReminderWorkflow"))
+        .getResult(Void.TYPE);
+
+    if (!factory1.isShutdown()) {
+      factory1.shutdown();
+      factory1.awaitTermination(10, TimeUnit.SECONDS);
+    }
   }
 
   private static WorkerFactory startWorkerFactory(WorkflowClient client) {
