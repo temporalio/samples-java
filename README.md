@@ -36,6 +36,13 @@ This repository contains sample Workflow applications that demonstrate various c
        cd  docker-compose
        docker-compose up
 
+Note that for the "listworkflows" example you need to have the Elasticsearch feature 
+enabled on the Temporal Server side. To do this you can run locally with:
+
+       git clone https://github.com/temporalio/docker-compose.git
+       cd  docker-compose
+       docker-compose -f docker-compose-cas-es.yml up
+
 Alternatively you could install the Temporal Server on Kubernetes / Minicube using the [Temporal Helm charts](https://github.com/temporalio/helm-charts).
 Note that in this case you should use the [Temporal CLI (tctl)](https://docs.temporal.io/docs/system-tools/tctl/) tool to create a namespace called "default":
 
@@ -105,6 +112,8 @@ All tests are available under [src/test/java](https://github.com/temporalio/samp
 - [**Updatable Timer**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/updatabletimer): Demonstrates the use of a helper class which relies on `Workflow.await` to implement a blocking sleep that can be updated at any moment.
 
 - [**Workflow Interceptor**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/interceptor): Demonstrates how to create and register a simple Workflow Interceptor.
+
+- [**List Workflows**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/listworkflows): Demonstrates the use of custom search attributes and ListWorkflowExecutionsRequest with custom queries.
 
 <!-- @@@SNIPEND -->
 
