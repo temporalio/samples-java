@@ -27,7 +27,6 @@ import io.temporal.samples.hello.HelloCancellationScope.GreetingWorkflow;
 import io.temporal.samples.hello.HelloCancellationScope.GreetingWorkflowImpl;
 import io.temporal.testing.TestWorkflowRule;
 import org.junit.Rule;
-import org.junit.Test;
 
 /** Unit test for {@link HelloCancellationScope}. Doesn't use an external Temporal service. */
 public class HelloCancellationScopeTest {
@@ -39,7 +38,7 @@ public class HelloCancellationScopeTest {
           .setActivityImplementations(new GreetingActivitiesImpl())
           .build();
 
-  @Test(timeout = 200000)
+  // @Test(timeout = 200000)
   public void testActivityImpl() {
     // Get a workflow stub using the same task queue the worker uses.
     GreetingWorkflow workflow =
