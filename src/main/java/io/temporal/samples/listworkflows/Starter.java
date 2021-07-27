@@ -52,10 +52,13 @@ public class Starter {
     createWorker();
 
     // start customer workflows and define custom search attributes for each
+    startWorkflows(customers);
+
+    // small delay before we start querying executions
     try {
-      startWorkflows(customers);
+      Thread.sleep(2 * 1000);
     } catch (InterruptedException e) {
-      throw new RuntimeException("Exception happened in workflow.", e);
+      throw new RuntimeException("Exception happened in thread sleep: ", e);
     }
 
     // query "new" customers for all "CustomerWorkflow" workflows with status "Running" (1)
@@ -119,7 +122,7 @@ public class Starter {
     return searchAttributes;
   }
 
-  private static void startWorkflows(List<Customer> customers) throws InterruptedException {
+  private static void startWorkflows(List<Customer> customers) {
     // start a workflow for each customer that we need to add message to account
     for (Customer c : customers) {
       String message = "New message for: " + c.getName();
@@ -135,9 +138,6 @@ public class Starter {
       // start async
       WorkflowClient.start(newCustomerWorkflow::updateAccountMessage, c, message);
     }
-
-    // small delay before we start querying executions
-    Thread.sleep(2 * 1000);
   }
 
   private static void stopWorkflows(List<Customer> customers) {
