@@ -71,7 +71,7 @@ public class ListWorkflowsTest {
               .setWorkflowId(c.getAccountNum())
               .setTaskQueue(testWorkflowRule.getTaskQueue())
               // set the search attributes for this customer workflow
-              .setSearchAttributes(generateSearchAttributesFor(c, message))
+              .setSearchAttributes(generateSearchAttributesFor(c))
               .build();
       CustomerWorkflow newCustomerWorkflow =
           testWorkflowRule
@@ -82,7 +82,7 @@ public class ListWorkflowsTest {
     }
   }
 
-  private Map<String, Object> generateSearchAttributesFor(Customer customer, String message) {
+  private Map<String, Object> generateSearchAttributesFor(Customer customer) {
     Map<String, Object> searchAttributes = new HashMap<>();
     searchAttributes.put("CustomStringField", customer.getCustomerType());
 

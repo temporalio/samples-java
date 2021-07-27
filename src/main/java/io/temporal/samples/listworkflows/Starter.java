@@ -52,7 +52,11 @@ public class Starter {
     createWorker();
 
     // start customer workflows and define custom search attributes for each
-    startWorkflows(customers);
+    try {
+      startWorkflows(customers);
+    } catch (InterruptedException e) {
+      throw new RuntimeException("Exception happened in workflow.", e);
+    }
 
     // query "new" customers for all "CustomerWorkflow" workflows with status "Running" (1)
     ListWorkflowExecutionsResponse newCustomersResponse =
@@ -108,15 +112,14 @@ public class Starter {
     factory.start();
   }
 
-  private static Map<String, Object> generateSearchAttributesFor(
-      Customer customer, String message) {
+  private static Map<String, Object> generateSearchAttributesFor(Customer customer) {
     Map<String, Object> searchAttributes = new HashMap<>();
     searchAttributes.put("CustomStringField", customer.getCustomerType());
 
     return searchAttributes;
   }
 
-  private static void startWorkflows(List<Customer> customers) {
+  private static void startWorkflows(List<Customer> customers) throws InterruptedException {
     // start a workflow for each customer that we need to add message to account
     for (Customer c : customers) {
       String message = "New message for: " + c.getName();
@@ -125,7 +128,7 @@ public class Starter {
               .setWorkflowId(c.getAccountNum())
               .setTaskQueue(TASK_QUEUE)
               // set the search attributes for this customer workflow
-              .setSearchAttributes(generateSearchAttributesFor(c, message))
+              .setSearchAttributes(generateSearchAttributesFor(c))
               .build();
       CustomerWorkflow newCustomerWorkflow =
           client.newWorkflowStub(CustomerWorkflow.class, newCustomerWorkflowOptions);
@@ -134,11 +137,7 @@ public class Starter {
     }
 
     // small delay before we start querying executions
-    try {
-      Thread.sleep(2 * 1000);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    Thread.sleep(2 * 1000);
   }
 
   private static void stopWorkflows(List<Customer> customers) {
