@@ -54,6 +54,13 @@ public class Starter {
     // start customer workflows and define custom search attributes for each
     startWorkflows(customers);
 
+    // small delay before we start querying executions
+    try {
+      Thread.sleep(2 * 1000);
+    } catch (InterruptedException e) {
+      throw new RuntimeException("Exception happened in thread sleep: ", e);
+    }
+
     // query "new" customers for all "CustomerWorkflow" workflows with status "Running" (1)
     ListWorkflowExecutionsResponse newCustomersResponse =
         getExecutionsResponse(
@@ -108,8 +115,7 @@ public class Starter {
     factory.start();
   }
 
-  private static Map<String, Object> generateSearchAttributesFor(
-      Customer customer, String message) {
+  private static Map<String, Object> generateSearchAttributesFor(Customer customer) {
     Map<String, Object> searchAttributes = new HashMap<>();
     searchAttributes.put("CustomStringField", customer.getCustomerType());
 
@@ -125,19 +131,12 @@ public class Starter {
               .setWorkflowId(c.getAccountNum())
               .setTaskQueue(TASK_QUEUE)
               // set the search attributes for this customer workflow
-              .setSearchAttributes(generateSearchAttributesFor(c, message))
+              .setSearchAttributes(generateSearchAttributesFor(c))
               .build();
       CustomerWorkflow newCustomerWorkflow =
           client.newWorkflowStub(CustomerWorkflow.class, newCustomerWorkflowOptions);
       // start async
       WorkflowClient.start(newCustomerWorkflow::updateAccountMessage, c, message);
-    }
-
-    // small delay before we start querying executions
-    try {
-      Thread.sleep(2 * 1000);
-    } catch (Exception e) {
-      e.printStackTrace();
     }
   }
 

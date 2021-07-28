@@ -19,30 +19,38 @@
 
 package io.temporal.samples.listworkflows;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class CustomerActivitiesImpl implements CustomerActivities {
+
+  private static final Logger log = LoggerFactory.getLogger(CustomerActivitiesImpl.class);
+
   @Override
   public void getCustomerAccount(Customer customer) {
     // simulate some actual work...
-    sleep(1);
+    sleepSeconds(1);
   }
 
   @Override
   public void updateCustomerAccount(Customer customer, String message) {
     // simulate some actual work...
-    sleep(1);
+    sleepSeconds(1);
   }
 
   @Override
   public void sendUpdateEmail(Customer customer) {
     // simulate some actual work...
-    sleep(1);
+    sleepSeconds(1);
   }
 
-  private void sleep(int seconds) {
+  private void sleepSeconds(int seconds) {
     try {
       Thread.sleep(seconds * 1000);
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      // This is being swallowed on purpose
+      Thread.currentThread().interrupt();
+      log.error("Exception in thread sleep: ", e);
     }
   }
 }
