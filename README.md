@@ -115,6 +115,8 @@ All tests are available under [src/test/java](https://github.com/temporalio/samp
 
 - [**List Workflows**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/listworkflows): Demonstrates the use of custom search attributes and ListWorkflowExecutionsRequest with custom queries.
 
+- [**Payload Converter**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/payloadconverter): Demonstrates the use of a custom payload converter.
+
 <!-- @@@SNIPEND -->
 
 ## IDE Integration
