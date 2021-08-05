@@ -30,21 +30,21 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.1.0'
+    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.2.0'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.5'
     implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
     implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '2.2.0'
     implementation group: 'io.cloudevents', name: 'cloudevents-api', version: '2.2.0'
     implementation group: 'io.cloudevents', name: 'cloudevents-json-jackson', version: '2.2.0'
 
-    testImplementation group: 'io.temporal', name: 'temporal-testing', version: '1.1.0'
-    testImplementation group: 'io.temporal', name: 'temporal-testing-junit4', version: '1.1.0'
+    testImplementation group: 'io.temporal', name: 'temporal-testing', version: '1.2.0'
+    testImplementation group: 'io.temporal', name: 'temporal-testing-junit4', version: '1.2.0'
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.11.2'
     testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.9'
 
     errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
-    errorprone("com.google.errorprone:error_prone_core:2.8.0")
+    errorprone("com.google.errorprone:error_prone_core:2.8.1")
 }
 
 compileJava {
