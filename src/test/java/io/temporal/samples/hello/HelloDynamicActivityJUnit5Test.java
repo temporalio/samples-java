@@ -39,8 +39,8 @@ public class HelloDynamicActivityJUnit5Test {
           .build();
 
   /**
-   * Dynamic activity {@link HelloDynamic.DynamicGreetingActivityImpl} is injected as an implementation for a static
-   * activity interface {@link MyStaticActivity}.
+   * Dynamic activity {@link HelloDynamic.DynamicGreetingActivityImpl} is injected as an
+   * implementation for a static activity interface {@link MyStaticActivity}.
    */
   @Test
   public void testDynamicActivity(MyStaticActivity activity) {
