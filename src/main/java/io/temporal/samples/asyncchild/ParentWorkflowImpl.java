@@ -47,7 +47,5 @@ public class ParentWorkflowImpl implements ParentWorkflow {
     // Call .get on the promise. This will block until the child workflow starts execution (or start
     // fails)
     return childExecution.get();
-
-    // return "Parent workflow completed";
   }
 }
