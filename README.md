@@ -117,6 +117,8 @@ All tests are available under [src/test/java](https://github.com/temporalio/samp
 
 - [**Payload Converter**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/payloadconverter): Demonstrates the use of a custom payload converter.
 
+- [**Async Child Workflow**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/asyncchild): Demonstrates how to invoke a child workflow async, that can complete after parent workflow is already completed.
+
 <!-- @@@SNIPEND -->
 
 ## IDE Integration
