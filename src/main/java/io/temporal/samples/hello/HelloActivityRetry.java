@@ -96,7 +96,7 @@ public class HelloActivityRetry {
      * interval of the first retry. It is set to 1 second. The "setDoNotRetry" option is a list of
      * application failures for which retries should not be performed.
      *
-     * <p>By default the maximum number of retry attemts is set to "unlimited" however you can
+     * <p>By default the maximum number of retry attempts is set to "unlimited" however you can
      * change it by adding the "setMaximumAttempts" option to the retry options.
      */
     private final GreetingActivities activities =
