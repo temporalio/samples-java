@@ -52,7 +52,7 @@ dependencies {
     testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.8.0-M1'
 
     errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
-    errorprone("com.google.errorprone:error_prone_core:2.8.1")
+    errorprone("com.google.errorprone:error_prone_core:2.9.0")
 }
 
 compileJava {
