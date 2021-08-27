@@ -119,6 +119,8 @@ All tests are available under [src/test/java](https://github.com/temporalio/samp
 
 - [**Async Child Workflow**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/asyncchild): Demonstrates how to invoke a child workflow async, that can complete after parent workflow is already completed.
 
+- [**Terminate Workflow**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/terminateworkflow): Demonstrates how to terminate a workflow using client API.
+
 <!-- @@@SNIPEND -->
 
 ## IDE Integration
