@@ -38,13 +38,17 @@ public class Starter {
   private static final WorkerFactory factory = WorkerFactory.newInstance(client);
 
   public static void main(String[] args) {
+    // Create Worker
     createWorker();
 
+    // Create Workflow options
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder()
             .setWorkflowId("toTerminateWorkflow")
             .setTaskQueue(TASK_QUEUE)
             .build();
+
+    // Get the Workflow stub
     MyWorkflow myWorkflowStub = client.newWorkflowStub(MyWorkflow.class, workflowOptions);
 
     // Start workflow async
@@ -63,6 +67,9 @@ public class Starter {
     System.exit(0);
   }
 
+  /**
+   * This method creates a Worker from the factory.
+   */
   private static void createWorker() {
     Worker worker = factory.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(MyWorkflowImpl.class);
@@ -70,6 +77,10 @@ public class Starter {
     factory.start();
   }
 
+  /**
+   * Convenience method to sleep for a number of seconds.
+   * @param seconds
+   */
   private static void sleepSeconds(int seconds) {
     try {
       Thread.sleep(seconds * 1000);
@@ -78,6 +89,12 @@ public class Starter {
     }
   }
 
+  /**
+   * This method uses DescribeWorkflowExecutionRequest to get the status of a workflow
+   * given a WorkflowExecution.
+   * @param execution
+   * @return Workflow status
+   */
   private static String getStatusAsString(WorkflowExecution execution) {
     DescribeWorkflowExecutionRequest describeWorkflowExecutionRequest =
         DescribeWorkflowExecutionRequest.newBuilder()
