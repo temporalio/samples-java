@@ -20,7 +20,7 @@ states:
           - NewApplicationEvent
         actions:
           - name: Invoke Customer Info Function
-            functionRef: checkCustomerInfoFunction
+            functionRef: CheckCustomerInfo
     transition: MakeApplicationDecision
   - name: MakeApplicationDecision
     type: switch
@@ -35,20 +35,20 @@ states:
     type: operation
     actions:
       - name: Invoke Approve Application Function
-        functionRef: approveApplicationFunction
+        functionRef: ApproveApplication
     end: true
   - name: RejectApplication
     type: operation
     actions:
       - name: Invoke Reject Application Function
-        functionRef: rejectApplicationFunction
+        functionRef: RejectApplication
     end: true
 functions:
-  - name: checkCustomerInfoFunction
+  - name: CheckCustomerInfo
     type: rest
-  - name: approveApplicationFunction
+  - name: ApproveApplication
     type: rest
-  - name: rejectApplicationFunction
+  - name: RejectApplication
     type: rest
 events:
   - name: NewApplicationEvent

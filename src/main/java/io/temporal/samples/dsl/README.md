@@ -37,7 +37,7 @@ all the activities that were executed (corespond to actions in the DSL), for exa
 "age" : 22,
 "applicationStatus" : "APPROVED"
 },
-"actions" : [ "Invoke Customer Info Function", "Invoke Approve Application Function" ]
+"actions" : [ "CheckCustomerInfo", "ApproveApplication" ]
 }
 ```
 

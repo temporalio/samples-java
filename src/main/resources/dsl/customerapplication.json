@@ -28,7 +28,7 @@
         "actions":[
           {
             "name": "Invoke Customer Info Function",
-            "functionRef": "checkCustomerInfoFunction"
+            "functionRef": "CheckCustomerInfo"
           }
         ]
       }],
@@ -57,7 +57,7 @@
       "actions": [
         {
           "name": "Invoke Approve Application Function",
-          "functionRef": "approveApplicationFunction"
+          "functionRef": "ApproveApplication"
         }
       ],
       "end": true
@@ -68,7 +68,7 @@
       "actions": [
         {
           "name": "Invoke Reject Application Function",
-          "functionRef": "rejectApplicationFunction"
+          "functionRef": "RejectApplication"
         }
       ],
       "end": true
@@ -76,15 +76,15 @@
   ],
   "functions": [
     {
-      "name": "checkCustomerInfoFunction",
+      "name": "CheckCustomerInfo",
       "type": "rest"
     },
     {
-      "name": "approveApplicationFunction",
+      "name": "ApproveApplication",
       "type": "rest"
     },
     {
-      "name": "rejectApplicationFunction",
+      "name": "RejectApplication",
       "type": "rest"
     }
   ],

@@ -41,7 +41,7 @@ public class DslWorkflowTest {
   public TestWorkflowRule testWorkflowRule =
       TestWorkflowRule.newBuilder()
           .setWorkflowTypes(DynamicDslWorkflow.class)
-          .setActivityImplementations(new DynamicDslActivities())
+          .setActivityImplementations(new DslActivitiesImpl())
           .build();
 
   @Test
@@ -67,8 +67,8 @@ public class DslWorkflowTest {
     assertNotNull(result.get("actions"));
     ArrayNode arrayNode = (ArrayNode) result.get("actions");
     assertEquals(2, arrayNode.size());
-    assertEquals("Invoke Customer Info Function", arrayNode.get(0).asText());
-    assertEquals("Invoke Approve Application Function", arrayNode.get(1).asText());
+    assertEquals("CheckCustomerInfo", arrayNode.get(0).asText());
+    assertEquals("ApproveApplication", arrayNode.get(1).asText());
   }
 
   private static String getFileAsString(String fileName) throws IOException {

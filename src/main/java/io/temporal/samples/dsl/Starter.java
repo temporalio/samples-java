@@ -44,7 +44,7 @@ public class Starter {
   public static void main(String[] args) {
     try {
       // Read the workflow dsl
-      Workflow dslWorkflow = Workflow.fromSource(getFileAsString("dsl/customerapplication.yml"));
+      Workflow dslWorkflow = Workflow.fromSource(getFileAsString("dsl/customerapplication.json"));
 
       // Validate dsl
       WorkflowValidator dslWorkflowValidator = new WorkflowValidatorImpl();
@@ -79,7 +79,7 @@ public class Starter {
   }
 
   private static JsonNode getSampleWorkflowInput() throws Exception {
-    String workflowDataInput = getFileAsString("dsl/datainput.json");
+    String workflowDataInput = getFileAsString("dsl/datainput.yml");
     ObjectMapper objectMapper = new ObjectMapper();
     return objectMapper.readTree(workflowDataInput);
   }
@@ -87,7 +87,7 @@ public class Starter {
   public static void createWorker(String taskQueue) {
     Worker worker = factory.newWorker(taskQueue);
     worker.registerWorkflowImplementationTypes(DynamicDslWorkflow.class);
-    worker.registerActivitiesImplementations(new DynamicDslActivities());
+    worker.registerActivitiesImplementations(new DslActivitiesImpl());
 
     factory.start();
   }

@@ -39,7 +39,6 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
 
   private io.serverlessworkflow.api.Workflow dslWorkflow;
   private JsonNode workflowData;
-  private String workflowType;
   private Logger logger = Workflow.getLogger(DynamicDslWorkflow.class);
 
   @Override
@@ -49,8 +48,6 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
     dslWorkflow = io.serverlessworkflow.api.Workflow.fromSource(dsl);
     // Get second input which is set to workflowData
     workflowData = args.get(1, JsonNode.class);
-    // Get the workflow type
-    workflowType = Workflow.getInfo().getWorkflowType();
 
     // Register dynamic signal handler
     // For demo signals input sets the workflowData
@@ -71,12 +68,7 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
     return workflowData;
   }
 
-  /**
-   * Executes workflow according to the dsl control flow logic
-   *
-   * @param dslWorkflowState
-   * @param activities
-   */
+  /** Executes workflow according to the dsl control flow logic */
   private void executeDslWorkflowFrom(State dslWorkflowState, ActivityStub activities) {
     // This demo supports 3 states: Event State, Operation State and Switch state (data-based
     // switch)
@@ -90,6 +82,10 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
     }
   }
 
+  /**
+   * Executes the control flow logic for a dsl workflow state. Demo supports EventState,
+   * OperationState, and SwitchState currently. More can be added.
+   */
   private State executeStateAndReturnNext(State dslWorkflowState, ActivityStub activities) {
     if (dslWorkflowState instanceof EventState) {
       EventState eventState = (EventState) dslWorkflowState;
@@ -99,7 +95,8 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
         for (Action action : eventStateActions) {
           // execute the action as an activity and assign its results to workflowData
           workflowData =
-              activities.execute(action.getName(), JsonNode.class, action.getName(), workflowData);
+              activities.execute(
+                  action.getFunctionRef().getRefName(), JsonNode.class, workflowData);
         }
       }
       if (eventState.getTransition() != null && eventState.getTransition().getNextState() != null) {
@@ -114,7 +111,8 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
         for (Action action : operationState.getActions()) {
           // execute the action as an activity and assign its results to workflowData
           workflowData =
-              activities.execute(action.getName(), JsonNode.class, action.getName(), workflowData);
+              activities.execute(
+                  action.getFunctionRef().getRefName(), JsonNode.class, workflowData);
         }
       }
       if (operationState.getTransition() != null
