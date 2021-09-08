@@ -67,9 +67,7 @@ public class Starter {
     System.exit(0);
   }
 
-  /**
-   * This method creates a Worker from the factory.
-   */
+  /** This method creates a Worker from the factory. */
   private static void createWorker() {
     Worker worker = factory.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(MyWorkflowImpl.class);
@@ -79,6 +77,7 @@ public class Starter {
 
   /**
    * Convenience method to sleep for a number of seconds.
+   *
    * @param seconds
    */
   private static void sleepSeconds(int seconds) {
@@ -90,8 +89,9 @@ public class Starter {
   }
 
   /**
-   * This method uses DescribeWorkflowExecutionRequest to get the status of a workflow
-   * given a WorkflowExecution.
+   * This method uses DescribeWorkflowExecutionRequest to get the status of a workflow given a
+   * WorkflowExecution.
+   *
    * @param execution
    * @return Workflow status
    */

@@ -1,0 +1,54 @@
+id: customerapplication
+name: Customer Application Workflow
+version: '1.0'
+timeouts:
+  workflowExecTimeout:
+    duration: PT1M
+  actionExecTimeout: PT10S
+retries:
+  - name: WorkflowRetries
+    delay: PT3S
+    maxAttempts: 10
+start: NewCustomerApplication
+states:
+  - name: NewCustomerApplication
+    type: event
+    onEvents:
+      - eventRefs:
+          - NewApplicationEvent
+        actions:
+          - name: Invoke Customer Info Function
+            functionRef: checkCustomerInfoFunction
+    transition: MakeApplicationDecision
+  - name: MakeApplicationDecision
+    type: switch
+    dataConditions:
+      - condition: "$..[?(@.age >= 20)]"
+        transition: ApproveApplication
+      - condition: "$..[?(@.age < 20)]"
+        transition: RejectApplication
+    defaultCondition:
+      transition: RejectApplication
+  - name: ApproveApplication
+    type: operation
+    actions:
+      - name: Invoke Approve Application Function
+        functionRef: approveApplicationFunction
+    end: true
+  - name: RejectApplication
+    type: operation
+    actions:
+      - name: Invoke Reject Application Function
+        functionRef: rejectApplicationFunction
+    end: true
+functions:
+  - name: checkCustomerInfoFunction
+    type: rest
+  - name: approveApplicationFunction
+    type: rest
+  - name: rejectApplicationFunction
+    type: rest
+events:
+  - name: NewApplicationEvent
+    type: com.fasterxml.jackson.databind.JsonNode
+    source: applicationsSource
