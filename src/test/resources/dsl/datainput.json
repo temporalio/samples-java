@@ -1,7 +1,6 @@
 {
   "customer": {
     "name": "John",
-    "age": 22,
-    "applicationStatus": "PENDING"
+    "age": 22
   }
 }

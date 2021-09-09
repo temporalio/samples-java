@@ -16,9 +16,12 @@ states:
     onEvents:
       - eventRefs:
           - NewApplicationEvent
+        actionMode: parallel
         actions:
-          - name: Invoke Customer Info Function
+          - name: Invoke Check Customer Info Function
             functionRef: CheckCustomerInfo
+          - name: Invoke Update Application Info Function
+            functionRef: UpdateApplicationInfo
     transition: MakeApplicationDecision
   - name: MakeApplicationDecision
     type: switch
@@ -43,6 +46,8 @@ states:
     end: true
 functions:
   - name: CheckCustomerInfo
+    type: rest
+  - name: UpdateApplicationInfo
     type: rest
   - name: ApproveApplication
     type: rest

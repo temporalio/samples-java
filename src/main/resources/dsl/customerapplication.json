@@ -22,10 +22,15 @@
       "type": "event",
       "onEvents": [{
         "eventRefs": ["NewApplicationEvent"],
+        "actionMode": "parallel",
         "actions":[
           {
-            "name": "Invoke Customer Info Function",
+            "name": "Invoke Check Customer Info Function",
             "functionRef": "CheckCustomerInfo"
+          },
+          {
+            "name": "Invoke Update Application Info Function",
+            "functionRef": "UpdateApplicationInfo"
           }
         ]
       }],
@@ -74,6 +79,10 @@
   "functions": [
     {
       "name": "CheckCustomerInfo",
+      "type": "rest"
+    },
+    {
+      "name": "UpdateApplicationInfo",
       "type": "rest"
     },
     {

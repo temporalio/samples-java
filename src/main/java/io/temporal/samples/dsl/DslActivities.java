@@ -24,9 +24,11 @@ import io.temporal.activity.ActivityInterface;
 
 @ActivityInterface
 public interface DslActivities {
-  JsonNode checkCustomerInfo(JsonNode workflowData);
+  JsonNode checkCustomerInfo();
 
-  JsonNode approveApplication(JsonNode workflowData);
+  JsonNode approveApplication();
 
-  JsonNode rejectApplication(JsonNode workflowData);
+  JsonNode rejectApplication();
+
+  JsonNode updateApplicationInfo();
 }

@@ -23,7 +23,6 @@ import static org.junit.Assert.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.serverlessworkflow.api.Workflow;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
@@ -62,13 +61,11 @@ public class DslWorkflowTest {
 
     assertNotNull(result);
     assertNotNull(result.get("customer"));
-    assertEquals("APPROVED", result.get("customer").get("applicationStatus").asText());
+    assertNotNull(result.get("decision"));
+    assertEquals("APPROVED", result.get("decision").asText());
 
-    assertNotNull(result.get("actions"));
-    ArrayNode arrayNode = (ArrayNode) result.get("actions");
-    assertEquals(2, arrayNode.size());
-    assertEquals("CheckCustomerInfo", arrayNode.get(0).asText());
-    assertEquals("ApproveApplication", arrayNode.get(1).asText());
+    assertNotNull(result.get("CheckCustomerInfo"));
+    assertNotNull(result.get("UpdateApplicationInfo"));
   }
 
   private static String getFileAsString(String fileName) throws IOException {

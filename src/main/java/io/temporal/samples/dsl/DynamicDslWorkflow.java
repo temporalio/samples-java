@@ -20,7 +20,9 @@
 package io.temporal.samples.dsl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.serverlessworkflow.api.actions.Action;
+import io.serverlessworkflow.api.events.OnEvents;
 import io.serverlessworkflow.api.interfaces.State;
 import io.serverlessworkflow.api.states.EventState;
 import io.serverlessworkflow.api.states.OperationState;
@@ -28,10 +30,8 @@ import io.serverlessworkflow.api.states.SwitchState;
 import io.serverlessworkflow.api.switchconditions.DataCondition;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.common.converter.EncodedValues;
-import io.temporal.workflow.ActivityStub;
-import io.temporal.workflow.DynamicSignalHandler;
-import io.temporal.workflow.DynamicWorkflow;
-import io.temporal.workflow.Workflow;
+import io.temporal.workflow.*;
+import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 
@@ -85,6 +85,10 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
     }
   }
 
+  private void addToWorkflowData(JsonNode toAdd) {
+    ((ObjectNode) workflowData).putAll(((ObjectNode) toAdd));
+  }
+
   /**
    * Executes the control flow logic for a dsl workflow state. Demo supports EventState,
    * OperationState, and SwitchState currently. More can be added.
@@ -95,11 +99,31 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
       // currently this demo supports only the first onEvents
       if (eventState.getOnEvents() != null && eventState.getOnEvents().size() > 0) {
         List<Action> eventStateActions = eventState.getOnEvents().get(0).getActions();
-        for (Action action : eventStateActions) {
-          // execute the action as an activity and assign its results to workflowData
-          workflowData =
-              activities.execute(
-                  action.getFunctionRef().getRefName(), JsonNode.class, workflowData);
+        if (eventState.getOnEvents().get(0).getActionMode() != null
+            && eventState
+                .getOnEvents()
+                .get(0)
+                .getActionMode()
+                .equals(OnEvents.ActionMode.PARALLEL)) {
+          List<Promise<JsonNode>> eventPromises = new ArrayList<>();
+          for (Action action : eventStateActions) {
+            eventPromises.add(
+                activities.executeAsync(
+                    action.getFunctionRef().getRefName(), JsonNode.class, workflowData));
+          }
+          // Invoke all activities in parallel. Wait for all to complete
+          Promise.allOf(eventPromises).get();
+
+          for (Promise<JsonNode> promise : eventPromises) {
+            addToWorkflowData(promise.get());
+          }
+        } else {
+          for (Action action : eventStateActions) {
+            // execute the action as an activity and assign its results to workflowData
+            addToWorkflowData(
+                activities.execute(
+                    action.getFunctionRef().getRefName(), JsonNode.class, workflowData));
+          }
         }
       }
       if (eventState.getTransition() == null || eventState.getTransition().getNextState() == null) {
@@ -111,11 +135,28 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
     } else if (dslWorkflowState instanceof OperationState) {
       OperationState operationState = (OperationState) dslWorkflowState;
       if (operationState.getActions() != null && operationState.getActions().size() > 0) {
-        for (Action action : operationState.getActions()) {
-          // execute the action as an activity and assign its results to workflowData
-          workflowData =
-              activities.execute(
-                  action.getFunctionRef().getRefName(), JsonNode.class, workflowData);
+        // Check if actions should be executed sequentially or parallel
+        if (operationState.getActionMode() != null
+            && operationState.getActionMode().equals(OperationState.ActionMode.PARALLEL)) {
+          List<Promise<JsonNode>> actionsPromises = new ArrayList<>();
+          for (Action action : operationState.getActions()) {
+            actionsPromises.add(
+                activities.executeAsync(
+                    action.getFunctionRef().getRefName(), JsonNode.class, workflowData));
+          }
+          // Invoke all activities in parallel. Wait for all to complete
+          Promise.allOf(actionsPromises).get();
+
+          for (Promise<JsonNode> promise : actionsPromises) {
+            addToWorkflowData(promise.get());
+          }
+        } else {
+          for (Action action : operationState.getActions()) {
+            // execute the action as an activity and assign its results to workflowData
+            addToWorkflowData(
+                activities.execute(
+                    action.getFunctionRef().getRefName(), JsonNode.class, workflowData));
+          }
         }
       }
       if (operationState.getTransition() == null

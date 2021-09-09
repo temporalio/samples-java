@@ -20,47 +20,53 @@
 package io.temporal.samples.dsl;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.temporal.activity.Activity;
 
 public class DslActivitiesImpl implements DslActivities {
   @Override
-  public JsonNode checkCustomerInfo(JsonNode workflowData) {
-    return updateWorkflowDataActions(
-        workflowData, Activity.getExecutionContext().getInfo().getActivityType());
-  }
-
-  @Override
-  public JsonNode approveApplication(JsonNode workflowData) {
-    workflowData =
-        updateWorkflowDataActions(
-            workflowData, Activity.getExecutionContext().getInfo().getActivityType());
-    // Simulates invocation of a rest function, just adds APPROVED status
-    return updateApplicationStatus(workflowData, "APPROVED");
-  }
-
-  @Override
-  public JsonNode rejectApplication(JsonNode workflowData) {
-    updateWorkflowDataActions(
-        workflowData, Activity.getExecutionContext().getInfo().getActivityType());
-
-    return updateApplicationStatus(workflowData, "DENIED");
-  }
-
-  private JsonNode updateWorkflowDataActions(JsonNode workflowData, String activityType) {
-    // Add a "actions" array to results to show what was executed
-    if (workflowData.get("actions") != null) {
-      ((ArrayNode) workflowData.get("actions")).add(activityType);
-    } else {
-      ((ObjectNode) workflowData).putArray("actions").add(activityType);
+  public JsonNode checkCustomerInfo() {
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      return mapper.readTree(
+          getReturnJson(Activity.getExecutionContext().getInfo().getActivityType(), "invoked"));
+    } catch (Exception e) {
+      return null;
     }
-
-    return workflowData;
   }
 
-  private JsonNode updateApplicationStatus(JsonNode workflowData, String status) {
-    ((ObjectNode) workflowData.get("customer")).put("applicationStatus", status);
-    return workflowData;
+  @Override
+  public JsonNode updateApplicationInfo() {
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      return mapper.readTree(
+          getReturnJson(Activity.getExecutionContext().getInfo().getActivityType(), "invoked"));
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  @Override
+  public JsonNode approveApplication() {
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      return mapper.readTree(getReturnJson("decision", "APPROVED"));
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  @Override
+  public JsonNode rejectApplication() {
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      return mapper.readTree(getReturnJson("decision", "DENIED"));
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  private String getReturnJson(String key, String value) {
+    return "{\n" + "  \"" + key + "\": \"" + value + "\"\n" + "}";
   }
 }
