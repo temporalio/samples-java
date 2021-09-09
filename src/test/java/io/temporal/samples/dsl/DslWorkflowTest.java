@@ -66,6 +66,7 @@ public class DslWorkflowTest {
 
     assertNotNull(result.get("CheckCustomerInfo"));
     assertNotNull(result.get("UpdateApplicationInfo"));
+    assertNotNull(result.get("ApproveApplication"));
   }
 
   private static String getFileAsString(String fileName) throws IOException {

@@ -19,9 +19,7 @@ Note that with most DSLs the workflow data is JSON, meaning that in order to man
 we need to use some sort of expression languages inside the DSL to define data manipulation expressions.
 For this sample we use JsonPath, but other expression languages can be plugged in as well.
 
-
-
-## Run sample
+## Run the sample
 
 1. Start the Worker:
 
@@ -41,17 +39,18 @@ all the activities that were executed (corespond to actions in the DSL), for exa
 
 ```json
 {
-"customer" : {
-"name" : "John",
-"age" : 22,
-"applicationStatus" : "APPROVED"
-},
-"actions" : [ "CheckCustomerInfo", "ApproveApplication" ]
+  "customer" : {
+    "name" : "John",
+    "age" : 22
+  },
+  "CheckCustomerInfo" : "invoked",
+  "UpdateApplicationInfo" : "invoked",
+  "ApproveApplication" : "invoked",
+  "decision" : "APPROVED"
 }
 ```
 
-Is a result of a run where customer age was >= 20. In this case the applicationStatus was set to "APPROVED"
-and the "actions" array includes the executed activity types that correspond to the actions in the DSL.
+Is a result of a run where customer age was >= 20. In this case the decision was set to "APPROVED".
 
 
 

@@ -50,7 +50,12 @@ public class DslActivitiesImpl implements DslActivities {
   public JsonNode approveApplication() {
     try {
       ObjectMapper mapper = new ObjectMapper();
-      return mapper.readTree(getReturnJson("decision", "APPROVED"));
+      return mapper.readTree(
+          getDecisionJson(
+              Activity.getExecutionContext().getInfo().getActivityType(),
+              "invoked",
+              "decision",
+              "APPROVED"));
     } catch (Exception e) {
       return null;
     }
@@ -60,7 +65,12 @@ public class DslActivitiesImpl implements DslActivities {
   public JsonNode rejectApplication() {
     try {
       ObjectMapper mapper = new ObjectMapper();
-      return mapper.readTree(getReturnJson("decision", "DENIED"));
+      return mapper.readTree(
+          getDecisionJson(
+              Activity.getExecutionContext().getInfo().getActivityType(),
+              "invoked",
+              "decision",
+              "DENIED"));
     } catch (Exception e) {
       return null;
     }
@@ -68,5 +78,10 @@ public class DslActivitiesImpl implements DslActivities {
 
   private String getReturnJson(String key, String value) {
     return "{\n" + "  \"" + key + "\": \"" + value + "\"\n" + "}";
+  }
+
+  private String getDecisionJson(String key1, String value1, String key2, String value2) {
+    return "{\n" + "   \"" + key1 + "\": \"" + value1 + "\",\n" + "   \"" + key2 + "\": \"" + value2
+        + "\"\n" + "}";
   }
 }
