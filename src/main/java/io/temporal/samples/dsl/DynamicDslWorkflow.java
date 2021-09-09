@@ -99,12 +99,12 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
                   action.getFunctionRef().getRefName(), JsonNode.class, workflowData);
         }
       }
-      if (eventState.getTransition() != null && eventState.getTransition().getNextState() != null) {
-        return DslWorkflowUtils.getWorkflowStateWithName(
-            eventState.getTransition().getNextState(), dslWorkflow);
-      } else {
+      if (eventState.getTransition() == null || eventState.getTransition().getNextState() == null) {
         return null;
       }
+      return DslWorkflowUtils.getWorkflowStateWithName(
+          eventState.getTransition().getNextState(), dslWorkflow);
+
     } else if (dslWorkflowState instanceof OperationState) {
       OperationState operationState = (OperationState) dslWorkflowState;
       if (operationState.getActions() != null && operationState.getActions().size() > 0) {
@@ -115,13 +115,12 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
                   action.getFunctionRef().getRefName(), JsonNode.class, workflowData);
         }
       }
-      if (operationState.getTransition() != null
-          && operationState.getTransition().getNextState() != null) {
-        return DslWorkflowUtils.getWorkflowStateWithName(
-            operationState.getTransition().getNextState(), dslWorkflow);
-      } else {
+      if (operationState.getTransition() == null
+          || operationState.getTransition().getNextState() == null) {
         return null;
       }
+      return DslWorkflowUtils.getWorkflowStateWithName(
+          operationState.getTransition().getNextState(), dslWorkflow);
     } else if (dslWorkflowState instanceof SwitchState) {
       // Demo supports only data based switch
       SwitchState switchState = (SwitchState) dslWorkflowState;
@@ -130,30 +129,27 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
         for (DataCondition dataCondition : switchState.getDataConditions()) {
           if (DslWorkflowUtils.isTrueDataCondition(
               dataCondition.getCondition(), workflowData.toPrettyString())) {
-            if (dataCondition.getTransition() != null
-                && dataCondition.getTransition().getNextState() != null) {
-              return DslWorkflowUtils.getWorkflowStateWithName(
-                  dataCondition.getTransition().getNextState(), dslWorkflow);
-            } else {
+            if (dataCondition.getTransition() == null
+                || dataCondition.getTransition().getNextState() == null) {
               return null;
             }
+            return DslWorkflowUtils.getWorkflowStateWithName(
+                dataCondition.getTransition().getNextState(), dslWorkflow);
           }
         }
         // no conditions evaluated to true, use default condition
-        if (switchState.getDefaultCondition().getTransition() != null) {
-          return DslWorkflowUtils.getWorkflowStateWithName(
-              switchState.getDefaultCondition().getTransition().getNextState(), dslWorkflow);
-        } else {
+        if (switchState.getDefaultCondition().getTransition() == null) {
           return null;
         }
+        return DslWorkflowUtils.getWorkflowStateWithName(
+            switchState.getDefaultCondition().getTransition().getNextState(), dslWorkflow);
       } else {
         // no conditions use the transition/end of default condition
-        if (switchState.getDefaultCondition().getTransition() != null) {
-          return DslWorkflowUtils.getWorkflowStateWithName(
-              switchState.getDefaultCondition().getTransition().getNextState(), dslWorkflow);
-        } else {
+        if (switchState.getDefaultCondition().getTransition() == null) {
           return null;
         }
+        return DslWorkflowUtils.getWorkflowStateWithName(
+            switchState.getDefaultCondition().getTransition().getNextState(), dslWorkflow);
       }
     } else {
       logger.error("Invalid or unsupported in demo dsl workflow state: " + dslWorkflowState);

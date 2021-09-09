@@ -53,7 +53,6 @@ public class DslActivitiesImpl implements DslActivities {
     if (workflowData.get("actions") != null) {
       ((ArrayNode) workflowData.get("actions")).add(activityType);
     } else {
-      System.out.println("********* ADDING: " + activityType);
       ((ObjectNode) workflowData).putArray("actions").add(activityType);
     }
 

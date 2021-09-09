@@ -44,34 +44,37 @@ public class Starter {
   public static void main(String[] args) {
     try {
       // Read the workflow dsl
-      Workflow dslWorkflow = Workflow.fromSource(getFileAsString("dsl/customerapplication.json"));
+      Workflow dslWorkflow = Workflow.fromSource(getFileAsString("dsl/customerapplication.yml"));
 
       // Validate dsl
       WorkflowValidator dslWorkflowValidator = new WorkflowValidatorImpl();
       if (!dslWorkflowValidator.setWorkflow(dslWorkflow).isValid()) {
-        System.out.println(
+        System.err.println(
             "Workflow DSL not valid. Consult github.com/serverlessworkflow/specification/blob/main/specification.md for more info");
         List<ValidationError> validationErrorList =
             dslWorkflowValidator.setWorkflow(dslWorkflow).validate();
         for (ValidationError error : validationErrorList) {
           System.out.println("Error: " + error.getMessage());
         }
-      } else {
-        createWorker(getTaskQueueFromDsl(dslWorkflow));
-        WorkflowOptions workflowOptions = getWorkflowOptions(dslWorkflow);
-
-        WorkflowStub workflowStub =
-            client.newUntypedWorkflowStub(dslWorkflow.getName(), workflowOptions);
-
-        // Start workflow execution
-        startWorkflow(workflowStub, dslWorkflow, getSampleWorkflowInput());
-
-        // Wait for workflow to finish
-        JsonNode result = workflowStub.getResult(JsonNode.class);
-        // Print workflow results
-        System.out.println("Workflow Results: \n" + result.toPrettyString());
+        System.exit(1);
       }
+
+      createWorker(getTaskQueueFromDsl(dslWorkflow));
+      WorkflowOptions workflowOptions = getWorkflowOptions(dslWorkflow);
+
+      WorkflowStub workflowStub =
+          client.newUntypedWorkflowStub(dslWorkflow.getName(), workflowOptions);
+
+      // Start workflow execution
+      startWorkflow(workflowStub, dslWorkflow, getSampleWorkflowInput());
+
+      // Wait for workflow to finish
+      JsonNode result = workflowStub.getResult(JsonNode.class);
+      // Print workflow results
+      System.out.println("Workflow Results: \n" + result.toPrettyString());
+
     } catch (Exception e) {
+      e.printStackTrace();
       System.out.println("Error: " + e.getMessage());
     }
 
@@ -79,7 +82,7 @@ public class Starter {
   }
 
   private static JsonNode getSampleWorkflowInput() throws Exception {
-    String workflowDataInput = getFileAsString("dsl/datainput.yml");
+    String workflowDataInput = getFileAsString("dsl/datainput.json");
     ObjectMapper objectMapper = new ObjectMapper();
     return objectMapper.readTree(workflowDataInput);
   }
