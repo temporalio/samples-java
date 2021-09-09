@@ -40,6 +40,7 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
   private io.serverlessworkflow.api.Workflow dslWorkflow;
   private JsonNode workflowData;
   private Logger logger = Workflow.getLogger(DynamicDslWorkflow.class);
+  ActivityStub activities;
 
   @Override
   public Object execute(EncodedValues args) {
@@ -59,23 +60,23 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
     // Get the activity options that are set from properties in dsl
     ActivityOptions activityOptions = DslWorkflowUtils.getActivityOptionsFromDsl(dslWorkflow);
     // Create a dynamic activities stub to be used for all actions in dsl
-    ActivityStub activities = Workflow.newUntypedActivityStub(activityOptions);
+    activities = Workflow.newUntypedActivityStub(activityOptions);
 
     // Start going through the dsl workflow states and execute depending on their instructions
-    executeDslWorkflowFrom(DslWorkflowUtils.getStartingWorkflowState(dslWorkflow), activities);
+    executeDslWorkflowFrom(DslWorkflowUtils.getStartingWorkflowState(dslWorkflow));
 
     // Return the final workflow data as result
     return workflowData;
   }
 
   /** Executes workflow according to the dsl control flow logic */
-  private void executeDslWorkflowFrom(State dslWorkflowState, ActivityStub activities) {
+  private void executeDslWorkflowFrom(State dslWorkflowState) {
     // This demo supports 3 states: Event State, Operation State and Switch state (data-based
     // switch)
     if (dslWorkflowState != null) {
       // execute the state and return the next workflow state depending on control flow logic in dsl
       // if next state is null it means that we need to stop execution
-      executeDslWorkflowFrom(executeStateAndReturnNext(dslWorkflowState, activities), activities);
+      executeDslWorkflowFrom(executeStateAndReturnNext(dslWorkflowState));
     } else {
       // done
       return;
@@ -86,7 +87,7 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
    * Executes the control flow logic for a dsl workflow state. Demo supports EventState,
    * OperationState, and SwitchState currently. More can be added.
    */
-  private State executeStateAndReturnNext(State dslWorkflowState, ActivityStub activities) {
+  private State executeStateAndReturnNext(State dslWorkflowState) {
     if (dslWorkflowState instanceof EventState) {
       EventState eventState = (EventState) dslWorkflowState;
       // currently this demo supports only the first onEvents
