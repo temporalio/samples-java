@@ -36,6 +36,10 @@ dependencies {
     implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '2.2.0'
     implementation group: 'io.cloudevents', name: 'cloudevents-api', version: '2.2.0'
     implementation group: 'io.cloudevents', name: 'cloudevents-json-jackson', version: '2.2.0'
+    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-api', version: '3.0.0.Final'
+    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-validation', version: '3.0.0.Final'
+    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-spi', version: '3.0.0.Final'
+    implementation group: 'com.jayway.jsonpath', name: 'json-path', version: '2.6.0'
 
     testImplementation group: 'io.temporal', name: 'temporal-testing', version: '1.2.0'
     testImplementation group: 'io.temporal', name: 'temporal-testing-junit4', version: '1.2.0'
@@ -43,8 +47,6 @@ dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.12.4'
     testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.9'
-
-
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.0-M1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.0-M1'
@@ -70,6 +72,8 @@ task execute(type: JavaExec) {
 
 license {
     header rootProject.file('license-header.txt')
+    exclude '**/*.json'
+    exclude '**/*.yml'
 }
 
 // Executes most of the hello workflows as a sanity check
