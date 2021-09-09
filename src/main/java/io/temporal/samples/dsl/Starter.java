@@ -31,7 +31,6 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
 import io.temporal.serviceclient.WorkflowServiceStubs;
-import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import java.util.List;
 
@@ -59,7 +58,6 @@ public class Starter {
         System.exit(1);
       }
 
-      createWorker(getTaskQueueFromDsl(dslWorkflow));
       WorkflowOptions workflowOptions = getWorkflowOptions(dslWorkflow);
 
       WorkflowStub workflowStub =
@@ -74,8 +72,8 @@ public class Starter {
       System.out.println("Workflow Results: \n" + result.toPrettyString());
 
     } catch (Exception e) {
-      e.printStackTrace();
-      System.out.println("Error: " + e.getMessage());
+      System.err.println("Error: " + e.getMessage());
+      System.exit(1);
     }
 
     System.exit(0);
@@ -85,13 +83,5 @@ public class Starter {
     String workflowDataInput = getFileAsString("dsl/datainput.json");
     ObjectMapper objectMapper = new ObjectMapper();
     return objectMapper.readTree(workflowDataInput);
-  }
-
-  public static void createWorker(String taskQueue) {
-    Worker worker = factory.newWorker(taskQueue);
-    worker.registerWorkflowImplementationTypes(DynamicDslWorkflow.class);
-    worker.registerActivitiesImplementations(new DslActivitiesImpl());
-
-    factory.start();
   }
 }

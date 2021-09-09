@@ -22,6 +22,15 @@ For this sample we use JsonPath, but other expression languages can be plugged i
 
 
 ## Run sample
+
+1. Start the Worker:
+
+```bash
+./gradlew -q execute -PmainClass=io.temporal.samples.dsl.Worker
+```
+
+2. Start the Starter
+
 ```bash
 ./gradlew -q execute -PmainClass=io.temporal.samples.dsl.Starter
 ```

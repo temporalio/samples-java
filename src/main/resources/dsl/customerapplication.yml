@@ -9,8 +9,6 @@ retries:
   - name: WorkflowRetries
     delay: PT3S
     maxAttempts: 10
-metadata:
-  taskqueue: dsltaskqueue
 start: NewCustomerApplication
 states:
   - name: NewCustomerApplication

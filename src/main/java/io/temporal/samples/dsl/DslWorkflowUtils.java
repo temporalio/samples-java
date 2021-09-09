@@ -40,9 +40,6 @@ import java.util.List;
 /** Provides utility methods for dealing with DSL */
 public class DslWorkflowUtils {
 
-  // Default task queue name if not specified in dsl
-  public static final String DEFAULT_TASK_QUEUE_NAME = "defaultdsltaskqueue";
-
   /** Set workflow options from DSL */
   public static WorkflowOptions getWorkflowOptions(Workflow workflow) {
     WorkflowOptions.Builder dslWorkflowOptionsBuilder = WorkflowOptions.newBuilder();
@@ -51,7 +48,7 @@ public class DslWorkflowUtils {
       dslWorkflowOptionsBuilder.setWorkflowId(workflow.getId());
     }
 
-    dslWorkflowOptionsBuilder.setTaskQueue(getTaskQueueFromDsl(workflow));
+    dslWorkflowOptionsBuilder.setTaskQueue(Worker.DEFAULT_TASK_QUEUE_NAME);
 
     if (workflow.getTimeouts() != null
         && workflow.getTimeouts().getWorkflowExecTimeout() != null
@@ -105,17 +102,6 @@ public class DslWorkflowUtils {
   public static String getFileAsString(String fileName) throws IOException {
     File file = new File(Starter.class.getClassLoader().getResource(fileName).getFile());
     return new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8);
-  }
-
-  /** Get the task queue from DSL */
-  public static String getTaskQueueFromDsl(Workflow workflow) {
-    if (workflow.getMetadata() != null
-        && workflow.getMetadata().size() > 0
-        && workflow.getMetadata().get("taskqueue") != null) {
-      return workflow.getMetadata().get("taskqueue");
-    } else {
-      return DEFAULT_TASK_QUEUE_NAME;
-    }
   }
 
   /** Start workflow execution depending on the DSL */

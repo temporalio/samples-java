@@ -15,9 +15,6 @@
       "maxAttempts": 10
     }
   ],
-  "metadata": {
-    "taskqueue": "dsltaskqueue"
-  },
   "start": "NewCustomerApplication",
   "states": [
     {
