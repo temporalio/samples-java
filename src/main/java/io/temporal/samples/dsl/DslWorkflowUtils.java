@@ -114,10 +114,12 @@ public class DslWorkflowUtils {
       String eventName = eventState.getOnEvents().get(0).getEventRefs().get(0);
       // send input data as signal data
       return workflowStub.signalWithStart(
-          eventName, new Object[] {workflowInput}, new Object[] {Workflow.toJson(dslWorkflow)});
+          eventName,
+          new Object[] {workflowInput},
+          new Object[] {dslWorkflow.getId(), dslWorkflow.getVersion()});
     } else {
       // directly send input data to workflow
-      return workflowStub.start(Workflow.toJson(dslWorkflow), workflowInput);
+      return workflowStub.start(dslWorkflow.getId(), dslWorkflow.getVersion(), workflowInput);
     }
   }
 

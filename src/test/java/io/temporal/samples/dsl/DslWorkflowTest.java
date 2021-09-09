@@ -46,7 +46,7 @@ public class DslWorkflowTest {
 
   @Test
   public void testDslWorkflow() throws Exception {
-    Workflow dslWorkflow = Workflow.fromSource(getFileAsString("dsl/customerapplication.yml"));
+    Workflow dslWorkflow = DslWorkflowCache.getWorkflow("customerapplication", "1.0");
 
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build();
@@ -56,7 +56,7 @@ public class DslWorkflowTest {
             .getWorkflowClient()
             .newUntypedWorkflowStub(dslWorkflow.getName(), workflowOptions);
 
-    workflow.start(Workflow.toJson(dslWorkflow), getSampleWorkflowInput());
+    workflow.start(dslWorkflow.getId(), dslWorkflow.getVersion(), getSampleWorkflowInput());
 
     JsonNode result = workflow.getResult(JsonNode.class);
 

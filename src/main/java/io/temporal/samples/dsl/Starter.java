@@ -42,8 +42,8 @@ public class Starter {
 
   public static void main(String[] args) {
     try {
-      // Read the workflow dsl
-      Workflow dslWorkflow = Workflow.fromSource(getFileAsString("dsl/customerapplication.yml"));
+      // Get the workflow dsl from cache
+      Workflow dslWorkflow = DslWorkflowCache.getWorkflow("customerapplication", "1.0");
 
       // Validate dsl
       WorkflowValidator dslWorkflowValidator = new WorkflowValidatorImpl();

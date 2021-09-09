@@ -45,10 +45,12 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
   @Override
   public Object execute(EncodedValues args) {
     // Get first input and convert to SW Workflow object
-    String dsl = args.get(0, String.class);
-    dslWorkflow = io.serverlessworkflow.api.Workflow.fromSource(dsl);
+    String dslWorkflowId = args.get(0, String.class);
+    String dslWorkflowVersion = args.get(1, String.class);
     // Get second input which is set to workflowData
-    workflowData = args.get(1, JsonNode.class);
+    workflowData = args.get(2, JsonNode.class);
+
+    dslWorkflow = DslWorkflowCache.getWorkflow(dslWorkflowId, dslWorkflowVersion);
 
     // Register dynamic signal handler
     // For demo signals input sets the workflowData
