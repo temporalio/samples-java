@@ -51,9 +51,7 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
     workflowData = args.get(2, JsonNode.class);
 
     // Using a global shared workflow object here is only allowed because its
-    // assumed that at this point it is the sample across all workflow worker restarts
-    // If for some reason this is not the case in your impl then parsing the dsl at this
-    // point would be required
+    // assumed that at this point it is immutable and the same across all workflow worker restarts
     dslWorkflow = DslWorkflowCache.getWorkflow(dslWorkflowId, dslWorkflowVersion);
 
     // Register dynamic signal handler
