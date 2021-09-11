@@ -26,11 +26,13 @@ import io.serverlessworkflow.api.events.OnEvents;
 import io.serverlessworkflow.api.interfaces.State;
 import io.serverlessworkflow.api.states.EventState;
 import io.serverlessworkflow.api.states.OperationState;
+import io.serverlessworkflow.api.states.SleepState;
 import io.serverlessworkflow.api.states.SwitchState;
 import io.serverlessworkflow.api.switchconditions.DataCondition;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.common.converter.EncodedValues;
 import io.temporal.workflow.*;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -123,10 +125,16 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
           }
         } else {
           for (Action action : eventStateActions) {
+            if (action.getSleep() != null && action.getSleep().getBefore() != null) {
+              Workflow.sleep(Duration.parse(action.getSleep().getBefore()));
+            }
             // execute the action as an activity and assign its results to workflowData
             addToWorkflowData(
                 activities.execute(
                     action.getFunctionRef().getRefName(), JsonNode.class, workflowData));
+            if (action.getSleep() != null && action.getSleep().getAfter() != null) {
+              Workflow.sleep(Duration.parse(action.getSleep().getAfter()));
+            }
           }
         }
       }
@@ -156,10 +164,16 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
           }
         } else {
           for (Action action : operationState.getActions()) {
+            if (action.getSleep() != null && action.getSleep().getBefore() != null) {
+              Workflow.sleep(Duration.parse(action.getSleep().getBefore()));
+            }
             // execute the action as an activity and assign its results to workflowData
             addToWorkflowData(
                 activities.execute(
                     action.getFunctionRef().getRefName(), JsonNode.class, workflowData));
+            if (action.getSleep() != null && action.getSleep().getAfter() != null) {
+              Workflow.sleep(Duration.parse(action.getSleep().getAfter()));
+            }
           }
         }
       }
@@ -199,6 +213,16 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
         return DslWorkflowUtils.getWorkflowStateWithName(
             switchState.getDefaultCondition().getTransition().getNextState(), dslWorkflow);
       }
+    } else if (dslWorkflowState instanceof SleepState) {
+      SleepState sleepState = (SleepState) dslWorkflowState;
+      if (sleepState.getDuration() != null) {
+        Workflow.sleep(Duration.parse(sleepState.getDuration()));
+      }
+      if (sleepState.getTransition() == null || sleepState.getTransition().getNextState() == null) {
+        return null;
+      }
+      return DslWorkflowUtils.getWorkflowStateWithName(
+          sleepState.getTransition().getNextState(), dslWorkflow);
     } else {
       logger.error("Invalid or unsupported in demo dsl workflow state: " + dslWorkflowState);
       return null;

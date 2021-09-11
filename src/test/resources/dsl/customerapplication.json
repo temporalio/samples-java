@@ -59,7 +59,10 @@
       "actions": [
         {
           "name": "Invoke Approve Application Function",
-          "functionRef": "ApproveApplication"
+          "functionRef": "ApproveApplication",
+          "sleep": {
+            "before": "PT1S"
+          }
         }
       ],
       "end": true
@@ -70,7 +73,10 @@
       "actions": [
         {
           "name": "Invoke Reject Application Function",
-          "functionRef": "RejectApplication"
+          "functionRef": "RejectApplication",
+          "sleep": {
+            "before": "PT1S"
+          }
         }
       ],
       "end": true
