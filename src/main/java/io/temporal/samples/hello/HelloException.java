@@ -20,6 +20,7 @@
 package io.temporal.samples.hello;
 
 import com.google.common.base.Throwables;
+import io.temporal.activity.Activity;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
@@ -159,7 +160,7 @@ public class HelloException {
          * The original checked exception will be unwrapped and attached as the cause to the
          * {@link io.temporal.failure.ActivityFailure}
          */
-        throw Workflow.wrap(e);
+        throw Activity.wrap(e);
       }
     }
   }
