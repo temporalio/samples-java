@@ -37,12 +37,16 @@ states:
     actions:
       - name: Invoke Approve Application Function
         functionRef: ApproveApplication
+        sleep:
+          before: PT1S
     end: true
   - name: RejectApplication
     type: operation
     actions:
       - name: Invoke Reject Application Function
         functionRef: RejectApplication
+        sleep:
+          before: PT1S
     end: true
 functions:
   - name: CheckCustomerInfo
