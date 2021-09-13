@@ -22,7 +22,6 @@ package io.temporal.samples.fileprocessing;
 import com.google.common.io.Files;
 import com.google.common.io.Resources;
 import io.temporal.activity.Activity;
-import io.temporal.workflow.Workflow;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -46,7 +45,7 @@ public class StoreActivitiesImpl implements StoreActivities {
           "download activity: downloaded from " + url + " to " + destination.getAbsolutePath());
       return new TaskQueueFileNamePair(hostSpecificTaskQueue, destination.getAbsolutePath());
     } catch (IOException e) {
-      throw Workflow.wrap(e);
+      throw Activity.wrap(e);
     }
   }
 
