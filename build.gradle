@@ -41,7 +41,7 @@ dependencies {
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-spi', version: '3.0.0.Final'
     implementation group: 'com.jayway.jsonpath', name: 'json-path', version: '2.6.0'
 
-    testImplementation group: 'io.temporal', name: 'temporal-testing', version: '1.3.0'
+    testImplementation group: 'io.temporal', name: 'temporal-testing', version: '1.3.1'
     testImplementation group: 'io.temporal', name: 'temporal-testing-junit4', version: '1.3.0'
     testImplementation group: 'io.temporal', name: 'temporal-testing-junit5', version: '1.3.0'
     testImplementation group: 'junit', name: 'junit', version: '4.13.2'
