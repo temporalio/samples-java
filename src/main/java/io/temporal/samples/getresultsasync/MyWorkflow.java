@@ -17,15 +17,13 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.startasync;
+package io.temporal.samples.getresultsasync;
 
-import io.temporal.workflow.Workflow;
-import java.time.Duration;
+import io.temporal.workflow.WorkflowInterface;
+import io.temporal.workflow.WorkflowMethod;
 
-public class MyWorkflowImpl implements MyWorkflow {
-  @Override
-  public String justSleep(int seconds) {
-    Workflow.sleep(Duration.ofSeconds(seconds));
-    return "woke up after " + seconds + " seconds";
-  }
+@WorkflowInterface
+public interface MyWorkflow {
+  @WorkflowMethod
+  String justSleep(int seconds);
 }

@@ -17,22 +17,15 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.startasync;
+package io.temporal.samples.getresultsasync;
 
-import io.temporal.client.WorkflowClient;
-import io.temporal.serviceclient.WorkflowServiceStubs;
-import io.temporal.worker.WorkerFactory;
+import io.temporal.workflow.Workflow;
+import java.time.Duration;
 
-public class Worker {
-  public static final WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
-  public static final WorkflowClient client = WorkflowClient.newInstance(service);
-  public static final WorkerFactory factory = WorkerFactory.newInstance(client);
-  public static final String TASK_QUEUE_NAME = "asyncstartqueue";
-
-  public static void main(String[] args) {
-    io.temporal.worker.Worker worker = factory.newWorker(TASK_QUEUE_NAME);
-    worker.registerWorkflowImplementationTypes(MyWorkflowImpl.class);
-
-    factory.start();
+public class MyWorkflowImpl implements MyWorkflow {
+  @Override
+  public String justSleep(int seconds) {
+    Workflow.sleep(Duration.ofSeconds(seconds));
+    return "woke up after " + seconds + " seconds";
   }
 }
