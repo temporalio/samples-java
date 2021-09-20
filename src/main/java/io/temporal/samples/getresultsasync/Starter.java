@@ -26,7 +26,8 @@ import io.temporal.client.WorkflowStub;
 public class Starter {
 
   /**
-   * Show the use and difference between getResult and getResultAsync for waiting on workflow results.
+   * Show the use and difference between getResult and getResultAsync for waiting on workflow
+   * results.
    */
   public static void main(String[] args) {
     MyWorkflow workflowStub1 =
@@ -52,6 +53,7 @@ public class Starter {
     WorkflowStub untypedStub2 = WorkflowStub.fromTyped(workflowStub2);
 
     // getResultAsync returns a CompletableFuture
+    // It is not a blocking call like getResult(...)
     untypedStub2
         .getResultAsync(String.class)
         .thenApply(
@@ -61,7 +63,10 @@ public class Starter {
             });
 
     System.out.println("Waiting on result2...");
-    sleep(7); // wait 2 seconds longer to show getResultsAsync is not blocking
+    // Our workflow sleeps for 5 seconds (async)
+    // Here we block the thread (Thread.sleep) for 7 (2 more than the workflow exec time)
+    // To show that getResultsAsync completion happens during this time (async)
+    sleep(7);
     System.out.println("Done waiting on result2...");
     System.exit(0);
   }

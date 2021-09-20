@@ -123,6 +123,9 @@ All tests are available under [src/test/java](https://github.com/temporalio/samp
 
 - [**Terminate Workflow**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/terminateworkflow): Demonstrates how to terminate a workflow using client API.
 
+- [**Get Workflow Results Async**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/getresultsasync): Demonstrates how to start and get workflow results in async manner.
+
+
 <!-- @@@SNIPEND -->
 
 ## IDE Integration
