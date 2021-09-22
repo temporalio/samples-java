@@ -96,6 +96,10 @@ public class HelloCancellationScope {
   // Define the workflow implementation which implements our getGreeting workflow method.
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
+    private static final int ACTIVITY_MAX_SLEEP_SECONDS = 30;
+    private static final int ACTIVITY_MAX_CLEANUP_SECONDS = 5;
+    private static final int ACTIVITY_START_TO_CLOSE_TIMEOUT = ACTIVITY_MAX_SLEEP_SECONDS + ACTIVITY_MAX_CLEANUP_SECONDS + 10;
+
     private static final String[] greetings =
         new String[] {"Hello", "Bye", "Hola", "Привет", "Oi", "Hallo"};
 
@@ -119,7 +123,7 @@ public class HelloCancellationScope {
         Workflow.newActivityStub(
             GreetingActivities.class,
             ActivityOptions.newBuilder()
-                .setStartToCloseTimeout(Duration.ofSeconds(10))
+                .setStartToCloseTimeout(Duration.ofSeconds(ACTIVITY_START_TO_CLOSE_TIMEOUT))
                 .setCancellationType(ActivityCancellationType.WAIT_CANCELLATION_COMPLETED)
                 .build());
 
@@ -186,7 +190,7 @@ public class HelloCancellationScope {
 
       // simulate a random time this activity should execute for
       Random random = new Random();
-      int seconds = random.nextInt(30) + 2;
+      int seconds = random.nextInt(GreetingWorkflowImpl.ACTIVITY_MAX_SLEEP_SECONDS - 2) + 2;
       System.out.println("Activity for " + greeting + " going to take " + seconds + " seconds");
 
       for (int i = 0; i < seconds; i++) {
@@ -207,7 +211,7 @@ public class HelloCancellationScope {
            *
            * The following code simulates our activity after cancellation "cleanup"
            */
-          seconds = random.nextInt(5);
+          seconds = random.nextInt(GreetingWorkflowImpl.ACTIVITY_MAX_CLEANUP_SECONDS);
           System.out.println(
               "Activity for "
                   + greeting
@@ -276,7 +280,7 @@ public class HelloCancellationScope {
      */
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
-    /**
+    /*
      * Register our Activity Types with the Worker. Since Activities are stateless and thread-safe,
      * the Activity Type is a shared instance.
      */
