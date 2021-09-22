@@ -36,7 +36,7 @@ This repository contains sample Workflow applications that demonstrate various c
        cd  docker-compose
        docker-compose up
 
-Note that for the "listworkflows" example you need to have the Elasticsearch feature 
+Note that for the "listworkflows" example you need to have the Elasticsearch feature
 enabled on the Temporal Server side. To do this you can run locally with:
 
        git clone https://github.com/temporalio/docker-compose.git
@@ -50,9 +50,14 @@ Note that in this case you should use the [Temporal CLI (tctl)](https://docs.tem
 
 ## Temporal Web UI
 
-The Temporal Server running in a docker container includes a Web UI.
+The Temporal Server running in a docker container includes a Web UI, exposed by default on port 8088 of the docker host.
+If you are running Docker on your host, you can connect to the WebUI running using a browser and opening the following URI:
 
-Connect to [http://localhost:8088](http://localhost:8088).
+[http://localhost:8088](http://localhost:8088)
+
+If you are running Docker on a different host (e.g.: a virtual machine), then modify the URI accordingly by specifying the correct host and the correct port.
+
+[http://${DOCKER_HOST}:${WEBUI_PORT}](http://${DOCKER_HOST}:${WEBUI_PORT}).
 
 If you have deployed the Temporal Server on Kubernetes using Helm Charts, you can use the kubectl command-line tool
 to forward your local machine ports to the Temporal Web UI:
@@ -61,6 +66,17 @@ to forward your local machine ports to the Temporal Web UI:
         kubectl port-forward services/temporaltest-frontend-headless 7233:7233
 
 With this you should be able to access the Temporal Web UI with [http://localhost:8088](http://localhost:8088).
+
+## Running samples
+
+By default, samples assume relevant Temporal container ports are listening on `localhost`, on port `7233`.
+If this is not the case, you can tunnel traffic to this port to a different one (even running on a different host), using for example `netcat`, `socat`, or `ssh`.
+
+If, for example, you're running Docker on a virtual machine `vm`, you can use `ssh` to tunnel the traffic using the following command before running the samples:
+
+```
+ssh -g -L 7233:localhost:7233 -N user@vm
+```
 
 ## Samples directory
 
