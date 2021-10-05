@@ -98,7 +98,8 @@ public class HelloCancellationScope {
 
     private static final int ACTIVITY_MAX_SLEEP_SECONDS = 30;
     private static final int ACTIVITY_MAX_CLEANUP_SECONDS = 5;
-    private static final int ACTIVITY_START_TO_CLOSE_TIMEOUT = ACTIVITY_MAX_SLEEP_SECONDS + ACTIVITY_MAX_CLEANUP_SECONDS + 10;
+    private static final int ACTIVITY_START_TO_CLOSE_TIMEOUT =
+        ACTIVITY_MAX_SLEEP_SECONDS + ACTIVITY_MAX_CLEANUP_SECONDS + 10;
 
     private static final String[] greetings =
         new String[] {"Hello", "Bye", "Hola", "Привет", "Oi", "Hallo"};
