@@ -74,7 +74,7 @@ public class FileProcessingWorkflowImpl implements FileProcessingWorkflow {
             .setTaskQueue(downloaded.getHostTaskQueue())
             // Set the max time of a single activity execution attempt.
             // Activity is going to be executed by a Worker listening to the specified
-            // host task queue. In the activity is started but then the activity worker crashes
+            // host task queue. If the activity is started but then the activity worker crashes
             // for some reason, we want to make sure that it is retried after the specified timeout.
             // This timeout should be be as short as the longest possible execution of the Activity.
             .setStartToCloseTimeout(Duration.ofSeconds(1))
