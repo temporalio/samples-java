@@ -73,13 +73,11 @@ public class FileProcessingWorkflowImpl implements FileProcessingWorkflow {
         ActivityOptions.newBuilder()
             .setTaskQueue(downloaded.getHostTaskQueue())
             // Set the amount a time an activity task can stay in the task queue before its picked
-            // up by a
-            // Worker. It allows us to support cases where the activity worker crashes or restarts
-            // before
-            // the activity starts execution.
+            // up by a Worker. It allows us to support cases where
+            // the activity worker crashes or restarts before the activity starts execution.
             // This timeout should be specified only when host specific activity task queues are
             // used like in this sample.
-            .setScheduleToStartTimeout(Duration.ofSeconds(1))
+            .setScheduleToStartTimeout(Duration.ofSeconds(10))
             // Set the max time of a single activity execution attempt.
             // Activity is going to be executed by a Worker listening to the specified
             // host task queue. If the activity is started but then the activity worker crashes
