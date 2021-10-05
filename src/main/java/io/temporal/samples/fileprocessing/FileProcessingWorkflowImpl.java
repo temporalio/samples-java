@@ -77,6 +77,8 @@ public class FileProcessingWorkflowImpl implements FileProcessingWorkflow {
             // the activity worker crashes or restarts before the activity starts execution.
             // This timeout should be specified only when host specific activity task queues are
             // used like in this sample.
+            // Note that scheduleToStart timeout is not retryable and retry options will ignore it.
+            // This timeout has to be handled by Workflow code.
             .setScheduleToStartTimeout(Duration.ofSeconds(10))
             // Set the max time of a single activity execution attempt.
             // Activity is going to be executed by a Worker listening to the specified
