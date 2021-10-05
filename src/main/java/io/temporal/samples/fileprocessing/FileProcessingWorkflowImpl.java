@@ -72,7 +72,20 @@ public class FileProcessingWorkflowImpl implements FileProcessingWorkflow {
     ActivityOptions hostActivityOptions =
         ActivityOptions.newBuilder()
             .setTaskQueue(downloaded.getHostTaskQueue())
-            .setStartToCloseTimeout(Duration.ofSeconds(10))
+            // Set the amount a time an activity task can stay in the task queue before its picked
+            // up by a Worker. It allows us to support cases where
+            // the activity worker crashes or restarts before the activity starts execution.
+            // This timeout should be specified only when host specific activity task queues are
+            // used like in this sample.
+            // Note that scheduleToStart timeout is not retryable and retry options will ignore it.
+            // This timeout has to be handled by Workflow code.
+            .setScheduleToStartTimeout(Duration.ofSeconds(10))
+            // Set the max time of a single activity execution attempt.
+            // Activity is going to be executed by a Worker listening to the specified
+            // host task queue. If the activity is started but then the activity worker crashes
+            // for some reason, we want to make sure that it is retried after the specified timeout.
+            // This timeout should be be as short as the longest possible execution of the Activity.
+            .setStartToCloseTimeout(Duration.ofSeconds(2))
             .setRetryOptions(
                 RetryOptions.newBuilder()
                     .setInitialInterval(Duration.ofSeconds(1))
