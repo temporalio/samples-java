@@ -93,6 +93,8 @@ public class Starter {
     // signal exit to all customer workflows
     stopWorkflows(customers);
 
+    // sleep for 3 seconds before we shut down the worker
+    sleep(3);
     System.exit(0);
   }
 
@@ -146,6 +148,14 @@ public class Starter {
           client.newWorkflowStub(CustomerWorkflow.class, c.getAccountNum());
       // signal the exist method to stop execution
       existingCustomerWorkflow.exit();
+    }
+  }
+
+  private static void sleep(int seconds) {
+    try {
+      Thread.sleep(seconds * 1000);
+    } catch (InterruptedException ee) {
+      ee.printStackTrace();
     }
   }
 }
