@@ -50,8 +50,7 @@ public final class UpdatableTimer {
   }
 
   public void updateWakeUpTime(long wakeUpTime) {
-    LocalDateTime date =
-        Instant.ofEpochMilli(wakeUpTime).atZone(ZoneId.of("UTC")).toLocalDateTime();
+    LocalDateTime date = Instant.ofEpochMilli(wakeUpTime).atZone(ZoneId.of("UTC")).toLocalDateTime();
     logger.info("updateWakeUpTime: " + date + " UTC");
     this.wakeUpTime = wakeUpTime;
     this.wakeUpTimeUpdated = true;
