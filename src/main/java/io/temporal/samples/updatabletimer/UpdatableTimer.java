@@ -35,8 +35,8 @@ public final class UpdatableTimer {
 
   public void sleepUntil(long wakeUpTime) {
     Instant wakeUpInstant = Instant.ofEpochMilli(wakeUpTime);
-    LocalDateTime date = wakeUpInstant.atZone(ZoneId.systemDefault()).toLocalDateTime();
-    logger.info("sleepUntil: " + date);
+    LocalDateTime date = wakeUpInstant.atZone(ZoneId.of("UTC")).toLocalDateTime();
+    logger.info("sleepUntil: " + date + " UTC");
     this.wakeUpTime = wakeUpTime;
     while (true) {
       wakeUpTimeUpdated = false;
@@ -50,6 +50,9 @@ public final class UpdatableTimer {
   }
 
   public void updateWakeUpTime(long wakeUpTime) {
+    LocalDateTime date =
+        Instant.ofEpochMilli(wakeUpTime).atZone(ZoneId.of("UTC")).toLocalDateTime();
+    logger.info("updateWakeUpTime: " + date + " UTC");
     this.wakeUpTime = wakeUpTime;
     this.wakeUpTimeUpdated = true;
   }
