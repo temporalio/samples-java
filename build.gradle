@@ -38,7 +38,7 @@ dependencies {
     implementation group: 'io.cloudevents', name: 'cloudevents-json-jackson', version: '2.2.0'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-api', version: '3.0.0.Final'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-validation', version: '4.0.0.Final'
-    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-spi', version: '3.0.0.Final'
+    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-spi', version: '4.0.0.Final'
     implementation group: 'com.jayway.jsonpath', name: 'json-path', version: '2.6.0'
 
     testImplementation group: 'io.temporal', name: 'temporal-testing', version: '1.5.0'
