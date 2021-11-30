@@ -33,20 +33,15 @@ Then run the updater as many times as you want to change timer to 10 seconds fro
 
 ```bash
 ./gradlew -q execute -PmainClass=io.temporal.samples.updatabletimer.WakeUpTimeUpdater
-```
- . . .
-```bash
 ./gradlew -q execute -PmainClass=io.temporal.samples.updatabletimer.WakeUpTimeUpdater
 ```
 
 Check the output of the worker window. The expected output is:
 
 ```
+[...]
 11:39:37.740 [signal updateWakeUpTime] INFO  i.t.s.updatabletimer.UpdatableTimer - updateWakeUpTime: 2021-11-30T19:39:47.552Z
 11:39:37.740 [workflow-method] INFO  i.t.s.updatabletimer.UpdatableTimer - Going to sleep for PT9.841S
-```
- . . .
-```
 11:39:44.679 [signal updateWakeUpTime] INFO  i.t.s.updatabletimer.UpdatableTimer - updateWakeUpTime: 2021-11-30T19:39:54.494Z
 11:39:44.680 [workflow-method] INFO  i.t.s.updatabletimer.UpdatableTimer - Going to sleep for PT9.838S
 11:39:54.565 [workflow-method] INFO  i.t.s.updatabletimer.UpdatableTimer - sleepUntil completed
