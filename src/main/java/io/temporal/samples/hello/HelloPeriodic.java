@@ -25,14 +25,18 @@ import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowExecutionAlreadyStarted;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.client.WorkflowStub;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import io.temporal.workflow.SignalMethod;
 import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 import java.util.Random;
+import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Sample Temporal workflow that demonstrates periodic workflow execution with a random delay. To
@@ -65,12 +69,16 @@ public class HelloPeriodic {
      * Execution completes when this method finishes execution.
      */
     @WorkflowMethod
-    void greetPeriodically(String name);
+    boolean greetPeriodically(String name);
+
+    /** Users will invoke this signal when they want the main workflow loop to complete. */
+    @SignalMethod
+    void requestExit();
   }
 
   /**
    * This is the Activity Definition's Interface. Activities are building blocks of any Temporal
-   * Workflow and contain any business logic that could perform long running computation, network
+   * Workflow and contain any business logic that could perform long-running computation, network
    * calls, etc.
    *
    * <p>Annotating Activity Definition methods with @ActivityMethod is optional.
@@ -88,14 +96,33 @@ public class HelloPeriodic {
   // Define the workflow implementation which implements the greetPeriodically workflow method.
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
+    // In this example, we use an internal of 10 seconds with an intended variation of +/- 2 seconds
+    // between executions of some useful work. In real applications a higher value may be more
+    // appropriate, for example one that matches a business cycle of several hours or even days.
+    private static class ScheduleConfig {
+      static final int PeriodTargetSecs = 10;
+      static final int PeriodVariationSecs = 4;
+    }
+
+    // The max history length of a single Temporal workflow is limited.
+    // Therefore, we cannot loop indefinitely. Instead, we use the ContinueAsNew
+    // feature to flow the logical execution thread to a new workflow run instance
+    // (same approach is used by Temporal's Cron-style scheduling system as well).
+    // In real life, the complexity of the workflow affects when we need to flow to a
+    // new run. For a simple workflow such as this, we could perform many thousands
+    // of iterations. However, for demonstration purposes we will flow to a few run
+    // more frequently.
+    // More details: https://docs.temporal.io/docs/java/workflows/#large-event-histories
+    private static final int SingleWorkflowRunIterations = 10;
+
     // Here we introduce a random delay between periodic executions
     private final Random random = Workflow.newRandom();
 
     /**
      * Define the GreetingActivities stub. Activity stubs are proxies for activity invocations that
-     * are executed outside of the workflow thread on the activity worker, that can be on a
-     * different host. Temporal is going to dispatch the activity results back to the workflow and
-     * unblock the stub as soon as activity is completed on the activity worker.
+     * are executed outside the workflow thread on the activity worker, that can be on a different
+     * host. Temporal is going to dispatch the activity results back to the workflow and unblock the
+     * stub as soon as activity is completed on the activity worker.
      *
      * <p>In the {@link ActivityOptions} definition the "setStartToCloseTimeout" option sets the
      * maximum time of a single Activity execution attempt. For this example it is set to 10
@@ -106,31 +133,54 @@ public class HelloPeriodic {
             GreetingActivities.class,
             ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(10)).build());
 
-    // Create our workflow stub that can be used to continue this workflow as a new run
-    // We use this because we want each workflow execution to be a separate workflow invocation
-    private final GreetingWorkflow continueAsNew =
-        Workflow.newContinueAsNewStub(GreetingWorkflow.class);
+    private boolean exitRequested = false;
 
     @Override
-    public void greetPeriodically(String name) {
+    public void requestExit() {
+      exitRequested = true;
+    }
 
-      // Loop as many times as defined in CONTINUE_AS_NEW_FREQUENCY
-      /*
-       * Here we define how many times we want to execute our workflow activity periodically.
-       * The value is set to 10 for the sake of the example. In real applications it would make
-       * more sense to set this to a higher value that matches a business cycle (for example once
-       * per 24 hours, etc).
-       */
-      int CONTINUE_AS_NEW_FREQUENCY = 10;
+    @Override
+    public boolean greetPeriodically(String name) {
 
-      for (int i = 0; i < CONTINUE_AS_NEW_FREQUENCY; i++) {
-        // execute our activity method and sleep for a random amount of time
-        int delayMillis = random.nextInt(10000);
-        activities.greet("Hello " + name + "! Sleeping for " + delayMillis + " milliseconds.");
-        Workflow.sleep(delayMillis);
+      for (int i = 0; i < SingleWorkflowRunIterations; i++) {
+
+        // Compute the timing of the next iteration:
+        int delayMillis =
+            (ScheduleConfig.PeriodTargetSecs * 1000)
+                + random.nextInt(ScheduleConfig.PeriodVariationSecs * 1000)
+                - (ScheduleConfig.PeriodVariationSecs * 500);
+
+        // Perform some useful work. In this example, we execute a greeting activity:
+        activities.greet(
+            "Hello "
+                + name
+                + "!"
+                + " I will sleep for "
+                + delayMillis
+                + " milliseconds and then I will greet you again.");
+
+        // Sleep for the required time period or until an exit signal is received:
+        Workflow.await(Duration.ofMillis(delayMillis), () -> exitRequested);
+
+        if (exitRequested) {
+          activities.greet(
+              "Hello "
+                  + name
+                  + "!"
+                  + " It was requested to quit the periodic greetings, so this the last one.");
+          return true;
+        }
       }
-      // Stop execution of the current workflow and start a new execution
+
+      // Create a workflow stub that will be used to continue this workflow as a new run:
+      // (see the comment for 'SingleWorkflowRunIterations' for details)
+      GreetingWorkflow continueAsNew = Workflow.newContinueAsNewStub(GreetingWorkflow.class);
+
+      // Request that the new run will be invoked by the Temporal system:
       continueAsNew.greetPeriodically(name);
+
+      return false;
     }
   }
 
@@ -178,7 +228,7 @@ public class HelloPeriodic {
      */
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
-    /**
+    /*
      * Register our Activity Types with the Worker. Since Activities are stateless and thread-safe,
      * the Activity Type is a shared instance.
      */
@@ -200,11 +250,71 @@ public class HelloPeriodic {
                 .setTaskQueue(TASK_QUEUE)
                 .build());
 
+    // Execute our workflow.
     try {
-      // execute our workflow
       WorkflowClient.start(workflow::greetPeriodically, "World");
+      System.out.println("GreetingWorkflow started.");
     } catch (WorkflowExecutionAlreadyStarted e) {
-      System.out.println("Started: " + e.getMessage());
+      workflow = null;
+      System.out.println(
+          "GreetingWorkflow not started, because it was already running: " + e.getMessage());
     }
+
+    // A temporal workflow is persistent. It will survive after this program completes.
+    // However, it will not make forward progress until a worker is available.
+    // Ask the user what they want to do.
+
+    String userInput = null;
+    while (!("e".equals(userInput) || "l".equals(userInput))) {
+      System.out.println("\nDo you want to?");
+      System.out.println(" - [E]xit the greeting workflow.");
+      System.out.println(" - [L]eave this app and persist the workflow.");
+      System.out.print("    [E/L]> ");
+      userInput = readLine();
+    }
+
+    // If the user wants to leave the workflow running, there is nothing left to do.
+    if ("l".equals(userInput)) {
+      System.out.println("\nGreetingWorkflow will persist. Shutting down.");
+
+      factory.shutdownNow();
+      factory.awaitTermination(1, TimeUnit.MINUTES);
+
+      System.out.println("\nGood bye.");
+      return;
+    }
+
+    // The user wants to exit the workflow.
+    // If we could not start a new workflow earlier, because it was already running,
+    // then we need to connect to the running instance in order to signal it to exit.
+    if (workflow == null) {
+      workflow = client.newWorkflowStub(GreetingWorkflow.class, WORKFLOW_ID);
+    }
+
+    // Signal the workflow to exit.
+    workflow.requestExit();
+
+    // In real life we could exit now.
+    // However, in this example the workflow is running in the same process.
+    // We will wait for it to react to the exit signal and to finish.
+    WorkflowStub.fromTyped(workflow).getResult(boolean.class);
+    System.out.println("\nGreetingWorkflow exited. Shutting down.");
+
+    factory.shutdown();
+    factory.awaitTermination(1, TimeUnit.MINUTES);
+
+    System.out.println("Good bye.");
+  }
+
+  @SuppressWarnings("DefaultCharset")
+  private static String readLine() {
+    Scanner inputScanner = new Scanner(System.in);
+    String userInput = inputScanner.nextLine();
+
+    if (userInput != null) {
+      userInput = userInput.trim().toLowerCase();
+    }
+
+    return userInput;
   }
 }
