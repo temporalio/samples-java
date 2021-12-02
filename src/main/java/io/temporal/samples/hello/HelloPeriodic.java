@@ -129,9 +129,9 @@ public class HelloPeriodic {
      * seconds.
      */
     private final GreetingActivities activities =
-            Workflow.newActivityStub(
-                    GreetingActivities.class,
-                    ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(10)).build());
+        Workflow.newActivityStub(
+            GreetingActivities.class,
+            ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(10)).build());
 
     private boolean exitRequested = false;
 
@@ -192,7 +192,7 @@ public class HelloPeriodic {
     @Override
     public void greet(String greeting) {
       System.out.println(
-              "From " + Activity.getExecutionContext().getInfo().getWorkflowId() + ": " + greeting);
+          "From " + Activity.getExecutionContext().getInfo().getWorkflowId() + ": " + greeting);
     }
   }
 
@@ -242,13 +242,13 @@ public class HelloPeriodic {
 
     // Create the workflow client stub. It is used to start our workflow execution.
     GreetingWorkflow workflow =
-            client.newWorkflowStub(
-                    GreetingWorkflow.class,
-                    // At most one instance.
-                    WorkflowOptions.newBuilder()
-                            .setWorkflowId(WORKFLOW_ID)
-                            .setTaskQueue(TASK_QUEUE)
-                            .build());
+        client.newWorkflowStub(
+            GreetingWorkflow.class,
+            // At most one instance.
+            WorkflowOptions.newBuilder()
+                .setWorkflowId(WORKFLOW_ID)
+                .setTaskQueue(TASK_QUEUE)
+                .build());
 
     // Execute our workflow.
     try {
@@ -256,8 +256,7 @@ public class HelloPeriodic {
       System.out.println("GreetingWorkflow started.");
     } catch (WorkflowExecutionAlreadyStarted e) {
       workflow = null;
-      System.out.println(
-              "GreetingWorkflow not started, because it was already running: " + e.getMessage());
+      System.out.println("GreetingWorkflow not started, because it was already running: " + e.getMessage());
     }
 
     // A temporal workflow is persistent. It will survive after this program completes.
