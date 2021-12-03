@@ -67,7 +67,7 @@ public class HelloPeriodic {
      * Execution completes when this method finishes execution.
      */
     @WorkflowMethod
-    boolean greetPeriodically(String name);
+    void greetPeriodically(String name);
 
     /** Users will invoke this signal when they want the main workflow loop to complete. */
     @SignalMethod
@@ -97,10 +97,8 @@ public class HelloPeriodic {
     // In this example, we use an internal of 5 seconds with an intended variation of +/- 1 second
     // between executions of some useful work. In real applications a higher value may be more
     // appropriate, for example one that matches a business cycle of several hours or even days.
-    private static class ScheduleConfig {
-      static final int PeriodTargetSecs = 5;
-      static final int PeriodVariationSecs = 2;
-    }
+    static final int SCHEDULE_PERIOD_TARGET_SECS = 5;
+    static final int SCHEDULE_PERIOD_VARIATION_SECS = 2;
 
     // The max history length of a single Temporal workflow is 50,000 commands.
     // Therefore, a workflow cannot we cannot run indefinitely. Instead, we use
@@ -113,9 +111,14 @@ public class HelloPeriodic {
     // thousands of iterations. However, for demonstration purposes we will flow
     // to a new run more frequently.
     // More details: https://docs.temporal.io/docs/java/workflows/#large-event-histories
-    private static final int SingleWorkflowRunIterations = 10;
+    private static final int SINGLE_WORKFLOW_ITERATIONS = 10;
 
-    // Here we introduce a random delay between periodic executions
+    // Here we introduce a random delay between periodic executions.
+    // Note that we must use 'Workflow.newRandom()' to get a new Random instance.
+    // That Random ensures that the generated numbers are uniformly randomly distributed
+    // when the workflow is executed for the first time. However, when the workflow is
+    // replayed, it generates the same sequence of numbers.
+    // This ensures a deterministic behaviour.
     private final Random random = Workflow.newRandom();
 
     /**
@@ -141,14 +144,14 @@ public class HelloPeriodic {
     }
 
     @Override
-    public boolean greetPeriodically(String name) {
+    public void greetPeriodically(String name) {
 
-      for (int i = 0; i < SingleWorkflowRunIterations; i++) {
+      for (int i = 0; i < SINGLE_WORKFLOW_ITERATIONS; i++) {
 
         // Compute the timing of the next iteration:
-        int delayMillis = (ScheduleConfig.PeriodTargetSecs * 1000)
-                          + random.nextInt(ScheduleConfig.PeriodVariationSecs * 1000)
-                          - (ScheduleConfig.PeriodVariationSecs * 500);
+        int delayMillis = (SCHEDULE_PERIOD_TARGET_SECS * 1000)
+                          + random.nextInt(SCHEDULE_PERIOD_VARIATION_SECS * 1000)
+                          - (SCHEDULE_PERIOD_VARIATION_SECS * 500);
 
         // Perform some useful work. In this example, we execute a greeting activity:
         activities.greet("Hello " + name + "!"
@@ -160,7 +163,7 @@ public class HelloPeriodic {
         if (exitRequested) {
           activities.greet("Hello " + name + "!"
                          + " It was requested to quit the periodic greetings, so this the last one.");
-          return true;
+          return;
         }
       }
 
@@ -170,8 +173,6 @@ public class HelloPeriodic {
 
       // Request that the new run will be invoked by the Temporal system:
       continueAsNew.greetPeriodically(name);
-
-      return false;
     }
   }
 
@@ -272,7 +273,7 @@ public class HelloPeriodic {
     // that workflow, connect to it and observe it exiting immediately.
     // To address this, we wait for the workflow to react to the exit signal and to finish gracefully.
     // If we run this sample again, there will be no workflow instance from a previous run left behind.
-    WorkflowStub.fromTyped(workflow).getResult(boolean.class);
+    WorkflowStub.fromTyped(workflow).getResult(void.class);
 
     System.out.println("Good bye.");
     System.exit(0);
