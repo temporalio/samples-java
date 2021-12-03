@@ -25,6 +25,7 @@ import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowExecutionAlreadyStarted;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.client.WorkflowStub;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -189,6 +190,7 @@ public class HelloPeriodic {
    * With our Workflow and Activities defined, we can now start execution. The main method starts
    * the worker and then the workflow.
    */
+  @SuppressWarnings("CatchAndPrintStackTrace")  // in this simple example advanced error logging is not required
   public static void main(String[] args) throws InterruptedException {
 
     // Define the workflow service.
@@ -242,15 +244,18 @@ public class HelloPeriodic {
     // Execute our workflow.
     try {
       WorkflowClient.start(workflow::greetPeriodically, "World");
-      System.out.println("GreetingWorkflow started.");
+      System.out.println("Started a new GreetingWorkflow.");
     } catch (WorkflowExecutionAlreadyStarted e) {
-      // If the workflow is already running, we cannot start it. Instead, we will connect to the existing instance.
+      // If the workflow is already running, we cannot start it. Instead, we will connect to the
+      // existing instance.
       workflow = client.newWorkflowStub(GreetingWorkflow.class, WORKFLOW_ID);
+      System.out.println("Connected to an existing GreetingWorkflow.");
     }
 
     // The workflow is running now. In this example, we pause for a few seconds to observe its output.
     final int ObservationPeriodSecs = 20;
     System.out.println("Observing the workflow execution for " + ObservationPeriodSecs + " seconds.");
+
     try {
       Thread.sleep(ObservationPeriodSecs * 1000);
     } catch (InterruptedException intEx) {
@@ -260,6 +265,14 @@ public class HelloPeriodic {
     // Signal the workflow to exit.
     System.out.println("Requesting the workflow to exit.");
     workflow.requestExit();
+
+    // In real life we could exit now. However, in this example the workflow is running in the
+    // same process. Since workflows are persistent, if we quit before the workflow had time to
+    // react to the signal and to exit gracefully, a future invocation of this sample will find
+    // that workflow, connect to it and observe it exiting immediately.
+    // To address this, we wait for the workflow to react to the exit signal and to finish gracefully.
+    // If we run this sample again, there will be no workflow instance from a previous run left behind.
+    WorkflowStub.fromTyped(workflow).getResult(boolean.class);
 
     System.out.println("Good bye.");
     System.exit(0);
