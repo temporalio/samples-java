@@ -25,7 +25,6 @@ import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowExecutionAlreadyStarted;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.client.WorkflowStub;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -35,8 +34,6 @@ import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 import java.util.Random;
-import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Sample Temporal workflow that demonstrates periodic workflow execution with a random delay. To
@@ -96,22 +93,24 @@ public class HelloPeriodic {
   // Define the workflow implementation which implements the greetPeriodically workflow method.
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
-    // In this example, we use an internal of 10 seconds with an intended variation of +/- 2 seconds
+    // In this example, we use an internal of 5 seconds with an intended variation of +/- 1 second
     // between executions of some useful work. In real applications a higher value may be more
     // appropriate, for example one that matches a business cycle of several hours or even days.
     private static class ScheduleConfig {
-      static final int PeriodTargetSecs = 10;
-      static final int PeriodVariationSecs = 4;
+      static final int PeriodTargetSecs = 5;
+      static final int PeriodVariationSecs = 2;
     }
 
-    // The max history length of a single Temporal workflow is limited.
-    // Therefore, we cannot loop indefinitely. Instead, we use the ContinueAsNew
-    // feature to flow the logical execution thread to a new workflow run instance
-    // (same approach is used by Temporal's Cron-style scheduling system as well).
-    // In real life, the complexity of the workflow affects when we need to flow to a
-    // new run. For a simple workflow such as this, we could perform many thousands
-    // of iterations. However, for demonstration purposes we will flow to a few run
-    // more frequently.
+    // The max history length of a single Temporal workflow is 50,000 commands.
+    // Therefore, a workflow cannot we cannot run indefinitely. Instead, we use
+    // the ContinueAsNew feature to flow the logical execution thread to a new
+    // workflow run instance (same approach is used by Temporal's Cron-style
+    // scheduling system as well). In real life, the complexity of the workflow
+    // affects when we need to flow to a new run: I.e. if the workflow uses more
+    // commands per iteration, then we can perform fewer iterations before we must
+    // ContinueAsNew. For a simple workflow such as this, we could perform many
+    // thousands of iterations. However, for demonstration purposes we will flow
+    // to a new run more frequently.
     // More details: https://docs.temporal.io/docs/java/workflows/#large-event-histories
     private static final int SingleWorkflowRunIterations = 10;
 
@@ -146,29 +145,20 @@ public class HelloPeriodic {
       for (int i = 0; i < SingleWorkflowRunIterations; i++) {
 
         // Compute the timing of the next iteration:
-        int delayMillis =
-                (ScheduleConfig.PeriodTargetSecs * 1000)
-                        + random.nextInt(ScheduleConfig.PeriodVariationSecs * 1000)
-                        - (ScheduleConfig.PeriodVariationSecs * 500);
+        int delayMillis = (ScheduleConfig.PeriodTargetSecs * 1000)
+                          + random.nextInt(ScheduleConfig.PeriodVariationSecs * 1000)
+                          - (ScheduleConfig.PeriodVariationSecs * 500);
 
         // Perform some useful work. In this example, we execute a greeting activity:
-        activities.greet(
-                "Hello "
-                        + name
-                        + "!"
-                        + " I will sleep for "
-                        + delayMillis
-                        + " milliseconds and then I will greet you again.");
+        activities.greet("Hello " + name + "!"
+                       + " I will sleep for " + delayMillis + " milliseconds and then I will greet you again.");
 
         // Sleep for the required time period or until an exit signal is received:
         Workflow.await(Duration.ofMillis(delayMillis), () -> exitRequested);
 
         if (exitRequested) {
-          activities.greet(
-                  "Hello "
-                          + name
-                          + "!"
-                          + " It was requested to quit the periodic greetings, so this the last one.");
+          activities.greet("Hello " + name + "!"
+                         + " It was requested to quit the periodic greetings, so this the last one.");
           return true;
         }
       }
@@ -191,8 +181,7 @@ public class HelloPeriodic {
   static class GreetingActivitiesImpl implements GreetingActivities {
     @Override
     public void greet(String greeting) {
-      System.out.println(
-          "From " + Activity.getExecutionContext().getInfo().getWorkflowId() + ": " + greeting);
+      System.out.println("From " + Activity.getExecutionContext().getInfo().getWorkflowId() + ": " + greeting);
     }
   }
 
@@ -255,65 +244,24 @@ public class HelloPeriodic {
       WorkflowClient.start(workflow::greetPeriodically, "World");
       System.out.println("GreetingWorkflow started.");
     } catch (WorkflowExecutionAlreadyStarted e) {
-      workflow = null;
-      System.out.println("GreetingWorkflow not started, because it was already running: " + e.getMessage());
-    }
-
-    // A temporal workflow is persistent. It will survive after this program completes.
-    // However, it will not make forward progress until a worker is available.
-    // Ask the user what they want to do.
-
-    String userInput = null;
-    while (!("e".equals(userInput) || "l".equals(userInput))) {
-      System.out.println("\nDo you want to?");
-      System.out.println(" - [E]xit the greeting workflow.");
-      System.out.println(" - [L]eave this app and persist the workflow.");
-      System.out.print("    [E/L]> ");
-      userInput = readLine();
-    }
-
-    // If the user wants to leave the workflow running, there is nothing left to do.
-    if ("l".equals(userInput)) {
-      System.out.println("\nGreetingWorkflow will persist. Shutting down.");
-
-      factory.shutdownNow();
-      factory.awaitTermination(1, TimeUnit.MINUTES);
-
-      System.out.println("\nGood bye.");
-      return;
-    }
-
-    // The user wants to exit the workflow.
-    // If we could not start a new workflow earlier, because it was already running,
-    // then we need to connect to the running instance in order to signal it to exit.
-    if (workflow == null) {
+      // If the workflow is already running, we cannot start it. Instead, we will connect to the existing instance.
       workflow = client.newWorkflowStub(GreetingWorkflow.class, WORKFLOW_ID);
     }
 
-    // Signal the workflow to exit.
-    workflow.requestExit();
-
-    // In real life we could exit now.
-    // However, in this example the workflow is running in the same process.
-    // We will wait for it to react to the exit signal and to finish.
-    WorkflowStub.fromTyped(workflow).getResult(boolean.class);
-    System.out.println("\nGreetingWorkflow exited. Shutting down.");
-
-    factory.shutdown();
-    factory.awaitTermination(1, TimeUnit.MINUTES);
-
-    System.out.println("Good bye.");
-  }
-
-  @SuppressWarnings("DefaultCharset")
-  private static String readLine() {
-    Scanner inputScanner = new Scanner(System.in);
-    String userInput = inputScanner.nextLine();
-
-    if (userInput != null) {
-      userInput = userInput.trim().toLowerCase();
+    // The workflow is running now. In this example, we pause for a few seconds to observe its output.
+    final int ObservationPeriodSecs = 20;
+    System.out.println("Observing the workflow execution for " + ObservationPeriodSecs + " seconds.");
+    try {
+      Thread.sleep(ObservationPeriodSecs * 1000);
+    } catch (InterruptedException intEx) {
+      intEx.printStackTrace();
     }
 
-    return userInput;
+    // Signal the workflow to exit.
+    System.out.println("Requesting the workflow to exit.");
+    workflow.requestExit();
+
+    System.out.println("Good bye.");
+    System.exit(0);
   }
 }
