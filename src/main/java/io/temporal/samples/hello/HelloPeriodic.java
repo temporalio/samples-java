@@ -97,8 +97,8 @@ public class HelloPeriodic {
     // In this example, we use an internal of 5 seconds with an intended variation of +/- 1 second
     // between executions of some useful work. In real applications a higher value may be more
     // appropriate, for example one that matches a business cycle of several hours or even days.
-    static final int SCHEDULE_PERIOD_TARGET_SECS = 5;
-    static final int SCHEDULE_PERIOD_VARIATION_SECS = 2;
+    private static final int SCHEDULE_PERIOD_TARGET_SECS = 5;
+    private static final int SCHEDULE_PERIOD_VARIATION_SECS = 2;
 
     // The max history length of a single Temporal workflow is 50,000 commands.
     // Therefore, a workflow cannot we cannot run indefinitely. Instead, we use
