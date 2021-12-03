@@ -22,8 +22,6 @@ package io.temporal.samples.updatabletimer;
 import io.temporal.workflow.Workflow;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import org.slf4j.Logger;
 
 public final class UpdatableTimer {
@@ -34,9 +32,7 @@ public final class UpdatableTimer {
   private boolean wakeUpTimeUpdated;
 
   public void sleepUntil(long wakeUpTime) {
-    Instant wakeUpInstant = Instant.ofEpochMilli(wakeUpTime);
-    LocalDateTime date = wakeUpInstant.atZone(ZoneId.systemDefault()).toLocalDateTime();
-    logger.info("sleepUntil: " + date);
+    logger.info("sleepUntil: " + Instant.ofEpochMilli(wakeUpTime));
     this.wakeUpTime = wakeUpTime;
     while (true) {
       wakeUpTimeUpdated = false;
@@ -50,6 +46,7 @@ public final class UpdatableTimer {
   }
 
   public void updateWakeUpTime(long wakeUpTime) {
+    logger.info("updateWakeUpTime: " + Instant.ofEpochMilli(wakeUpTime));
     this.wakeUpTime = wakeUpTime;
     this.wakeUpTimeUpdated = true;
   }
