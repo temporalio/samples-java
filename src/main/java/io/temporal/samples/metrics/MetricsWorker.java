@@ -43,7 +43,7 @@ public class MetricsWorker {
   private static final PrometheusMeterRegistry registry =
       new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
   public static final StatsReporter reporter = new MicrometerClientStatsReporter(registry);
-  // Set up a new scope, report every 10s
+  // Set up a new scope, report every 1 second
   private static final Scope scope =
       new RootScopeBuilder().reporter(reporter).reportEvery(com.uber.m3.util.Duration.ofSeconds(1));
 
