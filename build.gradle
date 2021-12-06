@@ -21,16 +21,13 @@ java {
 
 repositories {
     maven {
-        url "https://plugins.gradle.org/m2/"
-    }
-    maven {
         url "https://oss.sonatype.org/content/repositories/snapshots/"
     }
     mavenCentral()
 }
 
 dependencies {
-    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.5.0'
+    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.6.0'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.7'
     implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
     implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '2.2.0'
@@ -41,17 +38,23 @@ dependencies {
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-spi', version: '3.0.0.Final'
     implementation group: 'com.jayway.jsonpath', name: 'json-path', version: '2.6.0'
 
-    testImplementation group: 'io.temporal', name: 'temporal-testing', version: '1.5.0'
-    testImplementation group: 'io.temporal', name: 'temporal-testing-junit4', version: '1.5.0'
-    testImplementation group: 'io.temporal', name: 'temporal-testing-junit5', version: '1.5.0'
-    
-    testImplementation group: 'junit', name: 'junit', version: '4.13.2'
+    testImplementation("io.temporal:temporal-testing:1.6.0")
+    testImplementation ("io.temporal:temporal-testing") {
+        capabilities {
+            requireCapability("io.temporal:temporal-testing-junit4")
+        }
+    }
+    testImplementation ("io.temporal:temporal-testing") {
+        capabilities {
+            requireCapability("io.temporal:temporal-testing-junit5")
+        }
+    }
+
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.1.0'
     testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.9'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0-SNAPSHOT'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0-SNAPSHOT'
-    testCompileOnly 'junit:junit:4.13.2'
     testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.9.0-SNAPSHOT'
 
     errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
