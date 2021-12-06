@@ -19,18 +19,26 @@
 
 package io.temporal.samples.metrics;
 
-import static io.temporal.samples.metrics.MetricsWorker.DEFAULT_TASK_QUEUE_NAME;
-import static io.temporal.samples.metrics.MetricsWorker.client;
-
+import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.samples.metrics.workflow.MetricsWorkflow;
+import io.temporal.serviceclient.WorkflowServiceStubs;
+import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 
 public class MetricsStarter {
   public static void main(String[] args) {
+
+    // Add metrics scope to workflow service stub options
+    WorkflowServiceStubsOptions stubOptions =
+        WorkflowServiceStubsOptions.newBuilder().setMetricsScope(MetricsUtils.scope).build();
+
+    WorkflowServiceStubs service = WorkflowServiceStubs.newInstance(stubOptions);
+    WorkflowClient client = WorkflowClient.newInstance(service);
+
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder()
             .setWorkflowId("metricsWorkflow")
-            .setTaskQueue(DEFAULT_TASK_QUEUE_NAME)
+            .setTaskQueue(MetricsUtils.DEFAULT_TASK_QUEUE_NAME)
             .build();
     MetricsWorkflow workflow = client.newWorkflowStub(MetricsWorkflow.class, workflowOptions);
 
@@ -39,5 +47,7 @@ public class MetricsStarter {
     System.out.println("Result: " + result);
 
     System.out.println("Check metrics at http://localhost:8080/sdkmetrics");
+
+    System.exit(0);
   }
 }

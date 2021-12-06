@@ -19,47 +19,30 @@
 
 package io.temporal.samples.metrics;
 
-import com.sun.net.httpserver.HttpServer;
-import com.uber.m3.tally.RootScopeBuilder;
-import com.uber.m3.tally.Scope;
-import com.uber.m3.tally.StatsReporter;
-import io.micrometer.prometheus.PrometheusConfig;
-import io.micrometer.prometheus.PrometheusMeterRegistry;
 import io.temporal.client.WorkflowClient;
-import io.temporal.common.reporter.MicrometerClientStatsReporter;
 import io.temporal.samples.metrics.activities.MetricsActivitiesImpl;
 import io.temporal.samples.metrics.workflow.MetricsWorkflowImpl;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
 
 public class MetricsWorker {
 
-  // Set up prometheus registry and stats reported
-  private static final PrometheusMeterRegistry registry =
-      new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
-  public static final StatsReporter reporter = new MicrometerClientStatsReporter(registry);
-  // Set up a new scope, report every 1 second
-  private static final Scope scope =
-      new RootScopeBuilder().reporter(reporter).reportEvery(com.uber.m3.util.Duration.ofSeconds(1));
-
-  private static final WorkflowServiceStubsOptions stubOptions =
-      WorkflowServiceStubsOptions.newBuilder().setMetricsScope(scope).build();
-  private static final WorkflowServiceStubs service = WorkflowServiceStubs.newInstance(stubOptions);
-
-  public static final WorkflowClient client = WorkflowClient.newInstance(service);
-  private static final WorkerFactory factory = WorkerFactory.newInstance(client);
-  public static final String DEFAULT_TASK_QUEUE_NAME = "metricsqueue";
-
   public static void main(String[] args) {
 
-    startPrometheusScrapeEndpoint();
+    // Add metrics scope to workflow service stub options
+    WorkflowServiceStubsOptions stubOptions =
+        WorkflowServiceStubsOptions.newBuilder().setMetricsScope(MetricsUtils.scope).build();
 
-    Worker worker = factory.newWorker(DEFAULT_TASK_QUEUE_NAME);
+    WorkflowServiceStubs service = WorkflowServiceStubs.newInstance(stubOptions);
+    WorkflowClient client = WorkflowClient.newInstance(service);
+    WorkerFactory factory = WorkerFactory.newInstance(client);
+
+    // Start the prometheus scrape endpoint
+    MetricsUtils.startPrometheusScrapeEndpoint();
+
+    Worker worker = factory.newWorker(MetricsUtils.DEFAULT_TASK_QUEUE_NAME);
     worker.registerWorkflowImplementationTypes(MetricsWorkflowImpl.class);
     worker.registerActivitiesImplementations(new MetricsActivitiesImpl());
 
@@ -67,28 +50,5 @@ public class MetricsWorker {
 
     // Stopping the worker will stop the http server that exposes the
     // scrape endpoint.
-  }
-
-  /**
-   * Starts HttpServer to expose a scrape endpoint. See
-   * https://micrometer.io/docs/registry/prometheus for more info.
-   */
-  private static void startPrometheusScrapeEndpoint() {
-    try {
-      HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
-      server.createContext(
-          "/sdkmetrics",
-          httpExchange -> {
-            String response = registry.scrape();
-            httpExchange.sendResponseHeaders(200, response.getBytes().length);
-            try (OutputStream os = httpExchange.getResponseBody()) {
-              os.write(response.getBytes());
-            }
-          });
-
-      new Thread(server::start).start();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
   }
 }
