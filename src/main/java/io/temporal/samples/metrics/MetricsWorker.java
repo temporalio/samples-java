@@ -57,7 +57,7 @@ public class MetricsWorker {
 
   public static void main(String[] args) {
 
-    startServer();
+    startPrometheusScrapeEndpoint();
 
     Worker worker = factory.newWorker(DEFAULT_TASK_QUEUE_NAME);
     worker.registerWorkflowImplementationTypes(MetricsWorkflowImpl.class);
@@ -73,7 +73,7 @@ public class MetricsWorker {
    * Starts HttpServer to expose a scrape endpoint. See
    * https://micrometer.io/docs/registry/prometheus for more info.
    */
-  private static void startServer() {
+  private static void startPrometheusScrapeEndpoint() {
     try {
       HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
       server.createContext(
