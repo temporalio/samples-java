@@ -101,24 +101,21 @@ public class HelloPeriodic {
     private static final int SCHEDULE_PERIOD_VARIATION_SECS = 2;
 
     // The max history length of a single Temporal workflow is 50,000 commands.
-    // Therefore, a workflow cannot we cannot run indefinitely. Instead, we use
-    // the ContinueAsNew feature to flow the logical execution thread to a new
-    // workflow run instance (same approach is used by Temporal's Cron-style
-    // scheduling system as well). In real life, the complexity of the workflow
-    // affects when we need to flow to a new run: I.e. if the workflow uses more
-    // commands per iteration, then we can perform fewer iterations before we must
-    // ContinueAsNew. For a simple workflow such as this, we could perform many
-    // thousands of iterations. However, for demonstration purposes we will flow
-    // to a new run more frequently.
+    // Therefore, a workflow cannot run indefinitely. Instead, we use
+    // the ContinueAsNew feature to continue the execution as a new run
+    // (same approach is used by Temporal's Cron-style scheduling system as well).
+    // In real life, the complexity of the workflow affects when we need to flow
+    // to a new run: I.e. if the workflow uses more Temporal commands per
+    // iteration, then the history grows faster, and thus we can perform fewer
+    // iterations before we must ContinueAsNew. For a simple workflow such as
+    // this, we could perform many thousands of iterations. However, for
+    // demonstration purposes we will flow to a new run more frequently.
     // More details: https://docs.temporal.io/docs/java/workflows/#large-event-histories
     private static final int SINGLE_WORKFLOW_ITERATIONS = 10;
 
     // Here we introduce a random delay between periodic executions.
-    // Note that we must use 'Workflow.newRandom()' to get a new Random instance.
-    // That Random ensures that the generated numbers are uniformly randomly distributed
-    // when the workflow is executed for the first time. However, when the workflow is
-    // replayed, it generates the same sequence of numbers.
-    // This ensures a deterministic behaviour.
+    // Note that inside of workflow code 'Workflow.newRandom()' must always
+    // be used to construct instances of the 'Random' class.
     private final Random random = Workflow.newRandom();
 
     /**
@@ -267,12 +264,7 @@ public class HelloPeriodic {
     System.out.println("Requesting the workflow to exit.");
     workflow.requestExit();
 
-    // In real life we could exit now. However, in this example the workflow is running in the
-    // same process. Since workflows are persistent, if we quit before the workflow had time to
-    // react to the signal and to exit gracefully, a future invocation of this sample will find
-    // that workflow, connect to it and observe it exiting immediately.
-    // To address this, we wait for the workflow to react to the exit signal and to finish gracefully.
-    // If we run this sample again, there will be no workflow instance from a previous run left behind.
+    // Allow the workflow to finish before the worker is shut down.
     WorkflowStub.fromTyped(workflow).getResult(void.class);
 
     System.out.println("Good bye.");
