@@ -48,7 +48,6 @@ public class MetricsStarter {
 
     System.out.println("Check metrics at http://localhost:8080/sdkmetrics");
 
-
     // For the sake of the sample we shut down our process
     // meaning we no longer record sdk metrics.
     // In real applications, this would be a long-running process which does not
