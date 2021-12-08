@@ -16,6 +16,7 @@ This repository contains sample Workflow applications that demonstrate various c
     - [Hello samples](#Hello-samples)
     - [Scenario-based samples](#scenario-based-samples)
     - [API demonstrations](#api-demonstrations)
+    - [SDK metrics](#sdk-metrics)
 - [IDE Integration](#IDE-Integration)
 
 ## How to use
@@ -140,6 +141,10 @@ All tests are available under [src/test/java](https://github.com/temporalio/samp
 - [**Terminate Workflow**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/terminateworkflow): Demonstrates how to terminate a workflow using client API.
 
 - [**Get Workflow Results Async**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/getresultsasync): Demonstrates how to start and get workflow results in async manner.
+
+### SDK Metrics
+
+- [**Set up SDK metrics**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/metrics): Demonstrates how to set up and scrape SDK metrics.
 
 
 <!-- @@@SNIPEND -->
