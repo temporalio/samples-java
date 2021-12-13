@@ -126,6 +126,8 @@ All tests are available under [src/test/java](https://github.com/temporalio/samp
 
 - [**Customer Application Approval DSL**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/dsl): Demonstrates execution of a customer application approval workflow defined in a DSL (like JSON or YAML)
 
+- [**Pizza order workflow**](https://github.com/chenjianjx/pizza-order-workflow-demo): Demonstrates implementation of [pizza order workflow](https://camunda.com/blog/2015/06/build-your-own-camunda-task-explorer/) with 2 spring boot micro services. One is the temporal worker, the other is a usual business microservice. This is very close to real-life projects because it demonstrates separation of a biz service and a workflow service, perists business data and also sends out emails. 
+
 ### API demonstrations
 
 - [**Updatable Timer**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/updatabletimer): Demonstrates the use of a helper class which relies on `Workflow.await` to implement a blocking sleep that can be updated at any moment.
