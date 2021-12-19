@@ -146,20 +146,29 @@ public class HelloPeriodic {
       for (int i = 0; i < SINGLE_WORKFLOW_ITERATIONS; i++) {
 
         // Compute the timing of the next iteration:
-        int delayMillis = (SCHEDULE_PERIOD_TARGET_SECS * 1000)
-                          + random.nextInt(SCHEDULE_PERIOD_VARIATION_SECS * 1000)
-                          - (SCHEDULE_PERIOD_VARIATION_SECS * 500);
+        int delayMillis =
+            (SCHEDULE_PERIOD_TARGET_SECS * 1000)
+                + random.nextInt(SCHEDULE_PERIOD_VARIATION_SECS * 1000)
+                - (SCHEDULE_PERIOD_VARIATION_SECS * 500);
 
         // Perform some useful work. In this example, we execute a greeting activity:
-        activities.greet("Hello " + name + "!"
-                       + " I will sleep for " + delayMillis + " milliseconds and then I will greet you again.");
+        activities.greet(
+            "Hello "
+                + name
+                + "!"
+                + " I will sleep for "
+                + delayMillis
+                + " milliseconds and then I will greet you again.");
 
         // Sleep for the required time period or until an exit signal is received:
         Workflow.await(Duration.ofMillis(delayMillis), () -> exitRequested);
 
         if (exitRequested) {
-          activities.greet("Hello " + name + "!"
-                         + " It was requested to quit the periodic greetings, so this the last one.");
+          activities.greet(
+              "Hello "
+                  + name
+                  + "!"
+                  + " It was requested to quit the periodic greetings, so this the last one.");
           return;
         }
       }
@@ -180,7 +189,8 @@ public class HelloPeriodic {
   static class GreetingActivitiesImpl implements GreetingActivities {
     @Override
     public void greet(String greeting) {
-      System.out.println("From " + Activity.getExecutionContext().getInfo().getWorkflowId() + ": " + greeting);
+      System.out.println(
+          "From " + Activity.getExecutionContext().getInfo().getWorkflowId() + ": " + greeting);
     }
   }
 
@@ -188,7 +198,8 @@ public class HelloPeriodic {
    * With our Workflow and Activities defined, we can now start execution. The main method starts
    * the worker and then the workflow.
    */
-  @SuppressWarnings("CatchAndPrintStackTrace")  // in this simple example advanced error logging is not required
+  @SuppressWarnings(
+      "CatchAndPrintStackTrace") // in this simple example advanced error logging is not required
   public static void main(String[] args) throws InterruptedException {
 
     // Define the workflow service.
@@ -250,9 +261,11 @@ public class HelloPeriodic {
       System.out.println("Connected to an existing GreetingWorkflow.");
     }
 
-    // The workflow is running now. In this example, we pause for a few seconds to observe its output.
+    // The workflow is running now. In this example, we pause for a few seconds to observe its
+    // output.
     final int ObservationPeriodSecs = 20;
-    System.out.println("Observing the workflow execution for " + ObservationPeriodSecs + " seconds.");
+    System.out.println(
+        "Observing the workflow execution for " + ObservationPeriodSecs + " seconds.");
 
     try {
       Thread.sleep(ObservationPeriodSecs * 1000);
