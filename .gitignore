@@ -7,3 +7,7 @@ target
 .gradle
 /build
 /out
+.classpath
+.project
+.settings/
+bin/
