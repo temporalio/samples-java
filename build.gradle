@@ -33,11 +33,14 @@ dependencies {
     implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '2.3.0'
     implementation group: 'io.cloudevents', name: 'cloudevents-api', version: '2.3.0'
     implementation group: 'io.cloudevents', name: 'cloudevents-json-jackson', version: '2.3.0'
-    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-api', version: '3.0.0.Final'
-    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-validation', version: '3.0.0.Final'
-    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-spi', version: '3.0.0.Final'
+    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-api', version: '4.0.1.Final'
+    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-validation', version: '4.0.1.Final'
+    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-spi', version: '4.0.1.Final'
+    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-util', version: '4.0.1.Final'
     implementation group: 'com.jayway.jsonpath', name: 'json-path', version: '2.6.0'
     implementation group: 'io.micrometer', name: 'micrometer-registry-prometheus', version: '1.8.1'
+    implementation group: 'net.thisptr', name: 'jackson-jq', version: '1.0.0-preview.20210928'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.5'
 
     testImplementation("io.temporal:temporal-testing:1.6.0")
     testImplementation ("io.temporal:temporal-testing") {
@@ -60,6 +63,14 @@ dependencies {
 
     errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
     errorprone("com.google.errorprone:error_prone_core:2.10.0")
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'com.fasterxml.jackson.core:jackson-core:2.12.5'
+        force 'com.fasterxml.jackson.core:jackson-databind:2.12.5'
+        force 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.5'
+    }
 }
 
 compileJava {

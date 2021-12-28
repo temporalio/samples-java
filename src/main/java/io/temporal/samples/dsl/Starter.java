@@ -19,7 +19,7 @@
 
 package io.temporal.samples.dsl;
 
-import static io.temporal.samples.dsl.DslWorkflowUtils.*;
+import static io.temporal.samples.dsl.utils.DslWorkflowUtils.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

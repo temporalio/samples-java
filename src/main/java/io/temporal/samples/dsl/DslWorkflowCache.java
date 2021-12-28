@@ -19,7 +19,7 @@
 
 package io.temporal.samples.dsl;
 
-import static io.temporal.samples.dsl.DslWorkflowUtils.getFileAsString;
+import static io.temporal.samples.dsl.utils.DslWorkflowUtils.getFileAsString;
 
 import io.serverlessworkflow.api.Workflow;
 import java.util.HashMap;
