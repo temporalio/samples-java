@@ -26,9 +26,9 @@ states:
   - name: MakeApplicationDecision
     type: switch
     dataConditions:
-      - condition: "$..[?(@.age >= 20)]"
+      - condition: "${ .customer.age >= 20 }"
         transition: ApproveApplication
-      - condition: "$..[?(@.age < 20)]"
+      - condition: "${ .customer.age < 20 }"
         transition: RejectApplication
     defaultCondition:
       transition: RejectApplication

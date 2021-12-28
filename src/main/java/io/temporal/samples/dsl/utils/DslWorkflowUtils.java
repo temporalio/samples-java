@@ -17,25 +17,30 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.dsl;
+package io.temporal.samples.dsl.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.jayway.jsonpath.JsonPath;
 import io.serverlessworkflow.api.Workflow;
+import io.serverlessworkflow.api.functions.FunctionDefinition;
 import io.serverlessworkflow.api.interfaces.State;
 import io.serverlessworkflow.api.retry.RetryDefinition;
 import io.serverlessworkflow.api.states.EventState;
+import io.serverlessworkflow.utils.WorkflowUtils;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.api.common.v1.WorkflowExecution;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
 import io.temporal.common.RetryOptions;
+import io.temporal.samples.dsl.Starter;
+import io.temporal.samples.dsl.Worker;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /** Provides utility methods for dealing with DSL */
 public class DslWorkflowUtils {
@@ -107,7 +112,7 @@ public class DslWorkflowUtils {
   /** Start workflow execution depending on the DSL */
   public static WorkflowExecution startWorkflow(
       WorkflowStub workflowStub, Workflow dslWorkflow, JsonNode workflowInput) {
-    State startingDslWorkflowState = getStartingWorkflowState(dslWorkflow);
+    State startingDslWorkflowState = WorkflowUtils.getStartingState(dslWorkflow);
     if (startingDslWorkflowState instanceof EventState) {
       // This demo can parse only the first event
       EventState eventState = (EventState) startingDslWorkflowState;
@@ -123,29 +128,20 @@ public class DslWorkflowUtils {
     }
   }
 
-  /** Returns the starting workflow state from DSL */
-  public static State getStartingWorkflowState(Workflow dslWorkflow) {
-    String start = dslWorkflow.getStart().getStateName();
-    for (State state : dslWorkflow.getStates()) {
-      if (state.getName().equals(start)) {
-        return state;
-      }
-    }
-    return null;
+  public static FunctionDefinition getFunctionDefinitionWithName(Workflow workflow, String name) {
+    if (!WorkflowUtils.hasFunctionDefs(workflow)) return null;
+    Optional<FunctionDefinition> funcDef =
+        workflow.getFunctions().getFunctionDefs().stream()
+            .filter(fd -> fd.getName().equals(name))
+            .findFirst();
+    return funcDef.orElse(null);
   }
 
-  /** Returns the workflow state with the provided name or null */
-  public static State getWorkflowStateWithName(String name, Workflow dslWorkflow) {
-    for (State state : dslWorkflow.getStates()) {
-      if (state.getName().equals(name)) {
-        return state;
-      }
-    }
-    return null;
-  }
-
-  /** Evaluates a JsonPath expression to true/false, used for switch states data conditions */
-  public static boolean isTrueDataCondition(String condition, String jsonData) {
-    return JsonPath.parse(jsonData).read(condition, List.class).size() > 0;
+  public static List<FunctionDefinition> getFunctionDefinitionsWithType(
+      Workflow workflow, FunctionDefinition.Type type) {
+    if (!WorkflowUtils.hasFunctionDefs(workflow)) return null;
+    return workflow.getFunctions().getFunctionDefs().stream()
+        .filter(fd -> fd.getType().equals(type))
+        .collect(Collectors.toList());
   }
 }

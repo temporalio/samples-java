@@ -17,19 +17,25 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.dsl;
+package io.temporal.samples.dsl.model;
 
-import io.temporal.activity.ActivityInterface;
-import io.temporal.samples.dsl.model.ActResult;
-import io.temporal.samples.dsl.model.Customer;
+public class Customer {
+  private String name;
+  private int age;
 
-@ActivityInterface
-public interface DslActivities {
-  ActResult checkCustomerInfo(Customer customer);
+  public String getName() {
+    return name;
+  }
 
-  ActResult approveApplication(Customer customer);
+  public void setName(String name) {
+    this.name = name;
+  }
 
-  ActResult rejectApplication(Customer customer);
+  public int getAge() {
+    return age;
+  }
 
-  ActResult updateApplicationInfo(Customer customer);
+  public void setAge(int age) {
+    this.age = age;
+  }
 }

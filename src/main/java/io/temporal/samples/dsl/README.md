@@ -35,7 +35,7 @@ For this sample we use JsonPath, but other expression languages can be plugged i
 
 If the age of the customer is set to >= 20 the application will be approved, if set to < 20 it will be rejected.
 The results of the workflow will include the updated `applicationStatus`, and an added array which shows 
-all the activities that were executed (corespond to actions in the DSL), for example:
+all the activities that were executed (corresponds to actions in the DSL), for example:
 
 ```json
 {
@@ -43,10 +43,16 @@ all the activities that were executed (corespond to actions in the DSL), for exa
     "name" : "John",
     "age" : 22
   },
-  "CheckCustomerInfo" : "invoked",
-  "UpdateApplicationInfo" : "invoked",
-  "ApproveApplication" : "invoked",
-  "decision" : "APPROVED"
+  "results" : [ {
+    "type" : "CheckCustomerInfo",
+    "result" : "invoked"
+  }, {
+    "type" : "UpdateApplicationInfo",
+    "result" : "invoked"
+  }, {
+    "type" : "decision",
+    "result" : "APPROVED"
+  } ]
 }
 ```
 

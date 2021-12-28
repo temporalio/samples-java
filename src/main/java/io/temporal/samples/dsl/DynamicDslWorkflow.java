@@ -22,15 +22,19 @@ package io.temporal.samples.dsl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.serverlessworkflow.api.actions.Action;
+import io.serverlessworkflow.api.branches.Branch;
 import io.serverlessworkflow.api.events.OnEvents;
+import io.serverlessworkflow.api.functions.FunctionDefinition;
 import io.serverlessworkflow.api.interfaces.State;
-import io.serverlessworkflow.api.states.EventState;
-import io.serverlessworkflow.api.states.OperationState;
-import io.serverlessworkflow.api.states.SleepState;
-import io.serverlessworkflow.api.states.SwitchState;
+import io.serverlessworkflow.api.states.*;
 import io.serverlessworkflow.api.switchconditions.DataCondition;
+import io.serverlessworkflow.utils.WorkflowUtils;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.common.converter.EncodedValues;
+import io.temporal.samples.dsl.model.ActResult;
+import io.temporal.samples.dsl.model.WorkflowData;
+import io.temporal.samples.dsl.utils.DslWorkflowUtils;
+import io.temporal.samples.dsl.utils.JQFilter;
 import io.temporal.workflow.*;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -40,9 +44,11 @@ import org.slf4j.Logger;
 public class DynamicDslWorkflow implements DynamicWorkflow {
 
   private io.serverlessworkflow.api.Workflow dslWorkflow;
-  private JsonNode workflowData;
+  private WorkflowData workflowData = new WorkflowData();
   private Logger logger = Workflow.getLogger(DynamicDslWorkflow.class);
-  ActivityStub activities;
+  private List<FunctionDefinition> queryFunctions;
+
+  private ActivityStub activities;
 
   @Override
   public Object execute(EncodedValues args) {
@@ -50,18 +56,53 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
     String dslWorkflowId = args.get(0, String.class);
     String dslWorkflowVersion = args.get(1, String.class);
     // Get second input which is set to workflowData
-    workflowData = args.get(2, JsonNode.class);
+    workflowData.setValue((ObjectNode) args.get(2, JsonNode.class));
 
     // Using a global shared workflow object here is only allowed because its
     // assumed that at this point it is immutable and the same across all workflow worker restarts
     dslWorkflow = DslWorkflowCache.getWorkflow(dslWorkflowId, dslWorkflowVersion);
+
+    // Get all expression type functions to be used for queries
+    queryFunctions =
+        DslWorkflowUtils.getFunctionDefinitionsWithType(
+            dslWorkflow, FunctionDefinition.Type.EXPRESSION);
 
     // Register dynamic signal handler
     // For demo signals input sets the workflowData
     // Improvement can be to add to it instead
     Workflow.registerListener(
         (DynamicSignalHandler)
-            (signalName, encodedArgs) -> workflowData = encodedArgs.get(0, JsonNode.class));
+            (signalName, encodedArgs) -> {
+              if (workflowData == null) {
+                workflowData = new WorkflowData();
+              }
+              workflowData.setValue((ObjectNode) encodedArgs.get(0, JsonNode.class));
+            });
+
+    // Register dynamic query handler
+    // we use expression type functions in workflow def as query definitions
+    Workflow.registerListener(
+        (DynamicQueryHandler)
+            (queryType, encodedArgs) -> {
+              if (queryFunctions == null
+                  || DslWorkflowUtils.getFunctionDefinitionWithName(dslWorkflow, queryType)
+                      == null) {
+                logger.warn("Unable to find expression function with name: " + queryType);
+                String queryInput = encodedArgs.get(0, String.class);
+                if (queryInput == null || queryInput.length() < 1) {
+                  // no input just return workflow data
+                  return workflowData.getValue();
+                } else {
+                  return JQFilter.getInstance()
+                      .evaluateExpression(queryInput, workflowData.getValue());
+                }
+              }
+              return JQFilter.getInstance()
+                  .evaluateExpression(
+                      DslWorkflowUtils.getFunctionDefinitionWithName(dslWorkflow, queryType)
+                          .getOperation(),
+                      workflowData.getValue());
+            });
 
     // Get the activity options that are set from properties in dsl
     ActivityOptions activityOptions = DslWorkflowUtils.getActivityOptionsFromDsl(dslWorkflow);
@@ -69,10 +110,10 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
     activities = Workflow.newUntypedActivityStub(activityOptions);
 
     // Start going through the dsl workflow states and execute depending on their instructions
-    executeDslWorkflowFrom(DslWorkflowUtils.getStartingWorkflowState(dslWorkflow));
+    executeDslWorkflowFrom(WorkflowUtils.getStartingState(dslWorkflow));
 
     // Return the final workflow data as result
-    return workflowData;
+    return workflowData.getValue();
   }
 
   /** Executes workflow according to the dsl control flow logic */
@@ -87,10 +128,6 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
       // done
       return;
     }
-  }
-
-  private void addToWorkflowData(JsonNode toAdd) {
-    ((ObjectNode) workflowData).putAll(((ObjectNode) toAdd));
   }
 
   /**
@@ -109,17 +146,20 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
                 .get(0)
                 .getActionMode()
                 .equals(OnEvents.ActionMode.PARALLEL)) {
-          List<Promise<JsonNode>> eventPromises = new ArrayList<>();
+          List<Promise<ActResult>> eventPromises = new ArrayList<>();
+
           for (Action action : eventStateActions) {
             eventPromises.add(
                 activities.executeAsync(
-                    action.getFunctionRef().getRefName(), JsonNode.class, workflowData));
+                    action.getFunctionRef().getRefName(),
+                    ActResult.class,
+                    workflowData.getCustomer()));
           }
           // Invoke all activities in parallel. Wait for all to complete
           Promise.allOf(eventPromises).get();
 
-          for (Promise<JsonNode> promise : eventPromises) {
-            addToWorkflowData(promise.get());
+          for (Promise<ActResult> promise : eventPromises) {
+            workflowData.addResults(promise.get());
           }
         } else {
           for (Action action : eventStateActions) {
@@ -127,9 +167,11 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
               Workflow.sleep(Duration.parse(action.getSleep().getBefore()));
             }
             // execute the action as an activity and assign its results to workflowData
-            addToWorkflowData(
+            workflowData.addResults(
                 activities.execute(
-                    action.getFunctionRef().getRefName(), JsonNode.class, workflowData));
+                    action.getFunctionRef().getRefName(),
+                    ActResult.class,
+                    workflowData.getCustomer()));
             if (action.getSleep() != null && action.getSleep().getAfter() != null) {
               Workflow.sleep(Duration.parse(action.getSleep().getAfter()));
             }
@@ -139,26 +181,29 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
       if (eventState.getTransition() == null || eventState.getTransition().getNextState() == null) {
         return null;
       }
-      return DslWorkflowUtils.getWorkflowStateWithName(
-          eventState.getTransition().getNextState(), dslWorkflow);
+      return WorkflowUtils.getStateWithName(dslWorkflow, eventState.getTransition().getNextState());
 
     } else if (dslWorkflowState instanceof OperationState) {
       OperationState operationState = (OperationState) dslWorkflowState;
+
       if (operationState.getActions() != null && operationState.getActions().size() > 0) {
         // Check if actions should be executed sequentially or parallel
         if (operationState.getActionMode() != null
             && operationState.getActionMode().equals(OperationState.ActionMode.PARALLEL)) {
-          List<Promise<JsonNode>> actionsPromises = new ArrayList<>();
+          List<Promise<ActResult>> actionsPromises = new ArrayList<>();
+
           for (Action action : operationState.getActions()) {
             actionsPromises.add(
                 activities.executeAsync(
-                    action.getFunctionRef().getRefName(), JsonNode.class, workflowData));
+                    action.getFunctionRef().getRefName(),
+                    ActResult.class,
+                    workflowData.getCustomer()));
           }
           // Invoke all activities in parallel. Wait for all to complete
           Promise.allOf(actionsPromises).get();
 
-          for (Promise<JsonNode> promise : actionsPromises) {
-            addToWorkflowData(promise.get());
+          for (Promise<ActResult> promise : actionsPromises) {
+            workflowData.addResults(promise.get());
           }
         } else {
           for (Action action : operationState.getActions()) {
@@ -166,9 +211,12 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
               Workflow.sleep(Duration.parse(action.getSleep().getBefore()));
             }
             // execute the action as an activity and assign its results to workflowData
-            addToWorkflowData(
+            workflowData.addResults(
                 activities.execute(
-                    action.getFunctionRef().getRefName(), JsonNode.class, workflowData));
+                    action.getFunctionRef().getRefName(),
+                    ActResult.class,
+                    workflowData.getCustomer()));
+
             if (action.getSleep() != null && action.getSleep().getAfter() != null) {
               Workflow.sleep(Duration.parse(action.getSleep().getAfter()));
             }
@@ -179,37 +227,37 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
           || operationState.getTransition().getNextState() == null) {
         return null;
       }
-      return DslWorkflowUtils.getWorkflowStateWithName(
-          operationState.getTransition().getNextState(), dslWorkflow);
+      return WorkflowUtils.getStateWithName(
+          dslWorkflow, operationState.getTransition().getNextState());
     } else if (dslWorkflowState instanceof SwitchState) {
       // Demo supports only data based switch
       SwitchState switchState = (SwitchState) dslWorkflowState;
       if (switchState.getDataConditions() != null && switchState.getDataConditions().size() > 0) {
         // evaluate each condition to see if its true. If none are true default to defaultCondition
         for (DataCondition dataCondition : switchState.getDataConditions()) {
-          if (DslWorkflowUtils.isTrueDataCondition(
-              dataCondition.getCondition(), workflowData.toPrettyString())) {
+          if (JQFilter.getInstance()
+              .evaluateBooleanExpression(dataCondition.getCondition(), workflowData.getValue())) {
             if (dataCondition.getTransition() == null
                 || dataCondition.getTransition().getNextState() == null) {
               return null;
             }
-            return DslWorkflowUtils.getWorkflowStateWithName(
-                dataCondition.getTransition().getNextState(), dslWorkflow);
+            return WorkflowUtils.getStateWithName(
+                dslWorkflow, dataCondition.getTransition().getNextState());
           }
         }
         // no conditions evaluated to true, use default condition
         if (switchState.getDefaultCondition().getTransition() == null) {
           return null;
         }
-        return DslWorkflowUtils.getWorkflowStateWithName(
-            switchState.getDefaultCondition().getTransition().getNextState(), dslWorkflow);
+        return WorkflowUtils.getStateWithName(
+            dslWorkflow, switchState.getDefaultCondition().getTransition().getNextState());
       } else {
         // no conditions use the transition/end of default condition
         if (switchState.getDefaultCondition().getTransition() == null) {
           return null;
         }
-        return DslWorkflowUtils.getWorkflowStateWithName(
-            switchState.getDefaultCondition().getTransition().getNextState(), dslWorkflow);
+        return WorkflowUtils.getStateWithName(
+            dslWorkflow, switchState.getDefaultCondition().getTransition().getNextState());
       }
     } else if (dslWorkflowState instanceof SleepState) {
       SleepState sleepState = (SleepState) dslWorkflowState;
@@ -219,11 +267,85 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
       if (sleepState.getTransition() == null || sleepState.getTransition().getNextState() == null) {
         return null;
       }
-      return DslWorkflowUtils.getWorkflowStateWithName(
-          sleepState.getTransition().getNextState(), dslWorkflow);
+      return WorkflowUtils.getStateWithName(dslWorkflow, sleepState.getTransition().getNextState());
+    } else if (dslWorkflowState instanceof ForEachState) {
+      ForEachState state = (ForEachState) dslWorkflowState;
+      // List<Promise<JsonNode>> actionsPromises = new ArrayList<>();
+
+      List<JsonNode> inputs =
+          JQFilter.getInstance()
+              .evaluateArrayExpression(state.getInputCollection(), workflowData.getValue());
+      // TODO: update to exec all in parallel!
+      for (JsonNode input : inputs) {
+        for (Action action : state.getActions()) {
+          if (action.getSleep() != null && action.getSleep().getBefore() != null) {
+            Workflow.sleep(Duration.parse(action.getSleep().getBefore()));
+          }
+
+          // execute the action as an activity and assign its results to workflowData
+          workflowData.addResults(
+              activities.execute(
+                  action.getFunctionRef().getRefName(),
+                  ActResult.class,
+                  workflowData.getCustomer()));
+
+          if (action.getSleep() != null && action.getSleep().getAfter() != null) {
+            Workflow.sleep(Duration.parse(action.getSleep().getAfter()));
+          }
+        }
+      }
+
+      if (state.getTransition() == null || state.getTransition().getNextState() == null) {
+        return null;
+      }
+
+      return WorkflowUtils.getStateWithName(dslWorkflow, state.getTransition().getNextState());
+    } else if (dslWorkflowState instanceof ParallelState) {
+      ParallelState parallelState = (ParallelState) dslWorkflowState;
+
+      // this is just initial impl, still need to add things like timeouts etc
+      // also this currently assumes the "allof" completion type (default)
+      if (parallelState.getBranches() != null && parallelState.getBranches().size() > 0) {
+        List<Promise<Void>> branchAllOfPromises = new ArrayList<>();
+
+        for (Branch branch : parallelState.getBranches()) {
+          branchAllOfPromises.add(Async.procedure(this::processBranchActions, branch));
+        }
+
+        // execute all branch actions in parallel..wait for all to complete
+        Promise.allOf(branchAllOfPromises).get();
+      }
+
+      if (parallelState.getTransition() == null
+          || parallelState.getTransition().getNextState() == null) {
+        return null;
+      }
+
+      return WorkflowUtils.getStateWithName(
+          dslWorkflow, parallelState.getTransition().getNextState());
     } else {
       logger.error("Invalid or unsupported in demo dsl workflow state: " + dslWorkflowState);
       return null;
+    }
+  }
+
+  private void processBranchActions(Branch branch) {
+    // here we assume for now that all actions themselves inside
+    // branch are also executed in parallel, just for sample sake
+    // we should check the action mode to see if its sequential or parallel
+    // will add...
+    List<Promise<ActResult>> branchActionPromises = new ArrayList<>();
+    List<Action> branchActions = branch.getActions();
+    for (Action action : branchActions) {
+      branchActionPromises.add(
+          activities.executeAsync(
+              action.getFunctionRef().getRefName(), ActResult.class, workflowData.getCustomer()));
+    }
+
+    Promise.allOf(branchActionPromises).get();
+
+    for (Promise<ActResult> promise : branchActionPromises) {
+      workflowData.addResults(promise.get());
     }
   }
 }

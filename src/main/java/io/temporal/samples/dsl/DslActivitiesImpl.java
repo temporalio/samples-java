@@ -19,69 +19,44 @@
 
 package io.temporal.samples.dsl;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.temporal.activity.Activity;
+import io.temporal.samples.dsl.model.ActResult;
+import io.temporal.samples.dsl.model.Customer;
 
 public class DslActivitiesImpl implements DslActivities {
   @Override
-  public JsonNode checkCustomerInfo() {
+  public ActResult checkCustomerInfo(Customer customer) {
     try {
-      ObjectMapper mapper = new ObjectMapper();
-      return mapper.readTree(
-          getReturnJson(Activity.getExecutionContext().getInfo().getActivityType(), "invoked"));
+      return new ActResult(Activity.getExecutionContext().getInfo().getActivityType(), "invoked");
     } catch (Exception e) {
       return null;
     }
   }
 
   @Override
-  public JsonNode updateApplicationInfo() {
+  public ActResult updateApplicationInfo(Customer customer) {
     try {
-      ObjectMapper mapper = new ObjectMapper();
-      return mapper.readTree(
-          getReturnJson(Activity.getExecutionContext().getInfo().getActivityType(), "invoked"));
+      return new ActResult(Activity.getExecutionContext().getInfo().getActivityType(), "invoked");
     } catch (Exception e) {
       return null;
     }
   }
 
   @Override
-  public JsonNode approveApplication() {
+  public ActResult approveApplication(Customer customer) {
     try {
-      ObjectMapper mapper = new ObjectMapper();
-      return mapper.readTree(
-          getDecisionJson(
-              Activity.getExecutionContext().getInfo().getActivityType(),
-              "invoked",
-              "decision",
-              "APPROVED"));
+      return new ActResult("decision", "APPROVED");
     } catch (Exception e) {
       return null;
     }
   }
 
   @Override
-  public JsonNode rejectApplication() {
+  public ActResult rejectApplication(Customer customer) {
     try {
-      ObjectMapper mapper = new ObjectMapper();
-      return mapper.readTree(
-          getDecisionJson(
-              Activity.getExecutionContext().getInfo().getActivityType(),
-              "invoked",
-              "decision",
-              "DENIED"));
+      return new ActResult("decision-" + customer.getName(), "DENIED");
     } catch (Exception e) {
       return null;
     }
-  }
-
-  private String getReturnJson(String key, String value) {
-    return "{\n" + "  \"" + key + "\": \"" + value + "\"\n" + "}";
-  }
-
-  private String getDecisionJson(String key1, String value1, String key2, String value2) {
-    return "{\n" + "   \"" + key1 + "\": \"" + value1 + "\",\n" + "   \"" + key2 + "\": \"" + value2
-        + "\"\n" + "}";
   }
 }
