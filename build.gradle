@@ -28,7 +28,7 @@ repositories {
 
 dependencies {
     implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.6.0'
-    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.9'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.10'
     implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
     implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '2.2.0'
     implementation group: 'io.cloudevents', name: 'cloudevents-api', version: '2.3.0'
