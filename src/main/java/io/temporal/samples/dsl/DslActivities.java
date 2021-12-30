@@ -32,4 +32,6 @@ public interface DslActivities {
   ActResult rejectApplication(Customer customer);
 
   ActResult updateApplicationInfo(Customer customer);
+
+  ActResult invokeBankingService(Customer customer);
 }

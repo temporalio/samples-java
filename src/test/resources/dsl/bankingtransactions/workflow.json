@@ -1,0 +1,46 @@
+{
+  "id": "bankingtransactions",
+  "name": "Customer Banking Transactions Workflow",
+  "version": "1.0",
+  "specVersion": "0.8",
+  "timeouts": {
+    "workflowExecTimeout": {
+      "duration": "PT1M"
+    },
+    "actionExecTimeout": "PT10S"
+  },
+  "autoRetries": true,
+  "start": "ProcessTransactions",
+  "states": [
+    {
+      "name": "ProcessTransactions",
+      "type": "foreach",
+      "inputCollection": "${ .customer.transactions }",
+      "iterationParam": "${ .tx }",
+      "mode": "parallel",
+      "actions": [
+        {
+          "name": "Processing Action",
+          "functionRef": "InvokeBankingService"
+        }
+      ],
+      "end": true
+    }
+  ],
+  "functions": [
+    {
+      "name": "InvokeBankingService",
+      "type": "rest"
+    },
+    {
+      "name": "QueryCustomerName",
+      "type": "expression",
+      "operation": "${ .customer.name }"
+    },
+    {
+      "name": "QueryCustomerAge",
+      "type": "expression",
+      "operation": "${ .customer.age }"
+    }
+  ]
+}

@@ -22,7 +22,6 @@ package io.temporal.samples.dsl;
 import static io.temporal.samples.dsl.utils.DslWorkflowUtils.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.serverlessworkflow.api.Workflow;
 import io.serverlessworkflow.api.interfaces.WorkflowValidator;
 import io.serverlessworkflow.api.validation.ValidationError;
@@ -32,7 +31,9 @@ import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.WorkerFactory;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Starter {
 
@@ -40,10 +41,27 @@ public class Starter {
   public static final WorkflowClient client = WorkflowClient.newInstance(service);
   public static final WorkerFactory factory = WorkerFactory.newInstance(client);
 
+  private static final Map<String, String> workflowIdToDataInputMap =
+      new HashMap() {
+        {
+          put("customerapplication", "dsl/customerapplication/datainput.json");
+          put("bankingtransactions", "dsl/bankingtransactions/datainput.json");
+        }
+      };
+
   public static void main(String[] args) {
+    for (String workflowId : workflowIdToDataInputMap.keySet()) {
+      dslWorkflow(workflowId, "1.0", workflowIdToDataInputMap.get(workflowId));
+    }
+
+    System.exit(0);
+  }
+
+  private static void dslWorkflow(
+      String workflowId, String workflowVersion, String dataInputFileName) {
     try {
       // Get the workflow dsl from cache
-      Workflow dslWorkflow = DslWorkflowCache.getWorkflow("customerapplication", "1.0");
+      Workflow dslWorkflow = DslWorkflowCache.getWorkflow(workflowId, workflowVersion);
 
       // Validate dsl
       WorkflowValidator dslWorkflowValidator = new WorkflowValidatorImpl();
@@ -63,25 +81,27 @@ public class Starter {
       WorkflowStub workflowStub =
           client.newUntypedWorkflowStub(dslWorkflow.getName(), workflowOptions);
 
+      System.out.println(
+          "Starting workflow with id: " + workflowId + " and version: " + workflowVersion);
       // Start workflow execution
-      startWorkflow(workflowStub, dslWorkflow, getSampleWorkflowInput());
+      startWorkflow(workflowStub, dslWorkflow, getSampleWorkflowInput(dataInputFileName));
 
       // Wait for workflow to finish
       JsonNode result = workflowStub.getResult(JsonNode.class);
+
+      // Query the customer name and age
+      String customerName = workflowStub.query("QueryCustomerName", String.class);
+      int customerAge = workflowStub.query("QueryCustomerAge", Integer.class);
+
+      System.out.println("Query result for customer name: " + customerName);
+      System.out.println("Query result for customer age: " + customerAge);
+
       // Print workflow results
-      System.out.println("Workflow Results: \n" + result.toPrettyString());
+      System.out.println("Workflow results: \n" + result.toPrettyString());
 
     } catch (Exception e) {
+      e.printStackTrace();
       System.err.println("Error: " + e.getMessage());
-      System.exit(1);
     }
-
-    System.exit(0);
-  }
-
-  private static JsonNode getSampleWorkflowInput() throws Exception {
-    String workflowDataInput = getFileAsString("dsl/datainput.json");
-    ObjectMapper objectMapper = new ObjectMapper();
-    return objectMapper.readTree(workflowDataInput);
   }
 }

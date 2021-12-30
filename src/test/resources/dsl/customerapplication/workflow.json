@@ -15,7 +15,6 @@
       "maxAttempts": 10
     }
   ],
-  "start": "NewCustomerApplication",
   "states": [
     {
       "name": "NewCustomerApplication",
@@ -98,6 +97,16 @@
     {
       "name": "RejectApplication",
       "type": "rest"
+    },
+    {
+      "name": "QueryCustomerName",
+      "type": "expression",
+      "operation": "${ .customer.name }"
+    },
+    {
+      "name": "QueryCustomerAge",
+      "type": "expression",
+      "operation": "${ .customer.age }"
     }
   ],
   "events": [

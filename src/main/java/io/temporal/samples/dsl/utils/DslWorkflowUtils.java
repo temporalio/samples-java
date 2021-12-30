@@ -20,6 +20,7 @@
 package io.temporal.samples.dsl.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.serverlessworkflow.api.Workflow;
 import io.serverlessworkflow.api.functions.FunctionDefinition;
 import io.serverlessworkflow.api.interfaces.State;
@@ -62,7 +63,8 @@ public class DslWorkflowUtils {
           Duration.parse(workflow.getTimeouts().getWorkflowExecTimeout().getDuration()));
     }
 
-    if (workflow.getStart().getSchedule() != null
+    if (workflow.getStart() != null
+        && workflow.getStart().getSchedule() != null
         && workflow.getStart().getSchedule().getCron() != null) {
       dslWorkflowOptionsBuilder.setCronSchedule(
           workflow.getStart().getSchedule().getCron().getExpression());
@@ -143,5 +145,11 @@ public class DslWorkflowUtils {
     return workflow.getFunctions().getFunctionDefs().stream()
         .filter(fd -> fd.getType().equals(type))
         .collect(Collectors.toList());
+  }
+
+  public static JsonNode getSampleWorkflowInput(String fileName) throws Exception {
+    String workflowDataInput = getFileAsString(fileName);
+    ObjectMapper objectMapper = new ObjectMapper();
+    return objectMapper.readTree(workflowDataInput);
   }
 }
