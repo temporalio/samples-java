@@ -34,10 +34,15 @@ public class DslWorkflowCache {
     static {
       try {
         Workflow customerApplicationWorkflow =
-            Workflow.fromSource(getFileAsString("dsl/customerapplication.yml"));
+            Workflow.fromSource(getFileAsString("dsl/customerapplication/workflow.yml"));
+        Workflow bankingTransactionsWorkflow =
+            Workflow.fromSource(getFileAsString("dsl/bankingtransactions/workflow.yml"));
         dslWorkflowMap.put(
             customerApplicationWorkflow.getId() + "-" + customerApplicationWorkflow.getVersion(),
             customerApplicationWorkflow);
+        dslWorkflowMap.put(
+            bankingTransactionsWorkflow.getId() + "-" + bankingTransactionsWorkflow.getVersion(),
+            bankingTransactionsWorkflow);
       } catch (Exception e) {
         e.printStackTrace();
       }

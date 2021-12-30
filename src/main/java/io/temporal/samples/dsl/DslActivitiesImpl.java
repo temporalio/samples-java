@@ -59,4 +59,13 @@ public class DslActivitiesImpl implements DslActivities {
       return null;
     }
   }
+
+  @Override
+  public ActResult invokeBankingService(Customer customer) {
+    try {
+      return new ActResult(Activity.getExecutionContext().getInfo().getActivityType(), "invoked");
+    } catch (Exception e) {
+      return null;
+    }
+  }
 }

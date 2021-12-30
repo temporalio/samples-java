@@ -19,9 +19,12 @@
 
 package io.temporal.samples.dsl.model;
 
+import java.util.List;
+
 public class Customer {
   private String name;
   private int age;
+  private List<Integer> transactions;
 
   public String getName() {
     return name;
@@ -37,5 +40,13 @@ public class Customer {
 
   public void setAge(int age) {
     this.age = age;
+  }
+
+  public List<Integer> getTransactions() {
+    return transactions;
+  }
+
+  public void setTransactions(List<Integer> transactions) {
+    this.transactions = transactions;
   }
 }
