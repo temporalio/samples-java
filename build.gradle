@@ -68,7 +68,7 @@ dependencies {
 configurations.all {
     resolutionStrategy {
         force 'com.fasterxml.jackson.core:jackson-core:2.12.5'
-        force 'com.fasterxml.jackson.core:jackson-databind:2.12.5'
+        force 'com.fasterxml.jackson.core:jackson-databind:2.13.1'
         force 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.5'
     }
 }
