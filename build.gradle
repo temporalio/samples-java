@@ -40,7 +40,7 @@ dependencies {
     implementation group: 'com.jayway.jsonpath', name: 'json-path', version: '2.6.0'
     implementation group: 'io.micrometer', name: 'micrometer-registry-prometheus', version: '1.8.1'
     implementation group: 'net.thisptr', name: 'jackson-jq', version: '1.0.0-preview.20210928'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.5'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.1'
 
     testImplementation("io.temporal:temporal-testing:1.6.0")
     testImplementation ("io.temporal:temporal-testing") {
