@@ -37,10 +37,9 @@ public class HelloCancellationScopeTest {
       TestWorkflowRule.newBuilder()
           .setWorkflowTypes(GreetingWorkflowImpl.class)
           .setActivityImplementations(new GreetingActivitiesImpl())
-          .setTestTimeoutSeconds(200)
           .build();
 
-  @Test
+  @Test(timeout = 200_000)
   public void testActivityImpl() {
     // Get a workflow stub using the same task queue the worker uses.
     GreetingWorkflow workflow =

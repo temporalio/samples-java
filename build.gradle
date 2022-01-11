@@ -27,7 +27,11 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.6.0'
+    implementation(platform("com.fasterxml.jackson:jackson-bom:2.13.1"))
+
+    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.7.0'
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.10'
     implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
     implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '2.3.0'
@@ -42,7 +46,7 @@ dependencies {
     implementation group: 'net.thisptr', name: 'jackson-jq', version: '1.0.0-preview.20210928'
     implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.5'
 
-    testImplementation("io.temporal:temporal-testing:1.6.0")
+    testImplementation("io.temporal:temporal-testing:1.7.0")
     testImplementation ("io.temporal:temporal-testing") {
         capabilities {
             requireCapability("io.temporal:temporal-testing-junit4")
@@ -63,14 +67,6 @@ dependencies {
 
     errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
     errorprone("com.google.errorprone:error_prone_core:2.10.0")
-}
-
-configurations.all {
-    resolutionStrategy {
-        force 'com.fasterxml.jackson.core:jackson-core:2.12.5'
-        force 'com.fasterxml.jackson.core:jackson-databind:2.12.5'
-        force 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.5'
-    }
 }
 
 compileJava {
