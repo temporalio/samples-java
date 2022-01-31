@@ -75,7 +75,5 @@ public class MetricsStarter {
     System.out.println("Starter metrics are available at http://localhost:8081/prometheus");
 
     // We don't shut down the process here so metrics can be viewed.
-    // For real applications, this would be a long-running process
-    // that does not shut down.
   }
 }
