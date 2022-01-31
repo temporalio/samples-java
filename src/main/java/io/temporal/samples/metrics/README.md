@@ -12,4 +12,4 @@ This sample shows setup for SDK metrics.
 ./gradlew -q execute -PmainClass=io.temporal.samples.metrics.MetricsStarter
 ```
 
-3. See the metrics on: [http://localhost:8080/sdkmetrics](http://localhost:8080/sdkmetrics)
+3. See the worker metrics on the exposed Prometheus Scrape Endpoint: [http://localhost:8080/prometheus](http://localhost:8080/prometheus)
