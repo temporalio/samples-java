@@ -34,7 +34,7 @@ public class MetricsUtils {
   public static HttpServer startPrometheusScrapeEndpoint(
       PrometheusMeterRegistry registry, int port) {
     try {
-      HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+      HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
       server.createContext(
           "/prometheus",
           httpExchange -> {

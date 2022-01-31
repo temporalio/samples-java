@@ -13,3 +13,7 @@ This sample shows setup for SDK metrics.
 ```
 
 3. See the worker metrics on the exposed Prometheus Scrape Endpoint: [http://localhost:8080/prometheus](http://localhost:8080/prometheus)
+
+4. See the starter metrics on the exposed Prometheus Scrape Endpoint [http://localhost:8080/prometheus](http://localhost:8081/prometheus)
+
+5. Stop the worker and starter
