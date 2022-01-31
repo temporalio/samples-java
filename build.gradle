@@ -40,7 +40,7 @@ dependencies {
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-api', version: '4.0.2.Final'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-validation', version: '4.0.2.Final'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-spi', version: '4.0.2.Final'
-    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-util', version: '4.0.1.Final'
+    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-util', version: '4.0.2.Final'
     implementation group: 'com.jayway.jsonpath', name: 'json-path', version: '2.7.0'
     implementation group: 'io.micrometer', name: 'micrometer-registry-prometheus', version: '1.8.2'
     implementation group: 'net.thisptr', name: 'jackson-jq', version: '1.0.0-preview.20210928'
