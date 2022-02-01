@@ -22,6 +22,7 @@ package io.temporal.samples.metrics;
 import com.sun.net.httpserver.HttpServer;
 import com.uber.m3.tally.RootScopeBuilder;
 import com.uber.m3.tally.Scope;
+import com.uber.m3.util.ImmutableMap;
 import io.micrometer.prometheus.PrometheusConfig;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import io.temporal.client.WorkflowClient;
@@ -38,37 +39,41 @@ public class MetricsStarter {
     // Set up a new scope, report every 1 second
     Scope scope =
         new RootScopeBuilder()
+            // shows how to set custom tags
+            .tags(
+                ImmutableMap.of(
+                    "starterCustomTag1",
+                    "starterCustomTag1Value",
+                    "starterCustomTag2",
+                    "starterCustomTag2Value"))
             .reporter(new MicrometerClientStatsReporter(registry))
             .reportEvery(com.uber.m3.util.Duration.ofSeconds(1));
-    // Start the prometheus scrape endpoint
+    // Start the prometheus scrape endpoint for starter metrics
     HttpServer scrapeEndpoint = MetricsUtils.startPrometheusScrapeEndpoint(registry, 8081);
+    // Stopping the starter will stop the http server that exposes the
+    // scrape endpoint.
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> scrapeEndpoint.stop(1)));
 
-    try {
-      // Add metrics scope to workflow service stub options
-      WorkflowServiceStubsOptions stubOptions =
-          WorkflowServiceStubsOptions.newBuilder().setMetricsScope(scope).build();
+    // Add metrics scope to workflow service stub options
+    WorkflowServiceStubsOptions stubOptions =
+        WorkflowServiceStubsOptions.newBuilder().setMetricsScope(scope).build();
 
-      WorkflowServiceStubs service = WorkflowServiceStubs.newInstance(stubOptions);
-      WorkflowClient client = WorkflowClient.newInstance(service);
+    WorkflowServiceStubs service = WorkflowServiceStubs.newInstance(stubOptions);
+    WorkflowClient client = WorkflowClient.newInstance(service);
 
-      WorkflowOptions workflowOptions =
-          WorkflowOptions.newBuilder()
-              .setWorkflowId("metricsWorkflow")
-              .setTaskQueue(MetricsWorker.DEFAULT_TASK_QUEUE_NAME)
-              .build();
-      MetricsWorkflow workflow = client.newWorkflowStub(MetricsWorkflow.class, workflowOptions);
+    WorkflowOptions workflowOptions =
+        WorkflowOptions.newBuilder()
+            .setWorkflowId("metricsWorkflow")
+            .setTaskQueue(MetricsWorker.DEFAULT_TASK_QUEUE_NAME)
+            .build();
+    MetricsWorkflow workflow = client.newWorkflowStub(MetricsWorkflow.class, workflowOptions);
 
-      String result = workflow.exec("hello metrics");
+    String result = workflow.exec("hello metrics");
 
-      System.out.println("Result: " + result);
+    System.out.println("Result: " + result);
 
-      // For the sake of the sample we shut down our process
-      // meaning we no longer record sdk metrics.
-      // In real applications, this would be a long-running process which does not
-      // shut down immediately.
-      System.exit(0);
-    } finally {
-      scrapeEndpoint.stop(1);
-    }
+    System.out.println("Starter metrics are available at http://localhost:8081/prometheus");
+
+    // We don't shut down the process here so metrics can be viewed.
   }
 }
