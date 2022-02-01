@@ -26,7 +26,7 @@ public class MetricsActivitiesImpl implements MetricsActivities {
 
   @Override
   public String performA(String input) {
-    // simulate some random failures to trigger retries
+    // simulate some failures to trigger retries
     if (Activity.getExecutionContext().getInfo().getAttempt() < 3) {
       incRetriesCustomMetric(Activity.getExecutionContext());
       throw Activity.wrap(new NullPointerException("simulated"));
@@ -36,7 +36,7 @@ public class MetricsActivitiesImpl implements MetricsActivities {
 
   @Override
   public String performB(String input) {
-    // simulate some random failures to trigger retries
+    // simulate some failures to trigger retries
     if (Activity.getExecutionContext().getInfo().getAttempt() < 5) {
       incRetriesCustomMetric(Activity.getExecutionContext());
       throw Activity.wrap(new NullPointerException("simulated"));
