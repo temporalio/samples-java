@@ -51,7 +51,7 @@ public class SslEnabledWorker {
     WorkflowServiceStubs service =
         WorkflowServiceStubs.newInstance(
             WorkflowServiceStubsOptions.newBuilder()
-                .setSslContext(SimpleSslContextBuilder.newBuilder(clientCert, clientKey).build())
+                .setSslContext(SimpleSslContextBuilder.forPKCS8(clientCert, clientKey).build())
                 .setTarget(targetEndpoint)
                 .build());
 
