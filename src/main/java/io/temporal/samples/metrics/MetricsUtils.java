@@ -19,6 +19,8 @@
 
 package io.temporal.samples.metrics;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.sun.net.httpserver.HttpServer;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import java.io.IOException;
@@ -39,9 +41,9 @@ public class MetricsUtils {
           "/prometheus",
           httpExchange -> {
             String response = registry.scrape();
-            httpExchange.sendResponseHeaders(200, response.getBytes().length);
+            httpExchange.sendResponseHeaders(200, response.getBytes(UTF_8).length);
             try (OutputStream os = httpExchange.getResponseBody()) {
-              os.write(response.getBytes());
+              os.write(response.getBytes(UTF_8));
             }
           });
 

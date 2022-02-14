@@ -4,7 +4,6 @@ plugins {
     id 'org.cadixdev.licenser' version '0.6.1'
     id 'com.github.sherter.google-java-format' version '0.9'
     id "net.ltgt.errorprone" version "2.0.2"
-    id 'name.remal.check-updates' version '1.5.0'
 }
 
 apply plugin: 'java'
@@ -77,40 +76,8 @@ test {
     useJUnitPlatform()
 }
 
-task execute(type: JavaExec) {
-    main = findProperty("mainClass") ?: ""
-    classpath = sourceSets.main.runtimeClasspath
-}
-
 license {
     header rootProject.file('license-header.txt')
     exclude '**/*.json'
     exclude '**/*.yml'
-}
-
-// Executes most of the hello workflows as a sanity check
-task runHello {
-    doLast {
-        // Cron and Periodic are not in the list as they take long time to stop
-        ["io.temporal.samples.hello.HelloActivity",
-         "io.temporal.samples.hello.HelloActivityExclusiveChoice",
-         "io.temporal.samples.hello.HelloActivityRetry",
-         "io.temporal.samples.hello.HelloAsync",
-         "io.temporal.samples.hello.HelloAsyncActivityCompletion",
-         "io.temporal.samples.hello.HelloAsyncLambda",
-         "io.temporal.samples.hello.HelloChild",
-         "io.temporal.samples.hello.HelloException",
-         "io.temporal.samples.hello.HelloPolymorphicActivity",
-         "io.temporal.samples.hello.HelloQuery",
-         "io.temporal.samples.hello.HelloSaga",
-         "io.temporal.samples.hello.HelloSearchAttributes",
-         "io.temporal.samples.hello.HelloSignal"
-        ].each { mainClass ->
-            println mainClass
-            javaexec {
-                classpath = sourceSets.main.runtimeClasspath
-                main = mainClass
-            }
-        }
-    }
 }

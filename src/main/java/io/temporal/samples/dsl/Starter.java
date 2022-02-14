@@ -22,6 +22,7 @@ package io.temporal.samples.dsl;
 import static io.temporal.samples.dsl.utils.DslWorkflowUtils.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.collect.ImmutableMap;
 import io.serverlessworkflow.api.Workflow;
 import io.serverlessworkflow.api.interfaces.WorkflowValidator;
 import io.serverlessworkflow.api.validation.ValidationError;
@@ -31,7 +32,6 @@ import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.WorkerFactory;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,12 +42,11 @@ public class Starter {
   public static final WorkerFactory factory = WorkerFactory.newInstance(client);
 
   private static final Map<String, String> workflowIdToDataInputMap =
-      new HashMap() {
-        {
-          put("customerapplication", "dsl/customerapplication/datainput.json");
-          put("bankingtransactions", "dsl/bankingtransactions/datainput.json");
-        }
-      };
+      ImmutableMap.of(
+          "customerapplication",
+          "dsl/customerapplication/datainput.json",
+          "bankingtransactions",
+          "dsl/bankingtransactions/datainput.json");
 
   public static void main(String[] args) {
     for (String workflowId : workflowIdToDataInputMap.keySet()) {

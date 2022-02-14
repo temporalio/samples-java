@@ -29,6 +29,7 @@ public class Starter {
    * Show the use and difference between getResult and getResultAsync for waiting on workflow
    * results.
    */
+  @SuppressWarnings("FutureReturnValueIgnored")
   public static void main(String[] args) {
     MyWorkflow workflowStub1 =
         Worker.client.newWorkflowStub(
@@ -74,8 +75,9 @@ public class Starter {
   private static void sleep(int seconds) {
     try {
       Thread.sleep(seconds * 1000);
-    } catch (InterruptedException ee) {
-      // Empty
+    } catch (InterruptedException e) {
+      System.out.println("Exception: " + e.getMessage());
+      System.exit(0);
     }
   }
 }

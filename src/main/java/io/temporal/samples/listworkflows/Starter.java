@@ -154,8 +154,9 @@ public class Starter {
   private static void sleep(int seconds) {
     try {
       Thread.sleep(seconds * 1000);
-    } catch (InterruptedException ee) {
-      ee.printStackTrace();
+    } catch (InterruptedException e) {
+      System.out.println("Exception: " + e.getMessage());
+      System.exit(0);
     }
   }
 }
