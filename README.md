@@ -149,7 +149,7 @@ All tests are available under [src/test/java](https://github.com/temporalio/samp
 
 ### OpenTracing Support
 
-- [**Set up OpenTracing with Jaeger**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/opentracing): Demonstrates how to set up OpenTracing and view traces on Jaeger.
+- [**Set up OpenTracing and/or OpenTelemetry with Jaeger**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/tracing): Demonstrates how to set up OpenTracing and/or OpenTelemetry and view traces using Jaeger.
 
 
 <!-- @@@SNIPEND -->
