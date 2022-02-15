@@ -17,7 +17,7 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.opentracing;
+package io.temporal.samples.tracing;
 
 import static org.junit.Assert.*;
 
@@ -35,10 +35,10 @@ import io.temporal.opentracing.OpenTracingClientInterceptor;
 import io.temporal.opentracing.OpenTracingOptions;
 import io.temporal.opentracing.OpenTracingSpanContextCodec;
 import io.temporal.opentracing.OpenTracingWorkerInterceptor;
-import io.temporal.samples.opentracing.workflow.TracingActivitiesImpl;
-import io.temporal.samples.opentracing.workflow.TracingChildWorkflowImpl;
-import io.temporal.samples.opentracing.workflow.TracingWorkflow;
-import io.temporal.samples.opentracing.workflow.TracingWorkflowImpl;
+import io.temporal.samples.tracing.workflow.TracingActivitiesImpl;
+import io.temporal.samples.tracing.workflow.TracingChildWorkflowImpl;
+import io.temporal.samples.tracing.workflow.TracingWorkflow;
+import io.temporal.samples.tracing.workflow.TracingWorkflowImpl;
 import io.temporal.testing.TestWorkflowRule;
 import io.temporal.worker.WorkerFactoryOptions;
 import java.util.List;

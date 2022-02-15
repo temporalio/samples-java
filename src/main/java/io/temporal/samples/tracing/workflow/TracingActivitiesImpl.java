@@ -17,21 +17,24 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.opentracing.workflow;
+package io.temporal.samples.tracing.workflow;
 
-import io.temporal.activity.ActivityOptions;
-import io.temporal.workflow.Workflow;
-import java.time.Duration;
-
-public class TracingChildWorkflowImpl implements TracingChildWorkflow {
+public class TracingActivitiesImpl implements TracingActivities {
   @Override
   public String greet(String name, String language) {
+    String greeting;
 
-    ActivityOptions activityOptions =
-        ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(2)).build();
-    TracingActivities activities =
-        Workflow.newActivityStub(TracingActivities.class, activityOptions);
+    switch (language) {
+      case "Spanish":
+        greeting = "Hola " + name;
+        break;
+      case "French":
+        greeting = "Bonjour " + name;
+        break;
+      default:
+        greeting = "Hello " + name;
+    }
 
-    return activities.greet(name, language);
+    return greeting;
   }
 }

@@ -17,7 +17,7 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.opentracing.workflow;
+package io.temporal.samples.tracing.workflow;
 
 import io.temporal.workflow.ChildWorkflowOptions;
 import io.temporal.workflow.Workflow;

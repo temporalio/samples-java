@@ -17,11 +17,22 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.opentracing.workflow;
+package io.temporal.samples.tracing.workflow;
 
-import io.temporal.activity.ActivityInterface;
+import io.temporal.workflow.QueryMethod;
+import io.temporal.workflow.SignalMethod;
+import io.temporal.workflow.WorkflowInterface;
+import io.temporal.workflow.WorkflowMethod;
 
-@ActivityInterface
-public interface TracingActivities {
-  String greet(String name, String language);
+@WorkflowInterface
+public interface TracingWorkflow {
+
+  @WorkflowMethod
+  String greet(String name);
+
+  @SignalMethod
+  void setLanguage(String language);
+
+  @QueryMethod
+  String getLanguage();
 }

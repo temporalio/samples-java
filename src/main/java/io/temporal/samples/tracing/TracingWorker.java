@@ -17,13 +17,13 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.opentracing;
+package io.temporal.samples.tracing;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.opentracing.OpenTracingWorkerInterceptor;
-import io.temporal.samples.opentracing.workflow.TracingActivitiesImpl;
-import io.temporal.samples.opentracing.workflow.TracingChildWorkflowImpl;
-import io.temporal.samples.opentracing.workflow.TracingWorkflowImpl;
+import io.temporal.samples.tracing.workflow.TracingActivitiesImpl;
+import io.temporal.samples.tracing.workflow.TracingChildWorkflowImpl;
+import io.temporal.samples.tracing.workflow.TracingWorkflowImpl;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -35,11 +35,18 @@ public class TracingWorker {
   public static final String TASK_QUEUE_NAME = "tracingTaskQueue";
 
   public static void main(String[] args) {
+    String type = "OpenTelemetry";
+    if (args.length == 1) {
+      type = args[0];
+    }
+
+    System.out.println("************ type: " + type);
 
     // Set the OpenTracing client interceptor
     WorkerFactoryOptions factoryOptions =
         WorkerFactoryOptions.newBuilder()
-            .setWorkerInterceptors(new OpenTracingWorkerInterceptor(JaegerUtils.getJaegerOptions()))
+            .setWorkerInterceptors(
+                new OpenTracingWorkerInterceptor(JaegerUtils.getJaegerOptions(type)))
             .build();
     WorkerFactory factory = WorkerFactory.newInstance(client, factoryOptions);
 
