@@ -78,13 +78,14 @@ public class Starter {
   /**
    * Convenience method to sleep for a number of seconds.
    *
-   * @param seconds
+   * @param seconds amount of seconds to sleep
    */
   private static void sleepSeconds(int seconds) {
     try {
       Thread.sleep(seconds * 1000);
     } catch (Exception e) {
-      e.printStackTrace();
+      System.out.println("Exception: " + e.getMessage());
+      System.exit(0);
     }
   }
 
@@ -92,7 +93,7 @@ public class Starter {
    * This method uses DescribeWorkflowExecutionRequest to get the status of a workflow given a
    * WorkflowExecution.
    *
-   * @param execution
+   * @param execution workflow execution
    * @return Workflow status
    */
   private static String getStatusAsString(WorkflowExecution execution) {

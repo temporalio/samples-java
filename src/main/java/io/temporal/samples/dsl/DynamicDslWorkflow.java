@@ -276,7 +276,7 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
           JQFilter.getInstance()
               .evaluateArrayExpression(state.getInputCollection(), workflowData.getValue());
       // TODO: update to exec all in parallel!
-      for (JsonNode input : inputs) {
+      for (JsonNode ignored : inputs) {
         for (Action action : state.getActions()) {
           if (action.getSleep() != null && action.getSleep().getBefore() != null) {
             Workflow.sleep(Duration.parse(action.getSleep().getBefore()));

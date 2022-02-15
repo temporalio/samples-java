@@ -37,7 +37,7 @@ public class JQFilter {
   private static final Scope rootScope = Scope.newEmptyScope();
   private static Map<String, JsonQuery> expressionMap = new HashMap<>();
 
-  private static JQFilter instance;
+  private static volatile JQFilter instance;
 
   public static JQFilter getInstance() {
     if (instance == null) {

@@ -36,6 +36,7 @@ public class StoreActivitiesImpl implements StoreActivities {
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   public TaskQueueFileNamePair download(URL url) {
     try {
       byte[] binary = Resources.toByteArray(url);
@@ -61,6 +62,7 @@ public class StoreActivitiesImpl implements StoreActivities {
     }
   }
 
+  @SuppressWarnings("deprecation")
   private String processFileImpl(String fileName) throws IOException {
     File inputFile = new File(fileName);
     File inputDir = inputFile.getParentFile();

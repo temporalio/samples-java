@@ -44,7 +44,7 @@ public class DslWorkflowCache {
             bankingTransactionsWorkflow.getId() + "-" + bankingTransactionsWorkflow.getVersion(),
             bankingTransactionsWorkflow);
       } catch (Exception e) {
-        e.printStackTrace();
+        System.out.println("Exception: " + e.getMessage());
       }
     }
   }

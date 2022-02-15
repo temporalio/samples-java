@@ -89,7 +89,8 @@ public class Starter {
     try {
       Thread.sleep(seconds * 1000);
     } catch (Exception e) {
-      e.printStackTrace();
+      System.out.println("Exception: " + e.getMessage());
+      System.exit(0);
     }
   }
 }
