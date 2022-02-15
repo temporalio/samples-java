@@ -1,6 +1,6 @@
 # OpenTracing Sample
 
-This sample shows the Temporal Java SDK OpenTracing support.
+This sample shows the [Temporal Java SDK OpenTracing](https://github.com/temporalio/sdk-java/tree/master/temporal-opentracing) support.
 The sample uses [CNCF Jaeger](https://github.com/jaegertracing/jaeger) distributed tracing
 platform.
 
@@ -17,7 +17,6 @@ docker run -d -p 5775:5775/udp -p 16686:16686 jaegertracing/all-in-one:latest
 
 Note that we set the udp port to 5775, this is also reflected in [JagerUtils](JaegerUtils.java).
 If you start Jaeger with a different setup, please update JaegerUtils accordingly.
-
 
 1. Start the Worker:
 
