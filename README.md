@@ -17,6 +17,7 @@ This repository contains sample Workflow applications that demonstrate various c
     - [Scenario-based samples](#scenario-based-samples)
     - [API demonstrations](#api-demonstrations)
     - [SDK metrics](#sdk-metrics)
+    - [Tracing support](#tracing-support)
 - [IDE Integration](#IDE-Integration)
 
 ## How to use
@@ -145,6 +146,10 @@ All tests are available under [src/test/java](https://github.com/temporalio/samp
 ### SDK Metrics
 
 - [**Set up SDK metrics**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/metrics): Demonstrates how to set up and scrape SDK metrics.
+
+### Tracing Support
+
+- [**Set up OpenTracing and/or OpenTelemetry with Jaeger**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/tracing): Demonstrates how to set up OpenTracing and/or OpenTelemetry and view traces using Jaeger.
 
 
 <!-- @@@SNIPEND -->
