@@ -60,8 +60,7 @@ public class Starter {
                         .setStartToCloseTimeout(Duration.ofSeconds(2))
                         .setRetryOptions(
                             RetryOptions.newBuilder()
-                                // for DoNotRetryOnNPE activity type we dont want to retry it on
-                                // NPE
+                                // ActivityTypeB activity type shouldn't retry on NPE
                                 .setDoNotRetry(NullPointerException.class.getName())
                                 .build())
                         .build()))
