@@ -143,6 +143,8 @@ All tests are available under [src/test/java](https://github.com/temporalio/samp
 
 - [**Get Workflow Results Async**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/getresultsasync): Demonstrates how to start and get workflow results in async manner.
 
+- [**Per Activity Type Options**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/peractivityoptions): Demonstrates how to set per Activity type options.
+
 ### SDK Metrics
 
 - [**Set up SDK metrics**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/metrics): Demonstrates how to set up and scrape SDK metrics.
