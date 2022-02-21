@@ -52,7 +52,7 @@ dependencies {
     implementation 'io.opentelemetry:opentelemetry-sdk'
     implementation 'io.opentelemetry:opentelemetry-exporter-jaeger'
     implementation 'io.opentelemetry:opentelemetry-extension-trace-propagators'
-    implementation 'io.opentelemetry:opentelemetry-opentracing-shim:1.11.0-alpha'
+    implementation 'io.opentelemetry:opentelemetry-opentracing-shim:1.12.0-alpha-SNAPSHOT'
     implementation 'io.opentelemetry:opentelemetry-semconv:1.11.0-alpha'
 
     testImplementation("io.temporal:temporal-testing:1.8.0")
