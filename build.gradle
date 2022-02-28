@@ -28,7 +28,7 @@ repositories {
 dependencies {
     implementation(platform("com.fasterxml.jackson:jackson-bom:2.13.1"))
 
-    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.8.0'
+    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.8.1'
     implementation group: 'io.temporal', name: 'temporal-opentracing', version: '1.8.0'
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
