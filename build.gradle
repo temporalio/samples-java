@@ -28,8 +28,8 @@ repositories {
 dependencies {
     implementation(platform("com.fasterxml.jackson:jackson-bom:2.13.1"))
 
-    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.8.0'
-    implementation group: 'io.temporal', name: 'temporal-opentracing', version: '1.8.0'
+    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.8.1'
+    implementation group: 'io.temporal', name: 'temporal-opentracing', version: '1.8.1'
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.10'
@@ -55,7 +55,7 @@ dependencies {
     implementation 'io.opentelemetry:opentelemetry-opentracing-shim:1.12.0-alpha-SNAPSHOT'
     implementation 'io.opentelemetry:opentelemetry-semconv:1.12.0-alpha-SNAPSHOT'
 
-    testImplementation("io.temporal:temporal-testing:1.8.0")
+    testImplementation("io.temporal:temporal-testing:1.8.1")
     testImplementation ("io.temporal:temporal-testing") {
         capabilities {
             requireCapability("io.temporal:temporal-testing-junit4")
