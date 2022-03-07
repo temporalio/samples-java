@@ -44,7 +44,7 @@ dependencies {
     implementation group: 'com.jayway.jsonpath', name: 'json-path', version: '2.7.0'
     implementation group: 'io.micrometer', name: 'micrometer-registry-prometheus', version: '1.8.3'
     implementation group: 'net.thisptr', name: 'jackson-jq', version: '1.0.0-preview.20210928'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.12.5'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.2'
     implementation 'io.jaegertracing:jaeger-client:1.8.0'
 
     implementation(platform("io.opentelemetry:opentelemetry-bom:1.11.0"))
