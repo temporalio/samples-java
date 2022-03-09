@@ -32,7 +32,7 @@ dependencies {
     implementation group: 'io.temporal', name: 'temporal-opentracing', version: '1.8.0'
 
     implementation 'com.fasterxml.jackson.core:jackson-databind'
-    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.10'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.11'
     implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
     implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '2.3.0'
     implementation group: 'io.cloudevents', name: 'cloudevents-api', version: '2.3.0'
