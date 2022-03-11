@@ -82,6 +82,11 @@ compileJava {
     dependsOn 'googleJavaFormat'
 }
 
+task execute(type: JavaExec) {
+    main = findProperty("mainClass") ?: ""
+    classpath = sourceSets.main.runtimeClasspath
+}
+
 test {
     useJUnitPlatform()
 }
