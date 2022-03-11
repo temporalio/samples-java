@@ -17,32 +17,22 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.payloadconverter;
+package io.temporal.samples.payloadconverter.cloudevents;
 
 import io.cloudevents.CloudEvent;
-import io.temporal.workflow.Workflow;
-import java.util.ArrayList;
-import java.util.List;
+import io.temporal.workflow.QueryMethod;
+import io.temporal.workflow.SignalMethod;
+import io.temporal.workflow.WorkflowInterface;
+import io.temporal.workflow.WorkflowMethod;
 
-public class CEWorkflowImpl implements CEWorkflow {
+@WorkflowInterface
+public interface CEWorkflow {
+  @WorkflowMethod
+  void exec(CloudEvent cloudEvent);
 
-  private List<CloudEvent> eventList = new ArrayList<>();
+  @SignalMethod
+  void addEvent(CloudEvent cloudEvent);
 
-  @Override
-  public void exec(CloudEvent cloudEvent) {
-
-    eventList.add(cloudEvent);
-
-    Workflow.await(() -> eventList.size() == 10);
-  }
-
-  @Override
-  public void addEvent(CloudEvent cloudEvent) {
-    eventList.add(cloudEvent);
-  }
-
-  @Override
-  public CloudEvent getLastEvent() {
-    return eventList.get(eventList.size() - 1);
-  }
+  @QueryMethod
+  CloudEvent getLastEvent();
 }

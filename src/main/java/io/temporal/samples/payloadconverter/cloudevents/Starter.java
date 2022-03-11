@@ -17,10 +17,7 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.payloadconverter;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+package io.temporal.samples.payloadconverter.cloudevents;
 
 import io.cloudevents.CloudEvent;
 import io.cloudevents.core.builder.CloudEventBuilder;
@@ -29,32 +26,44 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.common.converter.DefaultDataConverter;
-import io.temporal.testing.TestWorkflowRule;
+import io.temporal.serviceclient.WorkflowServiceStubs;
+import io.temporal.worker.Worker;
+import io.temporal.worker.WorkerFactory;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Rule;
-import org.junit.Test;
 
-public class PayloadConverterTest {
+public class Starter {
 
-  private DefaultDataConverter ddc =
-      DefaultDataConverter.newDefaultInstance()
-          .withPayloadConverterOverrides(new CloudEventsPayloadConverter());
+  private static final String TASK_QUEUE = "CloudEventsConverterQueue";
 
-  private WorkflowClientOptions workflowClientOptions =
-      WorkflowClientOptions.newBuilder().setDataConverter(ddc).build();
+  public static void main(String[] args) {
+    WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
 
-  @Rule
-  public TestWorkflowRule testWorkflowRule =
-      TestWorkflowRule.newBuilder()
-          .setWorkflowClientOptions(workflowClientOptions)
-          .setWorkflowTypes(CEWorkflowImpl.class)
-          .build();
+    // Add CloudEventsPayloadConverter
+    // It has the same encoding type as JacksonJsonPayloadConverter
+    DefaultDataConverter ddc =
+        DefaultDataConverter.newDefaultInstance()
+            .withPayloadConverterOverrides(new CloudEventsPayloadConverter());
 
-  @Test
-  public void testActivityImpl() {
+    WorkflowClientOptions workflowClientOptions =
+        WorkflowClientOptions.newBuilder().setDataConverter(ddc).build();
+
+    WorkflowClient client = WorkflowClient.newInstance(service, workflowClientOptions);
+    WorkerFactory factory = WorkerFactory.newInstance(client);
+    Worker worker = factory.newWorker(TASK_QUEUE);
+
+    worker.registerWorkflowImplementationTypes(CEWorkflowImpl.class);
+
+    factory.start();
+
+    WorkflowOptions newCustomerWorkflowOptions =
+        WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build();
+
+    CEWorkflow workflow = client.newWorkflowStub(CEWorkflow.class, newCustomerWorkflowOptions);
+
+    // Create 10 cloud events
     List<CloudEvent> cloudEventList = new ArrayList<>();
 
     for (int i = 0; i < 10; i++) {
@@ -70,13 +79,9 @@ public class PayloadConverterTest {
               .build());
     }
 
-    WorkflowOptions workflowOptions =
-        WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build();
-    CEWorkflow workflow =
-        testWorkflowRule.getWorkflowClient().newWorkflowStub(CEWorkflow.class, workflowOptions);
-    // start async
     WorkflowClient.start(workflow::exec, cloudEventList.get(0));
 
+    // Send signals (cloud event data)
     for (int j = 1; j < 10; j++) {
       workflow.addEvent(cloudEventList.get(j));
     }
@@ -85,7 +90,8 @@ public class PayloadConverterTest {
     String result =
         ((JsonCloudEventData) workflow.getLastEvent().getData()).getNode().get("greeting").asText();
 
-    assertNotNull(result);
-    assertEquals("hello 9", result);
+    System.out.println("Last event body: " + result);
+
+    System.exit(0);
   }
 }

@@ -1,4 +1,4 @@
-# Custom Payload Converter
+# Custom Payload Converter (CloudEvents)
 
 The sample demonstrates creating and setting a custom Payload Converter.
 
@@ -13,9 +13,8 @@ cd  docker-compose
 docker-compose up
 ```
 
-2.
-Run the following command to start the sample:
+2. Run the following command to start the sample:
 
 ```bash
-./gradlew -q execute -PmainClass=io.temporal.samples.payloadconverter.Starter
+./gradlew -q execute -PmainClass=io.temporal.samples.payloadconverter.cloudevents.Starter
 ```

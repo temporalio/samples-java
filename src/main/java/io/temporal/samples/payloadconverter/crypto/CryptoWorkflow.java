@@ -17,22 +17,13 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.payloadconverter;
+package io.temporal.samples.payloadconverter.crypto;
 
-import io.cloudevents.CloudEvent;
-import io.temporal.workflow.QueryMethod;
-import io.temporal.workflow.SignalMethod;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 
 @WorkflowInterface
-public interface CEWorkflow {
+public interface CryptoWorkflow {
   @WorkflowMethod
-  void exec(CloudEvent cloudEvent);
-
-  @SignalMethod
-  void addEvent(CloudEvent cloudEvent);
-
-  @QueryMethod
-  CloudEvent getLastEvent();
+  MyCustomer exec(MyCustomer customer);
 }
