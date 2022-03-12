@@ -124,6 +124,7 @@ public class HelloDetachedCancellationScope {
             ActivityOptions.newBuilder()
                 .setStartToCloseTimeout(Duration.ofSeconds(10))
                 .setCancellationType(ActivityCancellationType.WAIT_CANCELLATION_COMPLETED)
+                .setHeartbeatTimeout(Duration.ofSeconds(2))
                 .build());
 
     @Override
