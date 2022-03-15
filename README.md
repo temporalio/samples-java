@@ -135,7 +135,9 @@ All tests are available under [src/test/java](https://github.com/temporalio/samp
 
 - [**List Workflows**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/listworkflows): Demonstrates the use of custom search attributes and ListWorkflowExecutionsRequest with custom queries.
 
-- [**Payload Converter**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/payloadconverter): Demonstrates the use of a custom payload converter.
+- [**Payload Converter - CloudEvents**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/payloadconverter/cloudevents): Demonstrates the use of a custom payload converter for CloudEvents.
+
+- [**Payload Converter - Crypto**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/payloadconverter/crypto): Demonstrates the use of a custom payload converter using jackson-json-crypto.
 
 - [**Async Child Workflow**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/asyncchild): Demonstrates how to invoke a child workflow async, that can complete after parent workflow is already completed.
 

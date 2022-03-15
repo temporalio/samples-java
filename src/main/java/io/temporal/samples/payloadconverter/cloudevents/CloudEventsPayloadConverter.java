@@ -17,7 +17,7 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.payloadconverter;
+package io.temporal.samples.payloadconverter.cloudevents;
 
 import com.google.protobuf.ByteString;
 import io.cloudevents.CloudEvent;
