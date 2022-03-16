@@ -27,11 +27,14 @@ repositories {
 
 dependencies {
     implementation(platform("com.fasterxml.jackson:jackson-bom:2.13.2"))
+    implementation(platform("io.opentelemetry:opentelemetry-bom:1.12.0"))
+    implementation(platform("io.micrometer:micrometer-bom:1.8.3"))
+    implementation(platform("org.junit:junit-bom:5.9.0-SNAPSHOT"))
 
     implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.8.1'
     implementation group: 'io.temporal', name: 'temporal-opentracing', version: '1.8.1'
 
-    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation "com.fasterxml.jackson.core:jackson-databind"
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.11'
     implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
     implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '2.3.0'
@@ -42,16 +45,15 @@ dependencies {
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-spi', version: '4.0.2.Final'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-util', version: '4.0.2.Final'
     implementation group: 'com.jayway.jsonpath', name: 'json-path', version: '2.7.0'
-    implementation group: 'io.micrometer', name: 'micrometer-registry-prometheus', version: '1.8.3'
+    implementation "io.micrometer:micrometer-registry-prometheus"
     implementation group: 'net.thisptr', name: 'jackson-jq', version: '1.0.0-preview.20210928'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.13.2'
+    implementation "com.fasterxml.jackson.core:jackson-core"
     implementation 'io.jaegertracing:jaeger-client:1.8.0'
 
-    implementation(platform("io.opentelemetry:opentelemetry-bom:1.12.0"))
 
-    implementation 'io.opentelemetry:opentelemetry-sdk'
-    implementation 'io.opentelemetry:opentelemetry-exporter-jaeger'
-    implementation 'io.opentelemetry:opentelemetry-extension-trace-propagators'
+    implementation "io.opentelemetry:opentelemetry-sdk"
+    implementation "io.opentelemetry:opentelemetry-exporter-jaeger"
+    implementation "io.opentelemetry:opentelemetry-extension-trace-propagators"
     implementation 'io.opentelemetry:opentelemetry-opentracing-shim:1.13.0-alpha-SNAPSHOT'
     implementation 'io.opentelemetry:opentelemetry-semconv:1.13.0-alpha-SNAPSHOT'
 
@@ -72,9 +74,9 @@ dependencies {
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.4.0'
     testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.9'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0-SNAPSHOT'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0-SNAPSHOT'
-    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.9.0-SNAPSHOT'
+    testImplementation "org.junit.jupiter:junit-jupiter-api"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+    testRuntimeOnly "org.junit.vintage:junit-vintage-engine"
 
     errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
     errorprone("com.google.errorprone:error_prone_core:2.10.0")
