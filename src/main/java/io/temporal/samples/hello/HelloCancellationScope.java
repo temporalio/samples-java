@@ -264,7 +264,7 @@ public class HelloCancellationScope {
      *
      * In the {@link ActivityOptions} definition the
      * "setMaxConcurrentActivityExecutionSize" option sets the max number of parallel activity executions allowed
-     * The "setActivityPollThreadCount" option sets the number of simultaneous poll requests on the activity task queue
+     * The "setMaxConcurrentActivityTaskPollers" option sets the number of simultaneous poll requests on activity task queue
      */
     Worker worker =
         factory.newWorker(
