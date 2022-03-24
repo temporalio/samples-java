@@ -271,7 +271,7 @@ public class HelloCancellationScope {
             TASK_QUEUE,
             WorkerOptions.newBuilder()
                 .setMaxConcurrentActivityExecutionSize(100)
-                .setActivityPollThreadCount(1)
+                .setMaxConcurrentActivityTaskPollers(1)
                 .build());
 
     /*
