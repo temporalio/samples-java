@@ -26,7 +26,7 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("com.fasterxml.jackson:jackson-bom:2.13.2"))
+    implementation(platform("com.fasterxml.jackson:jackson-bom:2.13.2.20220328"))
     implementation(platform("io.opentelemetry:opentelemetry-bom:1.12.0"))
     implementation(platform("io.micrometer:micrometer-bom:1.8.4"))
     implementation(platform("org.junit:junit-bom:5.9.0-SNAPSHOT"))
