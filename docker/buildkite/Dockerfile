@@ -3,8 +3,5 @@ FROM openjdk:8-slim
 # Git is needed in order to update the dls submodule
 RUN apt-get update && apt-get install -y wget protobuf-compiler git
 
-# Fossa to run license scans
-RUN wget -O- https://raw.githubusercontent.com/fossas/fossa-cli/master/install.sh | sh
-
 RUN mkdir /temporal-java-samples
 WORKDIR /temporal-java-samples
