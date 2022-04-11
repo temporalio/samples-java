@@ -54,7 +54,7 @@ dependencies {
     implementation "io.opentelemetry:opentelemetry-sdk"
     implementation "io.opentelemetry:opentelemetry-exporter-jaeger"
     implementation "io.opentelemetry:opentelemetry-extension-trace-propagators"
-    implementation 'io.opentelemetry:opentelemetry-opentracing-shim:1.13.0-alpha-SNAPSHOT'
+    implementation 'io.opentelemetry:opentelemetry-opentracing-shim:1.14.0-alpha-SNAPSHOT'
     implementation 'io.opentelemetry:opentelemetry-semconv:1.13.0-alpha-SNAPSHOT'
 
     implementation 'com.codingrodent:jackson-json-crypto:1.1.0'
