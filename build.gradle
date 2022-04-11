@@ -27,7 +27,7 @@ repositories {
 
 dependencies {
     implementation(platform("com.fasterxml.jackson:jackson-bom:2.13.2.20220328"))
-    implementation(platform("io.opentelemetry:opentelemetry-bom:1.12.0"))
+    implementation(platform("io.opentelemetry:opentelemetry-bom:1.13.0"))
     implementation(platform("io.micrometer:micrometer-bom:1.8.4"))
     implementation(platform("org.junit:junit-bom:5.9.0-SNAPSHOT"))
 
@@ -40,7 +40,7 @@ dependencies {
     implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '2.3.0'
     implementation group: 'io.cloudevents', name: 'cloudevents-api', version: '2.3.0'
     implementation group: 'io.cloudevents', name: 'cloudevents-json-jackson', version: '2.3.0'
-    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-api', version: '4.0.2.Final'
+    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-api', version: '4.0.3.Final'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-validation', version: '4.0.2.Final'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-spi', version: '4.0.2.Final'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-util', version: '4.0.2.Final'
@@ -54,7 +54,7 @@ dependencies {
     implementation "io.opentelemetry:opentelemetry-sdk"
     implementation "io.opentelemetry:opentelemetry-exporter-jaeger"
     implementation "io.opentelemetry:opentelemetry-extension-trace-propagators"
-    implementation 'io.opentelemetry:opentelemetry-opentracing-shim:1.13.0-alpha-SNAPSHOT'
+    implementation 'io.opentelemetry:opentelemetry-opentracing-shim:1.14.0-alpha-SNAPSHOT'
     implementation 'io.opentelemetry:opentelemetry-semconv:1.13.0-alpha-SNAPSHOT'
 
     implementation 'com.codingrodent:jackson-json-crypto:1.1.0'
