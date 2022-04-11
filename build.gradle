@@ -19,9 +19,6 @@ java {
 }
 
 repositories {
-    maven {
-        url "https://oss.sonatype.org/content/repositories/snapshots/"
-    }
     mavenCentral()
 }
 
@@ -29,7 +26,7 @@ dependencies {
     implementation(platform("com.fasterxml.jackson:jackson-bom:2.13.2.20220328"))
     implementation(platform("io.opentelemetry:opentelemetry-bom:1.13.0"))
     implementation(platform("io.micrometer:micrometer-bom:1.8.4"))
-    implementation(platform("org.junit:junit-bom:5.9.0-SNAPSHOT"))
+    implementation(platform("org.junit:junit-bom:5.8.2"))
 
     implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.8.1'
     implementation group: 'io.temporal', name: 'temporal-opentracing', version: '1.8.1'
@@ -54,8 +51,8 @@ dependencies {
     implementation "io.opentelemetry:opentelemetry-sdk"
     implementation "io.opentelemetry:opentelemetry-exporter-jaeger"
     implementation "io.opentelemetry:opentelemetry-extension-trace-propagators"
-    implementation 'io.opentelemetry:opentelemetry-opentracing-shim:1.14.0-alpha-SNAPSHOT'
-    implementation 'io.opentelemetry:opentelemetry-semconv:1.13.0-alpha-SNAPSHOT'
+    implementation 'io.opentelemetry:opentelemetry-opentracing-shim:1.13.0-alpha'
+    implementation 'io.opentelemetry:opentelemetry-semconv:1.13.0-alpha'
 
     implementation 'com.codingrodent:jackson-json-crypto:1.1.0'
 
