@@ -54,7 +54,7 @@ dependencies {
     implementation 'io.opentelemetry:opentelemetry-opentracing-shim:1.13.0-alpha'
     implementation 'io.opentelemetry:opentelemetry-semconv:1.13.0-alpha'
 
-    implementation 'com.codingrodent:jackson-json-crypto:1.1.0'
+    implementation 'com.codingrodent:jackson-json-crypto:2.0.1'
 
     testImplementation("io.temporal:temporal-testing:1.9.0")
     testImplementation ("io.temporal:temporal-testing") {
