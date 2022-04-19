@@ -17,12 +17,11 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.polling.periodic;
+package io.temporal.samples.polling.periodicsequence;
 
 import io.temporal.activity.ActivityOptions;
 import io.temporal.failure.ActivityFailure;
 import io.temporal.samples.polling.PollingActivities;
-import io.temporal.samples.polling.PollingChildWorkflow;
 import io.temporal.workflow.Workflow;
 import java.time.Duration;
 

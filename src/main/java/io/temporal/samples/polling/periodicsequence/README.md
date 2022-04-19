@@ -1,4 +1,4 @@
-## Periodic polling
+## Periodic sequence
 
 This samples shows periodic polling via child workflow. Note this is a rare case scenario
 where polling requires execution of a sequence of activities, or activity arguments need to change
@@ -9,5 +9,5 @@ calling continue as new and it gets notified when it completes (or fails).
 
 To run this sample:
 ```bash
-./gradlew -q execute -PmainClass=io.temporal.samples.polling.periodic.Starter
+./gradlew -q execute -PmainClass=io.temporal.samples.polling.periodicsequene.Starter
 ```

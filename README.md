@@ -127,7 +127,7 @@ All tests are available under [src/test/java](https://github.com/temporalio/samp
 
 - [**Customer Application Approval DSL**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/dsl): Demonstrates execution of a customer application approval workflow defined in a DSL (like JSON or YAML)
 
-- [**Polling Services**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/polling): Demonstrates best practices for polling services
+- [**Polling Services**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/polling): Recommended implementation of an activity that needs to periodically poll an external resource waiting its successful completion
 
 ### API demonstrations
 

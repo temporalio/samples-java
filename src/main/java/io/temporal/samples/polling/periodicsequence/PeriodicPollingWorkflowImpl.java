@@ -17,27 +17,24 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.polling.periodic;
+package io.temporal.samples.polling.periodicsequence;
 
-import io.temporal.activity.Activity;
-import io.temporal.samples.polling.PollingActivities;
-import io.temporal.samples.polling.TestService;
+import io.temporal.samples.polling.PollingWorkflow;
+import io.temporal.workflow.ChildWorkflowOptions;
+import io.temporal.workflow.Workflow;
 
-public class PeriodicPollingActivityImpl implements PollingActivities {
+public class PeriodicPollingWorkflowImpl implements PollingWorkflow {
 
-  private TestService service;
-
-  public PeriodicPollingActivityImpl(TestService service) {
-    this.service = service;
-  }
+  // Set some periodic poll interval, for sample we set 5 seconds
+  private int pollingIntervalInSeconds = 5;
 
   @Override
-  public String doPoll() {
-    try {
-      return service.getServiceResult();
-    } catch (TestService.TestServiceException e) {
-      // We want to rethrow the service exception so we can poll via activity retries
-      throw Activity.wrap(e);
-    }
+  public String exec() {
+    PollingChildWorkflow childWorkflow =
+        Workflow.newChildWorkflowStub(
+            PollingChildWorkflow.class,
+            ChildWorkflowOptions.newBuilder().setWorkflowId("ChildWorkflowPoll").build());
+
+    return childWorkflow.exec(pollingIntervalInSeconds);
   }
 }

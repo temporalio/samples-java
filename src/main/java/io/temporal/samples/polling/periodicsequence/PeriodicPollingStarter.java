@@ -17,7 +17,7 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.polling.periodic;
+package io.temporal.samples.polling.periodicsequence;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
