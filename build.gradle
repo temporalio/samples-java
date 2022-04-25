@@ -28,7 +28,7 @@ dependencies {
     implementation(platform("io.micrometer:micrometer-bom:1.8.5"))
     implementation(platform("org.junit:junit-bom:5.8.2"))
 
-    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.9.1'
+    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.10.0'
     implementation group: 'io.temporal', name: 'temporal-opentracing', version: '1.9.1'
 
     implementation "com.fasterxml.jackson.core:jackson-databind"
