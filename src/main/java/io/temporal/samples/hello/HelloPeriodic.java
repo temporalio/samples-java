@@ -203,7 +203,7 @@ public class HelloPeriodic {
   public static void main(String[] args) throws InterruptedException {
 
     // Define the workflow service.
-    WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
+    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
 
     /*
      * Get a Workflow service client which can be used to start, Signal, and Query Workflow Executions.

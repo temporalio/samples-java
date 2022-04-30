@@ -40,7 +40,7 @@ public class TransferRequester {
       reference = args[0];
       amountCents = Integer.parseInt(args[1]);
     }
-    WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
+    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
     // client that can be used to start and signal workflows
     WorkflowClient workflowClient = WorkflowClient.newInstance(service);
 

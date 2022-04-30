@@ -31,7 +31,7 @@ public class WakeUpTimeUpdater {
   private static final Logger logger = LoggerFactory.getLogger(WakeUpTimeUpdater.class);
 
   public static void main(String[] args) {
-    WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
+    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
     WorkflowClient client = WorkflowClient.newInstance(service);
 
     // Create a stub that points to an existing workflow with the given ID

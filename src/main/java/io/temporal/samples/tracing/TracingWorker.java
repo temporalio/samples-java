@@ -30,7 +30,7 @@ import io.temporal.worker.WorkerFactory;
 import io.temporal.worker.WorkerFactoryOptions;
 
 public class TracingWorker {
-  private static final WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
+  private static final WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
   private static final WorkflowClient client = WorkflowClient.newInstance(service);
   public static final String TASK_QUEUE_NAME = "tracingTaskQueue";
 

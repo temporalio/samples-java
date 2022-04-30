@@ -28,8 +28,8 @@ dependencies {
     implementation(platform("io.micrometer:micrometer-bom:1.8.5"))
     implementation(platform("org.junit:junit-bom:5.8.2"))
 
-    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.10.0'
-    implementation group: 'io.temporal', name: 'temporal-opentracing', version: '1.10.0'
+    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.11.0'
+    implementation group: 'io.temporal', name: 'temporal-opentracing', version: '1.11.0'
 
     implementation "com.fasterxml.jackson.core:jackson-databind"
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.11'
@@ -54,20 +54,12 @@ dependencies {
     implementation 'io.opentelemetry:opentelemetry-opentracing-shim:1.13.0-alpha'
     implementation 'io.opentelemetry:opentelemetry-semconv:1.13.0-alpha'
 
+    // we don't update it to 2.1.0 because 2.1.0 requires Java 11
     implementation 'com.codingrodent:jackson-json-crypto:1.1.0'
 
-    testImplementation("io.temporal:temporal-testing:1.10.0")
-    testImplementation ("io.temporal:temporal-testing") {
-        capabilities {
-            requireCapability("io.temporal:temporal-testing-junit4")
-        }
-    }
-    testImplementation ("io.temporal:temporal-testing") {
-        capabilities {
-            requireCapability("io.temporal:temporal-testing-junit5")
-        }
-    }
+    testImplementation("io.temporal:temporal-testing:1.11.0")
 
+    testImplementation "junit:junit:4.13.2"
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.5.1'
     testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.9'
 
