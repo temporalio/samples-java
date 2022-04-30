@@ -68,7 +68,7 @@ dependencies {
         }
     }
 
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.4.0'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.5.1'
     testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.9'
 
     testImplementation "org.junit.jupiter:junit-jupiter-api"
