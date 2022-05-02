@@ -28,7 +28,7 @@ import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 
 public class InfrequentPollingStarter {
-  private static final WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
+  private static final WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
   private static final WorkflowClient client = WorkflowClient.newInstance(service);
   private static final String taskQueue = "pollingSampleQueue";
   private static final String workflowId = "InfrequentPollingSampleWorkflow";

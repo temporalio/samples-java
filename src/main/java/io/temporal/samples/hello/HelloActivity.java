@@ -120,7 +120,7 @@ public class HelloActivity {
   public static void main(String[] args) {
 
     // Get a Workflow service stub.
-    WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
+    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
 
     /*
      * Get a Workflow service client which can be used to start, Signal, and Query Workflow Executions.

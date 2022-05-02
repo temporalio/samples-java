@@ -24,11 +24,11 @@ import io.temporal.activity.ActivityExecutionContext;
 import io.temporal.client.ActivityCompletionException;
 import io.temporal.samples.polling.PollingActivities;
 import io.temporal.samples.polling.TestService;
+import java.util.concurrent.TimeUnit;
 
 public class FrequentPollingActivityImpl implements PollingActivities {
-
-  private TestService service;
-  private int pollDurationSeconds = 1;
+  private final TestService service;
+  private static final int POLL_DURATION_SECONDS = 1;
 
   public FrequentPollingActivityImpl(TestService service) {
     this.service = service;
@@ -53,15 +53,16 @@ public class FrequentPollingActivityImpl implements PollingActivities {
         // activity was either cancelled or workflow was completed or worker shut down
         throw e;
       }
-      sleep(pollDurationSeconds);
+      sleep(POLL_DURATION_SECONDS);
     }
   }
 
   private void sleep(int seconds) {
     try {
-      Thread.sleep(seconds * 1000);
+      Thread.sleep(TimeUnit.SECONDS.toMillis(seconds));
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      Thread.currentThread().interrupt();
+      throw new RuntimeException(e);
     }
   }
 }

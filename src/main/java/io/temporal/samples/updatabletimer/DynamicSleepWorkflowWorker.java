@@ -35,7 +35,7 @@ public class DynamicSleepWorkflowWorker {
   static final String DYNAMIC_SLEEP_WORKFLOW_ID = "DynamicSleepWorkflow";
 
   public static void main(String[] args) {
-    WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
+    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
     WorkflowClient client = WorkflowClient.newInstance(service);
     WorkerFactory factory = WorkerFactory.newInstance(client);
     final Worker worker = factory.newWorker(TASK_QUEUE);

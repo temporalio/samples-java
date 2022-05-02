@@ -46,7 +46,7 @@ public class QueryWorkflowExecution {
     String runId = args.length == 3 ? args[2] : "";
 
     // gRPC stubs wrapper that talks to the local docker instance of temporal service.
-    WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
+    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
 
     WorkflowClient client = WorkflowClient.newInstance(service);
 

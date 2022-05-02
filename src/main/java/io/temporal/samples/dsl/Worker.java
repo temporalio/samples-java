@@ -24,7 +24,7 @@ import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.WorkerFactory;
 
 public class Worker {
-  private static final WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
+  private static final WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
   private static final WorkflowClient client = WorkflowClient.newInstance(service);
   private static final WorkerFactory factory = WorkerFactory.newInstance(client);
   public static final String DEFAULT_TASK_QUEUE_NAME = "dsltaskqueue";

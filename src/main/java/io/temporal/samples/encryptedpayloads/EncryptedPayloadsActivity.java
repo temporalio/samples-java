@@ -85,7 +85,7 @@ public class EncryptedPayloadsActivity {
 
   public static void main(String[] args) {
     // gRPC stubs wrapper that talks to the local docker instance of temporal service.
-    WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
+    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
     // client that can be used to start and signal workflows
     WorkflowClient client =
         WorkflowClient.newInstance(

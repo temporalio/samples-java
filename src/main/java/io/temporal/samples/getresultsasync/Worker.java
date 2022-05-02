@@ -24,7 +24,7 @@ import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.WorkerFactory;
 
 public class Worker {
-  public static final WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
+  public static final WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
   public static final WorkflowClient client = WorkflowClient.newInstance(service);
   public static final WorkerFactory factory = WorkerFactory.newInstance(client);
   public static final String TASK_QUEUE_NAME = "asyncstartqueue";

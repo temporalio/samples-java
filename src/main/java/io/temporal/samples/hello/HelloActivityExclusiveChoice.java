@@ -184,7 +184,7 @@ public class HelloActivityExclusiveChoice {
      * Define the workflow service. It is a gRPC stubs wrapper which talks to the docker instance of
      * our locally running Temporal service.
      */
-    WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
+    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
 
     /*
      * Get a Workflow service client which can be used to start, Signal, and Query Workflow Executions.

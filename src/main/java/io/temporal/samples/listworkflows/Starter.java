@@ -35,7 +35,7 @@ import java.util.Map;
 
 public class Starter {
   public static final String TASK_QUEUE = "customerTaskQueue";
-  private static final WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
+  private static final WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
   private static final WorkflowClient client = WorkflowClient.newInstance(service);
   private static final WorkerFactory factory = WorkerFactory.newInstance(client);
 

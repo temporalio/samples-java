@@ -28,7 +28,7 @@ import io.temporal.samples.tracing.workflow.TracingWorkflow;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 
 public class Starter {
-  public static final WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
+  public static final WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
   public static final String TASK_QUEUE_NAME = "tracingTaskQueue";
 
   public static void main(String[] args) {

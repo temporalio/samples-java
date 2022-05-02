@@ -42,7 +42,7 @@ public class InterceptorStarter {
   private static final Logger logger = LoggerFactory.getLogger(SimpleCountWorkerInterceptor.class);
 
   public static void main(String[] args) {
-    WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
+    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
     WorkflowClient client = WorkflowClient.newInstance(service);
 
     WorkerFactoryOptions wfo =

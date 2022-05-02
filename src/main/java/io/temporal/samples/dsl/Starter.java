@@ -37,7 +37,7 @@ import java.util.Map;
 
 public class Starter {
 
-  public static final WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
+  public static final WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
   public static final WorkflowClient client = WorkflowClient.newInstance(service);
   public static final WorkerFactory factory = WorkerFactory.newInstance(client);
 

@@ -35,7 +35,7 @@ public class TransferRequester {
   public static void main(String[] args) {
     String reference = UUID.randomUUID().toString();
     int amountCents = (new Random().nextInt(5) + 1) * 25;
-    WorkflowServiceStubs service = WorkflowServiceStubs.newInstance();
+    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
     WorkflowClient workflowClient = WorkflowClient.newInstance(service);
 
     String from = "account1";
