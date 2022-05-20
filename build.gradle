@@ -19,17 +19,19 @@ java {
 }
 
 repositories {
+    maven {
+        url "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
     mavenCentral()
 }
 
 dependencies {
-    implementation(platform("com.fasterxml.jackson:jackson-bom:2.13.2.20220328"))
-    implementation(platform("io.opentelemetry:opentelemetry-bom:1.13.0"))
-    implementation(platform("io.micrometer:micrometer-bom:1.8.5"))
+    implementation(platform("com.fasterxml.jackson:jackson-bom:2.13.3"))
+    implementation(platform("io.opentelemetry:opentelemetry-bom:1.14.0"))
     implementation(platform("org.junit:junit-bom:5.8.2"))
 
-    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.11.0'
-    implementation group: 'io.temporal', name: 'temporal-opentracing', version: '1.11.0'
+    implementation group: 'io.temporal', name: 'temporal-sdk', version: '1.12.0'
+    implementation group: 'io.temporal', name: 'temporal-opentracing', version: '1.12.0'
 
     implementation "com.fasterxml.jackson.core:jackson-databind"
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.11'
@@ -51,13 +53,13 @@ dependencies {
     implementation "io.opentelemetry:opentelemetry-sdk"
     implementation "io.opentelemetry:opentelemetry-exporter-jaeger"
     implementation "io.opentelemetry:opentelemetry-extension-trace-propagators"
-    implementation 'io.opentelemetry:opentelemetry-opentracing-shim:1.13.0-alpha'
-    implementation 'io.opentelemetry:opentelemetry-semconv:1.13.0-alpha'
+    implementation 'io.opentelemetry:opentelemetry-opentracing-shim:1.14.0-alpha'
+    implementation 'io.opentelemetry:opentelemetry-semconv:1.14.0-alpha'
 
     // we don't update it to 2.1.0 because 2.1.0 requires Java 11
     implementation 'com.codingrodent:jackson-json-crypto:1.1.0'
 
-    testImplementation("io.temporal:temporal-testing:1.11.0")
+    testImplementation("io.temporal:temporal-testing:1.12.0")
 
     testImplementation "junit:junit:4.13.2"
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.5.1'
