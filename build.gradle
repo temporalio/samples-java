@@ -57,7 +57,7 @@ dependencies {
     implementation 'io.opentelemetry:opentelemetry-semconv:1.14.0-alpha'
 
     // we don't update it to 2.1.0 because 2.1.0 requires Java 11
-    implementation 'com.codingrodent:jackson-json-crypto:1.1.0'
+    implementation 'com.codingrodent:jackson-json-crypto:2.0.1'
 
     testImplementation("io.temporal:temporal-testing:1.12.0")
 
