@@ -31,6 +31,8 @@ import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Sample Temporal Workflow Definition that executes a single Activity. */
 public class HelloActivity {
@@ -107,8 +109,11 @@ public class HelloActivity {
 
   /** Simple activity implementation, that concatenates two strings. */
   static class GreetingActivitiesImpl implements GreetingActivities {
+    private static final Logger log = LoggerFactory.getLogger(GreetingActivitiesImpl.class);
+
     @Override
     public String composeGreeting(String greeting, String name) {
+      log.info("Composing greeting...");
       return greeting + " " + name + "!";
     }
   }
