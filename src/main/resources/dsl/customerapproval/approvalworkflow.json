@@ -1,0 +1,102 @@
+{
+  "id": "approvalworkflow",
+  "name": "Customer Approval Workflow",
+  "version": "1.0",
+  "timeouts": {
+    "workflowExecTimeout": {
+      "duration": "PT1M"
+    },
+    "actionExecTimeout": "PT10S"
+  },
+  "states": [
+    {
+      "name":"WaitForCustomer",
+      "type": "event",
+      "onEvents": [
+        {
+          "eventRefs": ["ToApproveCustomer"]
+        }
+      ],
+      "transition": "MakeApplicationDecision"
+    },
+
+
+    {
+      "name": "MakeApplicationDecision",
+      "type": "switch",
+      "dataConditions": [
+        {
+          "condition": "${ .customer.age >= 20 }",
+          "transition": "ApproveApplication"
+        },
+        {
+          "condition": "${ .customer.age < 20 }",
+          "transition": "RejectApplication"
+        }
+      ],
+      "defaultCondition": {
+        "transition": "RejectApplication"
+      }
+    },
+    {
+      "name": "ApproveApplication",
+      "type": "operation",
+      "actions": [
+        {
+          "name": "Invoke Approve Application Function",
+          "functionRef": "ApproveApplication"
+        }
+      ],
+      "transition": "SendBackResults"
+    },
+    {
+      "name": "RejectApplication",
+      "type": "operation",
+      "actions": [
+        {
+          "name": "Invoke Reject Application Function",
+          "functionRef": "RejectApplication"
+        }
+      ],
+      "transition": "SendBackResults"
+    },
+    {
+      "name": "SendBackResults",
+      "type": "operation",
+      "actions": [
+        {
+          "name": "SendBackResultsOperation",
+          "functionRef": "SendBackResultsFunction"
+        }
+      ],
+      "end": true
+    }
+  ],
+  "functions": [
+    {
+      "name": "ApproveApplication",
+      "type": "rest"
+    },
+    {
+      "name": "RejectApplication",
+      "type": "rest"
+    },
+    {
+      "name": "SendBackResultsFunction",
+      "type": "custom",
+      "operation": "applicantworkflow#CustomerDecision"
+    }
+  ],
+  "events": [
+    {
+      "name": "ToApproveCustomer",
+      "type": "com.fasterxml.jackson.databind.JsonNode",
+      "source": "applicationsSource"
+    },
+    {
+      "name": "ApprovalDecision",
+      "type": "com.fasterxml.jackson.databind.JsonNode",
+      "source": "applicationsSource"
+    }
+  ]
+}

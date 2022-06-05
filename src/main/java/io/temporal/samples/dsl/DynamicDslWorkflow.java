@@ -38,7 +38,9 @@ import io.temporal.samples.dsl.utils.JQFilter;
 import io.temporal.workflow.*;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 
 public class DynamicDslWorkflow implements DynamicWorkflow {
@@ -47,6 +49,7 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
   private WorkflowData workflowData = new WorkflowData();
   private Logger logger = Workflow.getLogger(DynamicDslWorkflow.class);
   private List<FunctionDefinition> queryFunctions;
+  private Map<String, WorkflowData> signalMap = new HashMap<>();
 
   private ActivityStub activities;
 
@@ -77,6 +80,7 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
                 workflowData = new WorkflowData();
               }
               workflowData.setValue((ObjectNode) encodedArgs.get(0, JsonNode.class));
+              signalMap.put(signalName, workflowData);
             });
 
     // Register dynamic query handler
@@ -139,41 +143,51 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
       EventState eventState = (EventState) dslWorkflowState;
       // currently this demo supports only the first onEvents
       if (eventState.getOnEvents() != null && eventState.getOnEvents().size() > 0) {
-        List<Action> eventStateActions = eventState.getOnEvents().get(0).getActions();
-        if (eventState.getOnEvents().get(0).getActionMode() != null
-            && eventState
-                .getOnEvents()
-                .get(0)
-                .getActionMode()
-                .equals(OnEvents.ActionMode.PARALLEL)) {
-          List<Promise<ActResult>> eventPromises = new ArrayList<>();
 
-          for (Action action : eventStateActions) {
-            eventPromises.add(
-                activities.executeAsync(
-                    action.getFunctionRef().getRefName(),
-                    ActResult.class,
-                    workflowData.getCustomer()));
-          }
-          // Invoke all activities in parallel. Wait for all to complete
-          Promise.allOf(eventPromises).get();
-
-          for (Promise<ActResult> promise : eventPromises) {
-            workflowData.addResults(promise.get());
-          }
+        if (eventState.getOnEvents().get(0).getActions() == null
+            || eventState.getOnEvents().get(0).getActions().size() < 1) {
+          // no actions..assume we are just waiting on event here
+          Workflow.await(
+              () -> signalMap.containsKey(eventState.getOnEvents().get(0).getEventRefs().get(0)));
+          workflowData = signalMap.get(eventState.getOnEvents().get(0).getEventRefs().get(0));
         } else {
-          for (Action action : eventStateActions) {
-            if (action.getSleep() != null && action.getSleep().getBefore() != null) {
-              Workflow.sleep(Duration.parse(action.getSleep().getBefore()));
+
+          List<Action> eventStateActions = eventState.getOnEvents().get(0).getActions();
+          if (eventState.getOnEvents().get(0).getActionMode() != null
+              && eventState
+                  .getOnEvents()
+                  .get(0)
+                  .getActionMode()
+                  .equals(OnEvents.ActionMode.PARALLEL)) {
+            List<Promise<ActResult>> eventPromises = new ArrayList<>();
+
+            for (Action action : eventStateActions) {
+              eventPromises.add(
+                  activities.executeAsync(
+                      action.getFunctionRef().getRefName(),
+                      ActResult.class,
+                      workflowData.getCustomer()));
             }
-            // execute the action as an activity and assign its results to workflowData
-            workflowData.addResults(
-                activities.execute(
-                    action.getFunctionRef().getRefName(),
-                    ActResult.class,
-                    workflowData.getCustomer()));
-            if (action.getSleep() != null && action.getSleep().getAfter() != null) {
-              Workflow.sleep(Duration.parse(action.getSleep().getAfter()));
+            // Invoke all activities in parallel. Wait for all to complete
+            Promise.allOf(eventPromises).get();
+
+            for (Promise<ActResult> promise : eventPromises) {
+              workflowData.addResults(promise.get());
+            }
+          } else {
+            for (Action action : eventStateActions) {
+              if (action.getSleep() != null && action.getSleep().getBefore() != null) {
+                Workflow.sleep(Duration.parse(action.getSleep().getBefore()));
+              }
+              // execute the action as an activity and assign its results to workflowData
+              workflowData.addResults(
+                  activities.execute(
+                      action.getFunctionRef().getRefName(),
+                      ActResult.class,
+                      workflowData.getCustomer()));
+              if (action.getSleep() != null && action.getSleep().getAfter() != null) {
+                Workflow.sleep(Duration.parse(action.getSleep().getAfter()));
+              }
             }
           }
         }
@@ -207,18 +221,30 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
           }
         } else {
           for (Action action : operationState.getActions()) {
-            if (action.getSleep() != null && action.getSleep().getBefore() != null) {
-              Workflow.sleep(Duration.parse(action.getSleep().getBefore()));
-            }
-            // execute the action as an activity and assign its results to workflowData
-            workflowData.addResults(
-                activities.execute(
-                    action.getFunctionRef().getRefName(),
-                    ActResult.class,
-                    workflowData.getCustomer()));
 
-            if (action.getSleep() != null && action.getSleep().getAfter() != null) {
-              Workflow.sleep(Duration.parse(action.getSleep().getAfter()));
+            // check if its a custom function
+            FunctionDefinition functionDefinition =
+                WorkflowUtils.getFunctionDefinitionsForAction(dslWorkflow, action.getName());
+            if (functionDefinition.getType().equals(FunctionDefinition.Type.CUSTOM)) {
+              // for this example custom function is assumed sending signal via external stub
+              String[] operationParts = functionDefinition.getOperation().split("#");
+              ExternalWorkflowStub externalWorkflowStub =
+                  Workflow.newUntypedExternalWorkflowStub(operationParts[0]);
+              externalWorkflowStub.signal(operationParts[1], workflowData.getValue());
+            } else {
+              if (action.getSleep() != null && action.getSleep().getBefore() != null) {
+                Workflow.sleep(Duration.parse(action.getSleep().getBefore()));
+              }
+              // execute the action as an activity and assign its results to workflowData
+              workflowData.addResults(
+                  activities.execute(
+                      action.getFunctionRef().getRefName(),
+                      ActResult.class,
+                      workflowData.getCustomer()));
+
+              if (action.getSleep() != null && action.getSleep().getAfter() != null) {
+                Workflow.sleep(Duration.parse(action.getSleep().getAfter()));
+              }
             }
           }
         }

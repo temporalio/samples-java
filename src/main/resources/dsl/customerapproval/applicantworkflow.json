@@ -1,0 +1,55 @@
+{
+  "id": "applicantworkflow",
+  "name": "Applicant Processing Workflow",
+  "version": "1.0",
+  "specVersion": "0.8",
+  "timeouts": {
+    "workflowExecTimeout": {
+      "duration": "PT2M"
+    },
+    "actionExecTimeout": "PT10S"
+  },
+  "autoRetries": true,
+  "states": [
+    {
+      "name":"ApproveApplicant",
+      "type":"operation",
+      "actions":[
+        {
+          "name": "approvalAction",
+          "functionRef": {
+            "refName": "approvalFunction",
+            "arguments": {
+              "customer": "${ .customer }"
+            }
+          }
+        }
+      ],
+      "transition": "WaitForDecision"
+    },
+    {
+      "name":"WaitForDecision",
+      "type": "event",
+      "onEvents": [
+        {
+          "eventRefs": ["CustomerDecision"]
+        }
+      ],
+      "end": true
+    }
+  ],
+  "functions": [
+    {
+      "name": "approvalFunction",
+      "type": "custom",
+      "operation": "approvalworkflow#ToApproveCustomer"
+    }
+  ],
+  "events": [
+    {
+      "name": "CustomerDecision",
+      "type": "com.fasterxml.jackson.databind.JsonNode",
+      "source": "applicationsSource"
+    }
+  ]
+}

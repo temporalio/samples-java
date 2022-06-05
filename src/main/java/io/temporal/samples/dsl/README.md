@@ -8,8 +8,9 @@ which helps us parse the DSL into an object model as well as provides DSL valida
 Since this is just a sample, this sample provides only partial implementation of the 
 entire Serverless Workflow DSL features.
 
-The sample runs two DSL workflows, namely the `customerapplication/workflow.yml` and
-`bankingtransactions/workflow.yml`. Both show different DSL features.
+The sample runs four DSL workflows, `customerapplication/workflow.yml`,
+`bankingtransactions/workflow.yml`, `customerapproval/applicantworkflow.yml`,
+`customerapproval/approvalworkflow.yml`.
 
 Note that most DSLs, including Serverless Workflow DSL used in this sample represent 
 their workflow data as JSON. As such manipulation of this data is done via expression languages
@@ -30,15 +31,10 @@ of choice.
 ./gradlew -q execute -PmainClass=io.temporal.samples.dsl.Starter
 ```
 
-The started will run first the `customerapplication/workflow.yml` DSL workflow and then the
-`bankingtransactions/workflow.yml` DSL workflow. you should see results:
-
-
-If the age of the customer is set to >= 20 the application will be approved, if set to < 20 it will be rejected.
-The results of the workflow will include the updated `applicationStatus`, and an added array which shows 
-all the activities that were executed (corresponds to actions in the DSL), for example:
+You should see results:
 
 ```text
+Validating workflow: customerapplication
 Starting workflow with id: customerapplication and version: 1.0
 Query result for customer name: John
 Query result for customer age: 22
@@ -59,6 +55,7 @@ Workflow results:
     "result" : "APPROVED"
   } ]
 }
+Validating workflow: bankingtransactions
 Starting workflow with id: bankingtransactions and version: 1.0
 Query result for customer name: John
 Query result for customer age: 22
@@ -78,6 +75,21 @@ Workflow results:
   }, {
     "type" : "InvokeBankingService",
     "result" : "invoked"
+  } ]
+}
+Validating workflow: applicantworkflow
+Validating workflow: approvalworkflow
+Starting workflow with id: approvalworkflow and version: 1.0
+Starting workflow with id: applicantworkflow and version: 1.0
+Workflow results: 
+{
+  "customer" : {
+    "name" : "John",
+    "age" : 22
+  },
+  "results" : [ {
+    "type" : "decision",
+    "result" : "APPROVED"
   } ]
 }
 ```
