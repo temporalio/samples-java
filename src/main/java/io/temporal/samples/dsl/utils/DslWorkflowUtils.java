@@ -119,11 +119,17 @@ public class DslWorkflowUtils {
       // This demo can parse only the first event
       EventState eventState = (EventState) startingDslWorkflowState;
       String eventName = eventState.getOnEvents().get(0).getEventRefs().get(0);
-      // send input data as signal data
-      return workflowStub.signalWithStart(
-          eventName,
-          new Object[] {workflowInput},
-          new Object[] {dslWorkflow.getId(), dslWorkflow.getVersion()});
+
+      if (eventState.getOnEvents().get(0).getActions() == null
+          || eventState.getOnEvents().get(0).getActions().size() < 1) {
+        return workflowStub.start(dslWorkflow.getId(), dslWorkflow.getVersion(), workflowInput);
+      } else {
+        // send input data as signal data
+        return workflowStub.signalWithStart(
+            eventName,
+            new Object[] {workflowInput},
+            new Object[] {dslWorkflow.getId(), dslWorkflow.getVersion()});
+      }
     } else {
       // directly send input data to workflow
       return workflowStub.start(dslWorkflow.getId(), dslWorkflow.getVersion(), workflowInput);
