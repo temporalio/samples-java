@@ -8,15 +8,19 @@ This repository contains sample Workflow applications that demonstrate various c
 
 ## Table of Contents
 
-- [How to use](#how-to-use)
-- [Temporal Web UI](temporal-web-ui)
-- [Samples directory](#samples-directory)
-    - [Hello samples](#Hello-samples)
+- [Temporal Java SDK Samples](#temporal-java-sdk-samples)
+  - [Table of Contents](#table-of-contents)
+  - [How to use](#how-to-use)
+  - [Temporal Web UI](#temporal-web-ui)
+  - [Running samples](#running-samples)
+  - [Samples directory](#samples-directory)
+    - [Hello samples](#hello-samples)
     - [Scenario-based samples](#scenario-based-samples)
     - [API demonstrations](#api-demonstrations)
-    - [SDK metrics](#sdk-metrics)
-    - [Tracing support](#tracing-support)
-- [IDE Integration](#IDE-Integration)
+    - [SDK Metrics](#sdk-metrics)
+    - [Tracing Support](#tracing-support)
+  - [IDE Integration](#ide-integration)
+    - [IntelliJ](#intellij)
 
 ## How to use
 
