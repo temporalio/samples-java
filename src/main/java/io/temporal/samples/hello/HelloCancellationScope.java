@@ -124,6 +124,10 @@ public class HelloCancellationScope {
         Workflow.newActivityStub(
             GreetingActivities.class,
             ActivityOptions.newBuilder()
+                // if heartbeat timeout is not set, activity heartbeats will be throttled to one
+                // every 30 seconds
+                // which is too rare for the cancellations to be delivered in this example.
+                .setHeartbeatTimeout(Duration.ofSeconds(5))
                 .setStartToCloseTimeout(Duration.ofSeconds(ACTIVITY_START_TO_CLOSE_TIMEOUT))
                 .setCancellationType(ActivityCancellationType.WAIT_CANCELLATION_COMPLETED)
                 .build());
@@ -191,7 +195,7 @@ public class HelloCancellationScope {
 
       // simulate a random time this activity should execute for
       Random random = new Random();
-      int seconds = random.nextInt(GreetingWorkflowImpl.ACTIVITY_MAX_SLEEP_SECONDS - 2) + 2;
+      int seconds = random.nextInt(GreetingWorkflowImpl.ACTIVITY_MAX_SLEEP_SECONDS - 5) + 5;
       System.out.println("Activity for " + greeting + " going to take " + seconds + " seconds");
 
       for (int i = 0; i < seconds; i++) {
