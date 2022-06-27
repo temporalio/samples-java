@@ -37,7 +37,7 @@ import java.util.Optional;
 public class FileProcessingWorkflowImpl implements FileProcessingWorkflow {
 
   // Uses the default task queue shared by the pool of workers.
-  private final StoreActivities defaultTaskQueueStore;
+  private final StoreActivities defaultTaskQueueActivities;
 
   public FileProcessingWorkflowImpl() {
     // Create activity clients.
@@ -51,7 +51,7 @@ public class FileProcessingWorkflowImpl implements FileProcessingWorkflow {
                     .setDoNotRetry(IllegalArgumentException.class.getName())
                     .build())
             .build();
-    this.defaultTaskQueueStore = Workflow.newActivityStub(StoreActivities.class, ao);
+    this.defaultTaskQueueActivities = Workflow.newActivityStub(StoreActivities.class, ao);
   }
 
   @Override
@@ -59,14 +59,11 @@ public class FileProcessingWorkflowImpl implements FileProcessingWorkflow {
     RetryOptions retryOptions =
         RetryOptions.newBuilder().setInitialInterval(Duration.ofSeconds(1)).build();
     // Retries the whole sequence on any failure, potentially on a different host.
-    Workflow.retry(
-        retryOptions,
-        Optional.of(Duration.ofSeconds(10)),
-        () -> processFileImpl(source, destination));
+    Workflow.retry(retryOptions, Optional.empty(), () -> processFileImpl(source, destination));
   }
 
   private void processFileImpl(URL source, URL destination) {
-    StoreActivities.TaskQueueFileNamePair downloaded = defaultTaskQueueStore.download(source);
+    StoreActivities.TaskQueueFileNamePair downloaded = defaultTaskQueueActivities.download(source);
 
     // Now initialize stubs that are specific to the returned task queue.
     ActivityOptions hostActivityOptions =

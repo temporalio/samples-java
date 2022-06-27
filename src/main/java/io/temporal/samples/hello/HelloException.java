@@ -129,6 +129,7 @@ public class HelloException {
             GreetingActivities.class,
             ActivityOptions.newBuilder()
                 .setStartToCloseTimeout(Duration.ofMinutes(1))
+                .setScheduleToStartTimeout(Duration.ofSeconds(5))
                 .setRetryOptions(
                     RetryOptions.newBuilder()
                         .setInitialInterval(Duration.ofSeconds(1))
