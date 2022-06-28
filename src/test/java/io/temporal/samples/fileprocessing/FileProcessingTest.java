@@ -22,16 +22,13 @@ package io.temporal.samples.fileprocessing;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import io.temporal.api.enums.v1.TimeoutType;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.failure.TimeoutFailure;
 import io.temporal.samples.fileprocessing.StoreActivities.TaskQueueFileNamePair;
 import io.temporal.testing.TestWorkflowRule;
 import io.temporal.worker.Worker;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.junit.*;
-import org.junit.rules.Timeout;
 
 public class FileProcessingTest {
 
@@ -59,8 +56,6 @@ public class FileProcessingTest {
           .setWorkflowTypes(FileProcessingWorkflowImpl.class)
           .setDoNotStart(true)
           .build();
-
-  @Rule public Timeout globalTimeout = Timeout.seconds(5);
 
   // Host specific workers.
   private Worker workerHost1;
@@ -109,7 +104,7 @@ public class FileProcessingTest {
     testWorkflowRule.getTestEnvironment().shutdown();
   }
 
-  @Test
+  @Test(timeout = 30_000)
   public void testHostFailover() {
     StoreActivities activities = mock(StoreActivities.class);
     when(activities.download(any()))
@@ -120,7 +115,12 @@ public class FileProcessingTest {
 
     StoreActivities activitiesHost1 = mock(StoreActivities.class);
     when(activitiesHost1.process(FILE_NAME_UNPROCESSED))
-        .thenThrow(new TimeoutFailure("simulated", null, TimeoutType.TIMEOUT_TYPE_START_TO_CLOSE));
+        .then(
+            invocation -> {
+              Thread.sleep(Long.MAX_VALUE);
+              return "done";
+            });
+
     workerHost1.registerActivitiesImplementations(activitiesHost1);
 
     StoreActivities activitiesHost2 = mock(StoreActivities.class);

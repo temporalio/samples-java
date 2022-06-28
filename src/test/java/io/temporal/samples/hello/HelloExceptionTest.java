@@ -32,7 +32,6 @@ import io.temporal.failure.ActivityFailure;
 import io.temporal.failure.ApplicationFailure;
 import io.temporal.failure.ChildWorkflowFailure;
 import io.temporal.failure.TimeoutFailure;
-import io.temporal.samples.hello.HelloException.GreetingActivities;
 import io.temporal.samples.hello.HelloException.GreetingChildImpl;
 import io.temporal.samples.hello.HelloException.GreetingWorkflow;
 import io.temporal.samples.hello.HelloException.GreetingWorkflowImpl;
@@ -80,18 +79,14 @@ public class HelloExceptionTest {
   }
 
   @Test
-  public void testActivityTimeout() {
+  public void testActivityScheduleToStartTimeout() {
     testWorkflowRule
         .getWorker()
         .registerWorkflowImplementationTypes(
             HelloException.GreetingWorkflowImpl.class, GreetingChildImpl.class);
 
-    // Mock an activity that times out.
-    GreetingActivities activities = mock(GreetingActivities.class);
-    when(activities.composeGreeting(anyString(), anyString()))
-        .thenThrow(
-            new TimeoutFailure("simulated", null, TimeoutType.TIMEOUT_TYPE_SCHEDULE_TO_START));
-    testWorkflowRule.getWorker().registerActivitiesImplementations(activities);
+    // We don't register an activity implementation on the worker and the activity has 5 seconds
+    // schedule to start timeout in GreetingChildImpl
 
     testWorkflowRule.getTestEnvironment().start();
 
