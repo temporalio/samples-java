@@ -45,7 +45,7 @@ dependencies {
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-util', version: '4.0.3.Final'
     implementation group: 'com.jayway.jsonpath', name: 'json-path', version: '2.7.0'
     implementation "io.micrometer:micrometer-registry-prometheus"
-    implementation group: 'net.thisptr', name: 'jackson-jq', version: '1.0.0-preview.20210928'
+    implementation group: 'net.thisptr', name: 'jackson-jq', version: '1.0.0-preview.20220704'
     implementation "com.fasterxml.jackson.core:jackson-core"
     implementation 'io.jaegertracing:jaeger-client:1.8.1'
 
