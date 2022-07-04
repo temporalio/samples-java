@@ -47,7 +47,7 @@ dependencies {
     implementation "io.micrometer:micrometer-registry-prometheus"
     implementation group: 'net.thisptr', name: 'jackson-jq', version: '1.0.0-preview.20210928'
     implementation "com.fasterxml.jackson.core:jackson-core"
-    implementation 'io.jaegertracing:jaeger-client:1.8.0'
+    implementation 'io.jaegertracing:jaeger-client:1.8.1'
 
 
     implementation "io.opentelemetry:opentelemetry-sdk"
