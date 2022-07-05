@@ -8,7 +8,7 @@ which helps us parse the DSL into an object model as well as provides DSL valida
 Since this is just a sample, this sample provides only partial implementation of the 
 entire Serverless Workflow DSL features.
 
-The sample following DSL workflows, `customerapplication/workflow.yml`,
+This sample runs the following DSL workflows, `customerapplication/workflow.yml`,
 `bankingtransactions/workflow.yml`, `customerapproval/applicantworkflow.yml`,
 `customerapproval/approvalworkflow.yml`, `bankingtransactionssubflow/parentworkflow.json`,
 `bankingtransactionssubflow/childworkflow.yml`.
