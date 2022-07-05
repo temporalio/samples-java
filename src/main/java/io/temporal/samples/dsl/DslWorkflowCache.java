@@ -41,6 +41,13 @@ public class DslWorkflowCache {
             Workflow.fromSource(getFileAsString("dsl/customerapproval/applicantworkflow.json"));
         Workflow approvalWorkflow =
             Workflow.fromSource(getFileAsString("dsl/customerapproval/approvalworkflow.json"));
+        Workflow bankingParentWorkflow =
+            Workflow.fromSource(
+                getFileAsString("dsl/bankingtransactionssubflow/parentworkflow.json"));
+        Workflow bankingChildWorkflow =
+            Workflow.fromSource(
+                getFileAsString("dsl/bankingtransactionssubflow/childworkflow.json"));
+
         dslWorkflowMap.put(
             customerApplicationWorkflow.getId() + "-" + customerApplicationWorkflow.getVersion(),
             customerApplicationWorkflow);
@@ -51,6 +58,12 @@ public class DslWorkflowCache {
             applicantWorkflow.getId() + "-" + applicantWorkflow.getVersion(), applicantWorkflow);
         dslWorkflowMap.put(
             approvalWorkflow.getId() + "-" + approvalWorkflow.getVersion(), approvalWorkflow);
+        dslWorkflowMap.put(
+            bankingParentWorkflow.getId() + "-" + bankingParentWorkflow.getVersion(),
+            bankingParentWorkflow);
+        dslWorkflowMap.put(
+            bankingChildWorkflow.getId() + "-" + bankingChildWorkflow.getVersion(),
+            bankingChildWorkflow);
       } catch (Exception e) {
         System.out.println("Exception: " + e.getMessage());
       }

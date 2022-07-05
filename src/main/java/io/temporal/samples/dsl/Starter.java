@@ -47,19 +47,27 @@ public class Starter {
     runBankingTransactionWorkflow();
     // Customer approval workflow
     runCustomerApprovalWorkflow();
+    // Banking transaction workflow with parent/child relationship
+    runBankingTransactionWithChildWorkflow();
+
     System.exit(0);
   }
 
   private static void runCustomerApplicationWorkflow() {
-    runWorkflow("customerapplication", "1.0", "dsl/customerapplication/datainput.json");
+    runWorkflow("customerapplication", "1.0", "dsl/customerapplication/datainput.json", true);
   }
 
   private static void runBankingTransactionWorkflow() {
-    runWorkflow("bankingtransactions", "1.0", "dsl/bankingtransactions/datainput.json");
+    runWorkflow("bankingtransactions", "1.0", "dsl/bankingtransactions/datainput.json", true);
+  }
+
+  private static void runBankingTransactionWithChildWorkflow() {
+    runWorkflow(
+        "bankingparentworkflow", "1.0", "dsl/bankingtransactionssubflow/datainput.json", false);
   }
 
   private static void runWorkflow(
-      String workflowId, String workflowVersion, String dataInputFileName) {
+      String workflowId, String workflowVersion, String dataInputFileName, boolean doQuery) {
     try {
       // Get the workflow dsl from cache
       Workflow dslWorkflow = DslWorkflowCache.getWorkflow(workflowId, workflowVersion);
@@ -79,12 +87,14 @@ public class Starter {
       // Wait for workflow to finish
       JsonNode result = workflowStub.getResult(JsonNode.class);
 
-      // Query the customer name and age
-      String customerName = workflowStub.query("QueryCustomerName", String.class);
-      int customerAge = workflowStub.query("QueryCustomerAge", Integer.class);
+      if (doQuery) {
+        // Query the customer name and age
+        String customerName = workflowStub.query("QueryCustomerName", String.class);
+        int customerAge = workflowStub.query("QueryCustomerAge", Integer.class);
 
-      System.out.println("Query result for customer name: " + customerName);
-      System.out.println("Query result for customer age: " + customerAge);
+        System.out.println("Query result for customer name: " + customerName);
+        System.out.println("Query result for customer age: " + customerAge);
+      }
 
       // Print workflow results
       System.out.println("Workflow results: \n" + result.toPrettyString());

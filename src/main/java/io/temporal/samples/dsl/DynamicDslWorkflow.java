@@ -25,11 +25,14 @@ import io.serverlessworkflow.api.actions.Action;
 import io.serverlessworkflow.api.branches.Branch;
 import io.serverlessworkflow.api.events.OnEvents;
 import io.serverlessworkflow.api.functions.FunctionDefinition;
+import io.serverlessworkflow.api.functions.SubFlowRef;
 import io.serverlessworkflow.api.interfaces.State;
 import io.serverlessworkflow.api.states.*;
 import io.serverlessworkflow.api.switchconditions.DataCondition;
 import io.serverlessworkflow.utils.WorkflowUtils;
 import io.temporal.activity.ActivityOptions;
+import io.temporal.api.common.v1.WorkflowExecution;
+import io.temporal.api.enums.v1.ParentClosePolicy;
 import io.temporal.common.converter.EncodedValues;
 import io.temporal.samples.dsl.model.ActResult;
 import io.temporal.samples.dsl.model.WorkflowData;
@@ -151,7 +154,6 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
               () -> signalMap.containsKey(eventState.getOnEvents().get(0).getEventRefs().get(0)));
           workflowData = signalMap.get(eventState.getOnEvents().get(0).getEventRefs().get(0));
         } else {
-
           List<Action> eventStateActions = eventState.getOnEvents().get(0).getActions();
           if (eventState.getOnEvents().get(0).getActionMode() != null
               && eventState
@@ -221,29 +223,82 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
           }
         } else {
           for (Action action : operationState.getActions()) {
+            // added support for subflow (child workflow)
+            if (action.getSubFlowRef() != null) {
 
-            // check if its a custom function
-            FunctionDefinition functionDefinition =
-                WorkflowUtils.getFunctionDefinitionsForAction(dslWorkflow, action.getName());
-            if (functionDefinition.getType().equals(FunctionDefinition.Type.CUSTOM)) {
-              // for this example custom function is assumed sending signal via external stub
-              String[] operationParts = functionDefinition.getOperation().split("#");
-              ExternalWorkflowStub externalWorkflowStub =
-                  Workflow.newUntypedExternalWorkflowStub(operationParts[0]);
-              externalWorkflowStub.signal(operationParts[1], workflowData.getValue());
-            } else {
-              if (action.getSleep() != null && action.getSleep().getBefore() != null) {
-                Workflow.sleep(Duration.parse(action.getSleep().getBefore()));
+              if (action.getSubFlowRef().getInvoke() != null
+                  && action.getSubFlowRef().getInvoke().equals(SubFlowRef.Invoke.ASYNC)) {
+                ChildWorkflowOptions childWorkflowOptions;
+
+                if (action
+                    .getSubFlowRef()
+                    .getOnParentComplete()
+                    .equals(SubFlowRef.OnParentComplete.CONTINUE)) {
+                  childWorkflowOptions =
+                      ChildWorkflowOptions.newBuilder()
+                          .setWorkflowId(action.getSubFlowRef().getWorkflowId())
+                          .setParentClosePolicy(ParentClosePolicy.PARENT_CLOSE_POLICY_ABANDON)
+                          .build();
+                } else {
+                  childWorkflowOptions =
+                      ChildWorkflowOptions.newBuilder()
+                          .setWorkflowId(action.getSubFlowRef().getWorkflowId())
+                          .build();
+                }
+                ChildWorkflowStub childWorkflow =
+                    Workflow.newUntypedChildWorkflowStub(
+                        action.getSubFlowRef().getWorkflowId(), childWorkflowOptions);
+                Promise<Object> promise =
+                    childWorkflow.executeAsync(
+                        Object.class,
+                        action.getSubFlowRef().getWorkflowId(),
+                        action.getSubFlowRef().getVersion(),
+                        workflowData.getValue());
+                // for async we do not care about result in sample
+                // wait until child starts
+                Promise<WorkflowExecution> childExecution =
+                    Workflow.getWorkflowExecution(childWorkflow);
+                childExecution.get();
+
+              } else {
+                ChildWorkflowStub childWorkflow =
+                    Workflow.newUntypedChildWorkflowStub(
+                        action.getSubFlowRef().getWorkflowId(),
+                        ChildWorkflowOptions.newBuilder()
+                            .setWorkflowId(action.getSubFlowRef().getWorkflowId())
+                            .build());
+
+                workflowData.addResults(
+                    childWorkflow.execute(
+                        Object.class,
+                        action.getSubFlowRef().getWorkflowId(),
+                        action.getSubFlowRef().getVersion(),
+                        workflowData.getValue()));
               }
-              // execute the action as an activity and assign its results to workflowData
-              workflowData.addResults(
-                  activities.execute(
-                      action.getFunctionRef().getRefName(),
-                      ActResult.class,
-                      workflowData.getCustomer()));
+            } else {
+              // check if its a custom function
+              FunctionDefinition functionDefinition =
+                  WorkflowUtils.getFunctionDefinitionsForAction(dslWorkflow, action.getName());
+              if (functionDefinition.getType().equals(FunctionDefinition.Type.CUSTOM)) {
+                // for this example custom function is assumed sending signal via external stub
+                String[] operationParts = functionDefinition.getOperation().split("#");
+                ExternalWorkflowStub externalWorkflowStub =
+                    Workflow.newUntypedExternalWorkflowStub(operationParts[0]);
+                externalWorkflowStub.signal(operationParts[1], workflowData.getValue());
+              } else {
+                if (action.getSleep() != null && action.getSleep().getBefore() != null) {
+                  Workflow.sleep(Duration.parse(action.getSleep().getBefore()));
+                }
+                // execute the action as an activity and assign its results to workflowData
+                workflowData.addResults(
+                    activities.execute(
+                        action.getFunctionRef().getRefName(),
+                        ActResult.class,
+                        workflowData.getCustomer()));
 
-              if (action.getSleep() != null && action.getSleep().getAfter() != null) {
-                Workflow.sleep(Duration.parse(action.getSleep().getAfter()));
+                if (action.getSleep() != null && action.getSleep().getAfter() != null) {
+                  Workflow.sleep(Duration.parse(action.getSleep().getAfter()));
+                }
               }
             }
           }

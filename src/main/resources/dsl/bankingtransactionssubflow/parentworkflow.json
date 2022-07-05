@@ -1,0 +1,30 @@
+{
+  "id": "bankingparentworkflow",
+  "name": "Customer Banking Transactions Parent Workflow",
+  "version": "1.0",
+  "specVersion": "0.8",
+  "timeouts": {
+    "workflowExecTimeout": {
+      "duration": "PT1M"
+    },
+    "actionExecTimeout": "PT10S"
+  },
+  "autoRetries": true,
+  "start": "InvokeBankingChild",
+  "states": [
+    {
+      "name": "InvokeBankingChild",
+      "type": "operation",
+      "actionMode": "sequential",
+      "actions": [
+        {
+          "subFlowRef": {
+            "workflowId": "bankingchildworkflow",
+            "version": "1.0"
+          }
+        }
+      ],
+      "end": true
+    }
+  ]
+}

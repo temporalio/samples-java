@@ -8,9 +8,10 @@ which helps us parse the DSL into an object model as well as provides DSL valida
 Since this is just a sample, this sample provides only partial implementation of the 
 entire Serverless Workflow DSL features.
 
-The sample runs four DSL workflows, `customerapplication/workflow.yml`,
+This sample runs the following DSL workflows, `customerapplication/workflow.yml`,
 `bankingtransactions/workflow.yml`, `customerapproval/applicantworkflow.yml`,
-`customerapproval/approvalworkflow.yml`.
+`customerapproval/approvalworkflow.yml`, `bankingtransactionssubflow/parentworkflow.json`,
+`bankingtransactionssubflow/childworkflow.yml`.
 
 Note that most DSLs, including Serverless Workflow DSL used in this sample represent 
 their workflow data as JSON. As such manipulation of this data is done via expression languages
@@ -90,6 +91,33 @@ Workflow results:
   "results" : [ {
     "type" : "decision",
     "result" : "APPROVED"
+  } ]
+}
+Validating workflow: bankingparentworkflow
+Starting workflow with id: bankingparentworkflow and version: 1.0
+Workflow results: 
+{
+  "customer" : {
+    "name" : "John",
+    "age" : 22,
+    "transactions" : [ 100, -50, 20 ]
+  },
+  "results" : [ {
+    "customer" : {
+      "name" : "John",
+      "age" : 22,
+      "transactions" : [ 100, -50, 20 ]
+    },
+    "results" : [ {
+      "type" : "InvokeBankingService",
+      "result" : "invoked"
+    }, {
+      "type" : "InvokeBankingService",
+      "result" : "invoked"
+    }, {
+      "type" : "InvokeBankingService",
+      "result" : "invoked"
+    } ]
   } ]
 }
 ```
