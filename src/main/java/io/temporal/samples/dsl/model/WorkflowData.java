@@ -63,7 +63,7 @@ public class WorkflowData {
     this.value = value;
   }
 
-  public void addResults(ActResult result) {
+  public void addResults(Object result) {
     ((ArrayNode) this.value.get("results")).add(mapper.valueToTree(result));
   }
 
