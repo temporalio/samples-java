@@ -30,7 +30,7 @@ dependencies {
     implementation(platform("io.opentelemetry:opentelemetry-bom:1.15.0"))
     implementation(platform("org.junit:junit-bom:5.8.2"))
 
-    implementation "io.temporal:temporal-sdk:1.13.0"
+    implementation "io.temporal:temporal-sdk:1.14.0"
     implementation "io.temporal:temporal-opentracing:1.13.0"
 
     implementation "com.fasterxml.jackson.core:jackson-databind"
