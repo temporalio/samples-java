@@ -24,6 +24,7 @@ import io.temporal.client.WorkflowClientOptions;
 import io.temporal.serviceclient.SimpleSslContextBuilder;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
+import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -49,7 +50,7 @@ public class SslEnabledWorker {
     String namespace = System.getenv("TEMPORAL_NAMESPACE");
     // Create SSL enabled client by passing SslContext, created by SimpleSslContextBuilder.
     WorkflowServiceStubs service =
-        WorkflowServiceStubs.newInstance(
+        WorkflowServiceStubs.newServiceStubs(
             WorkflowServiceStubsOptions.newBuilder()
                 .setSslContext(SimpleSslContextBuilder.forPKCS8(clientCert, clientKey).build())
                 .setTarget(targetEndpoint)
@@ -64,7 +65,7 @@ public class SslEnabledWorker {
     // worker factory that can be used to create workers for specific task queues
     WorkerFactory factory = WorkerFactory.newInstance(client);
     // Worker that listens on a task queue and hosts both workflow and activity implementations.
-    // Worker worker = factory.newWorker(TASK_QUEUE);
+    Worker worker = factory.newWorker(TASK_QUEUE);
     // TODO now register your workflow types and activity implementations.
     // worker.registerWorkflowImplementationTypes(...);
     // worker.registerActivitiesImplementations(...);
