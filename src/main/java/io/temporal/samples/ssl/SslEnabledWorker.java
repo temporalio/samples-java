@@ -26,50 +26,49 @@ import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
-
 import java.io.FileInputStream;
 import java.io.InputStream;
 
 public class SslEnabledWorker {
 
-    static final String TASK_QUEUE = "MyTaskQueue";
+  static final String TASK_QUEUE = "MyTaskQueue";
 
-    public static void main(String[] args) throws Exception {
-        // Load your client certificate, which should look like:
-        // -----BEGIN CERTIFICATE-----
-        // ...
-        // -----END CERTIFICATE-----
-        InputStream clientCert = new FileInputStream(System.getenv("TEMPORAL_CLIENT_CERT"));
-        // PKCS8 client key, which should look like:
-        // -----BEGIN PRIVATE KEY-----
-        // ...
-        // -----END PRIVATE KEY-----
-        InputStream clientKey = new FileInputStream(System.getenv("TEMPORAL_CLIENT_KEY"));
-        // For temporal cloud this would likely be ${namespace}.tmprl.cloud:7233
-        String targetEndpoint = System.getenv("TEMPORAL_ENDPOINT");
-        // Your registered namespace.
-        String namespace = System.getenv("TEMPORAL_NAMESPACE");
-        // Create SSL enabled client by passing SslContext, created by SimpleSslContextBuilder.
-        WorkflowServiceStubs service =
-                WorkflowServiceStubs.newServiceStubs(
-                        WorkflowServiceStubsOptions.newBuilder()
-                                .setSslContext(SimpleSslContextBuilder.forPKCS8(clientCert, clientKey).build())
-                                .setTarget(targetEndpoint)
-                                .build());
+  public static void main(String[] args) throws Exception {
+    // Load your client certificate, which should look like:
+    // -----BEGIN CERTIFICATE-----
+    // ...
+    // -----END CERTIFICATE-----
+    InputStream clientCert = new FileInputStream(System.getenv("TEMPORAL_CLIENT_CERT"));
+    // PKCS8 client key, which should look like:
+    // -----BEGIN PRIVATE KEY-----
+    // ...
+    // -----END PRIVATE KEY-----
+    InputStream clientKey = new FileInputStream(System.getenv("TEMPORAL_CLIENT_KEY"));
+    // For temporal cloud this would likely be ${namespace}.tmprl.cloud:7233
+    String targetEndpoint = System.getenv("TEMPORAL_ENDPOINT");
+    // Your registered namespace.
+    String namespace = System.getenv("TEMPORAL_NAMESPACE");
+    // Create SSL enabled client by passing SslContext, created by SimpleSslContextBuilder.
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newServiceStubs(
+            WorkflowServiceStubsOptions.newBuilder()
+                .setSslContext(SimpleSslContextBuilder.forPKCS8(clientCert, clientKey).build())
+                .setTarget(targetEndpoint)
+                .build());
 
-        // Now setup and start workflow worker, which uses SSL enabled gRPC service to communicate with
-        // backend.
-        // client that can be used to start and signal workflows.
-        WorkflowClient client =
-                WorkflowClient.newInstance(
-                        service, WorkflowClientOptions.newBuilder().setNamespace(namespace).build());
-        // worker factory that can be used to create workers for specific task queues
-        WorkerFactory factory = WorkerFactory.newInstance(client);
-        // Worker that listens on a task queue and hosts both workflow and activity implementations.
-        Worker worker = factory.newWorker(TASK_QUEUE);
-        // TODO now register your workflow types and activity implementations.
-        // worker.registerWorkflowImplementationTypes(...);
-        // worker.registerActivitiesImplementations(...);
-        factory.start();
-    }
+    // Now setup and start workflow worker, which uses SSL enabled gRPC service to communicate with
+    // backend.
+    // client that can be used to start and signal workflows.
+    WorkflowClient client =
+        WorkflowClient.newInstance(
+            service, WorkflowClientOptions.newBuilder().setNamespace(namespace).build());
+    // worker factory that can be used to create workers for specific task queues
+    WorkerFactory factory = WorkerFactory.newInstance(client);
+    // Worker that listens on a task queue and hosts both workflow and activity implementations.
+    Worker worker = factory.newWorker(TASK_QUEUE);
+    // TODO now register your workflow types and activity implementations.
+    // worker.registerWorkflowImplementationTypes(...);
+    // worker.registerActivitiesImplementations(...);
+    factory.start();
+  }
 }
