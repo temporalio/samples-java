@@ -151,6 +151,8 @@ All tests are available under [src/test/java](https://github.com/temporalio/samp
 
 - [**Per Activity Type Options**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/peractivityoptions): Demonstrates how to set per Activity type options.
 
+- [**Configure WorkflowClient to use mTLS**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/ssl): Demonstrates how to configure WorkflowClient when using mTLS.
+
 ### SDK Metrics
 
 - [**Set up SDK metrics**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/metrics): Demonstrates how to set up and scrape SDK metrics.
