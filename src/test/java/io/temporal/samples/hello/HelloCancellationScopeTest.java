@@ -39,7 +39,7 @@ public class HelloCancellationScopeTest {
           .setActivityImplementations(new GreetingActivitiesImpl())
           .build();
 
-  @Test(timeout = 200_000)
+  @Test(timeout = 240_000)
   public void testActivityImpl() {
     // Get a workflow stub using the same task queue the worker uses.
     GreetingWorkflow workflow =

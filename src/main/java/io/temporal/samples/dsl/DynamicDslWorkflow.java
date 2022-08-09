@@ -47,10 +47,10 @@ import java.util.Map;
 import org.slf4j.Logger;
 
 public class DynamicDslWorkflow implements DynamicWorkflow {
+  private static final Logger logger = Workflow.getLogger(DynamicDslWorkflow.class);
 
   private io.serverlessworkflow.api.Workflow dslWorkflow;
   private WorkflowData workflowData = new WorkflowData();
-  private Logger logger = Workflow.getLogger(DynamicDslWorkflow.class);
   private List<FunctionDefinition> queryFunctions;
   private Map<String, WorkflowData> signalMap = new HashMap<>();
 
@@ -248,12 +248,11 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
                 ChildWorkflowStub childWorkflow =
                     Workflow.newUntypedChildWorkflowStub(
                         action.getSubFlowRef().getWorkflowId(), childWorkflowOptions);
-                Promise<Object> promise =
-                    childWorkflow.executeAsync(
-                        Object.class,
-                        action.getSubFlowRef().getWorkflowId(),
-                        action.getSubFlowRef().getVersion(),
-                        workflowData.getValue());
+                childWorkflow.executeAsync(
+                    Object.class,
+                    action.getSubFlowRef().getWorkflowId(),
+                    action.getSubFlowRef().getVersion(),
+                    workflowData.getValue());
                 // for async we do not care about result in sample
                 // wait until child starts
                 Promise<WorkflowExecution> childExecution =
@@ -281,7 +280,7 @@ public class DynamicDslWorkflow implements DynamicWorkflow {
                   WorkflowUtils.getFunctionDefinitionsForAction(dslWorkflow, action.getName());
               if (functionDefinition.getType().equals(FunctionDefinition.Type.CUSTOM)) {
                 // for this example custom function is assumed sending signal via external stub
-                String[] operationParts = functionDefinition.getOperation().split("#");
+                String[] operationParts = functionDefinition.getOperation().split("#", -1);
                 ExternalWorkflowStub externalWorkflowStub =
                     Workflow.newUntypedExternalWorkflowStub(operationParts[0]);
                 externalWorkflowStub.signal(operationParts[1], workflowData.getValue());
