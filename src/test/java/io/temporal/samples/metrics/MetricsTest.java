@@ -19,13 +19,13 @@
 
 package io.temporal.samples.metrics;
 
-import static io.temporal.testing.internal.SDKTestWorkflowRule.NAMESPACE;
 import static junit.framework.TestCase.assertEquals;
 
 import com.google.common.collect.ImmutableMap;
 import com.uber.m3.tally.RootScopeBuilder;
 import com.uber.m3.tally.Scope;
 import com.uber.m3.tally.StatsReporter;
+import com.uber.m3.util.Duration;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.ImmutableTag;
 import io.micrometer.core.instrument.Tag;
@@ -39,7 +39,7 @@ import io.temporal.samples.metrics.workflow.MetricsWorkflowImpl;
 import io.temporal.serviceclient.MetricsTag;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
-import io.temporal.testing.internal.SDKTestWorkflowRule;
+import io.temporal.testing.TestWorkflowRule;
 import io.temporal.worker.WorkerOptions;
 import java.util.List;
 import java.util.Map;
@@ -53,20 +53,21 @@ import org.junit.Test;
 public class MetricsTest {
 
   private static final long REPORTING_FLUSH_TIME = 50;
-
-  private SimpleMeterRegistry registry = new SimpleMeterRegistry();
-  private StatsReporter reporter = new MicrometerClientStatsReporter(registry);
+  private static List<Tag> TAGS_NAMESPACE_QUEUE;
   private final String SDK_CUSTOM_KEY = "sdkCustomTag1Key";
   private final String SDK_CUSTOM_VALUE = "sdkCustomTag1Value";
-  private Scope metricsScope =
+  private final SimpleMeterRegistry registry = new SimpleMeterRegistry();
+  private final StatsReporter reporter = new MicrometerClientStatsReporter(registry);
+  private final Scope metricsScope =
       new RootScopeBuilder()
           .tags(ImmutableMap.of(SDK_CUSTOM_KEY, SDK_CUSTOM_VALUE))
           .reporter(reporter)
-          .reportEvery(com.uber.m3.util.Duration.ofMillis(REPORTING_FLUSH_TIME >> 1));
+          .reportEvery(Duration.ofMillis(REPORTING_FLUSH_TIME >> 1));
+  private final String TEST_NAMESPACE = "UnitTest";
 
   @Rule
-  public SDKTestWorkflowRule testWorkflowRule =
-      SDKTestWorkflowRule.newBuilder()
+  public TestWorkflowRule testWorkflowRule =
+      TestWorkflowRule.newBuilder()
           .setWorkflowTypes(MetricsWorkflowImpl.class)
           .setMetricsScope(metricsScope)
           .setWorkerOptions(WorkerOptions.newBuilder().build())
@@ -76,30 +77,38 @@ public class MetricsTest {
   private WorkflowServiceStubs clientStubs;
   private WorkflowClient workflowClient;
 
-  private static final List<Tag> TAGS_NAMESPACE;
-
-  static {
-    Map<String, String> stringStringMap = MetricsTag.defaultTags(NAMESPACE);
-    TAGS_NAMESPACE =
-        stringStringMap.entrySet().stream()
-            .map(
-                nameValueEntry ->
-                    new ImmutableTag(nameValueEntry.getKey(), nameValueEntry.getValue()))
-            .collect(Collectors.toList());
+  private static List<Tag> replaceTags(List<Tag> tags, String... nameValuePairs) {
+    for (int i = 0; i < nameValuePairs.length; i += 2) {
+      tags = replaceTag(tags, nameValuePairs[i], nameValuePairs[i + 1]);
+    }
+    return tags;
   }
 
-  private static List<Tag> TAGS_NAMESPACE_QUEUE;
+  private static List<Tag> replaceTag(List<Tag> tags, String name, String value) {
+    List<Tag> result =
+        tags.stream().filter(tag -> !name.equals(tag.getKey())).collect(Collectors.toList());
+    result.add(new ImmutableTag(name, value));
+    return result;
+  }
 
   @Before
   public void setUp() {
 
-    WorkflowServiceStubsOptions options =
+    final WorkflowServiceStubsOptions options =
         testWorkflowRule.getWorkflowClient().getWorkflowServiceStubs().getOptions();
 
     this.clientStubs = WorkflowServiceStubs.newServiceStubs(options);
 
     this.workflowClient =
         WorkflowClient.newInstance(clientStubs, testWorkflowRule.getWorkflowClient().getOptions());
+
+    final Map<String, String> stringStringMap = MetricsTag.defaultTags(TEST_NAMESPACE);
+    final List<Tag> TAGS_NAMESPACE =
+        stringStringMap.entrySet().stream()
+            .map(
+                nameValueEntry ->
+                    new ImmutableTag(nameValueEntry.getKey(), nameValueEntry.getValue()))
+            .collect(Collectors.toList());
 
     TAGS_NAMESPACE_QUEUE =
         replaceTags(TAGS_NAMESPACE, MetricsTag.TASK_QUEUE, testWorkflowRule.getTaskQueue());
@@ -113,7 +122,7 @@ public class MetricsTest {
 
   @Test
   public void testCountActivityRetriesMetric() throws InterruptedException {
-    MetricsWorkflow metricsWorkflow =
+    final MetricsWorkflow metricsWorkflow =
         workflowClient.newWorkflowStub(
             MetricsWorkflow.class,
             WorkflowOptions.newBuilder()
@@ -131,8 +140,7 @@ public class MetricsTest {
 
   @NotNull
   private Counter countMetricActivityRetriesForActivity(String performB) {
-    return registry.counter(
-        "activity_retries",
+    final List<Tag> tags =
         replaceTags(
             TAGS_NAMESPACE_QUEUE,
             MetricsTag.ACTIVITY_TYPE,
@@ -142,21 +150,8 @@ public class MetricsTest {
             MetricsTag.WORKER_TYPE,
             "ActivityWorker",
             SDK_CUSTOM_KEY,
-            SDK_CUSTOM_VALUE));
-  }
-
-  private static List<Tag> replaceTags(List<Tag> tags, String... nameValuePairs) {
-    for (int i = 0; i < nameValuePairs.length; i += 2) {
-      tags = replaceTag(tags, nameValuePairs[i], nameValuePairs[i + 1]);
-    }
-    return tags;
-  }
-
-  private static List<Tag> replaceTag(List<Tag> tags, String name, String value) {
-    List<Tag> result =
-        tags.stream().filter(tag -> !name.equals(tag.getKey())).collect(Collectors.toList());
-    result.add(new ImmutableTag(name, value));
-    return result;
+            SDK_CUSTOM_VALUE);
+    return registry.counter("activity_retries", tags);
   }
 
   private void assertIntCounter(int expectedValue, Counter counter) {
