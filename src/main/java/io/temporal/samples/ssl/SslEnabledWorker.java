@@ -28,6 +28,7 @@ import io.temporal.worker.WorkerFactory;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
+// @@@SNIPSTART java-mtls-configuration
 public class SslEnabledWorker {
 
   static final String TASK_QUEUE = "MyTaskQueue";
@@ -54,7 +55,7 @@ public class SslEnabledWorker {
                 .setSslContext(SimpleSslContextBuilder.forPKCS8(clientCert, clientKey).build())
                 .setTarget(targetEndpoint)
                 .build());
-
+                // @@@SNIPEND
     // Now setup and start workflow worker, which uses SSL enabled gRPC service to communicate with
     // backend.
     // client that can be used to start and signal workflows.
