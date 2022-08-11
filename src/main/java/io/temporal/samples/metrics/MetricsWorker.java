@@ -64,7 +64,7 @@ public class MetricsWorker {
     WorkflowServiceStubsOptions stubOptions =
         WorkflowServiceStubsOptions.newBuilder().setMetricsScope(scope).build();
 
-    WorkflowServiceStubs service = WorkflowServiceStubs.newInstance(stubOptions);
+    WorkflowServiceStubs service = WorkflowServiceStubs.newServiceStubs(stubOptions);
     WorkflowClient client = WorkflowClient.newInstance(service);
     WorkerFactory factory = WorkerFactory.newInstance(client);
 
