@@ -25,7 +25,8 @@ import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.common.converter.DataConverter;
+import io.temporal.common.converter.CodecDataConverter;
+import io.temporal.common.converter.DefaultDataConverter;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -33,6 +34,7 @@ import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
+import java.util.Collections;
 
 /**
  * Hello World Temporal workflow that executes a single activity. Requires a local instance the
@@ -91,7 +93,10 @@ public class EncryptedPayloadsActivity {
         WorkflowClient.newInstance(
             service,
             WorkflowClientOptions.newBuilder()
-                .setDataConverter(new CryptDataConverter(DataConverter.getDefaultInstance()))
+                .setDataConverter(
+                    new CodecDataConverter(
+                        DefaultDataConverter.newDefaultInstance(),
+                        Collections.singletonList(new CryptCodec())))
                 .build());
 
     // worker factory that can be used to create workers for specific task queues
