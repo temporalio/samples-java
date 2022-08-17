@@ -6,7 +6,7 @@ The sample uses CNCF Serverless Workflow (serverlessworkflow.io) DSL and its Jav
 which helps us parse the DSL into an object model as well as provides DSL validation.
 
 Since this is just a sample, this sample provides only partial implementation of the 
-entire Serverless Workflow DSL features.
+entire [Serverless Workflow](https://serverlessworkflow.io/) DSL features.
 
 This sample runs the following DSL workflows:
 1. [`customerapplication/workflow.yml`](/src/main/resources/dsl/customerapplication/workflow.yml)
