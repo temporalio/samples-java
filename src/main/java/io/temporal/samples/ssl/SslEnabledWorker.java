@@ -24,7 +24,6 @@ import io.temporal.client.WorkflowClientOptions;
 import io.temporal.serviceclient.SimpleSslContextBuilder;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
-import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -65,7 +64,7 @@ public class SslEnabledWorker {
     // worker factory that can be used to create workers for specific task queues
     WorkerFactory factory = WorkerFactory.newInstance(client);
     // Worker that listens on a task queue and hosts both workflow and activity implementations.
-    Worker worker = factory.newWorker(TASK_QUEUE);
+    factory.newWorker(TASK_QUEUE);
     // TODO now register your workflow types and activity implementations.
     // worker.registerWorkflowImplementationTypes(...);
     // worker.registerActivitiesImplementations(...);
