@@ -62,7 +62,7 @@ dependencies {
     testImplementation("io.temporal:temporal-testing:1.15.0")
 
     testImplementation "junit:junit:4.13.2"
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.6.1'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.7.0'
     testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.9'
 
     testImplementation "org.junit.jupiter:junit-jupiter-api"
