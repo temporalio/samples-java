@@ -34,9 +34,9 @@ dependencies {
     implementation "io.temporal:temporal-opentracing:1.15.0"
 
     implementation "com.fasterxml.jackson.core:jackson-databind"
-    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.11'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.0'
     implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
-    implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '2.3.0'
+    implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '2.4.0'
     implementation group: 'io.cloudevents', name: 'cloudevents-api', version: '2.4.0'
     implementation group: 'io.cloudevents', name: 'cloudevents-json-jackson', version: '2.4.0'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-api', version: '4.0.3.Final'
