@@ -59,7 +59,7 @@ dependencies {
     // we don't update it to 2.1.0 because 2.1.0 requires Java 11
     implementation 'com.codingrodent:jackson-json-crypto:1.1.0'
 
-    testImplementation("io.temporal:temporal-testing:1.15.0")
+    testImplementation("io.temporal:temporal-testing:1.16.0")
 
     testImplementation "junit:junit:4.13.2"
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.7.0'
