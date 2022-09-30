@@ -40,9 +40,9 @@ public class SimpleCountActivityInboundCallsInterceptor
 
   @Override
   public ActivityOutput execute(ActivityInput input) {
-    Counter.add(
+    WorkerCounter.add(
         this.activityExecutionContext.getInfo().getWorkflowId(),
-        Counter.NUM_OF_ACTIVITY_EXECUTIONS);
+        WorkerCounter.NUM_OF_ACTIVITY_EXECUTIONS);
     return super.execute(input);
   }
 }
