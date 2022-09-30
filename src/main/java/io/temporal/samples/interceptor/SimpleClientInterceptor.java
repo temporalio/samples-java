@@ -19,21 +19,20 @@
 
 package io.temporal.samples.interceptor;
 
-import io.temporal.common.interceptors.WorkflowOutboundCallsInterceptor;
-import io.temporal.common.interceptors.WorkflowOutboundCallsInterceptorBase;
-import io.temporal.workflow.Workflow;
+import io.temporal.common.interceptors.WorkflowClientCallsInterceptor;
+import io.temporal.common.interceptors.WorkflowClientInterceptorBase;
 
-public class SimpleCountWorkflowOutboundCallsInterceptor
-    extends WorkflowOutboundCallsInterceptorBase {
+public class SimpleClientInterceptor extends WorkflowClientInterceptorBase {
 
-  public SimpleCountWorkflowOutboundCallsInterceptor(WorkflowOutboundCallsInterceptor next) {
-    super(next);
+  private ClientCounter clientCounter;
+
+  public SimpleClientInterceptor(ClientCounter clientCounter) {
+    this.clientCounter = clientCounter;
   }
 
   @Override
-  public <R> ChildWorkflowOutput<R> executeChildWorkflow(ChildWorkflowInput<R> input) {
-    WorkerCounter.add(
-        Workflow.getInfo().getWorkflowId(), WorkerCounter.NUM_OF_CHILD_WORKFLOW_EXECUTIONS);
-    return super.executeChildWorkflow(input);
+  public WorkflowClientCallsInterceptor workflowClientCallsInterceptor(
+      WorkflowClientCallsInterceptor next) {
+    return new SimpleClientCallsInterceptor(next, clientCounter);
   }
 }

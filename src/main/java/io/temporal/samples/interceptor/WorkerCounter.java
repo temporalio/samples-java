@@ -30,7 +30,7 @@ import java.util.stream.Stream;
  * Simple counter class. Static impl just for the sake of the sample. Note: in your applications you
  * should use CDI for example instead.
  */
-public class Counter {
+public class WorkerCounter {
   private static Map<String, Map<String, Integer>> perWorkflowIdMap =
       Collections.synchronizedMap(new HashMap<>());
 
