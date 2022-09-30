@@ -42,19 +42,19 @@ public class SimpleCountWorkflowInboundCallsInterceptor
 
   @Override
   public WorkflowOutput execute(WorkflowInput input) {
-    Counter.add(this.workflowInfo.getWorkflowId(), Counter.NUM_OF_WORKFLOW_EXECUTIONS);
+    WorkerCounter.add(this.workflowInfo.getWorkflowId(), WorkerCounter.NUM_OF_WORKFLOW_EXECUTIONS);
     return super.execute(input);
   }
 
   @Override
   public void handleSignal(SignalInput input) {
-    Counter.add(this.workflowInfo.getWorkflowId(), Counter.NUM_OF_SIGNALS);
+    WorkerCounter.add(this.workflowInfo.getWorkflowId(), WorkerCounter.NUM_OF_SIGNALS);
     super.handleSignal(input);
   }
 
   @Override
   public QueryOutput handleQuery(QueryInput input) {
-    Counter.add(this.workflowInfo.getWorkflowId(), Counter.NUM_OF_QUERIES);
+    WorkerCounter.add(this.workflowInfo.getWorkflowId(), WorkerCounter.NUM_OF_QUERIES);
     return super.handleQuery(input);
   }
 }

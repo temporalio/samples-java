@@ -20,8 +20,10 @@
 package io.temporal.samples.interceptor;
 
 import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowClientOptions;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
+import io.temporal.common.interceptors.WorkflowClientInterceptor;
 import io.temporal.samples.interceptor.activities.MyActivitiesImpl;
 import io.temporal.samples.interceptor.workflow.MyChildWorkflowImpl;
 import io.temporal.samples.interceptor.workflow.MyWorkflow;
@@ -35,19 +37,25 @@ import org.slf4j.LoggerFactory;
 
 public class InterceptorStarter {
 
-  public static SimpleCountWorkerInterceptor interceptor = new SimpleCountWorkerInterceptor();
+  public static SimpleCountWorkerInterceptor workerInterceptor = new SimpleCountWorkerInterceptor();
   private static final String TEST_QUEUE = "test-queue";
   private static final String WORKFLOW_ID = "TestInterceptorWorkflow";
 
   private static final Logger logger = LoggerFactory.getLogger(SimpleCountWorkerInterceptor.class);
 
   public static void main(String[] args) {
+
+    final ClientCounter clientCounter = new ClientCounter();
+    final WorkflowClientInterceptor clientInterceptor = new SimpleClientInterceptor(clientCounter);
+
     WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
-    WorkflowClient client = WorkflowClient.newInstance(service);
+    WorkflowClient client =
+        WorkflowClient.newInstance(
+            service, WorkflowClientOptions.newBuilder().setInterceptors(clientInterceptor).build());
 
     WorkerFactoryOptions wfo =
         WorkerFactoryOptions.newBuilder()
-            .setWorkerInterceptors(interceptor)
+            .setWorkerInterceptors(workerInterceptor)
             .validateAndBuildWithDefaults();
 
     WorkerFactory factory = WorkerFactory.newInstance(client, wfo);
@@ -84,9 +92,13 @@ public class InterceptorStarter {
     logger.info("Name: " + name);
     logger.info("Title: " + title);
 
-    // Print the Counter Info
-    logger.info("Collected Counter Info: ");
-    logger.info(Counter.getInfo());
+    // Print the Worker Counter Info
+    logger.info("Collected Worker Counter Info: ");
+    logger.info(WorkerCounter.getInfo());
+
+    // Print the Client Counter Info
+    logger.info("Collected Client Counter Info: ");
+    logger.info(clientCounter.getInfo());
 
     System.exit(0);
   }
