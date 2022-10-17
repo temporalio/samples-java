@@ -30,6 +30,7 @@ import io.temporal.api.workflowservice.v1.DescribeWorkflowExecutionResponse;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.common.converter.DataConverter;
+import io.temporal.common.converter.GlobalDataConverter;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -243,7 +244,7 @@ public class HelloSearchAttributes {
   // example for extracting a value from search attributes
   private static String getKeywordFromSearchAttribute(SearchAttributes searchAttributes) {
     Payload field = searchAttributes.getIndexedFieldsOrThrow("CustomKeywordField");
-    DataConverter dataConverter = DataConverter.getDefaultInstance();
+    DataConverter dataConverter = GlobalDataConverter.get();
     return dataConverter.fromPayload(field, String.class, String.class);
   }
 }
