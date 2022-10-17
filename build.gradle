@@ -27,7 +27,7 @@ repositories {
 
 dependencies {
     implementation(platform("com.fasterxml.jackson:jackson-bom:2.13.4"))
-    implementation(platform("io.opentelemetry:opentelemetry-bom:1.18.0"))
+    implementation(platform("io.opentelemetry:opentelemetry-bom:1.19.0"))
     implementation(platform("org.junit:junit-bom:5.9.1"))
 
     implementation "io.temporal:temporal-sdk:1.16.0"
