@@ -93,7 +93,7 @@ public class HelloSearchAttributes {
   }
 
   // Define the workflow implementation which implements our getGreeting workflow method.
-  public static class GreetingWorkflowImpl implements HelloActivity.GreetingWorkflow {
+  public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
     /**
      * Define the GreetingActivities stub. Activity stubs implement activity interfaces and proxy
