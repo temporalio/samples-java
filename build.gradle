@@ -10,7 +10,7 @@ apply plugin: 'java'
 apply plugin: 'com.github.sherter.google-java-format'
 
 googleJavaFormat {
-    toolVersion '1.7'
+    toolVersion (JavaVersion.current().isJava11Compatible() ? '1.15.0' : '1.7')
 }
 
 java {
@@ -30,8 +30,8 @@ dependencies {
     implementation(platform("io.opentelemetry:opentelemetry-bom:1.19.0"))
     implementation(platform("org.junit:junit-bom:5.9.1"))
 
-    implementation "io.temporal:temporal-sdk:1.16.0"
-    implementation "io.temporal:temporal-opentracing:1.16.0"
+    implementation "io.temporal:temporal-sdk:1.17.0"
+    implementation "io.temporal:temporal-opentracing:1.17.0"
 
     implementation "com.fasterxml.jackson.core:jackson-databind"
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.11'
@@ -59,18 +59,24 @@ dependencies {
     // we don't update it to 2.1.0 because 2.1.0 requires Java 11
     implementation 'com.codingrodent:jackson-json-crypto:1.1.0'
 
-    testImplementation("io.temporal:temporal-testing:1.16.0")
+    testImplementation("io.temporal:temporal-testing:1.17.0")
 
     testImplementation "junit:junit:4.13.2"
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.8.0'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.8.1'
     testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.9'
 
     testImplementation "org.junit.jupiter:junit-jupiter-api"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
     testRuntimeOnly "org.junit.vintage:junit-vintage-engine"
 
-    errorproneJavac("com.google.errorprone:javac:9+181-r4173-1")
-    errorprone("com.google.errorprone:error_prone_core:2.10.0")
+    dependencies {
+        errorproneJavac('com.google.errorprone:javac:9+181-r4173-1')
+        if (JavaVersion.current().isJava11Compatible()) {
+            errorprone('com.google.errorprone:error_prone_core:2.16')
+        } else {
+            errorprone('com.google.errorprone:error_prone_core:2.10.0')
+        }
+    }
 }
 
 compileJava {

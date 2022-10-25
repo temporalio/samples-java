@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class Starter {
   public static final String TASK_QUEUE = "customerTaskQueue";
@@ -153,7 +154,7 @@ public class Starter {
 
   private static void sleep(int seconds) {
     try {
-      Thread.sleep(seconds * 1000);
+      Thread.sleep(TimeUnit.SECONDS.toMillis(seconds));
     } catch (InterruptedException e) {
       System.out.println("Exception: " + e.getMessage());
       System.exit(0);

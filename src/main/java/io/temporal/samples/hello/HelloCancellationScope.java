@@ -43,6 +43,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Sample Temporal Workflow Definition that demonstrates parallel Activity Executions with a
@@ -236,7 +237,7 @@ public class HelloCancellationScope {
 
     private void sleep(int seconds) {
       try {
-        Thread.sleep(seconds * 1000);
+        Thread.sleep(TimeUnit.SECONDS.toMillis(seconds));
       } catch (InterruptedException ee) {
         // Empty
       }

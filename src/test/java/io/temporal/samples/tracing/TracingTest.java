@@ -48,7 +48,7 @@ import org.junit.Test;
 
 public class TracingTest {
   private final InMemoryReporter reporter = new InMemoryReporter();
-  private final Sampler sampler = new ConstSampler(true);;
+  private final Sampler sampler = new ConstSampler(true);
   private final Tracer tracer =
       new JaegerTracer.Builder("temporal-test").withReporter(reporter).withSampler(sampler).build();
 

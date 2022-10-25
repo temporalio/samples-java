@@ -29,6 +29,7 @@ import io.temporal.client.WorkflowStub;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import java.util.concurrent.TimeUnit;
 
 public class Starter {
 
@@ -82,7 +83,7 @@ public class Starter {
    */
   private static void sleepSeconds(int seconds) {
     try {
-      Thread.sleep(seconds * 1000);
+      Thread.sleep(TimeUnit.SECONDS.toMillis(seconds));
     } catch (Exception e) {
       System.out.println("Exception: " + e.getMessage());
       System.exit(0);

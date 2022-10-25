@@ -22,6 +22,7 @@ package io.temporal.samples.getresultsasync;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
+import java.util.concurrent.TimeUnit;
 
 public class Starter {
 
@@ -74,7 +75,7 @@ public class Starter {
 
   private static void sleep(int seconds) {
     try {
-      Thread.sleep(seconds * 1000);
+      Thread.sleep(TimeUnit.SECONDS.toMillis(seconds));
     } catch (InterruptedException e) {
       System.out.println("Exception: " + e.getMessage());
       System.exit(0);
