@@ -19,6 +19,7 @@
 
 package io.temporal.samples.listworkflows;
 
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,7 @@ public class CustomerActivitiesImpl implements CustomerActivities {
 
   private void sleepSeconds(int seconds) {
     try {
-      Thread.sleep(seconds * 1000);
+      Thread.sleep(TimeUnit.SECONDS.toMillis(seconds));
     } catch (InterruptedException e) {
       // This is being swallowed on purpose
       Thread.currentThread().interrupt();
