@@ -22,6 +22,7 @@ package io.temporal.samples.batch.slidingwindow;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.workflow.Workflow;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -52,7 +53,12 @@ public class RecordIterable implements Iterable<Record> {
 
     RecordIterator() {
       this.offset = initialOffset;
-      this.lastPage = recordLoader.getRecords(pageSize, offset);
+      if (initialOffset > maximumOffset) {
+        this.lastPage = new ArrayList<>();
+      } else {
+        int size = Math.min(pageSize, maximumOffset - offset);
+        this.lastPage = recordLoader.getRecords(size, offset);
+      }
     }
 
     @Override
@@ -80,14 +86,22 @@ public class RecordIterable implements Iterable<Record> {
 
   private final int pageSize;
 
+  private final int maximumOffset;
+
   private final RecordLoader recordLoader =
       Workflow.newActivityStub(
           RecordLoader.class,
           ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(5)).build());
 
-  public RecordIterable(int pageSize, int initialOffset) {
+  /**
+   * @param pageSize size of a single page to load.
+   * @param initialOffset the initial offset to load records from.
+   * @param maximumOffset the maximum offset (exclusive).
+   */
+  public RecordIterable(int pageSize, int initialOffset, int maximumOffset) {
     this.pageSize = pageSize;
     this.initialOffset = initialOffset;
+    this.maximumOffset = maximumOffset;
   }
 
   @NotNull

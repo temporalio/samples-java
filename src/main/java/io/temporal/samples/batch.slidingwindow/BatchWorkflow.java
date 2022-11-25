@@ -19,31 +19,21 @@
 
 package io.temporal.samples.batch.slidingwindow;
 
-import io.temporal.workflow.QueryMethod;
-import io.temporal.workflow.SignalMethod;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
-import java.util.Set;
 
 @WorkflowInterface
 public interface BatchWorkflow {
 
   /**
-   * Process the batch of records.
+   * Process the batch of records using multiple parallel sliding window workflows.
    *
-   * @param pageSize the number of records to load in a single RecordLoader.getRecords call.
-   * @param slidingWindowSize the number of parallel record processing child workflows to execute.
-   * @param offset the offset of the first record to process. 0 to start the batch processing.
-   * @param progress
+   * @param pageSize the number of records to start processing in a single workflow run.
+   * @param slidingWindowSize the number of records to process in parallel. Can be larger than
+   *     pageSize.
+   * @param partitions defines the number of SlidingWindowBatchWorkflows to run in parallel.
    * @return total number of processed records.
    */
   @WorkflowMethod
-  int processBatch(
-      int pageSize, int slidingWindowSize, int offset, int progress, Set<Integer> currentRecords);
-
-  @SignalMethod
-  void reportCompletion(int recordId);
-
-  @QueryMethod
-  BatchProgress getProgress();
+  int processBatch(int pageSize, int slidingWindowSize, int partitions);
 }

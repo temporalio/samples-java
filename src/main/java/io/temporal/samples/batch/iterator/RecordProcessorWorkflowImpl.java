@@ -31,7 +31,7 @@ public class RecordProcessorWorkflowImpl implements RecordProcessorWorkflow {
   @Override
   public void processRecord(Record r) {
     // Simulate some processing
-    Workflow.sleep(Duration.ofSeconds(random.nextInt(10)));
+    Workflow.sleep(Duration.ofSeconds(random.nextInt(30)));
     log.info("Processed " + r);
   }
 }

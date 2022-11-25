@@ -24,12 +24,21 @@ import java.time.Duration;
 import java.util.Random;
 import org.slf4j.Logger;
 
-public class RecordProcessorWorkflowImpl implements RecordProcessorWorkflow {
+public final class RecordProcessorWorkflowImpl implements RecordProcessorWorkflow {
   public static final Logger log = Workflow.getLogger(RecordProcessorWorkflowImpl.class);
   private final Random random = Workflow.newRandom();
 
   @Override
   public void processRecord(Record r) {
+    processRecordImpl(r);
+    String parentId = Workflow.getInfo().getParentWorkflowId().get();
+    SlidingWindowBatchWorkflow parent =
+        Workflow.newExternalWorkflowStub(SlidingWindowBatchWorkflow.class, parentId);
+    // Notify parent about record processing completion
+    parent.reportCompletion(r.getId());
+  }
+
+  private void processRecordImpl(Record r) {
     // Simulate some processing
     Workflow.sleep(Duration.ofSeconds(random.nextInt(10)));
     log.info("Processed " + r);

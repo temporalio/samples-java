@@ -19,27 +19,25 @@
 
 package io.temporal.samples.batch.slidingwindow;
 
-import java.util.ArrayList;
-import java.util.List;
+import io.temporal.workflow.QueryMethod;
+import io.temporal.workflow.SignalMethod;
+import io.temporal.workflow.WorkflowInterface;
+import io.temporal.workflow.WorkflowMethod;
 
-/** Fake loader implementation. The real application would iterate over a dataset or file. */
-public final class RecordLoaderImpl implements RecordLoader {
+@WorkflowInterface
+public interface SlidingWindowBatchWorkflow {
 
-  private static final int TOTAL_COUNT = 300;
+  /**
+   * Process the batch of records.
+   *
+   * @return total number of processed records.
+   */
+  @WorkflowMethod
+  int processBatch(ProcessBatchInput input);
 
-  @Override
-  public List<Record> getRecords(int pageSize, int offset) {
-    List<Record> records = new ArrayList<>(pageSize);
-    if (offset < TOTAL_COUNT) {
-      for (int i = offset; i < Math.min(offset + pageSize, TOTAL_COUNT); i++) {
-        records.add(new Record(i));
-      }
-    }
-    return records;
-  }
+  @SignalMethod
+  void reportCompletion(int recordId);
 
-  @Override
-  public int getRecordCount() {
-    return TOTAL_COUNT;
-  }
+  @QueryMethod
+  BatchProgress getProgress();
 }
