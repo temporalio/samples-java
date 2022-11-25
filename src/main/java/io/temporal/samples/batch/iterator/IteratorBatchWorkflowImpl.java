@@ -37,7 +37,7 @@ import java.util.List;
  * continue as new. The new run processes the next page of records. This way practically unlimited
  * set of records can be processed.
  */
-public final class BatchIteratorWorkflowImpl implements BatchWorkflow {
+public final class IteratorBatchWorkflowImpl implements BatchWorkflow {
 
   private final RecordLoader recordLoader =
       Workflow.newActivityStub(
