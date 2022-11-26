@@ -23,7 +23,7 @@ import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 
 @WorkflowInterface
-public interface BatchWorkflow {
+public interface IteratorBatchWorkflow {
 
   /**
    * Process the batch of records.

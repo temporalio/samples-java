@@ -21,6 +21,7 @@ package io.temporal.samples.batch.iterator;
 
 import io.temporal.activity.ActivityOptions;
 import io.temporal.workflow.Async;
+import io.temporal.workflow.ChildWorkflowOptions;
 import io.temporal.workflow.Promise;
 import io.temporal.workflow.Workflow;
 import java.time.Duration;
@@ -37,22 +38,27 @@ import java.util.List;
  * continue as new. The new run processes the next page of records. This way practically unlimited
  * set of records can be processed.
  */
-public final class IteratorBatchWorkflowImpl implements BatchWorkflow {
+public final class IteratorBatchWorkflowImpl implements IteratorBatchWorkflow {
 
   private final RecordLoader recordLoader =
       Workflow.newActivityStub(
           RecordLoader.class,
           ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(5)).build());
 
-  private final BatchWorkflow nextRun = Workflow.newContinueAsNewStub(BatchWorkflow.class);
+  private final IteratorBatchWorkflow nextRun =
+      Workflow.newContinueAsNewStub(IteratorBatchWorkflow.class);
 
   @Override
   public int processBatch(int pageSize, int offset) {
     List<Record> records = recordLoader.getRecords(pageSize, offset);
     List<Promise<Void>> results = new ArrayList<>(records.size());
     for (Record record : records) {
+      // Use human friendly child id.
+      String childId = Workflow.getInfo().getWorkflowId() + "/" + record.getId();
       RecordProcessorWorkflow processor =
-          Workflow.newChildWorkflowStub(RecordProcessorWorkflow.class);
+          Workflow.newChildWorkflowStub(
+              RecordProcessorWorkflow.class,
+              ChildWorkflowOptions.newBuilder().setWorkflowId(childId).build());
       Promise<Void> result = Async.procedure(processor::processRecord, record);
       results.add(result);
     }

@@ -131,6 +131,10 @@ All tests are available under [src/test/java](https://github.com/temporalio/samp
 
 - [**Polling Services**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/polling): Recommended implementation of an activity that needs to periodically poll an external resource waiting its successful completion
 
+- [**Iterator Batch**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/batch/iterator): Batch job implementation using the workflow iterator pattern.
+
+- [**Sliding Window Batch**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/batch/slidingwindow): A batch implementation that maintains a configured number of child workflows during processing.
+
 ### API demonstrations
 
 - [**Updatable Timer**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/updatabletimer): Demonstrates the use of a helper class which relies on `Workflow.await` to implement a blocking sleep that can be updated at any moment.

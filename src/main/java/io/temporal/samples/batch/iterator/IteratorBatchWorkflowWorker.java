@@ -17,24 +17,29 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.batch.slidingwindow;
-
-import static io.temporal.samples.batch.slidingwindow.BatchWorkflowWorker.TASK_QUEUE;
+package io.temporal.samples.batch.iterator;
 
 import io.temporal.client.WorkflowClient;
-import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
+import io.temporal.worker.Worker;
+import io.temporal.worker.WorkerFactory;
 
-public class BatchStarter {
+public final class IteratorBatchWorkflowWorker {
 
-  @SuppressWarnings("CatchAndPrintStackTrace")
+  static final String TASK_QUEUE = "Iterator";
+
   public static void main(String[] args) {
     WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
-    WorkflowClient workflowClient = WorkflowClient.newInstance(service);
-    WorkflowOptions options = WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build();
-    BatchWorkflow batchWorkflow = workflowClient.newWorkflowStub(BatchWorkflow.class, options);
-    WorkflowClient.start(batchWorkflow::processBatch, 10, 25, 3);
-    System.out.printf("Started batch workflow with 3 partitions");
-    System.exit(0);
+    WorkflowClient client = WorkflowClient.newInstance(service);
+
+    WorkerFactory factory = WorkerFactory.newInstance(client);
+    Worker worker = factory.newWorker(TASK_QUEUE);
+
+    worker.registerWorkflowImplementationTypes(
+        IteratorBatchWorkflowImpl.class, RecordProcessorWorkflowImpl.class);
+
+    worker.registerActivitiesImplementations(new RecordLoaderImpl());
+    factory.start();
+    System.out.println("Worker started for task queue: " + TASK_QUEUE);
   }
 }

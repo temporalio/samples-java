@@ -17,31 +17,29 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.batch.slidingwindow;
+package io.temporal.samples.batch.iterator;
 
+import static io.temporal.samples.batch.iterator.IteratorBatchWorkflowWorker.TASK_QUEUE;
+
+import io.temporal.api.common.v1.WorkflowExecution;
 import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
-import io.temporal.worker.Worker;
-import io.temporal.worker.WorkerFactory;
 
-public final class BatchWorkflowWorker {
-
-  static final String TASK_QUEUE = "SlidingWindow";
+public class IteratorBatchStarter {
 
   public static void main(String[] args) {
     WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
-    WorkflowClient client = WorkflowClient.newInstance(service);
-
-    WorkerFactory factory = WorkerFactory.newInstance(client);
-    Worker worker = factory.newWorker(TASK_QUEUE);
-
-    worker.registerWorkflowImplementationTypes(
-        BatchWorkflowImpl.class,
-        SlidingWindowBatchWorkflowImpl.class,
-        RecordProcessorWorkflowImpl.class);
-
-    worker.registerActivitiesImplementations(new RecordLoaderImpl());
-    factory.start();
-    System.out.println("Worker started for task queue: " + TASK_QUEUE);
+    WorkflowClient workflowClient = WorkflowClient.newInstance(service);
+    WorkflowOptions options = WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build();
+    IteratorBatchWorkflow batchWorkflow =
+        workflowClient.newWorkflowStub(IteratorBatchWorkflow.class, options);
+    WorkflowExecution execution = WorkflowClient.start(batchWorkflow::processBatch, 5, 0);
+    System.out.println(
+        "Started batch workflow. WorkflowId="
+            + execution.getWorkflowId()
+            + ", RunId="
+            + execution.getRunId());
+    System.exit(0);
   }
 }

@@ -27,7 +27,7 @@ import io.temporal.workflow.Workflow;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class IteratorBatchWorkflowTest {
+public class IteratorIteratorBatchWorkflowTest {
 
   private static final int PAGE_SIZE = 10;
   /** The sample RecordLoaderImpl always returns the fixed number pages. */
@@ -51,7 +51,7 @@ public class IteratorBatchWorkflowTest {
 
   @Test
   public void testBatchWorkflow() {
-    BatchWorkflow workflow = testWorkflowRule.newWorkflowStub(BatchWorkflow.class);
+    IteratorBatchWorkflow workflow = testWorkflowRule.newWorkflowStub(IteratorBatchWorkflow.class);
     workflow.processBatch(3, 0);
 
     for (int i = 0; i < PAGE_SIZE; i++) {
