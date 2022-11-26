@@ -21,11 +21,14 @@ package io.temporal.samples.batch.iterator;
 
 /** Record to process. */
 public class Record {
-  private final int id;
+  private int id;
 
   public Record(int id) {
     this.id = id;
   }
+
+  /** JSON deserializer needs it */
+  public Record() {}
 
   public int getId() {
     return id;

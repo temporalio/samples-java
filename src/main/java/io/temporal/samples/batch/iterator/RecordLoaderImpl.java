@@ -23,14 +23,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class RecordLoaderImpl implements RecordLoader {
+
+  // The sample always returns 5 pages.
+  // The real application would iterate over an existing dataset or file.
+  public static final int PAGE_COUNT = 5;
+
   @Override
   public List<Record> getRecords(int pageSize, int offset) {
     List<Record> records = new ArrayList<>(pageSize);
-    // The sample returns 5 pages.
-    // The real application would iterate over an existing dataset or file.
-    if (offset < pageSize * 5) {
-      for (int i = 0; i < 10; i++) {
-        records.add(new Record(i));
+    if (offset < pageSize * PAGE_COUNT) {
+      for (int i = 0; i < pageSize; i++) {
+        records.add(new Record(offset + i));
       }
     }
     return records;
