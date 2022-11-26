@@ -19,6 +19,7 @@
 
 package io.temporal.samples.batch.slidingwindow;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /** Input of {@link SlidingWindowBatchWorkflow#processBatch(ProcessBatchInput)} */
@@ -32,7 +33,7 @@ public final class ProcessBatchInput {
 
   private int progress;
 
-  private Set<Integer> currentRecords;
+  private Set<Integer> currentRecords = new HashSet<>();
 
   /** the number of records to load in a single RecordLoader.getRecords call. */
   public void setPageSize(int pageSize) {

@@ -45,20 +45,24 @@ public final class SlidingWindowBatchWorkflowImpl implements SlidingWindowBatchW
   /** Contains ids of records that are being processed by child workflows. */
   private Set<Integer> currentRecords;
 
+  /**
+   * Used to accumulate records to remove for signals delivered before processBatch method started
+   * execution
+   */
+  private Set<Integer> recordsToRemove = new HashSet<>();
+
   /** Count of completed record processing child workflows. */
   private int progress;
-
-  /** Uses ParentClosePolicy ABANDON to ensure that children survive continue-as-new of a parent. */
-  private ChildWorkflowOptions childWorkflowOptions =
-      ChildWorkflowOptions.newBuilder()
-          .setParentClosePolicy(ParentClosePolicy.PARENT_CLOSE_POLICY_ABANDON)
-          .build();
 
   /** @return number of processed records */
   @Override
   public int processBatch(ProcessBatchInput input) {
     this.progress = input.getProgress();
     this.currentRecords = input.getCurrentRecords();
+    // Remove records for signals delivered before the workflow run started.
+    int countBefore = this.currentRecords.size();
+    this.currentRecords.removeAll(recordsToRemove);
+    this.progress += countBefore - this.currentRecords.size();
 
     int pageSize = input.getPageSize();
     int offset = input.getOffset();
@@ -79,6 +83,15 @@ public final class SlidingWindowBatchWorkflowImpl implements SlidingWindowBatchW
         return offset + childrenStartedByThisRun.size();
       }
       Record record = recordIterator.next();
+
+      // Uses ParentClosePolicy ABANDON to ensure that children survive continue-as-new of a parent.
+      // Assigns user-friendly child workflow id.
+      ChildWorkflowOptions childWorkflowOptions =
+          ChildWorkflowOptions.newBuilder()
+              .setParentClosePolicy(ParentClosePolicy.PARENT_CLOSE_POLICY_ABANDON)
+              .setWorkflowId(Workflow.getInfo().getWorkflowId() + "/" + record.getId())
+              .build();
+
       RecordProcessorWorkflow processor =
           Workflow.newChildWorkflowStub(RecordProcessorWorkflow.class, childWorkflowOptions);
       // Starts a child workflow asynchronously ignoring its result.
@@ -100,11 +113,12 @@ public final class SlidingWindowBatchWorkflowImpl implements SlidingWindowBatchW
         Promise.allOf(childrenStartedByThisRun).get();
         // Continues as new to keep the history size bounded
         ProcessBatchInput newInput = new ProcessBatchInput();
-        input.setPageSize(pageSize);
-        input.setSlidingWindowSize(slidingWindowSize);
-        input.setOffset(offset + childrenStartedByThisRun.size());
-        input.setMaximumOffset(maximumOffset);
-        input.setCurrentRecords(currentRecords);
+        newInput.setPageSize(pageSize);
+        newInput.setSlidingWindowSize(slidingWindowSize);
+        newInput.setOffset(offset + childrenStartedByThisRun.size());
+        newInput.setMaximumOffset(maximumOffset);
+        newInput.setProgress(progress);
+        newInput.setCurrentRecords(currentRecords);
         return nextRun.processBatch(newInput);
       }
     }
@@ -112,6 +126,11 @@ public final class SlidingWindowBatchWorkflowImpl implements SlidingWindowBatchW
 
   @Override
   public void reportCompletion(int recordId) {
+    // Handle situation when signal handler is called before the workflow main method.
+    if (currentRecords == null) {
+      recordsToRemove.add(recordId);
+      return;
+    }
     // Dedupes signals as in some edge cases they can be duplicated.
     if (currentRecords.remove(recordId)) {
       progress++;

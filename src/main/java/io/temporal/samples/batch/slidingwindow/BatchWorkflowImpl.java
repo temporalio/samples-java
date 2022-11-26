@@ -21,11 +21,11 @@ package io.temporal.samples.batch.slidingwindow;
 
 import io.temporal.activity.ActivityOptions;
 import io.temporal.workflow.Async;
+import io.temporal.workflow.ChildWorkflowOptions;
 import io.temporal.workflow.Promise;
 import io.temporal.workflow.Workflow;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 /** Implements BatchWorkflow by running multiple SlidingWindowBatchWorkflows in parallel. */
@@ -42,8 +42,12 @@ public class BatchWorkflowImpl implements BatchWorkflow {
     int partitionSize = totalCount / partitions;
     List<Promise<Integer>> results = new ArrayList<>(partitions);
     for (int i = 0; i < partitions; i++) {
+      // Makes child id more user-friendly
+      String childId = Workflow.getInfo().getWorkflowId() + "/" + i;
       SlidingWindowBatchWorkflow partitionWorkflow =
-          Workflow.newChildWorkflowStub(SlidingWindowBatchWorkflow.class);
+          Workflow.newChildWorkflowStub(
+              SlidingWindowBatchWorkflow.class,
+              ChildWorkflowOptions.newBuilder().setWorkflowId(childId).build());
       // Define partition boundaries.
       int offset = partitionSize * i;
       int maximumOffset = partitionSize * (i + 1);
@@ -53,7 +57,6 @@ public class BatchWorkflowImpl implements BatchWorkflow {
       input.setSlidingWindowSize(slidingWindowSize);
       input.setOffset(offset);
       input.setMaximumOffset(maximumOffset);
-      input.setCurrentRecords(new HashSet<>());
 
       Promise<Integer> partitionResult = Async.function(partitionWorkflow::processBatch, input);
       results.add(partitionResult);

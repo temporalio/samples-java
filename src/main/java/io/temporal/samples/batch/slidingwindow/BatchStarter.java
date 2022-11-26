@@ -19,29 +19,22 @@
 
 package io.temporal.samples.batch.slidingwindow;
 
+import static io.temporal.samples.batch.slidingwindow.BatchWorkflowWorker.TASK_QUEUE;
+
 import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
-import io.temporal.worker.Worker;
-import io.temporal.worker.WorkerFactory;
 
-public final class BatchWorkflowWorker {
+public class BatchStarter {
 
-  static final String TASK_QUEUE = "SlidingWindow";
-
+  @SuppressWarnings("CatchAndPrintStackTrace")
   public static void main(String[] args) {
     WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
-    WorkflowClient client = WorkflowClient.newInstance(service);
-
-    WorkerFactory factory = WorkerFactory.newInstance(client);
-    Worker worker = factory.newWorker(TASK_QUEUE);
-
-    worker.registerWorkflowImplementationTypes(
-        BatchWorkflowImpl.class,
-        SlidingWindowBatchWorkflowImpl.class,
-        RecordProcessorWorkflowImpl.class);
-
-    worker.registerActivitiesImplementations(new RecordLoaderImpl());
-    factory.start();
-    System.out.println("Worker started for task queue: " + TASK_QUEUE);
+    WorkflowClient workflowClient = WorkflowClient.newInstance(service);
+    WorkflowOptions options = WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build();
+    BatchWorkflow batchWorkflow = workflowClient.newWorkflowStub(BatchWorkflow.class, options);
+    WorkflowClient.start(batchWorkflow::processBatch, 10, 25, 3);
+    System.out.printf("Started batch workflow with 3 partitions");
+    System.exit(0);
   }
 }

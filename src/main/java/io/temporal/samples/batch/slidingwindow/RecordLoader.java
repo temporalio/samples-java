@@ -34,6 +34,11 @@ public interface RecordLoader {
    */
   List<Record> getRecords(int pageSize, int offset);
 
-  /** Returns the total record count */
+  /**
+   * Returns the total record count.
+   *
+   * <p>Used to divide record ranges among partitions. Some applications might choose a completely
+   * different approach for partitioning the data set.
+   */
   int getRecordCount();
 }
