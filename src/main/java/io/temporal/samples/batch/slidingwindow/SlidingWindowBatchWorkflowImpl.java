@@ -21,10 +21,7 @@ package io.temporal.samples.batch.slidingwindow;
 
 import io.temporal.api.common.v1.WorkflowExecution;
 import io.temporal.api.enums.v1.ParentClosePolicy;
-import io.temporal.workflow.Async;
-import io.temporal.workflow.ChildWorkflowOptions;
-import io.temporal.workflow.Promise;
-import io.temporal.workflow.Workflow;
+import io.temporal.workflow.*;
 import java.util.*;
 
 /**
@@ -57,6 +54,7 @@ public final class SlidingWindowBatchWorkflowImpl implements SlidingWindowBatchW
   /** @return number of processed records */
   @Override
   public int processBatch(ProcessBatchInput input) {
+    WorkflowInfo info = Workflow.getInfo();
     this.progress = input.getProgress();
     this.currentRecords = input.getCurrentRecords();
     // Remove records for signals delivered before the workflow run started.
@@ -74,7 +72,7 @@ public final class SlidingWindowBatchWorkflowImpl implements SlidingWindowBatchW
 
     Iterator<Record> recordIterator = records.iterator();
     while (true) {
-      // After starting slidingWindowSize children blocks until the completion signal is received.
+      // After starting slidingWindowSize children blocks until a completion signal is received.
       Workflow.await(() -> currentRecords.size() < slidingWindowSize);
       // Completes workflow, if no more records to process.
       if (!recordIterator.hasNext()) {
@@ -89,7 +87,7 @@ public final class SlidingWindowBatchWorkflowImpl implements SlidingWindowBatchW
       ChildWorkflowOptions childWorkflowOptions =
           ChildWorkflowOptions.newBuilder()
               .setParentClosePolicy(ParentClosePolicy.PARENT_CLOSE_POLICY_ABANDON)
-              .setWorkflowId(Workflow.getInfo().getWorkflowId() + "/" + record.getId())
+              .setWorkflowId(info.getWorkflowId() + "/" + record.getId())
               .build();
 
       RecordProcessorWorkflow processor =

@@ -31,6 +31,7 @@ public final class RecordProcessorWorkflowImpl implements RecordProcessorWorkflo
   @Override
   public void processRecord(Record r) {
     processRecordImpl(r);
+    // This workflow is always expected to have a parent.
     String parentId = Workflow.getInfo().getParentWorkflowId().get();
     SlidingWindowBatchWorkflow parent =
         Workflow.newExternalWorkflowStub(SlidingWindowBatchWorkflow.class, parentId);
