@@ -25,7 +25,6 @@ import static org.mockito.Mockito.verify;
 
 import io.temporal.client.WorkflowOptions;
 import io.temporal.testing.TestWorkflowRule;
-import org.joda.time.Period;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -51,13 +50,12 @@ public class TransferWorkflowTest {
         testWorkflowRule
             .getWorkflowClient()
             .newWorkflowStub(AccountTransferWorkflow.class, options);
-    long start = testWorkflowRule.getTestEnvironment().currentTimeMillis();
+    long starty = testWorkflowRule.getTestEnvironment().currentTimeMillis();
     workflow.transfer("account1", "account2", "reference1", 123);
-    long duration = testWorkflowRule.getTestEnvironment().currentTimeMillis() - start;
-    System.out.println("Duration: " + new Period(duration));
-
     verify(activities).withdraw(eq("account1"), eq("reference1"), eq(123));
     verify(activities).deposit(eq("account2"), eq("reference1"), eq(123));
+    long duration = testWorkflowRule.getTestEnvironment().currentTimeMillis() - starty;
+    System.out.println("Duration: " + duration);
 
     testWorkflowRule.getTestEnvironment().shutdown();
   }
