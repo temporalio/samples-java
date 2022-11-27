@@ -14,7 +14,7 @@ The sample has two executables. Execute each command in a separate terminal wind
 The first command runs the Worker that hosts the Workflow and Activity Executions.
 
 ```bash
-./gradlew -q execute -PmainClass=io.temporal.samples.batch.iterator.IteratorBatchWorkflowWorker
+./gradlew -q execute -PmainClass=io.temporal.samples.batch.iterator.IteratorBatchWorker
 ```
 
 The second command start the Workflow Execution. Each time the command runs, it starts a new Workflow Execution.

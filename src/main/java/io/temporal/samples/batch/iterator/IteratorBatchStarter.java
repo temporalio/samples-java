@@ -19,7 +19,7 @@
 
 package io.temporal.samples.batch.iterator;
 
-import static io.temporal.samples.batch.iterator.IteratorBatchWorkflowWorker.TASK_QUEUE;
+import static io.temporal.samples.batch.iterator.IteratorBatchWorker.TASK_QUEUE;
 
 import io.temporal.api.common.v1.WorkflowExecution;
 import io.temporal.client.WorkflowClient;

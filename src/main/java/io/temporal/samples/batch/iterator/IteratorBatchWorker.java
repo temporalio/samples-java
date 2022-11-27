@@ -28,7 +28,7 @@ import io.temporal.worker.WorkerFactory;
  * A worker process that hosts implementations of IteratorBatchWorkflow and RecordProcessorWorkflow
  * as well as RecordLoader activity.
  */
-public final class IteratorBatchWorkflowWorker {
+public final class IteratorBatchWorker {
 
   static final String TASK_QUEUE = "IteratorBatch";
 
