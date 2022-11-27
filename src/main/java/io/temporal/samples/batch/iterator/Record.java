@@ -19,7 +19,7 @@
 
 package io.temporal.samples.batch.iterator;
 
-/** Record to process. */
+/** Record to process. A real application would add a use case specific data. */
 public class Record {
   private int id;
 

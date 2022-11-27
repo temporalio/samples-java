@@ -5,6 +5,8 @@ children complete the parent calls continue-as-new and starts the children for t
 processing a set of records of any size. The advantage of this approach is simplicity. The main disadvantage is that it
 processes records in batches, with each batch waiting for the slowest child workflow.
 
+A variation of this pattern runs activities instead of child workflows.
+
 #### Running the Iterator Batch Sample
 
 The sample has two executables. Execute each command in a separate terminal window.

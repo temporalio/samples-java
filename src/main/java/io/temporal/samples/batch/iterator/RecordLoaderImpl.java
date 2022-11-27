@@ -22,6 +22,7 @@ package io.temporal.samples.batch.iterator;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Fake implementation of RecordLoader. */
 public final class RecordLoaderImpl implements RecordLoader {
 
   // The sample always returns 5 pages.

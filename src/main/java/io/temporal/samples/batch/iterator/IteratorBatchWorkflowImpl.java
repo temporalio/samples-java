@@ -32,7 +32,7 @@ import java.util.List;
  * Implements iterator workflow pattern.
  *
  * <p>A single workflow run processes a single page of records in parallel. Each record is processed
- * using its own BatchWorkflow child workflow.
+ * using its own RecordProcessorWorkflow child workflow.
  *
  * <p>After all child workflows complete the new run of the parent workflow is created using
  * continue as new. The new run processes the next page of records. This way practically unlimited
@@ -45,15 +45,18 @@ public final class IteratorBatchWorkflowImpl implements IteratorBatchWorkflow {
           RecordLoader.class,
           ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(5)).build());
 
+  /** Stub used to continue-as-new. */
   private final IteratorBatchWorkflow nextRun =
       Workflow.newContinueAsNewStub(IteratorBatchWorkflow.class);
 
   @Override
   public int processBatch(int pageSize, int offset) {
+    // Loads a page of records
     List<Record> records = recordLoader.getRecords(pageSize, offset);
+    // Starts a child per record asynchrnously.
     List<Promise<Void>> results = new ArrayList<>(records.size());
     for (Record record : records) {
-      // Use human friendly child id.
+      // Uses human friendly child id.
       String childId = Workflow.getInfo().getWorkflowId() + "/" + record.getId();
       RecordProcessorWorkflow processor =
           Workflow.newChildWorkflowStub(
@@ -62,18 +65,18 @@ public final class IteratorBatchWorkflowImpl implements IteratorBatchWorkflow {
       Promise<Void> result = Async.procedure(processor::processRecord, record);
       results.add(result);
     }
-    // Wait for all promises to resolve
+    // Waits for all children to complete.
     Promise.allOf(results).get();
 
-    // Skipped error handling for the sample brevity.
+    // Skips error handling for the sample brevity.
     // So failed RecordProcessorWorkflows are ignored.
 
-    // No more records in the dataset.
+    // No more records in the dataset. Completes the workflow.
     if (records.isEmpty()) {
-      return offset + records.size();
+      return offset;
     }
 
-    // Continue as new with the increased offset.
+    // Continues as new with the increased offset.
     return nextRun.processBatch(pageSize, offset + records.size());
   }
 }

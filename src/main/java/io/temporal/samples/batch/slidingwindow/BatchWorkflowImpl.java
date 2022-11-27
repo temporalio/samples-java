@@ -38,8 +38,10 @@ public class BatchWorkflowImpl implements BatchWorkflow {
 
   @Override
   public int processBatch(int pageSize, int slidingWindowSize, int partitions) {
+    // The sample partitions the data set into continuous ranges.
+    // A real application can choose any other way to divide the records into multiple collections.
     int totalCount = recordLoader.getRecordCount();
-    int partitionSize = totalCount / partitions;
+    int partitionSize = totalCount / partitions + (totalCount % partitions > 0 ? 1 : 0);
     List<Promise<Integer>> results = new ArrayList<>(partitions);
     for (int i = 0; i < partitions; i++) {
       // Makes child id more user-friendly
@@ -50,7 +52,7 @@ public class BatchWorkflowImpl implements BatchWorkflow {
               ChildWorkflowOptions.newBuilder().setWorkflowId(childId).build());
       // Define partition boundaries.
       int offset = partitionSize * i;
-      int maximumOffset = partitionSize * (i + 1);
+      int maximumOffset = Math.min(offset + partitionSize, totalCount);
 
       ProcessBatchInput input = new ProcessBatchInput();
       input.setPageSize(pageSize);

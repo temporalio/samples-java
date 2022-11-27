@@ -21,9 +21,9 @@ package io.temporal.samples.batch.slidingwindow;
 
 import java.util.Set;
 
-public class BatchProgress {
+/** Used as a result of {@link SlidingWindowBatchWorkflow#getProgress()} query. */
+public final class BatchProgress {
 
-  /** Count of completed record processing child workflows. */
   private final int progress;
 
   private final Set<Integer> currentRecords;
@@ -33,10 +33,12 @@ public class BatchProgress {
     this.currentRecords = currentRecords;
   }
 
+  /** Count of completed record processing child workflows. */
   public int getProgress() {
     return progress;
   }
 
+  /** Ids of records that are currently being processed by child workflows. */
   public Set<Integer> getCurrentRecords() {
     return currentRecords;
   }

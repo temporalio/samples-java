@@ -24,9 +24,13 @@ import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 
+/**
+ * A worker process that hosts implementations of IteratorBatchWorkflow and RecordProcessorWorkflow
+ * as well as RecordLoader activity.
+ */
 public final class IteratorBatchWorkflowWorker {
 
-  static final String TASK_QUEUE = "Iterator";
+  static final String TASK_QUEUE = "IteratorBatch";
 
   public static void main(String[] args) {
     WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();

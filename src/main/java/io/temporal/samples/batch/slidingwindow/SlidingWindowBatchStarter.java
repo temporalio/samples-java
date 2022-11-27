@@ -19,7 +19,7 @@
 
 package io.temporal.samples.batch.slidingwindow;
 
-import static io.temporal.samples.batch.slidingwindow.SlidingWindowBatchWorkflowWorker.TASK_QUEUE;
+import static io.temporal.samples.batch.slidingwindow.SlidingWindowBatchWorker.TASK_QUEUE;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;

@@ -24,7 +24,8 @@ import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 
-public final class SlidingWindowBatchWorkflowWorker {
+/** Hosts sliding window batch sample workflow and activity implementations. */
+public final class SlidingWindowBatchWorker {
 
   static final String TASK_QUEUE = "SlidingWindow";
 
@@ -39,9 +40,10 @@ public final class SlidingWindowBatchWorkflowWorker {
         BatchWorkflowImpl.class,
         SlidingWindowBatchWorkflowImpl.class,
         RecordProcessorWorkflowImpl.class);
-
     worker.registerActivitiesImplementations(new RecordLoaderImpl());
+
     factory.start();
+
     System.out.println("Worker started for task queue: " + TASK_QUEUE);
   }
 }

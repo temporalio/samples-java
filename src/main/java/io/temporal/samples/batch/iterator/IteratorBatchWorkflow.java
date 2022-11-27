@@ -26,7 +26,7 @@ import io.temporal.workflow.WorkflowMethod;
 public interface IteratorBatchWorkflow {
 
   /**
-   * Process the batch of records.
+   * Processes the batch of records.
    *
    * @param offset the offset of the first record to process. 0 to start the batch processing.
    * @param pageSize the number of records to process in a single workflow run.
