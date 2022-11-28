@@ -30,7 +30,7 @@ public class RecordProcessorWorkflowImpl implements RecordProcessorWorkflow {
   private final Random random = Workflow.newRandom();
 
   @Override
-  public void processRecord(Record r) {
+  public void processRecord(SingleRecord r) {
     // Simulate some processing
     Workflow.sleep(Duration.ofSeconds(random.nextInt(30)));
     log.info("Processed " + r);

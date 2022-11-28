@@ -28,5 +28,5 @@ public interface RecordProcessorWorkflow {
 
   /** Processes a single record */
   @WorkflowMethod
-  void processRecord(Record r);
+  void processRecord(SingleRecord r);
 }
