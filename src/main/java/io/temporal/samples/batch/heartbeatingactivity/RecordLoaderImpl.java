@@ -29,10 +29,10 @@ public final class RecordLoaderImpl implements RecordLoader {
   private static final int RECORD_COUNT = 1000;
 
   @Override
-  public Optional<Record> getRecord(int offset) {
+  public Optional<SingleRecord> getRecord(int offset) {
     if (offset >= RECORD_COUNT) {
       return Optional.empty();
     }
-    return Optional.of(new Record(offset));
+    return Optional.of(new SingleRecord(offset));
   }
 }

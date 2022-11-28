@@ -20,15 +20,15 @@
 package io.temporal.samples.batch.slidingwindow;
 
 /** Record to process. */
-public class Record {
+public class SingleRecord {
   private int id;
 
-  public Record(int id) {
+  public SingleRecord(int id) {
     this.id = id;
   }
 
   /** Needed for JSON deserialization. */
-  public Record() {}
+  public SingleRecord() {}
 
   public int getId() {
     return id;

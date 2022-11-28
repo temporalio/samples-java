@@ -36,5 +36,5 @@ public interface RecordLoader {
    * @param offset offset of the next record.
    * @return Record at the offset. Empty optional if offset exceeds the dataset size.
    */
-  Optional<Record> getRecord(int offset);
+  Optional<SingleRecord> getRecord(int offset);
 }

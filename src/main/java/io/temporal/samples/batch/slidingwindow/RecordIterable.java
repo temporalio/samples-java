@@ -29,7 +29,7 @@ import java.util.NoSuchElementException;
 import org.jetbrains.annotations.NotNull;
 
 /** Iterable implementation that relies on RecordLoader activity. */
-public class RecordIterable implements Iterable<Record> {
+public class RecordIterable implements Iterable<SingleRecord> {
 
   /**
    * Iterator implementation that relies on RecordLoader activity.
@@ -37,13 +37,13 @@ public class RecordIterable implements Iterable<Record> {
    * <p>This code assumes that RecordLoader.getRecords never returns a failure to the workflow. The
    * real production application might make a different design choice.
    */
-  private class RecordIterator implements Iterator<Record> {
+  private class RecordIterator implements Iterator<SingleRecord> {
 
     /**
      * The last page of records loaded through RecordLoader activity. The activity returns an empty
      * page to indicate the end of iteration.
      */
-    private List<Record> lastPage;
+    private List<SingleRecord> lastPage;
 
     /** The offset of the last loaded batch of records. */
     private int offset;
@@ -67,12 +67,12 @@ public class RecordIterable implements Iterable<Record> {
     }
 
     @Override
-    public Record next() {
+    public SingleRecord next() {
       int size = lastPage.size();
       if (size == 0) {
         throw new NoSuchElementException();
       }
-      Record result = lastPage.get(index++);
+      SingleRecord result = lastPage.get(index++);
       if (size == index) {
         offset += index;
         index = 0;
@@ -106,7 +106,7 @@ public class RecordIterable implements Iterable<Record> {
 
   @NotNull
   @Override
-  public Iterator<Record> iterator() {
+  public Iterator<SingleRecord> iterator() {
     return new RecordIterator();
   }
 }

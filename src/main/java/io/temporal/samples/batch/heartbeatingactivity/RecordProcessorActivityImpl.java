@@ -61,7 +61,7 @@ public class RecordProcessorActivityImpl implements RecordProcessorActivity {
     // If needed it can be changed to use a pool of threads or asynchronous code to process multiple
     // such records in parallel.
     while (true) {
-      Optional<Record> record = recordLoader.getRecord(offset);
+      Optional<SingleRecord> record = recordLoader.getRecord(offset);
       if (!record.isPresent()) {
         return offset;
       }
@@ -74,7 +74,7 @@ public class RecordProcessorActivityImpl implements RecordProcessorActivity {
     }
   }
 
-  protected void processRecord(Record record) {
+  protected void processRecord(SingleRecord record) {
     // Fake processing logic
     try {
       Thread.sleep(100);
