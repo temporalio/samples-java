@@ -36,7 +36,11 @@ public class IteratorIteratorBatchWorkflowTest {
   public static class TestRecordProcessorWorkflowImpl implements RecordProcessorWorkflow {
 
     @Override
+<<<<<<< HEAD
     public void processRecord(Record r) {
+=======
+    public void processRecord(SingleRecord r) {
+>>>>>>> main
       Workflow.sleep(5000);
       processedRecords[r.getId()] = true;
     }

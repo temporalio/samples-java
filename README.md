@@ -22,6 +22,11 @@ This repository contains sample Workflow applications that demonstrate various c
   - [IDE Integration](#ide-integration)
     - [IntelliJ](#intellij)
 
+## Requirements
+
+- Java 1.8+ for build and runtime
+- Java 11+ for development and contribution
+
 ## How to use
 
 1. Clone this repository:
@@ -131,8 +136,11 @@ All tests are available under [src/test/java](https://github.com/temporalio/samp
 
 - [**Polling Services**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/polling): Recommended implementation of an activity that needs to periodically poll an external resource waiting its successful completion
 
+<<<<<<< HEAD
 - [**Heartbeating Activity Batch**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/batch/heartbeatingactivity): Batch job implementation using a heartbeating activity.
 
+=======
+>>>>>>> main
 - [**Iterator Batch**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/batch/iterator): Batch job implementation using the workflow iterator pattern.
 
 - [**Sliding Window Batch**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/batch/slidingwindow): A batch implementation that maintains a configured number of child workflows during processing.

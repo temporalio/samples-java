@@ -51,7 +51,9 @@ public final class SlidingWindowBatchWorkflowImpl implements SlidingWindowBatchW
   /** Count of completed record processing child workflows. */
   private int progress;
 
-  /** @return number of processed records */
+  /**
+   * @return number of processed records
+   */
   @Override
   public int processBatch(ProcessBatchInput input) {
     WorkflowInfo info = Workflow.getInfo();

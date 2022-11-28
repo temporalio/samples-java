@@ -19,20 +19,23 @@
 
 package io.temporal.samples.batch.iterator;
 
-import io.temporal.workflow.Workflow;
-import java.time.Duration;
-import java.util.Random;
-import org.slf4j.Logger;
+/** Record to process. A real application would add a use case specific data. */
+public class SingleRecord {
+  private int id;
 
-/** Fake RecordProcessorWorkflow implementation. */
-public class RecordProcessorWorkflowImpl implements RecordProcessorWorkflow {
-  public static final Logger log = Workflow.getLogger(RecordProcessorWorkflowImpl.class);
-  private final Random random = Workflow.newRandom();
+  public SingleRecord(int id) {
+    this.id = id;
+  }
+
+  /** JSON deserializer needs it */
+  public SingleRecord() {}
+
+  public int getId() {
+    return id;
+  }
 
   @Override
-  public void processRecord(SingleRecord r) {
-    // Simulate some processing
-    Workflow.sleep(Duration.ofSeconds(random.nextInt(30)));
-    log.info("Processed " + r);
+  public String toString() {
+    return "SingleRecord{" + "id=" + id + '}';
   }
 }
