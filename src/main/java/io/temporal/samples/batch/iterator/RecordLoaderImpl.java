@@ -30,11 +30,11 @@ public final class RecordLoaderImpl implements RecordLoader {
   public static final int PAGE_COUNT = 5;
 
   @Override
-  public List<Record> getRecords(int pageSize, int offset) {
-    List<Record> records = new ArrayList<>(pageSize);
+  public List<SingleRecord> getRecords(int pageSize, int offset) {
+    List<SingleRecord> records = new ArrayList<>(pageSize);
     if (offset < pageSize * PAGE_COUNT) {
       for (int i = 0; i < pageSize; i++) {
-        records.add(new Record(offset + i));
+        records.add(new SingleRecord(offset + i));
       }
     }
     return records;

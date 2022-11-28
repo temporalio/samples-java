@@ -52,10 +52,10 @@ public final class IteratorBatchWorkflowImpl implements IteratorBatchWorkflow {
   @Override
   public int processBatch(int pageSize, int offset) {
     // Loads a page of records
-    List<Record> records = recordLoader.getRecords(pageSize, offset);
+    List<SingleRecord> records = recordLoader.getRecords(pageSize, offset);
     // Starts a child per record asynchrnously.
     List<Promise<Void>> results = new ArrayList<>(records.size());
-    for (Record record : records) {
+    for (SingleRecord record : records) {
       // Uses human friendly child id.
       String childId = Workflow.getInfo().getWorkflowId() + "/" + record.getId();
       RecordProcessorWorkflow processor =

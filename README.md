@@ -22,6 +22,11 @@ This repository contains sample Workflow applications that demonstrate various c
   - [IDE Integration](#ide-integration)
     - [IntelliJ](#intellij)
 
+## Requirements
+
+- Java 1.8+ for build and runtime
+- Java 11+ for development and contribution
+
 ## How to use
 
 1. Clone this repository:

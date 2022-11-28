@@ -20,15 +20,15 @@
 package io.temporal.samples.batch.iterator;
 
 /** Record to process. A real application would add a use case specific data. */
-public class Record {
+public class SingleRecord {
   private int id;
 
-  public Record(int id) {
+  public SingleRecord(int id) {
     this.id = id;
   }
 
   /** JSON deserializer needs it */
-  public Record() {}
+  public SingleRecord() {}
 
   public int getId() {
     return id;
@@ -36,6 +36,6 @@ public class Record {
 
   @Override
   public String toString() {
-    return "Record{" + "id=" + id + '}';
+    return "SingleRecord{" + "id=" + id + '}';
   }
 }
