@@ -32,7 +32,7 @@ public interface RecordLoader {
    * @param pageSize maximum number of records to return.
    * @return empty list if no more records to process.
    */
-  List<Record> getRecords(int pageSize, int offset);
+  List<SingleRecord> getRecords(int pageSize, int offset);
 
   /**
    * Returns the total record count.

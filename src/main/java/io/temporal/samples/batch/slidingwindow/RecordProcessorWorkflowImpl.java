@@ -31,7 +31,7 @@ public final class RecordProcessorWorkflowImpl implements RecordProcessorWorkflo
   private final Random random = Workflow.newRandom();
 
   @Override
-  public void processRecord(Record r) {
+  public void processRecord(SingleRecord r) {
     processRecordImpl(r);
     // This workflow is always expected to have a parent.
     // But for unit testing it might be useful to skip the notification.
@@ -46,7 +46,7 @@ public final class RecordProcessorWorkflowImpl implements RecordProcessorWorkflo
   }
 
   /** Application specific record processing logic goes here. */
-  private void processRecordImpl(Record r) {
+  private void processRecordImpl(SingleRecord r) {
     // Simulate some processing
     Workflow.sleep(Duration.ofSeconds(random.nextInt(10)));
     log.info("Processed " + r);

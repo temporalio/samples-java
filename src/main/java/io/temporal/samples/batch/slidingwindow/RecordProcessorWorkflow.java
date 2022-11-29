@@ -31,5 +31,5 @@ public interface RecordProcessorWorkflow {
    * SlidingWindowBatchWorkflow#reportCompletion(int)}
    */
   @WorkflowMethod
-  void processRecord(Record r);
+  void processRecord(SingleRecord r);
 }
