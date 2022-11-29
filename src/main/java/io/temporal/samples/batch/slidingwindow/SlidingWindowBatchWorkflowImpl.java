@@ -69,10 +69,10 @@ public final class SlidingWindowBatchWorkflowImpl implements SlidingWindowBatchW
     int maximumOffset = input.getMaximumOffset();
     int slidingWindowSize = input.getSlidingWindowSize();
 
-    Iterable<Record> records = new RecordIterable(pageSize, offset, maximumOffset);
+    Iterable<SingleRecord> records = new RecordIterable(pageSize, offset, maximumOffset);
     List<Promise<WorkflowExecution>> childrenStartedByThisRun = new ArrayList<>();
 
-    Iterator<Record> recordIterator = records.iterator();
+    Iterator<SingleRecord> recordIterator = records.iterator();
     while (true) {
       // After starting slidingWindowSize children blocks until a completion signal is received.
       Workflow.await(() -> currentRecords.size() < slidingWindowSize);
@@ -82,7 +82,7 @@ public final class SlidingWindowBatchWorkflowImpl implements SlidingWindowBatchW
         Workflow.await(() -> currentRecords.size() == 0);
         return offset + childrenStartedByThisRun.size();
       }
-      Record record = recordIterator.next();
+      SingleRecord record = recordIterator.next();
 
       // Uses ParentClosePolicy ABANDON to ensure that children survive continue-as-new of a parent.
       // Assigns user-friendly child workflow id.

@@ -35,7 +35,7 @@ public class SlidingWindowBatchWorkflowTest {
   public static class TestRecordProcessorWorkflowImpl implements RecordProcessorWorkflow {
 
     @Override
-    public void processRecord(Record r) {
+    public void processRecord(SingleRecord r) {
       processedRecords[r.getId()] = true;
       WorkflowInfo info = Workflow.getInfo();
       String parentId = info.getParentWorkflowId().get();
