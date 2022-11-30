@@ -36,6 +36,6 @@ public class SingleRecord {
 
   @Override
   public String toString() {
-    return "Record{" + "id=" + id + '}';
+    return "SingleRecord{" + "id=" + id + '}';
   }
 }
