@@ -26,7 +26,7 @@ public final class RecordLoaderImpl implements RecordLoader {
 
   // The sample always returns 5 pages.
   // The real application would iterate over an existing dataset or file.
-  private static final int RECORD_COUNT = 1000;
+  static final int RECORD_COUNT = 1000;
 
   @Override
   public Optional<SingleRecord> getRecord(int offset) {

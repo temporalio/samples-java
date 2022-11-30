@@ -27,6 +27,8 @@ import io.temporal.workflow.Workflow;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 public class IteratorIteratorBatchWorkflowTest {
 
   private static final int PAGE_SIZE = 10;
@@ -52,9 +54,9 @@ public class IteratorIteratorBatchWorkflowTest {
   @Test
   public void testBatchWorkflow() {
     IteratorBatchWorkflow workflow = testWorkflowRule.newWorkflowStub(IteratorBatchWorkflow.class);
-    workflow.processBatch(3, 0);
+    workflow.processBatch(PAGE_SIZE, 0);
 
-    for (int i = 0; i < PAGE_SIZE; i++) {
+    for (int i = 0; i < processedRecords.length; i++) {
       assertTrue(processedRecords[i]);
     }
   }

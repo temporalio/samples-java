@@ -46,8 +46,11 @@ public class RecordProcessorActivityImpl implements RecordProcessorActivity {
 
   private final RecordLoader recordLoader;
 
-  public RecordProcessorActivityImpl(RecordLoader recordLoader) {
+  private final RecordProcessor recordProcessor;
+
+  public RecordProcessorActivityImpl(RecordLoader recordLoader, RecordProcessor recordProcessor) {
     this.recordLoader = recordLoader;
+    this.recordProcessor = recordProcessor;
   }
 
   @Override
@@ -65,23 +68,12 @@ public class RecordProcessorActivityImpl implements RecordProcessorActivity {
       if (!record.isPresent()) {
         return offset;
       }
-      processRecord(record.get());
+      recordProcessor.processRecord(record.get());
       // Report that activity is still alive. The assumption is that each record takes less time
       // to process than the heartbeat timeout.
       // Leverage heartbeat details to record offset.
       context.heartbeat(offset);
       offset++;
     }
-  }
-
-  protected void processRecord(SingleRecord record) {
-    // Fake processing logic
-    try {
-      Thread.sleep(100);
-      log.info("Processed " + record);
-    } catch (InterruptedException ignored) {
-      return;
-    }
-    return;
   }
 }

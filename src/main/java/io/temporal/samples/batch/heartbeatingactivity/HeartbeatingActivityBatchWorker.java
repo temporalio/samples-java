@@ -42,7 +42,7 @@ public final class HeartbeatingActivityBatchWorker {
     worker.registerWorkflowImplementationTypes(HeartbeatingActivityBatchWorkflowImpl.class);
 
     worker.registerActivitiesImplementations(
-        new RecordProcessorActivityImpl(new RecordLoaderImpl()));
+        new RecordProcessorActivityImpl(new RecordLoaderImpl(), new RecordProcessorImpl()));
     factory.start();
     System.out.println("Worker started for task queue: " + TASK_QUEUE);
   }
