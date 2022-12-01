@@ -17,27 +17,22 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.batch.iterator;
+package io.temporal.samples.batch.heartbeatingactivity;
 
-import static io.temporal.samples.batch.iterator.RecordLoaderImpl.PAGE_COUNT;
+import static io.temporal.samples.batch.heartbeatingactivity.RecordLoaderImpl.RECORD_COUNT;
 import static org.junit.Assert.assertTrue;
 
 import io.temporal.testing.TestWorkflowRule;
-import io.temporal.workflow.Workflow;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class IteratorIteratorBatchWorkflowTest {
+public class HeartbeatingActivityBatchWorkflowTest {
+  private static boolean[] processedRecords = new boolean[RECORD_COUNT];
 
-  private static final int PAGE_SIZE = 10;
-  /** The sample RecordLoaderImpl always returns the fixed number pages. */
-  private static boolean[] processedRecords = new boolean[PAGE_SIZE * PAGE_COUNT];
-
-  public static class TestRecordProcessorWorkflowImpl implements RecordProcessorWorkflow {
+  public static class TestRecordProcessorImpl implements RecordProcessor {
 
     @Override
     public void processRecord(SingleRecord r) {
-      Workflow.sleep(5000);
       processedRecords[r.getId()] = true;
     }
   }
@@ -45,14 +40,17 @@ public class IteratorIteratorBatchWorkflowTest {
   @Rule
   public TestWorkflowRule testWorkflowRule =
       TestWorkflowRule.newBuilder()
-          .setWorkflowTypes(IteratorBatchWorkflowImpl.class, TestRecordProcessorWorkflowImpl.class)
-          .setActivityImplementations(new RecordLoaderImpl())
+          .setWorkflowTypes(HeartbeatingActivityBatchWorkflowImpl.class)
+          .setActivityImplementations(
+              new RecordProcessorActivityImpl(
+                  new RecordLoaderImpl(), new TestRecordProcessorImpl()))
           .build();
 
   @Test
   public void testBatchWorkflow() {
-    IteratorBatchWorkflow workflow = testWorkflowRule.newWorkflowStub(IteratorBatchWorkflow.class);
-    workflow.processBatch(PAGE_SIZE, 0);
+    HeartbeatingActivityBatchWorkflow workflow =
+        testWorkflowRule.newWorkflowStub(HeartbeatingActivityBatchWorkflow.class);
+    workflow.processBatch();
 
     for (int i = 0; i < processedRecords.length; i++) {
       assertTrue(processedRecords[i]);

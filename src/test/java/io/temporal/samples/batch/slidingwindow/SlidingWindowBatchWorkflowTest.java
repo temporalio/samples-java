@@ -43,7 +43,17 @@ public class SlidingWindowBatchWorkflowTest {
           Workflow.newExternalWorkflowStub(SlidingWindowBatchWorkflow.class, parentId);
       Workflow.sleep(500);
       // Notify parent about record processing completion
-      parent.reportCompletion(r.getId());
+      // Needs to retry due to a continue-as-new atomicity
+      // bug in the testservice:
+      // https://github.com/temporalio/sdk-java/issues/1538
+      while (true) {
+        try {
+          parent.reportCompletion(r.getId());
+          break;
+        } catch (Exception e) {
+          continue;
+        }
+      }
     }
   }
 
