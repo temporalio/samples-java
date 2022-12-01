@@ -19,12 +19,12 @@
 
 package io.temporal.samples.batch.heartbeatingactivity;
 
+import static io.temporal.samples.batch.heartbeatingactivity.RecordLoaderImpl.RECORD_COUNT;
+import static org.junit.Assert.assertTrue;
+
 import io.temporal.testing.TestWorkflowRule;
 import org.junit.Rule;
 import org.junit.Test;
-
-import static io.temporal.samples.batch.heartbeatingactivity.RecordLoaderImpl.RECORD_COUNT;
-import static org.junit.Assert.assertTrue;
 
 public class HeartbeatingActivityBatchWorkflowTest {
   private static boolean[] processedRecords = new boolean[RECORD_COUNT];
