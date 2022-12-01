@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Fake processor implementation.
+ * Fake record processor implementation.
  */
 public final class RecordProcessorImpl implements RecordProcessor {
 

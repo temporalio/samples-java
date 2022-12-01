@@ -24,14 +24,13 @@ import io.temporal.workflow.Workflow;
 import java.time.Duration;
 
 /**
- * Implements iterator workflow pattern.
+ * A sample implementation of processing a batch by an activity.
  *
- * <p>A single workflow run processes a single page of records in parallel. Each record is processed
- * using its own RecordProcessorWorkflow child workflow.
- *
- * <p>After all child workflows complete the new run of the parent workflow is created using
- * continue as new. The new run processes the next page of records. This way practically unlimited
- * set of records can be processed.
+ * <p>An activity can run as long as needed. It reports that it is still alive through heartbeat. If
+ * the worker is restarted the activity is retried after the heartbeat timeout. Temporal allows
+ * store data in heartbeat _details_. These details are available to the next activity attempt. The
+ * progress of the record processing is stored in the details to avoid reprocessing records from the
+ * beginning on failures.
  */
 public final class HeartbeatingActivityBatchWorkflowImpl
     implements HeartbeatingActivityBatchWorkflow {

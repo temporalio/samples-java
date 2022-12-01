@@ -24,8 +24,6 @@ import java.util.Optional;
 /** Fake implementation of RecordLoader. */
 public final class RecordLoaderImpl implements RecordLoader {
 
-  // The sample always returns 5 pages.
-  // The real application would iterate over an existing dataset or file.
   static final int RECORD_COUNT = 1000;
 
   @Override

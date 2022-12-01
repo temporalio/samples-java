@@ -25,8 +25,8 @@ import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 
 /**
- * A worker process that hosts implementations of IteratorBatchWorkflow and RecordProcessorWorkflow
- * as well as RecordLoader activity.
+ * A worker process that hosts implementations of HeartbeatingActivityBatchWorkflow and
+ * RecordProcessorActivity.
  */
 public final class HeartbeatingActivityBatchWorker {
 

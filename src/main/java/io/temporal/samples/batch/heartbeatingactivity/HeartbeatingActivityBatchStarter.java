@@ -26,7 +26,7 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 
-/** Starts a single execution of IteratorBatchWorkflow. */
+/** Starts a single execution of HeartbeatingActivityBatchWorkflow. */
 public class HeartbeatingActivityBatchStarter {
 
   public static void main(String[] args) {

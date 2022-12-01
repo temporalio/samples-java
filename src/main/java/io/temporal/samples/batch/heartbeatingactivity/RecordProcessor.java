@@ -1,6 +1,12 @@
 package io.temporal.samples.batch.heartbeatingactivity;
 
+/** A helper class that implements record processing. */
 public interface RecordProcessor {
 
-    void processRecord(SingleRecord record);
+  /**
+   * Processes a single record.
+   *
+   * @param record record to process
+   */
+  void processRecord(SingleRecord record);
 }

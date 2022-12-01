@@ -27,8 +27,6 @@ import io.temporal.workflow.Workflow;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.util.Arrays;
-
 public class IteratorIteratorBatchWorkflowTest {
 
   private static final int PAGE_SIZE = 10;

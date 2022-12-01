@@ -35,6 +35,8 @@ import org.slf4j.LoggerFactory;
  * heartbeat timeout the activity was scheduled with. If no heartbeat timeout is not set then no
  * heartbeat is ever sent to the service.
  *
+ * <p>The biggest advantage of this approach is efficiency. It uses very few Temporal resources.
+ *
  * <p>The biggest limitation of this approach is that it cannot deal with record processing
  * failures. The only options are either failing the whole batch or skip the record. While it is
  * possible to build additional logic to record failed records somewhere the experience is not
