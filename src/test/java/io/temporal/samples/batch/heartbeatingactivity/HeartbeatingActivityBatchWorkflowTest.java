@@ -27,8 +27,6 @@ import static io.temporal.samples.batch.heartbeatingactivity.RecordLoaderImpl.RE
 import static org.junit.Assert.assertTrue;
 
 public class HeartbeatingActivityBatchWorkflowTest {
-
-  private static final int PAGE_SIZE = 10;
   private static boolean[] processedRecords = new boolean[RECORD_COUNT];
 
   public static class TestRecordProcessorImpl implements RecordProcessor {
