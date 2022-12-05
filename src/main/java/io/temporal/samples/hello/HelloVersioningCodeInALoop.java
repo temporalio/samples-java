@@ -174,10 +174,7 @@ public class HelloVersioningCodeInALoop {
     @WorkflowMethod
     void execute();
 
-
-    /**
-     * Signal the workflow that is waiting inside the loop to execute to continue.
-     */
+    /** Signal the workflow that is waiting inside the loop to continue. */
     @SignalMethod
     void executeNextIteration();
 
