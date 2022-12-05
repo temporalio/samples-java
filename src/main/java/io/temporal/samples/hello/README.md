@@ -28,4 +28,5 @@ To run each hello world sample, use one of the following commands:
 ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSignal
 ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSearchAttributes
 ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSideEffect
+./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloVersioningCodeInALoop
 ```
