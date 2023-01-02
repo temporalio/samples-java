@@ -3,7 +3,7 @@
 plugins {
     id 'org.cadixdev.licenser' version '0.6.1'
     id "net.ltgt.errorprone" version "3.0.1"
-    id 'com.diffplug.spotless' version '6.12.0' apply false
+    id 'com.diffplug.spotless' version '6.12.1' apply false
 }
 
 apply plugin: 'java'
