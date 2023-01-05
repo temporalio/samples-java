@@ -1,9 +1,9 @@
 # Demo List Workflows
 
 The sample demonstrates:
-1) Setting custom search attributes for a workflow
-2) Using ListWorkflowExecutionsRequest and use custom search attribute query to list
-workflow executions that match that query
+1) Setting custom search attributes for a Workflow
+2) Using ListWorkflowExecutionsRequest and custom Search Attribute query to list
+Workflow Executions that match that query
 
 ## Running
 

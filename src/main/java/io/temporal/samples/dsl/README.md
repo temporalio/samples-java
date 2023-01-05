@@ -17,7 +17,7 @@ This sample runs the following DSL workflows:
 6. [`bankingtransactionssubflow/childworkflow.json`](/src/main/resources/dsl/bankingtransactionssubflow/childworkflow.json)
 
 Note that most DSLs, including Serverless Workflow DSL used in this sample represent 
-their workflow data as JSON. As such manipulation of this data is done via expression languages
+their Workflow data as JSON. As such manipulation of this data is done via expression languages
 that specilize in manipulating JSON. In this case we use `jq`. You can plug in your expression language
 of choice. 
 

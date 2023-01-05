@@ -1,7 +1,6 @@
 # Custom Payload Converter (Crypto converter)
 
-The sample demonstrates how you can override the default Json Converter
-to encrypt/decrypt payloads using [jackson-json-crypto](https://github.com/codesqueak/jackson-json-crypto).
+The sample demonstrates how you can override the default Json Converter to encrypt/decrypt payloads using [jackson-json-crypto](https://github.com/codesqueak/jackson-json-crypto).
 
 ## Running
 

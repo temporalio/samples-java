@@ -1,6 +1,6 @@
 # Java SDK OpenTracing and OpenTelemetry Sample
 
-This sample shows the [Temporal Java SDK OpenTracing](https://github.com/temporalio/sdk-java/tree/main/temporal-opentracing) support.
+This sample shows the [Temporal Java SDK OpenTracing](https://github.com/temporalio/sdk-java/tree/master/temporal-opentracing) support.
 It shows how to set up OpenTracing, as well as OpenTelemetry.
 The sample uses the [CNCF Jaeger](https://github.com/jaegertracing/jaeger) distributed tracing
 platform.
