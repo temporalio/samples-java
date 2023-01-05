@@ -8,4 +8,4 @@ Run the following command to start the sample:
 ./gradlew -q execute -PmainClass=io.temporal.samples.bookingsaga.TripBookingSaga
 ```
 
-Sample unit testing: [TripBookingWorkflowTest](https://github.com/temporalio/samples-java/blob/master/src/test/java/io/temporal/samples/bookingsaga/TripBookingWorkflowTest.java)
+Sample unit testing: [TripBookingWorkflowTest](https://github.com/temporalio/samples-java/blob/main/src/test/java/io/temporal/samples/bookingsaga/TripBookingWorkflowTest.java)
