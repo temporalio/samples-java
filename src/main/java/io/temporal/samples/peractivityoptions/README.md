@@ -1,6 +1,6 @@
 # Per Activity Type Options Sample
 
-This sample shows how to set per activity type options via
+This sample shows how to set per Activity type options via
 WorkflowImplementationOptions
 
 ```bash

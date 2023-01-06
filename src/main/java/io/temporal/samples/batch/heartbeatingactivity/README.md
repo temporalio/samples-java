@@ -1,9 +1,13 @@
-A sample implementation of processing a batch by an activity.
+A sample implementation of processing a batch by an Activity.
 
-An activity can run as long as needed. It reports that it is still alive through heartbeat. If the worker is restarted
-the activity is retried after the heartbeat timeout. Temporal allows store data in heartbeat _details_. These details
-are available to the next activity attempt. The progress of the record processing is stored in the details to avoid
-reprocessing records from the beginning on failures.
+An Activity can run as long as needed. 
+It reports that it is still alive through Heartbeat. 
+
+If the Worker is restarted, the Activity is retried after the Heartbeat Timeout. 
+
+Temporal allows store data in Heartbeat _details_. 
+These details are available to the next Activity attempt. 
+The progress of the record processing is stored in the details to avoid reprocessing records from the beginning on failures.
 
 #### Running the Iterator Batch Sample
 

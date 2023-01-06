@@ -3,7 +3,7 @@
 plugins {
     id 'org.cadixdev.licenser' version '0.6.1'
     id "net.ltgt.errorprone" version "3.0.1"
-    id 'com.diffplug.spotless' version '6.12.0' apply false
+    id 'com.diffplug.spotless' version '6.12.1' apply false
 }
 
 apply plugin: 'java'
@@ -57,7 +57,7 @@ dependencies {
     testImplementation("io.temporal:temporal-testing:1.17.0")
 
     testImplementation "junit:junit:4.13.2"
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.10.0'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.11.0'
     testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.9'
 
     testImplementation "org.junit.jupiter:junit-jupiter-api"
@@ -67,9 +67,9 @@ dependencies {
     dependencies {
         errorproneJavac('com.google.errorprone:javac:9+181-r4173-1')
         if (JavaVersion.current().isJava11Compatible()) {
-            errorprone('com.google.errorprone:error_prone_core:2.16')
+            errorprone('com.google.errorprone:error_prone_core:2.17.0')
         } else {
-            errorprone('com.google.errorprone:error_prone_core:2.10.0')
+            errorprone('com.google.errorprone:error_prone_core:2.17.0')
         }
     }
 }
