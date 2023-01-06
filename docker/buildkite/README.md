@@ -14,6 +14,6 @@ docker-compose -f docker/buildkite/docker-compose.yaml run unit-test
 Note that BuildKite will run basically the same commands.
 
 ## Testing the build in BuildKite
-Creating a PR against the master branch will trigger the BuildKite
+Creating a PR against the main branch will trigger the BuildKite
 build. Members of the Temporal team can view the build pipeline here:
 https://buildkite.com/temporal/java-samples

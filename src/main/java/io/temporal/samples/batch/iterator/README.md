@@ -1,9 +1,10 @@
-A sample implementation of the workflow iterator pattern.
+A sample implementation of the Workflow iterator pattern.
 
-A workflow starts a configured number of child workflows in parallel. Each child processes a single record. After all
-children complete the parent calls continue-as-new and starts the children for the next page of records. This allows
-processing a set of records of any size. The advantage of this approach is simplicity. The main disadvantage is that it
-processes records in batches, with each batch waiting for the slowest child workflow.
+A workflow starts a configured number of Child Workflows in parallel. Each child processes a single record. 
+After all children complete, the parent calls continue-as-new and starts the children for the next page of records. 
+
+This allows processing a set of records of any size. The advantage of this approach is simplicity. 
+The main disadvantage is that it processes records in batches, with each batch waiting for the slowest child workflow.
 
 A variation of this pattern runs activities instead of child workflows.
 

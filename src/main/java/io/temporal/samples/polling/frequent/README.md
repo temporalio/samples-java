@@ -1,6 +1,6 @@
 ## Frequent polling
 
-This sample shows how we can implement frequent polling (1 second or faster) inside our activity.
+This sample shows how we can implement frequent polling (1 second or faster) inside our Activity.
 The implementation is a loop that polls our service and then sleeps for the poll interval (1 second in the sample).
 
 To ensure that polling activity is restarted in a timely manner, we make sure that it heartbeats on every iteration.

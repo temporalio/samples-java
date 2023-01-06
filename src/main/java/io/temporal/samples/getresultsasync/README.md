@@ -1,7 +1,7 @@
 # Get Workflow results async
 
 This sample shows the use of WorkflowStub.getResult and WorkflowStub.getResultAsync
-to show how the Temporal client api can not only start workflows async but also wait for their results 
+to show how the Temporal Client API can not only start Workflows async but also wait for their results 
 async as well.
 
 ## Run the sample
