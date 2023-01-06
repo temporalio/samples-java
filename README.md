@@ -53,7 +53,7 @@ enabled on the Temporal Server side. To do this you can run locally with:
        docker-compose -f docker-compose-cass-es.yml up
 
 Alternatively you could install the Temporal Server on Kubernetes / Minicube using the [Temporal Helm charts](https://github.com/temporalio/helm-charts).
-Note that in this case you should use the [Temporal CLI (tctl)](https://docs.temporal.io/docs/system-tools/tctl/) tool to create a namespace called "default":
+Note that in this case you should use the [Temporal CLI (tctl)](https://docs.temporal.io/tctl-v1) tool to create a namespace called "default":
 
        tctl --ns default n re
 
@@ -93,84 +93,84 @@ The following section lists all available samples.
 Click on the sample link to view the README, which contains instructions on how to run them.
 
 Each sample has an associated unit test which demonstrates the use of the Temporal Java SDK testing API.
-All tests are available under [src/test/java](https://github.com/temporalio/samples-java/tree/master/src/test/java/io/temporal/samples)
+All tests are available under [src/test/java](./src/test/java/io/temporal/samples)
 
 <!-- @@@SNIPSTART samples-java-readme-samples-directory -->
 
 ### Hello samples
 
-- [**Hello**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/hello): This sample includes a number of individual Workflows that can be executed independently. Each one demonstrates something specific.
-  - [**HelloActivity**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloActivity.java): Demonstrates a Workflow Definition that executes a single Activity.
-  - [**HelloActivityRetry**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloActivityRetry.java): Demonstrates how to Retry an Activity Execution.
-  - [**HelloActivityExclusiveChoice**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloActivityExclusiveChoice.java): Demonstrates how to execute Activities based on dynamic input.
-  - [**HelloAsync**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloAsync.java): Demonstrates how to execute Activities asynchronously and wait for them using Promises.
-  - [**HelloParallelActivity**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloParallelActivity.java): Demonstrates how to execute multiple Activities in parallel, asynchronously, and wait for them using `Promise.allOf`.
-  - [**HelloAsyncActivityCompletion**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloAsyncActivityCompletion.java): Demonstrates how to complete an Activity Execution asynchronously.
-  - [**HelloAsyncLambda**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloAsyncLambda.java): Demonstrates how to execute part of a Workflow asynchronously in a separate task (thread).
-  - [**HelloCancellationScope**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloCancellationScope.java): Demonstrates how to explicitly cancel parts of a Workflow Execution.
-  - [**HelloDetachedCancellationScope**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloDetachedCancellationScope.java): Demonstrates how to execute cleanup code after a Workflow Execution has been explicitly cancelled.
-  - [**HelloChild**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloChild.java): Demonstrates how to execute a simple Child Workflow.
-  - [**HelloCron**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloCron.java): Demonstrates how to execute a Workflow according to a cron schedule.
-  - [**HelloDynamic**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloDynamic.java): Demonstrates how to use `DynamicWorkflow` and `DynamicActivity` interfaces.
-  - [**HelloPeriodic**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloPeriodic.java): Demonstrates the use of the Continue-As-New feature.
-  - [**HelloException**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloException.java): Demonstrates how to handle exception propagation and wrapping.
-  - [**HelloLocalActivity**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloLocalActivity.java): Demonstrates the use of a [Local Activity](https://docs.temporal.io/docs/jargon/mesh/#local-activity).
-  - [**HelloPolymorphicActivity**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloPolymorphicActivity.java): Demonstrates Activity Definitions that extend a common interface.
-  - [**HelloQuery**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloQuery.java): Demonstrates how to Query the state of a Workflow Execution.
-  - [**HelloSignal**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloSignal.java): Demonstrates how to send and handle a Signal.
-  - [**HelloSaga**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloSaga.java): Demonstrates how to use the SAGA feature.
-  - [**HelloSearchAttributes**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloSearchAttributes.java): Demonstrates how to add custom Search Attributes to Workflow Executions.
-  - [**HelloSideEffect**](https://github.com/temporalio/samples-java/blob/master/src/main/java/io/temporal/samples/hello/HelloSideEffect.java)**: Demonstrates how to implement a Side Effect.
+- [**Hello**](./src/main/java/io/temporal/samples/hello): This sample includes a number of individual Workflows that can be executed independently. Each one demonstrates something specific.
+  - [**HelloActivity**](./src/main/java/io/temporal/samples/hello/HelloActivity.java): Demonstrates a Workflow Definition that executes a single Activity.
+  - [**HelloActivityRetry**](./src/main/java/io/temporal/samples/hello/HelloActivityRetry.java): Demonstrates how to Retry an Activity Execution.
+  - [**HelloActivityExclusiveChoice**](./src/main/java/io/temporal/samples/hello/HelloActivityExclusiveChoice.java): Demonstrates how to execute Activities based on dynamic input.
+  - [**HelloAsync**](./src/main/java/io/temporal/samples/hello/HelloAsync.java): Demonstrates how to execute Activities asynchronously and wait for them using Promises.
+  - [**HelloParallelActivity**](./src/main/java/io/temporal/samples/hello/HelloParallelActivity.java): Demonstrates how to execute multiple Activities in parallel, asynchronously, and wait for them using `Promise.allOf`.
+  - [**HelloAsyncActivityCompletion**](./src/main/java/io/temporal/samples/hello/HelloAsyncActivityCompletion.java): Demonstrates how to complete an Activity Execution asynchronously.
+  - [**HelloAsyncLambda**](./src/main/java/io/temporal/samples/hello/HelloAsyncLambda.java): Demonstrates how to execute part of a Workflow asynchronously in a separate task (thread).
+  - [**HelloCancellationScope**](./src/main/java/io/temporal/samples/hello/HelloCancellationScope.java): Demonstrates how to explicitly cancel parts of a Workflow Execution.
+  - [**HelloDetachedCancellationScope**](./src/main/java/io/temporal/samples/hello/HelloDetachedCancellationScope.java): Demonstrates how to execute cleanup code after a Workflow Execution has been explicitly cancelled.
+  - [**HelloChild**](./src/main/java/io/temporal/samples/hello/HelloChild.java): Demonstrates how to execute a simple Child Workflow.
+  - [**HelloCron**](./src/main/java/io/temporal/samples/hello/HelloCron.java): Demonstrates how to execute a Workflow according to a cron schedule.
+  - [**HelloDynamic**](./src/main/java/io/temporal/samples/hello/HelloDynamic.java): Demonstrates how to use `DynamicWorkflow` and `DynamicActivity` interfaces.
+  - [**HelloPeriodic**](./src/main/java/io/temporal/samples/hello/HelloPeriodic.java): Demonstrates the use of the Continue-As-New feature.
+  - [**HelloException**](./src/main/java/io/temporal/samples/hello/HelloException.java): Demonstrates how to handle exception propagation and wrapping.
+  - [**HelloLocalActivity**](./src/main/java/io/temporal/samples/hello/HelloLocalActivity.java): Demonstrates the use of a [Local Activity](https://docs.temporal.io/docs/jargon/mesh/#local-activity).
+  - [**HelloPolymorphicActivity**](./src/main/java/io/temporal/samples/hello/HelloPolymorphicActivity.java): Demonstrates Activity Definitions that extend a common interface.
+  - [**HelloQuery**](./src/main/java/io/temporal/samples/hello/HelloQuery.java): Demonstrates how to Query the state of a Workflow Execution.
+  - [**HelloSignal**](./src/main/java/io/temporal/samples/hello/HelloSignal.java): Demonstrates how to send and handle a Signal.
+  - [**HelloSaga**](./src/main/java/io/temporal/samples/hello/HelloSaga.java): Demonstrates how to use the SAGA feature.
+  - [**HelloSearchAttributes**](./src/main/java/io/temporal/samples/hello/HelloSearchAttributes.java): Demonstrates how to add custom Search Attributes to Workflow Executions.
+  - [**HelloSideEffect**](./src/main/java/io/temporal/samples/hello/HelloSideEffect.java)**: Demonstrates how to implement a Side Effect.
 
 ### Scenario-based samples
 
-- [**File Processing Sample**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/fileprocessing): Demonstrates how to route tasks to specific Workers. This sample has a set of Activities that download a file, processes it, and uploads the result to a destination. Any Worker can execute the first Activity. However, the second and third Activities must be executed on the same host as the first one.
+- [**File Processing Sample**](./src/main/java/io/temporal/samples/fileprocessing): Demonstrates how to route tasks to specific Workers. This sample has a set of Activities that download a file, processes it, and uploads the result to a destination. Any Worker can execute the first Activity. However, the second and third Activities must be executed on the same host as the first one.
 
-- [**Booking SAGA**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/bookingsaga): Demonstrates Temporals take on the Camunda BPMN "trip booking" example.
+- [**Booking SAGA**](./src/main/java/io/temporal/samples/bookingsaga): Demonstrates Temporals take on the Camunda BPMN "trip booking" example.
 
-- [**Money Transfer**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/moneytransfer): Demonstrates the use of a dedicated Activity Worker.
+- [**Money Transfer**](./src/main/java/io/temporal/samples/moneytransfer): Demonstrates the use of a dedicated Activity Worker.
 
-- [**Money Batch**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/moneybatch): Demonstrates a situation where a single deposit should be initiated for multiple withdrawals. For example, a seller might want to be paid once per fixed number of transactions. This sample can be easily extended to perform a payment based on more complex criteria, such as at a specific time or an accumulated amount. The sample also demonstrates how to Signal the Workflow when it executes (*Signal with start*). If the Workflow is already executing, it just receives the Signal. If it is not executing, then the Workflow executes first, and then the Signal is delivered to it. *Signal with start* is a "lazy" way to execute Workflows when Signaling them.
+- [**Money Batch**](./src/main/java/io/temporal/samples/moneybatch): Demonstrates a situation where a single deposit should be initiated for multiple withdrawals. For example, a seller might want to be paid once per fixed number of transactions. This sample can be easily extended to perform a payment based on more complex criteria, such as at a specific time or an accumulated amount. The sample also demonstrates how to Signal the Workflow when it executes (*Signal with start*). If the Workflow is already executing, it just receives the Signal. If it is not executing, then the Workflow executes first, and then the Signal is delivered to it. *Signal with start* is a "lazy" way to execute Workflows when Signaling them.
 
-- [**Customer Application Approval DSL**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/dsl): Demonstrates execution of a customer application approval workflow defined in a DSL (like JSON or YAML)
+- [**Customer Application Approval DSL**](./src/main/java/io/temporal/samples/dsl): Demonstrates execution of a customer application approval workflow defined in a DSL (like JSON or YAML)
 
-- [**Polling Services**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/polling): Recommended implementation of an activity that needs to periodically poll an external resource waiting its successful completion
+- [**Polling Services**](./src/main/java/io/temporal/samples/polling): Recommended implementation of an activity that needs to periodically poll an external resource waiting its successful completion
 
-- [**Heartbeating Activity Batch**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/batch/heartbeatingactivity): Batch job implementation using a heartbeating activity.
+- [**Heartbeating Activity Batch**](./src/main/java/io/temporal/samples/batch/heartbeatingactivity): Batch job implementation using a heartbeating activity.
 
-- [**Iterator Batch**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/batch/iterator): Batch job implementation using the workflow iterator pattern.
+- [**Iterator Batch**](./src/main/java/io/temporal/samples/batch/iterator): Batch job implementation using the workflow iterator pattern.
 
-- [**Sliding Window Batch**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/batch/slidingwindow): A batch implementation that maintains a configured number of child workflows during processing.
+- [**Sliding Window Batch**](./src/main/java/io/temporal/samples/batch/slidingwindow): A batch implementation that maintains a configured number of child workflows during processing.
 
 ### API demonstrations
 
-- [**Updatable Timer**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/updatabletimer): Demonstrates the use of a helper class which relies on `Workflow.await` to implement a blocking sleep that can be updated at any moment.
+- [**Updatable Timer**](./src/main/java/io/temporal/samples/updatabletimer): Demonstrates the use of a helper class which relies on `Workflow.await` to implement a blocking sleep that can be updated at any moment.
 
-- [**Workflow Interceptor**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/interceptor): Demonstrates how to create and register a simple Workflow Interceptor.
+- [**Workflow Interceptor**](./src/main/java/io/temporal/samples/interceptor): Demonstrates how to create and register a simple Workflow Interceptor.
 
-- [**List Workflows**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/listworkflows): Demonstrates the use of custom search attributes and ListWorkflowExecutionsRequest with custom queries.
+- [**List Workflows**](./src/main/java/io/temporal/samples/listworkflows): Demonstrates the use of custom search attributes and ListWorkflowExecutionsRequest with custom queries.
 
-- [**Payload Converter - CloudEvents**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/payloadconverter/cloudevents): Demonstrates the use of a custom payload converter for CloudEvents.
+- [**Payload Converter - CloudEvents**](./src/main/java/io/temporal/samples/payloadconverter/cloudevents): Demonstrates the use of a custom payload converter for CloudEvents.
 
-- [**Payload Converter - Crypto**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/payloadconverter/crypto): Demonstrates the use of a custom payload converter using jackson-json-crypto.
+- [**Payload Converter - Crypto**](./src/main/java/io/temporal/samples/payloadconverter/crypto): Demonstrates the use of a custom payload converter using jackson-json-crypto.
 
-- [**Async Child Workflow**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/asyncchild): Demonstrates how to invoke a child workflow async, that can complete after parent workflow is already completed.
+- [**Async Child Workflow**](./src/main/java/io/temporal/samples/asyncchild): Demonstrates how to invoke a child workflow async, that can complete after parent workflow is already completed.
 
-- [**Terminate Workflow**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/terminateworkflow): Demonstrates how to terminate a workflow using client API.
+- [**Terminate Workflow**](./src/main/java/io/temporal/samples/terminateworkflow): Demonstrates how to terminate a workflow using client API.
 
-- [**Get Workflow Results Async**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/getresultsasync): Demonstrates how to start and get workflow results in async manner.
+- [**Get Workflow Results Async**](./src/main/java/io/temporal/samples/getresultsasync): Demonstrates how to start and get workflow results in async manner.
 
-- [**Per Activity Type Options**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/peractivityoptions): Demonstrates how to set per Activity type options.
+- [**Per Activity Type Options**](./src/main/java/io/temporal/samples/peractivityoptions): Demonstrates how to set per Activity type options.
 
-- [**Configure WorkflowClient to use mTLS**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/ssl): Demonstrates how to configure WorkflowClient when using mTLS.
+- [**Configure WorkflowClient to use mTLS**](./src/main/java/io/temporal/samples/ssl): Demonstrates how to configure WorkflowClient when using mTLS.
 
 ### SDK Metrics
 
-- [**Set up SDK metrics**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/metrics): Demonstrates how to set up and scrape SDK metrics.
+- [**Set up SDK metrics**](./src/main/java/io/temporal/samples/metrics): Demonstrates how to set up and scrape SDK metrics.
 
 ### Tracing Support
 
-- [**Set up OpenTracing and/or OpenTelemetry with Jaeger**](https://github.com/temporalio/samples-java/tree/master/src/main/java/io/temporal/samples/tracing): Demonstrates how to set up OpenTracing and/or OpenTelemetry and view traces using Jaeger.
+- [**Set up OpenTracing and/or OpenTelemetry with Jaeger**](./src/main/java/io/temporal/samples/tracing): Demonstrates how to set up OpenTracing and/or OpenTelemetry and view traces using Jaeger.
 
 
 <!-- @@@SNIPEND -->
