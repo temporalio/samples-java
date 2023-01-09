@@ -10,5 +10,5 @@ The Parent Workflow is not aware about the Child Workflow calling continue-as-ne
 
 To run this sample:
 ```bash
-./gradlew -q execute -PmainClass=io.temporal.samples.polling.periodicsequene.Starter
+./gradlew -q execute -PmainClass=io.temporal.samples.polling.periodicsequence.PeriodicPollingStarter
 ```
