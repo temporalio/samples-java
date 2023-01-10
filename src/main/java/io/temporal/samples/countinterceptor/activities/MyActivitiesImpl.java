@@ -17,24 +17,16 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.interceptor.workflow;
+package io.temporal.samples.countinterceptor.activities;
 
-import io.temporal.activity.ActivityOptions;
-import io.temporal.samples.interceptor.activities.MyActivities;
-import io.temporal.workflow.Workflow;
-import java.time.Duration;
-
-public class MyChildWorkflowImpl implements MyChildWorkflow {
+public class MyActivitiesImpl implements MyActivities {
   @Override
-  public String execChild(String name, String title) {
-    MyActivities activities =
-        Workflow.newActivityStub(
-            MyActivities.class,
-            ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(10)).build());
+  public String sayHello(String name, String title) {
+    return "Hello " + title + " " + name;
+  }
 
-    String result = activities.sayHello(name, title);
-    result += activities.sayGoodBye(name, title);
-
-    return result;
+  @Override
+  public String sayGoodBye(String name, String title) {
+    return "Goodbye  " + title + " " + name;
   }
 }

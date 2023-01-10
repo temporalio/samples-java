@@ -17,22 +17,27 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.interceptor;
+package io.temporal.samples.countinterceptor.workflow;
 
-import io.temporal.common.interceptors.WorkflowClientCallsInterceptor;
-import io.temporal.common.interceptors.WorkflowClientInterceptorBase;
+import io.temporal.workflow.QueryMethod;
+import io.temporal.workflow.SignalMethod;
+import io.temporal.workflow.WorkflowInterface;
+import io.temporal.workflow.WorkflowMethod;
 
-public class SimpleClientInterceptor extends WorkflowClientInterceptorBase {
+@WorkflowInterface
+public interface MyWorkflow {
+  @WorkflowMethod
+  String exec();
 
-  private ClientCounter clientCounter;
+  @SignalMethod
+  void signalNameAndTitle(String greeting, String title);
 
-  public SimpleClientInterceptor(ClientCounter clientCounter) {
-    this.clientCounter = clientCounter;
-  }
+  @SignalMethod
+  void exit();
 
-  @Override
-  public WorkflowClientCallsInterceptor workflowClientCallsInterceptor(
-      WorkflowClientCallsInterceptor next) {
-    return new SimpleClientCallsInterceptor(next, clientCounter);
-  }
+  @QueryMethod
+  String queryName();
+
+  @QueryMethod
+  String queryTitle();
 }

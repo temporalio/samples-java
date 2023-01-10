@@ -17,21 +17,23 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.interceptor;
+package io.temporal.samples.countinterceptor;
 
-import io.temporal.common.interceptors.ActivityInboundCallsInterceptor;
-import io.temporal.common.interceptors.WorkerInterceptor;
-import io.temporal.common.interceptors.WorkflowInboundCallsInterceptor;
+import io.temporal.common.interceptors.WorkflowOutboundCallsInterceptor;
+import io.temporal.common.interceptors.WorkflowOutboundCallsInterceptorBase;
+import io.temporal.workflow.Workflow;
 
-public class SimpleCountWorkerInterceptor implements WorkerInterceptor {
+public class SimpleCountWorkflowOutboundCallsInterceptor
+    extends WorkflowOutboundCallsInterceptorBase {
 
-  @Override
-  public WorkflowInboundCallsInterceptor interceptWorkflow(WorkflowInboundCallsInterceptor next) {
-    return new SimpleCountWorkflowInboundCallsInterceptor(next);
+  public SimpleCountWorkflowOutboundCallsInterceptor(WorkflowOutboundCallsInterceptor next) {
+    super(next);
   }
 
   @Override
-  public ActivityInboundCallsInterceptor interceptActivity(ActivityInboundCallsInterceptor next) {
-    return new SimpleCountActivityInboundCallsInterceptor(next);
+  public <R> ChildWorkflowOutput<R> executeChildWorkflow(ChildWorkflowInput<R> input) {
+    WorkerCounter.add(
+        Workflow.getInfo().getWorkflowId(), WorkerCounter.NUM_OF_CHILD_WORKFLOW_EXECUTIONS);
+    return super.executeChildWorkflow(input);
   }
 }

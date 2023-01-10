@@ -17,16 +17,22 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.interceptor.activities;
+package io.temporal.samples.countinterceptor;
 
-public class MyActivitiesImpl implements MyActivities {
-  @Override
-  public String sayHello(String name, String title) {
-    return "Hello " + title + " " + name;
+import io.temporal.common.interceptors.WorkflowClientCallsInterceptor;
+import io.temporal.common.interceptors.WorkflowClientInterceptorBase;
+
+public class SimpleClientInterceptor extends WorkflowClientInterceptorBase {
+
+  private ClientCounter clientCounter;
+
+  public SimpleClientInterceptor(ClientCounter clientCounter) {
+    this.clientCounter = clientCounter;
   }
 
   @Override
-  public String sayGoodBye(String name, String title) {
-    return "Goodbye  " + title + " " + name;
+  public WorkflowClientCallsInterceptor workflowClientCallsInterceptor(
+      WorkflowClientCallsInterceptor next) {
+    return new SimpleClientCallsInterceptor(next, clientCounter);
   }
 }

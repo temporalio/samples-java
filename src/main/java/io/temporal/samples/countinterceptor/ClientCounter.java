@@ -17,7 +17,7 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.interceptor;
+package io.temporal.samples.countinterceptor;
 
 import java.util.AbstractMap;
 import java.util.Collections;

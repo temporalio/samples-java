@@ -7,5 +7,5 @@ The sample demonstrates:
 Run the following command to start the sample:
 
 ```bash
-./gradlew -q execute -PmainClass=io.temporal.samples.interceptor.InterceptorStarter
+./gradlew -q execute -PmainClass=io.temporal.samples.countinterceptor.InterceptorStarter
 ```

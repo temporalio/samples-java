@@ -17,27 +17,13 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.interceptor.workflow;
+package io.temporal.samples.countinterceptor.workflow;
 
-import io.temporal.workflow.QueryMethod;
-import io.temporal.workflow.SignalMethod;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 
 @WorkflowInterface
-public interface MyWorkflow {
+public interface MyChildWorkflow {
   @WorkflowMethod
-  String exec();
-
-  @SignalMethod
-  void signalNameAndTitle(String greeting, String title);
-
-  @SignalMethod
-  void exit();
-
-  @QueryMethod
-  String queryName();
-
-  @QueryMethod
-  String queryTitle();
+  String execChild(String name, String title);
 }

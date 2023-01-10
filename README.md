@@ -146,7 +146,9 @@ All tests are available under [src/test/java](./src/test/java/io/temporal/sample
 
 - [**Updatable Timer**](./src/main/java/io/temporal/samples/updatabletimer): Demonstrates the use of a helper class which relies on `Workflow.await` to implement a blocking sleep that can be updated at any moment.
 
-- [**Workflow Interceptor**](./src/main/java/io/temporal/samples/interceptor): Demonstrates how to create and register a simple Workflow Interceptor.
+- [**Workflow Count Interceptor**](./src/main/java/io/temporal/samples/countinterceptor): Demonstrates how to create and register a simple Workflow Count Interceptor.
+- 
+- [**Workflow Retry On Signal Interceptor**](./src/main/java/io/temporal/samples/retryonsignalinterceptor): Demonstrates how to create and register an interceptor that retries an activity on a signal.
 
 - [**List Workflows**](./src/main/java/io/temporal/samples/listworkflows): Demonstrates the use of custom search attributes and ListWorkflowExecutionsRequest with custom queries.
 
