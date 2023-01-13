@@ -31,9 +31,14 @@ public class InfrequentPollingWorkflowImpl implements PollingWorkflow {
   public String exec() {
     /**
      * Infrequent polling via activity can be implemented via activity retries. For this sample we
-     * want to poll the test service every 60 seconds. Here we: 1. Set RetryPolicy backoff
-     * coefficient of 1 2. Set initial interval to the poll frequency (since coefficient is 1, same
-     * interval will be used for all retries) With this in case our test service is "down" we can
+     * want to poll the test service every 60 seconds. 
+     * 
+     * Here we: 
+     *  1. Set RetryPolicy backoff coefficient of 1
+     *  2. Set initial interval to the poll frequency (since coefficient is 1, same
+     * interval will be used for all retries)
+     * 
+     * With this in case our test service is "down" we can
      * fail our activity and it will be retried based on our 60 second retry interval until poll is
      * successful and we can return a result from the activity.
      */
