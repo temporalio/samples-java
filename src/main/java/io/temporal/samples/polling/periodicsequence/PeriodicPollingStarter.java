@@ -52,7 +52,8 @@ public class PeriodicPollingStarter {
     Worker worker = workerFactory.newWorker(taskQueue);
 
     // Register workflow and activities
-    worker.registerWorkflowImplementationTypes(PeriodicPollingChildWorkflowImpl.class);
+    worker.registerWorkflowImplementationTypes(
+        PeriodicPollingWorkflowImpl.class, PeriodicPollingChildWorkflowImpl.class);
     worker.registerActivitiesImplementations(new PeriodicPollingActivityImpl(new TestService(50)));
 
     workerFactory.start();
