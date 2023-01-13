@@ -11,7 +11,7 @@ This will allow us to retry our Activity exactly on the set interval.
 
 To run this sample: 
 ```bash
-./gradlew -q execute -PmainClass=io.temporal.samples.polling.infrequent.Starter
+./gradlew -q execute -PmainClass=io.temporal.samples.polling.infrequent.InfrequentPollingStarter
 ```
 
 Since our test service simulates it being "down" for 4 polling attempts and then returns "OK" on the 5th poll attempt, our Workflow is going to perform 4 activity retries with a 60 second poll interval, and then return the service result on the successful 5th attempt. 
