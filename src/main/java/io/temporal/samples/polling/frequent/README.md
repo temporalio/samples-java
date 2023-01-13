@@ -10,5 +10,5 @@ StartToClose timeout.
 
 To run this sample:
 ```bash
-./gradlew -q execute -PmainClass=io.temporal.samples.polling.frequent.Starter
+./gradlew -q execute -PmainClass=io.temporal.samples.polling.frequent.FrequentPollingStarter
 ```
