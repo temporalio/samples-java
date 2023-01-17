@@ -25,6 +25,7 @@ import io.temporal.client.ActivityCompletionException;
 import io.temporal.samples.polling.PollingActivities;
 import io.temporal.samples.polling.TestService;
 import java.util.concurrent.TimeUnit;
+import java.util.Optional;
 
 public class FrequentPollingActivityImpl implements PollingActivities {
   private final TestService service;
@@ -48,7 +49,7 @@ public class FrequentPollingActivityImpl implements PollingActivities {
 
       // heart beat and sleep for the poll duration
       try {
-        context.heartbeat("no response");
+        context.heartbeat(Optional.empty());
       } catch (ActivityCompletionException e) {
         // activity was either cancelled or workflow was completed or worker shut down
         throw e;
