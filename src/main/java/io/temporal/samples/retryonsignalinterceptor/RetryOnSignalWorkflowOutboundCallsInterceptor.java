@@ -22,8 +22,7 @@ package io.temporal.samples.retryonsignalinterceptor;
 import com.google.common.base.Throwables;
 import io.temporal.common.interceptors.WorkflowOutboundCallsInterceptor;
 import io.temporal.common.interceptors.WorkflowOutboundCallsInterceptorBase;
-import io.temporal.failure.ActivityFailure;
-import io.temporal.workflow.Workflow;
+import io.temporal.workflow.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,9 +36,10 @@ public class RetryOnSignalWorkflowOutboundCallsInterceptor
 
   private class ActivityRetryState<R> {
     private final ActivityInput<R> input;
+    private final CompletablePromise<R> asyncResult = Workflow.newPromise();
 
-    private Action action;
-    private ActivityFailure lastFailure;
+    private CompletablePromise<Action> action = Workflow.newPromise();
+    private Exception lastFailure;
     private int attempt;
 
     private ActivityRetryState(ActivityInput<R> input) {
@@ -47,34 +47,53 @@ public class RetryOnSignalWorkflowOutboundCallsInterceptor
     }
 
     ActivityOutput<R> execute() {
-      while (true) {
-        try {
-          action = null;
-          lastFailure = null;
-          attempt++;
-          return RetryOnSignalWorkflowOutboundCallsInterceptor.super.executeActivity(input);
-        } catch (ActivityFailure e) {
-          lastFailure = e;
-          Workflow.await(() -> action != null);
-          if (action == Action.FAIL) {
-            throw e;
-          }
-        }
-      }
+      executeWithAsyncRetry();
+      return new ActivityOutput<>(asyncResult);
+    }
+
+    // Executes activity with retry based on signaled action asynchronously
+    private void executeWithAsyncRetry() {
+      attempt++;
+      ActivityOutput<R> result =
+          RetryOnSignalWorkflowOutboundCallsInterceptor.super.executeActivity(input);
+      result
+          .getResult()
+          .handle(
+              (r, failure) -> {
+                // No failure complete
+                if (failure == null) {
+                  pendingActivities.remove(this);
+                  asyncResult.complete(r);
+                  return null;
+                }
+                // Asynchronously executes requested action when signal is received.
+                lastFailure = failure;
+                action = Workflow.newPromise();
+                return action.thenApply(
+                    a -> {
+                      if (a == Action.FAIL) {
+                        asyncResult.completeExceptionally(failure);
+                      } else {
+                        // Retries recursively.
+                        executeWithAsyncRetry();
+                      }
+                      return null;
+                    });
+              });
     }
 
     public void retry() {
       if (lastFailure == null) {
         return;
       }
-      action = Action.RETRY;
+      action.complete(Action.RETRY);
     }
 
     public void fail() {
       if (lastFailure == null) {
         return;
       }
-      action = Action.FAIL;
+      action.complete(Action.FAIL);
     }
 
     public String getStatus() {
@@ -82,14 +101,14 @@ public class RetryOnSignalWorkflowOutboundCallsInterceptor
       if (lastFailure == null) {
         return "Executing activity " + activityName + " " + attempt + " time";
       }
-      if (action == null) {
+      if (!action.isCompleted()) {
         return "Last "
             + activityName
             + " activity failure:\n"
             + Throwables.getStackTraceAsString(lastFailure)
             + "\n\nretry or fail ?";
       }
-      return (action == Action.RETRY ? "Going to retry" : "Going to fail")
+      return (action.get() == Action.RETRY ? "Going to retry" : "Going to fail")
           + " activity "
           + activityName;
     }
@@ -104,6 +123,8 @@ public class RetryOnSignalWorkflowOutboundCallsInterceptor
 
   public RetryOnSignalWorkflowOutboundCallsInterceptor(WorkflowOutboundCallsInterceptor next) {
     super(next);
+    // Registers the listener for retry and fail signals as well as getPendingActivitiesStatus
+    // query. Register in the constructor to do it once per workflow instance.
     Workflow.registerListener(
         new RetryOnSignalInterceptorListener() {
           @Override
@@ -122,7 +143,7 @@ public class RetryOnSignalWorkflowOutboundCallsInterceptor
 
           @Override
           public String getPendingActivitiesStatus() {
-            StringBuffer result = new StringBuffer();
+            StringBuilder result = new StringBuilder();
             for (ActivityRetryState<?> pending : pendingActivities) {
               if (result.length() > 0) {
                 result.append('\n');
