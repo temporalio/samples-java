@@ -49,7 +49,7 @@ public class FrequentPollingActivityImpl implements PollingActivities {
 
       // heart beat and sleep for the poll duration
       try {
-        context.heartbeat(Optional.empty());
+        context.heartbeat(null);
       } catch (ActivityCompletionException e) {
         // activity was either cancelled or workflow was completed or worker shut down
         throw e;
