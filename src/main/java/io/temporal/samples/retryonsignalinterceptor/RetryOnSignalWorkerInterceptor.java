@@ -23,6 +23,7 @@ import io.temporal.common.interceptors.ActivityInboundCallsInterceptor;
 import io.temporal.common.interceptors.WorkerInterceptor;
 import io.temporal.common.interceptors.WorkflowInboundCallsInterceptor;
 
+/** Should be registered through WorkerFactoryOptions. */
 public class RetryOnSignalWorkerInterceptor implements WorkerInterceptor {
   @Override
   public WorkflowInboundCallsInterceptor interceptWorkflow(WorkflowInboundCallsInterceptor next) {

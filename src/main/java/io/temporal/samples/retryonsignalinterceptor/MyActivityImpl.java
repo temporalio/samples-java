@@ -26,6 +26,7 @@ public class MyActivityImpl implements MyActivity {
 
   private final AtomicInteger count = new AtomicInteger();
 
+  /** Sleeps 5 seconds. Fails for 4 first invocations, and then completes. */
   @Override
   public void execute() {
     try {

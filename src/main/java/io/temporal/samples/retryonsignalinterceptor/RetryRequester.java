@@ -30,13 +30,15 @@ public class RetryRequester {
     WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
     WorkflowClient client = WorkflowClient.newInstance(service);
 
-    // Note that we use the listener interface that interceptor registered dynamically, not the
+    // Note that we use the listener interface that the interceptor registered dynamically, not the
     // workflow interface.
     RetryOnSignalInterceptorListener workflow =
         client.newWorkflowStub(RetryOnSignalInterceptorListener.class, WORKFLOW_ID);
 
+    // Sends "Retry" signal to the workflow.
     workflow.retry();
-    System.out.println("Requested retry of all pending activities");
+
+    System.out.println("\"Retry\" signal sent");
     System.exit(0);
   }
 }

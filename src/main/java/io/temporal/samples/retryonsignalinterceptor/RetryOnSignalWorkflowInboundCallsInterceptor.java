@@ -24,7 +24,7 @@ import io.temporal.common.interceptors.WorkflowInboundCallsInterceptorBase;
 import io.temporal.common.interceptors.WorkflowOutboundCallsInterceptor;
 
 public class RetryOnSignalWorkflowInboundCallsInterceptor
-    extends WorkflowInboundCallsInterceptorBase implements WorkflowInboundCallsInterceptor {
+    extends WorkflowInboundCallsInterceptorBase {
 
   public RetryOnSignalWorkflowInboundCallsInterceptor(WorkflowInboundCallsInterceptor next) {
     super(next);

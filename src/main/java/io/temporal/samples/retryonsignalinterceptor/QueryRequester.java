@@ -24,10 +24,7 @@ import static io.temporal.samples.retryonsignalinterceptor.MyWorkflowWorker.WORK
 import io.temporal.client.WorkflowClient;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 
-/**
- * Send signal requesting that an exception thrown from the activity is propagated to the workflow.
- */
-public class FailureRequester {
+public class QueryRequester {
 
   public static void main(String[] args) {
     WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
@@ -38,10 +35,10 @@ public class FailureRequester {
     RetryOnSignalInterceptorListener workflow =
         client.newWorkflowStub(RetryOnSignalInterceptorListener.class, WORKFLOW_ID);
 
-    // Sends "Fail" signal to the workflow.
-    workflow.fail();
+    // Queries workflow.
+    String status = workflow.getPendingActivitiesStatus();
 
-    System.out.println("\"Fail\" signal sent");
+    System.out.println("Workflow Pending Activities Status:\n\n" + status);
     System.exit(0);
   }
 }

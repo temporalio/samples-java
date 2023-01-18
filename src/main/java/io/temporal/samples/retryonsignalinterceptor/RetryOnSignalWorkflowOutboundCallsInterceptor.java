@@ -26,6 +26,10 @@ import io.temporal.workflow.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Most of the complexity of the implementation is due to the asynchronous nature of the activity
+ * invocation at the interceptor level.
+ */
 public class RetryOnSignalWorkflowOutboundCallsInterceptor
     extends WorkflowOutboundCallsInterceptorBase {
 
@@ -37,8 +41,7 @@ public class RetryOnSignalWorkflowOutboundCallsInterceptor
   private class ActivityRetryState<R> {
     private final ActivityInput<R> input;
     private final CompletablePromise<R> asyncResult = Workflow.newPromise();
-
-    private CompletablePromise<Action> action = Workflow.newPromise();
+    private CompletablePromise<Action> action;
     private Exception lastFailure;
     private int attempt;
 
@@ -54,6 +57,8 @@ public class RetryOnSignalWorkflowOutboundCallsInterceptor
     // Executes activity with retry based on signaled action asynchronously
     private void executeWithAsyncRetry() {
       attempt++;
+      lastFailure = null;
+      action = null;
       ActivityOutput<R> result =
           RetryOnSignalWorkflowOutboundCallsInterceptor.super.executeActivity(input);
       result
@@ -83,14 +88,14 @@ public class RetryOnSignalWorkflowOutboundCallsInterceptor
     }
 
     public void retry() {
-      if (lastFailure == null) {
+      if (action == null) {
         return;
       }
       action.complete(Action.RETRY);
     }
 
     public void fail() {
-      if (lastFailure == null) {
+      if (action == null) {
         return;
       }
       action.complete(Action.FAIL);
@@ -99,18 +104,19 @@ public class RetryOnSignalWorkflowOutboundCallsInterceptor
     public String getStatus() {
       String activityName = input.getActivityName();
       if (lastFailure == null) {
-        return "Executing activity " + activityName + " " + attempt + " time";
+        return "Executing activity \"" + activityName + "\". Attempt=" + attempt;
       }
       if (!action.isCompleted()) {
-        return "Last "
+        return "Last \""
             + activityName
-            + " activity failure:\n"
+            + "\" activity failure:\n"
             + Throwables.getStackTraceAsString(lastFailure)
             + "\n\nretry or fail ?";
       }
       return (action.get() == Action.RETRY ? "Going to retry" : "Going to fail")
-          + " activity "
-          + activityName;
+          + " activity \""
+          + activityName
+          + "\"";
     }
   }
 
