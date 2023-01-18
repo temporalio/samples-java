@@ -24,7 +24,6 @@ import io.temporal.activity.ActivityExecutionContext;
 import io.temporal.client.ActivityCompletionException;
 import io.temporal.samples.polling.PollingActivities;
 import io.temporal.samples.polling.TestService;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class FrequentPollingActivityImpl implements PollingActivities {
