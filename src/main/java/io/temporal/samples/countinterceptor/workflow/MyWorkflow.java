@@ -17,16 +17,27 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.interceptor.activities;
+package io.temporal.samples.countinterceptor.workflow;
 
-public class MyActivitiesImpl implements MyActivities {
-  @Override
-  public String sayHello(String name, String title) {
-    return "Hello " + title + " " + name;
-  }
+import io.temporal.workflow.QueryMethod;
+import io.temporal.workflow.SignalMethod;
+import io.temporal.workflow.WorkflowInterface;
+import io.temporal.workflow.WorkflowMethod;
 
-  @Override
-  public String sayGoodBye(String name, String title) {
-    return "Goodbye  " + title + " " + name;
-  }
+@WorkflowInterface
+public interface MyWorkflow {
+  @WorkflowMethod
+  String exec();
+
+  @SignalMethod
+  void signalNameAndTitle(String greeting, String title);
+
+  @SignalMethod
+  void exit();
+
+  @QueryMethod
+  String queryName();
+
+  @QueryMethod
+  String queryTitle();
 }

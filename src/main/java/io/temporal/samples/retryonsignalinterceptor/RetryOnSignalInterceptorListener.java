@@ -17,24 +17,23 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.interceptor.workflow;
+package io.temporal.samples.retryonsignalinterceptor;
 
-import io.temporal.activity.ActivityOptions;
-import io.temporal.samples.interceptor.activities.MyActivities;
-import io.temporal.workflow.Workflow;
-import java.time.Duration;
+import io.temporal.workflow.QueryMethod;
+import io.temporal.workflow.SignalMethod;
 
-public class MyChildWorkflowImpl implements MyChildWorkflow {
-  @Override
-  public String execChild(String name, String title) {
-    MyActivities activities =
-        Workflow.newActivityStub(
-            MyActivities.class,
-            ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(10)).build());
+/** Interface used to dynamically register signal and query handlers from the interceptor. */
+public interface RetryOnSignalInterceptorListener {
 
-    String result = activities.sayHello(name, title);
-    result += activities.sayGoodBye(name, title);
+  /** Requests retry of the activities waiting after failure. */
+  @SignalMethod
+  void retry();
 
-    return result;
-  }
+  /** Requests no more retries of the activities waiting after failure. */
+  @SignalMethod
+  void fail();
+
+  /** Returns human status of the pending activities. */
+  @QueryMethod
+  String getPendingActivitiesStatus();
 }

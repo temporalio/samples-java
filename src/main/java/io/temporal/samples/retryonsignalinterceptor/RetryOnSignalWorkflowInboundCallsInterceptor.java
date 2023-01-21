@@ -17,22 +17,21 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.interceptor;
+package io.temporal.samples.retryonsignalinterceptor;
 
-import io.temporal.common.interceptors.WorkflowClientCallsInterceptor;
-import io.temporal.common.interceptors.WorkflowClientInterceptorBase;
+import io.temporal.common.interceptors.WorkflowInboundCallsInterceptor;
+import io.temporal.common.interceptors.WorkflowInboundCallsInterceptorBase;
+import io.temporal.common.interceptors.WorkflowOutboundCallsInterceptor;
 
-public class SimpleClientInterceptor extends WorkflowClientInterceptorBase {
+public class RetryOnSignalWorkflowInboundCallsInterceptor
+    extends WorkflowInboundCallsInterceptorBase {
 
-  private ClientCounter clientCounter;
-
-  public SimpleClientInterceptor(ClientCounter clientCounter) {
-    this.clientCounter = clientCounter;
+  public RetryOnSignalWorkflowInboundCallsInterceptor(WorkflowInboundCallsInterceptor next) {
+    super(next);
   }
 
   @Override
-  public WorkflowClientCallsInterceptor workflowClientCallsInterceptor(
-      WorkflowClientCallsInterceptor next) {
-    return new SimpleClientCallsInterceptor(next, clientCounter);
+  public void init(WorkflowOutboundCallsInterceptor outboundCalls) {
+    super.init(new RetryOnSignalWorkflowOutboundCallsInterceptor(outboundCalls));
   }
 }

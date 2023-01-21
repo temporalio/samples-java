@@ -17,27 +17,11 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.interceptor.workflow;
+package io.temporal.samples.retryonsignalinterceptor;
 
-import io.temporal.workflow.QueryMethod;
-import io.temporal.workflow.SignalMethod;
-import io.temporal.workflow.WorkflowInterface;
-import io.temporal.workflow.WorkflowMethod;
+import io.temporal.activity.ActivityInterface;
 
-@WorkflowInterface
-public interface MyWorkflow {
-  @WorkflowMethod
-  String exec();
-
-  @SignalMethod
-  void signalNameAndTitle(String greeting, String title);
-
-  @SignalMethod
-  void exit();
-
-  @QueryMethod
-  String queryName();
-
-  @QueryMethod
-  String queryTitle();
+@ActivityInterface
+public interface MyActivity {
+  void execute();
 }

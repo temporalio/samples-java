@@ -17,7 +17,7 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.interceptor;
+package io.temporal.samples.countinterceptor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -26,10 +26,10 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
-import io.temporal.samples.interceptor.activities.MyActivitiesImpl;
-import io.temporal.samples.interceptor.workflow.MyChildWorkflowImpl;
-import io.temporal.samples.interceptor.workflow.MyWorkflow;
-import io.temporal.samples.interceptor.workflow.MyWorkflowImpl;
+import io.temporal.samples.countinterceptor.activities.MyActivitiesImpl;
+import io.temporal.samples.countinterceptor.workflow.MyChildWorkflowImpl;
+import io.temporal.samples.countinterceptor.workflow.MyWorkflow;
+import io.temporal.samples.countinterceptor.workflow.MyWorkflowImpl;
 import io.temporal.testing.TestWorkflowRule;
 import org.junit.Rule;
 import org.junit.Test;

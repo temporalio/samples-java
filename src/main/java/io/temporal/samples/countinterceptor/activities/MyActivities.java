@@ -17,7 +17,7 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.interceptor.activities;
+package io.temporal.samples.countinterceptor.activities;
 
 import io.temporal.activity.ActivityInterface;
 
