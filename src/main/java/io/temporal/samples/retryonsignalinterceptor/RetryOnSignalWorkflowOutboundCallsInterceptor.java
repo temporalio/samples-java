@@ -50,12 +50,11 @@ public class RetryOnSignalWorkflowOutboundCallsInterceptor
     }
 
     ActivityOutput<R> execute() {
-      executeWithAsyncRetry();
-      return new ActivityOutput<>(asyncResult);
+      return executeWithAsyncRetry();
     }
 
     // Executes activity with retry based on signaled action asynchronously
-    private void executeWithAsyncRetry() {
+    private ActivityOutput<R> executeWithAsyncRetry() {
       attempt++;
       lastFailure = null;
       action = null;
@@ -85,6 +84,7 @@ public class RetryOnSignalWorkflowOutboundCallsInterceptor
                       return null;
                     });
               });
+      return new ActivityOutput<>(result.getActivityId(), asyncResult);
     }
 
     public void retry() {
