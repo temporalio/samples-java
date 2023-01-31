@@ -20,13 +20,17 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    javaSDKVersion = '1.18.0'
+}
+
 dependencies {
     implementation(platform("com.fasterxml.jackson:jackson-bom:2.14.1"))
     implementation(platform("io.opentelemetry:opentelemetry-bom:1.21.0"))
     implementation(platform("org.junit:junit-bom:5.9.1"))
 
-    implementation "io.temporal:temporal-sdk:1.17.0"
-    implementation "io.temporal:temporal-opentracing:1.17.0"
+    implementation "io.temporal:temporal-sdk:$javaSDKVersion"
+    implementation "io.temporal:temporal-opentracing:$javaSDKVersion"
 
     implementation "com.fasterxml.jackson.core:jackson-databind"
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.11'
@@ -54,10 +58,10 @@ dependencies {
     // we don't update it to 2.1.0 because 2.1.0 requires Java 11
     implementation 'com.codingrodent:jackson-json-crypto:1.1.0'
 
-    testImplementation("io.temporal:temporal-testing:1.17.0")
+    testImplementation("io.temporal:temporal-testing:$javaSDKVersion")
 
     testImplementation "junit:junit:4.13.2"
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: '4.11.0'
+    testImplementation "org.mockito:mockito-core:5.1.0"
     testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.9'
 
     testImplementation "org.junit.jupiter:junit-jupiter-api"
