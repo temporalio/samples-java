@@ -21,7 +21,7 @@ repositories {
 }
 
 ext {
-    javaSDKVersion = '1.18.0'
+    javaSDKVersion = '1.18.1'
 }
 
 dependencies {
