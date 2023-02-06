@@ -37,7 +37,8 @@ public class PeriodicPollingChildWorkflowImpl implements PollingChildWorkflow {
             PollingActivities.class,
             ActivityOptions.newBuilder()
                 .setStartToCloseTimeout(Duration.ofSeconds(4))
-                // disable retries for this activity
+                // Explicitly disable default retries for activities
+                // as activity retries are handled with business logic in this case
                 .setRetryOptions(RetryOptions.newBuilder().setMaximumAttempts(1).build())
                 .build());
 
