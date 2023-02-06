@@ -20,6 +20,7 @@
 package io.temporal.samples.polling.periodicsequence;
 
 import io.temporal.activity.ActivityOptions;
+import io.temporal.common.RetryOptions;
 import io.temporal.failure.ActivityFailure;
 import io.temporal.samples.polling.PollingActivities;
 import io.temporal.workflow.Workflow;
@@ -34,7 +35,11 @@ public class PeriodicPollingChildWorkflowImpl implements PollingChildWorkflow {
     PollingActivities activities =
         Workflow.newActivityStub(
             PollingActivities.class,
-            ActivityOptions.newBuilder().setScheduleToCloseTimeout(Duration.ofSeconds(4)).build());
+            ActivityOptions.newBuilder()
+                .setStartToCloseTimeout(Duration.ofSeconds(4))
+                // disable retries for this activity
+                .setRetryOptions(RetryOptions.newBuilder().setMaximumAttempts(1).build())
+                .build());
 
     for (int i = 0; i < singleWorkflowPollAttempts; i++) {
       // Here we would invoke a sequence of activities
