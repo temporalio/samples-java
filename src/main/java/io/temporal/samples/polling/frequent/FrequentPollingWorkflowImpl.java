@@ -37,7 +37,7 @@ public class FrequentPollingWorkflowImpl implements PollingWorkflow {
     ActivityOptions options =
         ActivityOptions.newBuilder()
             // Set activity StartToClose timeout (single activity exec), does not include retries
-            .setStartToCloseTimeout(Duration.ofSeconds(10))
+            .setStartToCloseTimeout(Duration.ofSeconds(60))
             .setHeartbeatTimeout(Duration.ofSeconds(2))
             // For sample we just use the default retry policy (do not set explicitly)
             .build();
