@@ -59,10 +59,10 @@ Note that in this case you should use the [Temporal CLI (tctl)](https://docs.tem
 
 ## Temporal Web UI
 
-The Temporal Server running in a docker container includes a Web UI, exposed by default on port 8088 of the docker host.
+The Temporal Server running in a docker container includes a Web UI, exposed by default on port 8080 of the docker host.
 If you are running Docker on your host, you can connect to the WebUI running using a browser and opening the following URI:
 
-[http://localhost:8088](http://localhost:8088)
+[http://localhost:8080](http://localhost:8080)
 
 If you are running Docker on a different host (e.g.: a virtual machine), then modify the URI accordingly by specifying the correct host and the correct port.
 
