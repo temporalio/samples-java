@@ -53,7 +53,7 @@ dependencies {
     implementation "io.opentelemetry:opentelemetry-exporter-jaeger"
     implementation "io.opentelemetry:opentelemetry-extension-trace-propagators"
     implementation 'io.opentelemetry:opentelemetry-opentracing-shim:1.14.0-alpha'
-    implementation 'io.opentelemetry:opentelemetry-semconv:1.14.0-alpha'
+    implementation 'io.opentelemetry:opentelemetry-semconv:1.24.0-alpha-SNAPSHOT'
 
     // we don't update it to 2.1.0 because 2.1.0 requires Java 11
     implementation 'com.codingrodent:jackson-json-crypto:1.1.0'
