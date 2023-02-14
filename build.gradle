@@ -79,7 +79,7 @@ dependencies {
 }
 
 task execute(type: JavaExec) {
-    main = findProperty("mainClass") ?: ""
+    mainClass = findProperty("mainClass") ?: ""
     classpath = sourceSets.main.runtimeClasspath
 }
 
