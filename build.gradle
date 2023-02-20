@@ -27,7 +27,7 @@ ext {
 dependencies {
     implementation(platform("com.fasterxml.jackson:jackson-bom:2.14.1"))
     implementation(platform("io.opentelemetry:opentelemetry-bom:1.22.0"))
-    implementation(platform("org.junit:junit-bom:5.9.1"))
+    implementation(platform("org.junit:junit-bom:5.9.2"))
 
     implementation "io.temporal:temporal-sdk:$javaSDKVersion"
     implementation "io.temporal:temporal-opentracing:$javaSDKVersion"
