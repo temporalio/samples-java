@@ -25,7 +25,7 @@ ext {
 }
 
 dependencies {
-    implementation(platform("com.fasterxml.jackson:jackson-bom:2.14.1"))
+    implementation(platform("com.fasterxml.jackson:jackson-bom:2.14.2"))
     implementation(platform("io.opentelemetry:opentelemetry-bom:1.22.0"))
     implementation(platform("org.junit:junit-bom:5.9.1"))
 
