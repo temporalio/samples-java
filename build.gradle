@@ -21,19 +21,36 @@ repositories {
 }
 
 ext {
+    otelVersion = '1.23.1'
+    otelVersionAlpha = "${otelVersion}-alpha"
     javaSDKVersion = '1.18.1'
 }
 
 dependencies {
-    implementation(platform("com.fasterxml.jackson:jackson-bom:2.14.2"))
-    implementation(platform("io.opentelemetry:opentelemetry-bom:1.23.1"))
-    implementation(platform("org.junit:junit-bom:5.9.2"))
-
+    // Temporal SDK
     implementation "io.temporal:temporal-sdk:$javaSDKVersion"
     implementation "io.temporal:temporal-opentracing:$javaSDKVersion"
+    testImplementation("io.temporal:temporal-testing:$javaSDKVersion")
 
+    // Needed for SDK related functionality
+    implementation(platform("com.fasterxml.jackson:jackson-bom:2.14.2"))
     implementation "com.fasterxml.jackson.core:jackson-databind"
+    implementation "com.fasterxml.jackson.core:jackson-core"
+
+    implementation "io.micrometer:micrometer-registry-prometheus"
+
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.11'
+    implementation group: 'com.jayway.jsonpath', name: 'json-path', version: '2.7.0'
+
+    implementation(platform("io.opentelemetry:opentelemetry-bom:$otelVersion"))
+    implementation "io.opentelemetry:opentelemetry-sdk"
+    implementation "io.opentelemetry:opentelemetry-exporter-jaeger"
+    implementation "io.opentelemetry:opentelemetry-extension-trace-propagators"
+    implementation "io.opentelemetry:opentelemetry-opentracing-shim:$otelVersionAlpha"
+    implementation "io.opentelemetry:opentelemetry-semconv:$otelVersionAlpha"
+    implementation 'io.jaegertracing:jaeger-client:1.8.1'
+
+    // Used in samples
     implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
     implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '2.4.1'
     implementation group: 'io.cloudevents', name: 'cloudevents-api', version: '2.4.1'
@@ -42,28 +59,15 @@ dependencies {
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-validation', version: '4.0.3.Final'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-spi', version: '4.0.3.Final'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-util', version: '4.0.3.Final'
-    implementation group: 'com.jayway.jsonpath', name: 'json-path', version: '2.7.0'
-    implementation "io.micrometer:micrometer-registry-prometheus"
     implementation group: 'net.thisptr', name: 'jackson-jq', version: '1.0.0-preview.20220705'
-    implementation "com.fasterxml.jackson.core:jackson-core"
-    implementation 'io.jaegertracing:jaeger-client:1.8.1'
-
-
-    implementation "io.opentelemetry:opentelemetry-sdk"
-    implementation "io.opentelemetry:opentelemetry-exporter-jaeger"
-    implementation "io.opentelemetry:opentelemetry-extension-trace-propagators"
-    implementation 'io.opentelemetry:opentelemetry-opentracing-shim:1.14.0-alpha'
-    implementation 'io.opentelemetry:opentelemetry-semconv:1.14.0-alpha'
 
     // we don't update it to 2.1.0 because 2.1.0 requires Java 11
     implementation 'com.codingrodent:jackson-json-crypto:1.1.0'
 
-    testImplementation("io.temporal:temporal-testing:$javaSDKVersion")
-
     testImplementation "junit:junit:4.13.2"
     testImplementation "org.mockito:mockito-core:5.1.1"
-    testImplementation group: 'org.powermock', name: 'powermock-api-mockito2', version: '2.0.9'
 
+    testImplementation(platform("org.junit:junit-bom:5.9.2"))
     testImplementation "org.junit.jupiter:junit-jupiter-api"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
     testRuntimeOnly "org.junit.vintage:junit-vintage-engine"

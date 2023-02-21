@@ -22,8 +22,8 @@ package io.temporal.samples.hello;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import io.temporal.api.enums.v1.TimeoutType;
 import io.temporal.client.WorkflowException;
