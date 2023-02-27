@@ -23,7 +23,7 @@ repositories {
 ext {
     otelVersion = '1.23.1'
     otelVersionAlpha = "${otelVersion}-alpha"
-    javaSDKVersion = '1.18.1'
+    javaSDKVersion = '1.18.2'
 }
 
 dependencies {
