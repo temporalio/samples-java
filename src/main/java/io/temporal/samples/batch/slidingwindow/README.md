@@ -15,7 +15,7 @@ The sample has two executables. Execute each command in a separate terminal wind
 The first command runs the Worker that hosts the Workflow and Activity Executions.
 
 ```bash
-./gradlew -q execute -PmainClass=io.temporal.samples.batch.hslidingwindow.SlidingWindowBatchWorkflowWorker
+./gradlew -q execute -PmainClass=io.temporal.samples.batch.slidingwindow.SlidingWindowBatchWorker
 ```
 
 Note that `Caused by: io.grpc.StatusRuntimeException: INVALID_ARGUMENT: UnhandledCommand` info messages in the output
