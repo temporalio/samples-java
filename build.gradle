@@ -3,7 +3,7 @@
 plugins {
     id 'org.cadixdev.licenser' version '0.6.1'
     id "net.ltgt.errorprone" version "3.0.1"
-    id 'com.diffplug.spotless' version '6.15.0' apply false
+    id 'com.diffplug.spotless' version '6.17.0' apply false
 }
 
 apply plugin: 'java'
@@ -21,9 +21,9 @@ repositories {
 }
 
 ext {
-    otelVersion = '1.23.1'
+    otelVersion = '1.24.0'
     otelVersionAlpha = "${otelVersion}-alpha"
-    javaSDKVersion = '1.18.1'
+    javaSDKVersion = '1.19.0'
 }
 
 dependencies {
@@ -105,7 +105,7 @@ if (JavaVersion.current().isJava11Compatible()) {
         java {
             target 'src/*/java/**/*.java'
             targetExclude '**/.idea/**'
-            googleJavaFormat('1.15.0')
+            googleJavaFormat('1.16.0')
         }
     }
 
