@@ -156,10 +156,16 @@ public class HelloException {
         throw new IOException(greeting + " " + name + "!");
       } catch (IOException e) {
         /*
-         * Instead of adding the thrown exception to the activity method signature
-         * wrap it using Workflow.wrap before re-throwing it.
+         * Instead of adding the thrown exception to the activity method signature,
+         * it should be wrapped using Workflow.wrap before re-throwing it.
          * The original checked exception will be unwrapped and attached as the cause to the
          * {@link io.temporal.failure.ActivityFailure}
+         * <p>
+         * For why: putting checked exception in signature will not break anything. The thrown checked 
+         * exception will be wrapped automatically. 
+         * However, using checked exception will require activityStub to catch it in the workflow code.
+         * But workflow code will never get a checked exception because all the exceptions are 
+         * wrapped into ActivityFailure. 
          */
         throw Activity.wrap(e);
       }
