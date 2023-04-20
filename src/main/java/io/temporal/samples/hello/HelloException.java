@@ -161,10 +161,11 @@ public class HelloException {
          * The original checked exception will be unwrapped and attached as the cause to the
          * {@link io.temporal.failure.ActivityFailure}
          * <p>
-         * For why: putting checked exception in signature will not break anything. The thrown checked 
+         * For why: this is to make the workflow code cleaner --
+         * Putting checked exception in signature will not break anything. The thrown checked 
          * exception will be wrapped automatically. 
-         * However, using checked exception will require activityStub to catch it in the workflow code.
-         * But workflow code will never get a checked exception because all the exceptions are 
+         * However, the signature will require workflow code to catch the checked exception when using 
+         * activityStub. But workflow code will never get a checked exception because all the exceptions are 
          * wrapped into ActivityFailure. 
          */
         throw Activity.wrap(e);
