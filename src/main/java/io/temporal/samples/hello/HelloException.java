@@ -164,9 +164,10 @@ public class HelloException {
          * For why: this is to make the workflow code cleaner --
          * Putting checked exception in signature will not break anything. The thrown checked 
          * exception will be wrapped automatically. 
-         * However, the signature will require workflow code to catch the checked exception when using 
+         * However, in Java, sunch a signature will require workflow code to catch the checked exception when using 
          * activityStub. But workflow code will never get a checked exception because all the exceptions are 
          * wrapped into ActivityFailure. 
+         * This is not the case for Kotlin, so it is okay to throw a exception. 
          */
         throw Activity.wrap(e);
       }
