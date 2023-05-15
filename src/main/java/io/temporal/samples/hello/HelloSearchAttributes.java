@@ -207,7 +207,7 @@ public class HelloSearchAttributes {
       // Get the specific value of a keyword from the payload.
       // In this case it is the "CustomKeywordField" with the value of "keys"
       // You can update the code to extract other defined search attribute as well
-      String keyword = getKeywordFromSearchAttribute(searchAttributes);
+      String keyword = getKeywordFromSearchAttribute(searchAttributes, "CustomKeywordField");
       // Print the value of the "CustomKeywordField" field
       System.out.printf("In workflow we get CustomKeywordField is: %s\n", keyword);
     } catch (Exception e) {
@@ -242,8 +242,8 @@ public class HelloSearchAttributes {
   }
 
   // example for extracting a value from search attributes
-  private static String getKeywordFromSearchAttribute(SearchAttributes searchAttributes) {
-    Payload field = searchAttributes.getIndexedFieldsOrThrow("CustomKeywordField");
+  static String getKeywordFromSearchAttribute(SearchAttributes searchAttributes, String key) {
+    Payload field = searchAttributes.getIndexedFieldsOrThrow(key);
     DataConverter dataConverter = GlobalDataConverter.get();
     return dataConverter.fromPayload(field, String.class, String.class);
   }
