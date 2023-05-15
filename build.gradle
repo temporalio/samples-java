@@ -3,7 +3,7 @@
 plugins {
     id 'org.cadixdev.licenser' version '0.6.1'
     id "net.ltgt.errorprone" version "3.0.1"
-    id 'com.diffplug.spotless' version '6.15.0' apply false
+    id 'com.diffplug.spotless' version '6.17.0' apply false
 }
 
 apply plugin: 'java'
@@ -21,9 +21,9 @@ repositories {
 }
 
 ext {
-    otelVersion = '1.23.1'
+    otelVersion = '1.24.0'
     otelVersionAlpha = "${otelVersion}-alpha"
-    javaSDKVersion = '1.18.1'
+    javaSDKVersion = '1.19.0'
 }
 
 dependencies {
@@ -40,7 +40,7 @@ dependencies {
     implementation "io.micrometer:micrometer-registry-prometheus"
 
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.11'
-    implementation group: 'com.jayway.jsonpath', name: 'json-path', version: '2.7.0'
+    implementation group: 'com.jayway.jsonpath', name: 'json-path', version: '2.8.0'
 
     implementation(platform("io.opentelemetry:opentelemetry-bom:$otelVersion"))
     implementation "io.opentelemetry:opentelemetry-sdk"
@@ -52,7 +52,8 @@ dependencies {
 
     // Used in samples
     implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
-    implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '2.4.1'
+
+    implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '2.4.2'
     implementation group: 'io.cloudevents', name: 'cloudevents-api', version: '2.4.2'
     implementation group: 'io.cloudevents', name: 'cloudevents-json-jackson', version: '2.4.1'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-api', version: '4.0.3.Final'
@@ -105,7 +106,7 @@ if (JavaVersion.current().isJava11Compatible()) {
         java {
             target 'src/*/java/**/*.java'
             targetExclude '**/.idea/**'
-            googleJavaFormat('1.15.0')
+            googleJavaFormat('1.16.0')
         }
     }
 
