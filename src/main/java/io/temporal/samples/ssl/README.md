@@ -1,6 +1,6 @@
-# SslEnabledWorker
+# Ssl enabled WorkflowClient
 
-This sample shows how to start a worker with SSL enabled
+These samples demonstrate how to start a workflow client (worker) with SSL enabled.
 
 ## SslEnabledWorker
 
