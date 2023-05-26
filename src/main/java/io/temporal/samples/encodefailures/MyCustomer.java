@@ -19,8 +19,6 @@
 
 package io.temporal.samples.encodefailures;
 
-import com.codingrodent.jackson.crypto.Encrypt;
-
 public class MyCustomer {
   private String name;
   private int age;
@@ -33,7 +31,6 @@ public class MyCustomer {
     this.age = age;
   }
 
-  @Encrypt
   public String getName() {
     return name;
   }
@@ -42,7 +39,6 @@ public class MyCustomer {
     this.name = name;
   }
 
-  @Encrypt
   public int getAge() {
     return age;
   }
@@ -51,7 +47,6 @@ public class MyCustomer {
     this.age = age;
   }
 
-  @Encrypt
   public boolean isApproved() {
     return approved;
   }
