@@ -44,11 +44,11 @@ public class Starter {
     // sets encodeFailureAttributes to true
     CodecDataConverter codecDataConverter =
         new CodecDataConverter(
-            // for sampel we just use default data converter
+            // For sample we just use default data converter
             DefaultDataConverter.newDefaultInstance(),
-            // simple prefix codec to encode/decode
+            // Simple prefix codec to encode/decode
             Collections.singletonList(new SimplePrefixPayloadCodec()),
-            true); // setting encodeFailureAttributes to true
+            true); // Setting encodeFailureAttributes to true
 
     // WorkflowClient uses our CodecDataConverter
     WorkflowClient client =
@@ -71,6 +71,7 @@ public class Starter {
     try {
       // Start workflow execution to validate under-age customer
       workflow.validateCustomer(new MyCustomer("John", 17));
+      System.out.println("Workflow should have failed on customer validation");
     } catch (WorkflowFailedException e) {
       // Get failure message from last event in history (WorkflowExecutionFailed event) and check
       // that
