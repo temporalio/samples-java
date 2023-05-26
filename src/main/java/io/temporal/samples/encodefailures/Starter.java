@@ -44,7 +44,7 @@ public class Starter {
     // sets encodeFailureAttributes to true
     CodecDataConverter codecDataConverter =
         new CodecDataConverter(
-            // we can use our crypto data converter
+            // for sampel we just use default data converter
             DefaultDataConverter.newDefaultInstance(),
             // simple prefix codec to encode/decode
             Collections.singletonList(new SimplePrefixPayloadCodec()),
