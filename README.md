@@ -166,6 +166,8 @@ All tests are available under [src/test/java](./src/test/java/io/temporal/sample
 
 - [**Configure WorkflowClient to use mTLS**](./src/main/java/io/temporal/samples/ssl): Demonstrates how to configure WorkflowClient when using mTLS.
 
+- [**Payload Codec**](./src/main/java/io/temporal/samples/encodefailures): Demonstrates how to use simple codec to encode/decode failure messages.
+
 ### SDK Metrics
 
 - [**Set up SDK metrics**](./src/main/java/io/temporal/samples/metrics): Demonstrates how to set up and scrape SDK metrics.
