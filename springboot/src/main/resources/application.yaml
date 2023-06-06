@@ -7,6 +7,7 @@ spring:
     connection:
       target: 127.0.0.1:7233
       target.namespace: default
+# (Note following configuration are not set by default but serve more as reference)
 #    workers:
 #      - task-queue: DemoTaskQueue
 #        capacity:
