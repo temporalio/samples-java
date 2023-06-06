@@ -1,0 +1,16 @@
+server:
+  port: 3030
+spring:
+  application:
+    name: temporal-samples
+  temporal:
+    connection:
+      target: 127.0.0.1:7233
+      target.namespace: default
+    workersAutoDiscovery:
+      packages: io.temporal.samples.springboot
+    test-server:
+      enabled: true
+samples:
+  data:
+    language: english

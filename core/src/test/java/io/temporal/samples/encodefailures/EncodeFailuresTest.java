@@ -68,12 +68,11 @@ public class EncodeFailuresTest {
                     .setTaskQueue(testWorkflowRule.getTaskQueue())
                     .build());
 
-    WorkflowFailedException exception =
-        assertThrows(
-            WorkflowFailedException.class,
-            () -> {
-              workflow.validateCustomer(new MyCustomer("John", 20));
-            });
+    assertThrows(
+        WorkflowFailedException.class,
+        () -> {
+          workflow.validateCustomer(new MyCustomer("John", 20));
+        });
 
     HistoryEvent wfExecFailedEvent =
         testWorkflowRule.getWorkflowClient().fetchHistory("CustomerAgeCheck").getLastEvent();
