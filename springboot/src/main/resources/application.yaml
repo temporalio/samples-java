@@ -1,0 +1,26 @@
+server:
+  port: 3030
+spring:
+  application:
+    name: temporal-samples
+  temporal:
+    connection:
+      target: 127.0.0.1:7233
+      target.namespace: default
+# (Note following configuration are not set by default but serve more as reference)
+#    workers:
+#      - task-queue: DemoTaskQueue
+#        capacity:
+#          max-concurrent-workflow-task-pollers: 6
+#          max-concurrent-activity-task-pollers: 6
+#        rate-limits:
+#          max-worker-activities-per-second: 3
+#          max-task-queue-activities-per-second: 3
+#    workflow-cache:
+#      max-instances: 10
+#      max-threads: 10
+    workersAutoDiscovery:
+      packages: io.temporal.samples.springboot
+samples:
+  data:
+    language: english

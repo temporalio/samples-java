@@ -6,7 +6,11 @@ target
 .idea
 .gradle
 /build
+/core/build
+/springboot/build
 /out
+/core/out
+/springboot/out
 .classpath
 .project
 .settings/

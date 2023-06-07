@@ -1,113 +1,61 @@
-// Run 'gradle checkUpdates' to find out which dependencies have newer versions
-
 plugins {
     id 'org.cadixdev.licenser' version '0.6.1'
     id "net.ltgt.errorprone" version "3.1.0"
     id 'com.diffplug.spotless' version '6.17.0' apply false
+    id 'org.springframework.boot' version '2.7.12'
 }
 
-apply plugin: 'java'
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-}
-
-repositories {
-    maven {
-        url "https://oss.sonatype.org/content/repositories/snapshots/"
-    }
-    mavenCentral()
-}
-
-ext {
-    otelVersion = '1.26.0'
-    otelVersionAlpha = "${otelVersion}-alpha"
-    javaSDKVersion = '1.19.1'
-}
-
-dependencies {
-    // Temporal SDK
-    implementation "io.temporal:temporal-sdk:$javaSDKVersion"
-    implementation "io.temporal:temporal-opentracing:$javaSDKVersion"
-    testImplementation("io.temporal:temporal-testing:$javaSDKVersion")
-
-    // Needed for SDK related functionality
-    implementation(platform("com.fasterxml.jackson:jackson-bom:2.14.2"))
-    implementation "com.fasterxml.jackson.core:jackson-databind"
-    implementation "com.fasterxml.jackson.core:jackson-core"
-
-    implementation "io.micrometer:micrometer-registry-prometheus"
-
-    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.4.7'
-    implementation group: 'com.jayway.jsonpath', name: 'json-path', version: '2.8.0'
-
-    implementation(platform("io.opentelemetry:opentelemetry-bom:$otelVersion"))
-    implementation "io.opentelemetry:opentelemetry-sdk"
-    implementation "io.opentelemetry:opentelemetry-exporter-jaeger"
-    implementation "io.opentelemetry:opentelemetry-extension-trace-propagators"
-    implementation "io.opentelemetry:opentelemetry-opentracing-shim:$otelVersionAlpha"
-    implementation "io.opentelemetry:opentelemetry-semconv:$otelVersionAlpha"
-    implementation 'io.jaegertracing:jaeger-client:1.8.1'
-
-    // Used in samples
-    implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
-    implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '2.5.0'
-    implementation group: 'io.cloudevents', name: 'cloudevents-api', version: '2.4.2'
-    implementation group: 'io.cloudevents', name: 'cloudevents-json-jackson', version: '2.4.2'
-    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-api', version: '4.0.3.Final'
-    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-validation', version: '4.0.3.Final'
-    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-spi', version: '4.0.3.Final'
-    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-util', version: '4.0.3.Final'
-    implementation group: 'net.thisptr', name: 'jackson-jq', version: '1.0.0-preview.20220705'
-
-    // we don't update it to 2.1.0 because 2.1.0 requires Java 11
-    implementation 'com.codingrodent:jackson-json-crypto:1.1.0'
-
-    testImplementation "junit:junit:4.13.2"
-    testImplementation "org.mockito:mockito-core:5.3.1"
-
-    testImplementation(platform("org.junit:junit-bom:5.9.3"))
-    testImplementation "org.junit.jupiter:junit-jupiter-api"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
-    testRuntimeOnly "org.junit.vintage:junit-vintage-engine"
-
-    dependencies {
-        errorproneJavac('com.google.errorprone:javac:9+181-r4173-1')
-        if (JavaVersion.current().isJava11Compatible()) {
-            errorprone('com.google.errorprone:error_prone_core:2.18.0')
-        } else {
-            errorprone('com.google.errorprone:error_prone_core:2.18.0')
-        }
-    }
-}
-
-task execute(type: JavaExec) {
-    mainClass = findProperty("mainClass") ?: ""
-    classpath = sourceSets.main.runtimeClasspath
-}
-
-test {
-    useJUnitPlatform()
-}
-
-license {
-    header rootProject.file('license-header.txt')
-    exclude '**/*.json'
-    exclude '**/*.yml'
-}
-
-if (JavaVersion.current().isJava11Compatible()) {
-    // Code should be formatted using the latest googleJavaFormat, but it doesn't support Java <11 since version 1.8
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'org.cadixdev.licenser'
+    apply plugin: 'net.ltgt.errorprone'
     apply plugin: 'com.diffplug.spotless'
 
-    spotless {
-        java {
-            target 'src/*/java/**/*.java'
-            targetExclude '**/.idea/**'
-            googleJavaFormat('1.16.0')
-        }
+    java {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    ext {
+        otelVersion = '1.26.0'
+        otelVersionAlpha = "${otelVersion}-alpha"
+        javaSDKVersion = '1.19.1'
+        jarVersion = '1.0.0'
     }
 
-    compileJava.dependsOn 'spotlessApply'
+    repositories {
+        maven {
+            url "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+        mavenCentral()
+    }
+
+    dependencies {
+
+    }
+
+    license {
+        header rootProject.file('license-header.txt')
+        exclude '**/*.json'
+        exclude '**/*.yaml'
+        exclude '**/*.yml'
+    }
+
+    if (JavaVersion.current().isJava11Compatible()) {
+        // Code should be formatted using the latest googleJavaFormat, but it doesn't support Java <11 since version 1.8
+        apply plugin: 'com.diffplug.spotless'
+
+        spotless {
+            java {
+                target 'src/*/java/**/*.java'
+                targetExclude '**/.idea/**'
+                googleJavaFormat('1.16.0')
+            }
+        }
+
+        compileJava.dependsOn 'spotlessApply'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
 }
