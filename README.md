@@ -7,11 +7,18 @@ It contains two modules:
 * [Core](/core): showcases many different SDK features.
 * [SpringBoot](/springboot): showcases springboot autoconfig integration.
 
+## Learn more about Temporal and Java SDK
+
+- [Temporal Server repo](https://github.com/temporalio/temporal)
+- [Java SDK repo](https://github.com/temporalio/sdk-java)
+- [Java SDK Guide](https://docs.temporal.io/dev-guide/java)
+
 ## Requirements
 
 - Java 1.8+ for build and runtime
 - Java 11+ for development and contribution
-- Local Temporal Server, easiest to get started would be using [Temporal CLI](https://github.com/temporalio/cli)
+- Local Temporal Server, easiest to get started would be using [Temporal CLI](https://github.com/temporalio/cli).
+For more options see docs [here](https://docs.temporal.io/kb/all-the-ways-to-run-a-cluster).
 
 
 ## Build and run tests
