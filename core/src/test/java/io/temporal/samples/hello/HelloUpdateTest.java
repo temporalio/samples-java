@@ -20,6 +20,7 @@
 package io.temporal.samples.hello;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 import io.temporal.api.enums.v1.WorkflowIdReusePolicy;
 import io.temporal.client.WorkflowClient;
@@ -38,10 +39,18 @@ public class HelloUpdateTest {
   public TestWorkflowRule testWorkflowRule =
       TestWorkflowRule.newBuilder()
           .setWorkflowTypes(HelloUpdate.GreetingWorkflowImpl.class)
+          .setDoNotStart(true)
           .build();
 
   @Test
   public void testUpdate() {
+    // Setup mocks
+    HelloActivity.GreetingActivities activities =
+        mock(HelloActivity.GreetingActivities.class, withSettings().withoutAnnotations());
+    when(activities.composeGreeting("Hello", "World")).thenReturn("Hello World!");
+    when(activities.composeGreeting("Hello", "Universe")).thenReturn("Hello Universe!");
+    testWorkflowRule.getWorker().registerActivitiesImplementations(activities);
+    testWorkflowRule.getTestEnvironment().start();
     // Get a workflow stub using the same task queue the worker uses.
     WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder()
@@ -73,7 +82,7 @@ public class HelloUpdateTest {
     // WorkflowExecutionAlreadyStartedException.
     List<String> greetings = workflow.getGreetings();
     assertEquals(2, greetings.size());
-    assertEquals("Hello World", greetings.get(0));
-    assertEquals("Hello Universe", greetings.get(1));
+    assertEquals("Hello World!", greetings.get(0));
+    assertEquals("Hello Universe!", greetings.get(1));
   }
 }
