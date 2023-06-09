@@ -71,8 +71,8 @@ public class HelloUpdateTest {
     // But just to demonstrate the unit testing of a long running workflow adding a long sleep here.
     testWorkflowRule.getTestEnvironment().sleep(Duration.ofDays(1));
     // This workflow keeps receiving updates until exit is called
-    assertEquals(Integer.valueOf(1), workflow.waitForName("World"));
-    assertEquals(Integer.valueOf(2), workflow.waitForName("Universe"));
+    assertEquals(1, workflow.addGreeting("World"));
+    assertEquals(2, workflow.addGreeting("Universe"));
     workflow.exit();
     // Calling synchronous getGreeting after workflow has started reconnects to the existing
     // workflow and

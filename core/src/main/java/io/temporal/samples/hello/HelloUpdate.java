@@ -43,7 +43,7 @@ import java.util.List;
  * Sample Temporal workflow that demonstrates how to use workflow update methods to update a
  * workflow execution from external sources.
  *
- * <p>Note: Make sure to set {@code frontend.enableUpdateWorkflowExecution=true} in you Temporal
+ * <p>Note: Make sure to set {@code frontend.enableUpdateWorkflowExecution=true} in your Temporal
  * config to enabled update.
  */
 public class HelloUpdate {
@@ -74,19 +74,19 @@ public class HelloUpdate {
     List<String> getGreetings();
 
     /*
-     * Define the workflow waitForName update method. This method is executed when the workflow
+     * Define the workflow addGreeting update method. This method is executed when the workflow
      * receives an update request.
      */
-    @UpdateMethod()
-    Integer waitForName(String name);
+    @UpdateMethod
+    int addGreeting(String name);
 
     /*
      * Define an optional workflow update validator. The validator must take the same parameters as the update handle.
      * The validator is run before the update handle.
      * If the validator fails by throwing any exception the update request will be rejected and the handle will not run.
      */
-    @UpdateValidatorMethod(updateName = "waitForName")
-    void waitForNameValidator(String name);
+    @UpdateValidatorMethod(updateName = "addGreeting")
+    void addGreetingValidator(String name);
 
     // Define the workflow exit signal method. This method is executed when the workflow receives a
     // signal.
@@ -98,9 +98,9 @@ public class HelloUpdate {
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
     // messageQueue holds up to 10 messages (received from updates)
-    List<String> messageQueue = new ArrayList<>(10);
-    List<String> receivedMessages = new ArrayList<>(10);
-    boolean exit = false;
+    private final List<String> messageQueue = new ArrayList<>(10);
+    private final List<String> receivedMessages = new ArrayList<>(10);
+    private boolean exit = false;
 
     private final HelloActivity.GreetingActivities activities =
         Workflow.newActivityStub(
@@ -123,9 +123,15 @@ public class HelloUpdate {
     }
 
     @Override
-    public Integer waitForName(String name) {
+    public int addGreeting(String name) {
       if (name.isEmpty()) {
-        // Updates can fail by throwing a TemporalFailure
+        /*
+         * Updates can fail by throwing a TemporalFailure. All other exceptions cause the workflow
+         * task to fail and potentially retried.
+         *
+         * Note: A check like this could (and should) belong in the validator, this is just to demonstrate failing an
+         * update.
+         */
         throw ApplicationFailure.newFailure("Cannot greet someone with an empty name", "Failure");
       }
       // Updates can mutate workflow state like variables or call activities
@@ -135,17 +141,17 @@ public class HelloUpdate {
     }
 
     @Override
-    public void waitForNameValidator(String name) {
+    public void addGreetingValidator(String name) {
       /*
        * Update validators have the same restrictions as Queries. So workflow state cannot be
        * mutated inside a query.
        */
       if (receivedMessages.size() >= 10) {
         /*
-         * Throwing an exception inside an update validator will cause the update to be rejected.
+         * Throwing any exception inside an update validator will cause the update to be rejected.
          * Note: rejected update will not appear in the workflow history
          */
-        throw new IllegalStateException("Only 10 greetings may be added to the queue");
+        throw new IllegalStateException("Only 10 greetings may be added");
       }
     }
 
@@ -216,7 +222,7 @@ public class HelloUpdate {
     // When the workflow is started the getGreetings will block for the previously defined
     // conditions
     // Send the first workflow update
-    workflow.waitForName("World");
+    workflow.addGreeting("World");
 
     /*
      * Here we create a new workflow stub using the same workflow id.
@@ -226,18 +232,18 @@ public class HelloUpdate {
     GreetingWorkflow workflowById = client.newWorkflowStub(GreetingWorkflow.class, WORKFLOW_ID);
 
     // Send the second update to our workflow
-    workflowById.waitForName("Universe");
+    workflowById.addGreeting("Universe");
 
     /*
      * Create an untyped workflow stub to demonstrate sending an update
      * with the untyped stub.
      */
     WorkflowStub greetingStub = client.newUntypedWorkflowStub(WORKFLOW_ID);
-    greetingStub.update("waitForName", Integer.class, "Temporal");
+    greetingStub.update("addGreeting", int.class, "Temporal");
 
     try {
       // The update request will fail on a empty name and the exception will be thrown here.
-      workflowById.waitForName("");
+      workflowById.addGreeting("");
       System.exit(-1);
     } catch (WorkflowUpdateException e) {
       Throwable cause = Throwables.getRootCause(e);
@@ -248,14 +254,14 @@ public class HelloUpdate {
       System.out.println("\n Update failed, root cause: " + cause.getMessage());
     }
     // Send our update validators limit of 10 updates
-    Integer sentUpdates = workflowById.waitForName("Update");
+    int sentUpdates = workflowById.addGreeting("Update");
     while (sentUpdates < 10) {
-      sentUpdates = workflowById.waitForName("Again");
+      sentUpdates = workflowById.addGreeting("Again");
     }
 
     // The update request will be rejected because our validator will fail
     try {
-      workflowById.waitForName("Will be rejected");
+      workflowById.addGreeting("Will be rejected");
       System.exit(-1);
     } catch (WorkflowUpdateException e) {
       Throwable cause = Throwables.getRootCause(e);
