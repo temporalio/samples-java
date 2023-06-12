@@ -41,7 +41,10 @@ import java.util.List;
 
 /**
  * Sample Temporal workflow that demonstrates how to use workflow update methods to update a
- * workflow execution from external sources.
+ * workflow execution from external sources. Workflow update is another way to interact with a
+ * running workflow along with signals and queries. Workflow update combines aspects of signals and
+ * queries. Like signals, workflow update can mutate workflow state. Like queries, workflow update
+ * can return a value.
  *
  * <p>Note: Make sure to set {@code frontend.enableUpdateWorkflowExecution=true} in your Temporal
  * config to enabled update.
@@ -84,6 +87,7 @@ public class HelloUpdate {
      * Define an optional workflow update validator. The validator must take the same parameters as the update handle.
      * The validator is run before the update handle.
      * If the validator fails by throwing any exception the update request will be rejected and the handle will not run.
+     * If the validator passes the update will be considered accepted and the handler will run.
      */
     @UpdateValidatorMethod(updateName = "addGreeting")
     void addGreetingValidator(String name);
@@ -114,7 +118,12 @@ public class HelloUpdate {
         // Block current thread until the unblocking condition is evaluated to true
         Workflow.await(() -> !messageQueue.isEmpty() || exit);
         if (messageQueue.isEmpty() && exit) {
-          // no messages in queue and exit signal was sent, return the received messages
+          /*
+           * no messages in queue and exit signal was sent, return the received messages.
+           *
+           * Note: A accepted update will not stop workflow completion. If a workflow tries to complete after an update
+           * has been sent by a client, but before it has been accepted by the workflow, the workflow will not complete.
+           */
           return receivedMessages;
         }
         String message = messageQueue.remove(0);
@@ -144,7 +153,7 @@ public class HelloUpdate {
     public void addGreetingValidator(String name) {
       /*
        * Update validators have the same restrictions as Queries. So workflow state cannot be
-       * mutated inside a query.
+       * mutated inside a validator.
        */
       if (receivedMessages.size() >= 10) {
         /*
