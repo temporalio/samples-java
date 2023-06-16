@@ -63,10 +63,13 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
     - [**HelloLocalActivity**](/core/src/main/java/io/temporal/samples/hello/HelloLocalActivity.java): Demonstrates the use of a [Local Activity](https://docs.temporal.io/docs/jargon/mesh/#local-activity).
     - [**HelloPolymorphicActivity**](/core/src/main/java/io/temporal/samples/hello/HelloPolymorphicActivity.java): Demonstrates Activity Definitions that extend a common interface.
     - [**HelloQuery**](/core/src/main/java/io/temporal/samples/hello/HelloQuery.java): Demonstrates how to Query the state of a Workflow Execution.
+    - [**HelloSchedules**](/core/src/main/java/io/temporal/samples/hello/HelloSchedules.java): Demonstrates how to create and interact with a Schedule.
     - [**HelloSignal**](/core/src/main/java/io/temporal/samples/hello/HelloSignal.java): Demonstrates how to send and handle a Signal.
     - [**HelloSaga**](/core/src/main/java/io/temporal/samples/hello/HelloSaga.java): Demonstrates how to use the SAGA feature.
     - [**HelloSearchAttributes**](/core/src/main/java/io/temporal/samples/hello/HelloSearchAttributes.java): Demonstrates how to add custom Search Attributes to Workflow Executions.
     - [**HelloSideEffect**](/core/src/main/java/io/temporal/samples/hello/HelloSideEffect.java)**: Demonstrates how to implement a Side Effect.
+    - [**HelloUpdate**](/core/src/main/java/io/temporal/samples/hello/HelloUpdate.java): Demonstrates how to create and interact with an Update.
+
 
 #### Scenario-based samples
 
