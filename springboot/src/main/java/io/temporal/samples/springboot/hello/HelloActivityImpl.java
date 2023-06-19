@@ -19,6 +19,7 @@
 
 package io.temporal.samples.springboot.hello;
 
+import io.temporal.samples.springboot.hello.model.Person;
 import io.temporal.spring.boot.ActivityImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -30,8 +31,8 @@ public class HelloActivityImpl implements HelloActivity {
   private String language;
 
   @Override
-  public String hello(String name) {
+  public String hello(Person person) {
     String greeting = language.equals("spanish") ? "Hola " : "Hello ";
-    return greeting + name + "!";
+    return greeting + person.getFirstName() + " " + person.getLastName() + "!";
   }
 }

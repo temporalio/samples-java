@@ -38,6 +38,7 @@ subprojects {
         exclude '**/*.json'
         exclude '**/*.yaml'
         exclude '**/*.yml'
+        exclude '**/*.html'
     }
 
     if (JavaVersion.current().isJava11Compatible()) {
