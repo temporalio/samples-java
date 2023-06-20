@@ -58,4 +58,10 @@ public class SamplesController {
     // bypass thymeleaf, don't return template name just result
     return new ResponseEntity("\"" + workflow.sayHello(person) + "\"", HttpStatus.OK);
   }
+
+  @GetMapping("/metrics")
+  public String metrics(Model model) {
+    model.addAttribute("sample", "SDK Metrics");
+    return "metrics";
+  }
 }
