@@ -140,4 +140,5 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 
 More info on each sample:
 - [**Hello**](/springboot/src/main/java/io/temporal/samples/springboot/hello): Invoke simple "Hello" workflow from a GET endpoint
+- [**SDK Metrics**](/springboot/src/main/java/io/temporal/samples/springboot/metrics): Learn how to set up SDK Metrics
     
