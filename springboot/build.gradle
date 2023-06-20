@@ -2,15 +2,16 @@ apply plugin: 'org.springframework.boot'
 
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
     implementation "org.springframework.boot:spring-boot-starter-actuator"
     implementation "io.temporal:temporal-spring-boot-starter-alpha:$javaSDKVersion"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     dependencies {
         errorproneJavac('com.google.errorprone:javac:9+181-r4173-1')
         if (JavaVersion.current().isJava11Compatible()) {
-            errorprone('com.google.errorprone:error_prone_core:2.18.0')
+            errorprone('com.google.errorprone:error_prone_core:2.20.0')
         } else {
-            errorprone('com.google.errorprone:error_prone_core:2.18.0')
+            errorprone('com.google.errorprone:error_prone_core:2.20.0')
         }
     }
 }

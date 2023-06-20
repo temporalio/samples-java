@@ -129,7 +129,15 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 <!-- @@@SNIPEND -->
 
 ### Running SpringBoot Samples
-See the README.md file in each main sample directory for cut/paste Gradle command to run specific example.
 
+1. Start SpringBoot from main repo dir:
+
+       ./gradlew bootRun
+
+2. Navigate to [localhost:3030](http://localhost:3030)
+
+3. Select which sample you want to run
+
+More info on each sample:
 - [**Hello**](/springboot/src/main/java/io/temporal/samples/springboot/hello): Invoke simple "Hello" workflow from a GET endpoint
     

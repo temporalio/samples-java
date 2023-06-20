@@ -17,24 +17,33 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.springboot.hello;
+package io.temporal.samples.springboot.hello.model;
 
-import io.temporal.activity.ActivityOptions;
-import io.temporal.samples.springboot.hello.model.Person;
-import io.temporal.spring.boot.WorkflowImpl;
-import io.temporal.workflow.Workflow;
-import java.time.Duration;
+public class Person {
+  private String firstName;
+  private String lastName;
 
-@WorkflowImpl(taskQueues = "HelloSampleTaskQueue")
-public class HelloWorkflowImpl implements HelloWorkflow {
+  public Person() {}
+  ;
 
-  private HelloActivity activity =
-      Workflow.newActivityStub(
-          HelloActivity.class,
-          ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(2)).build());
+  public Person(String firstName, String lastName) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+  }
 
-  @Override
-  public String sayHello(Person person) {
-    return activity.hello(person);
+  public String getFirstName() {
+    return firstName;
+  }
+
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
+
+  public String getLastName() {
+    return lastName;
+  }
+
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
   }
 }

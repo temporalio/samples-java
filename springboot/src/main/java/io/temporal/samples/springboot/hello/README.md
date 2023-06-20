@@ -6,10 +6,11 @@
 
 2. In your browser navigate to:
  
-       http://localhost:3030/hello/Temporal%20User
+       http://localhost:3030/hello
 
-You should see "Hello Temporal User!" show on the page which is the result of our 
-Hello workflow execution.
+Enter in first and last name in the form then click on Run Workflow
+to start workflow execution. Page will be updated to show the workflow
+execution results (the greeting).
 
 You can try changing the language setting in [application.yaml](../../../../../../resources/application.yaml) file
 from "english" to "spanish" to get the greeting result in Spanish.

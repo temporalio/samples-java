@@ -5,7 +5,7 @@ dependencies {
     testImplementation("io.temporal:temporal-testing:$javaSDKVersion")
 
     // Needed for SDK related functionality
-    implementation(platform("com.fasterxml.jackson:jackson-bom:2.14.2"))
+    implementation(platform("com.fasterxml.jackson:jackson-bom:2.15.2"))
     implementation "com.fasterxml.jackson.core:jackson-databind"
     implementation "com.fasterxml.jackson.core:jackson-core"
 
@@ -25,13 +25,13 @@ dependencies {
     // Used in samples
     implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
     implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '2.5.0'
-    implementation group: 'io.cloudevents', name: 'cloudevents-api', version: '2.4.2'
-    implementation group: 'io.cloudevents', name: 'cloudevents-json-jackson', version: '2.4.2'
+    implementation group: 'io.cloudevents', name: 'cloudevents-api', version: '2.5.0'
+    implementation group: 'io.cloudevents', name: 'cloudevents-json-jackson', version: '2.5.0'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-api', version: '4.0.3.Final'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-validation', version: '4.0.3.Final'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-spi', version: '4.0.3.Final'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-util', version: '4.0.3.Final'
-    implementation group: 'net.thisptr', name: 'jackson-jq', version: '1.0.0-preview.20220705'
+    implementation group: 'net.thisptr', name: 'jackson-jq', version: '1.0.0-preview.20230409'
 
     // we don't update it to 2.1.0 because 2.1.0 requires Java 11
     implementation 'com.codingrodent:jackson-json-crypto:1.1.0'
@@ -47,9 +47,9 @@ dependencies {
     dependencies {
         errorproneJavac('com.google.errorprone:javac:9+181-r4173-1')
         if (JavaVersion.current().isJava11Compatible()) {
-            errorprone('com.google.errorprone:error_prone_core:2.18.0')
+            errorprone('com.google.errorprone:error_prone_core:2.20.0')
         } else {
-            errorprone('com.google.errorprone:error_prone_core:2.18.0')
+            errorprone('com.google.errorprone:error_prone_core:2.20.0')
         }
     }
 }
