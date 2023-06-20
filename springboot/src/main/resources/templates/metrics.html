@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/themes/prism.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@1,400;1,700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/9000.0.1/prism.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title" th:text="'Temporal Java SDK Samples: ' + ${sample}">Temporal Java SDK Samples</h4>
+            <h6>In this sample we show how to set up and consume SDK metrics.</h6>
+            <br/><br/><br/>
+            <div>
+                <h6>Configuring SDK metrics is super easy using <a href="https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html" target="_blank">Spring Actuator</a></h6><br/>
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">1. Add spring-boot-starter-actuator to project dependencies</h5>
+                        </div>
+                        <p class="mb-1">
+                        <pre><code>Gradle:
+                        <br/> implementation "org.springframework.boot:spring-boot-starter-actuator"
+                         </code></pre>
+                        <pre><code>Maven:
+                        <br/> &lt;dependency&gt;
+   &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+   &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+ &lt;/dependency&gt;
+                         </code></pre>
+                        </p>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">2. Add micrometer-registry-prometheus as runtime dependency</h5>
+                        </div>
+                        <p class="mb-1">
+                        <pre><code>Gradle:
+                        <br/> runtimeOnly "io.micrometer:micrometer-registry-prometheus"
+                         </code></pre>
+                        <pre><code>Maven:
+                        <br/> &lt;dependency&gt;
+   &lt;groupId>io.micrometer&lt;/groupId&gt;
+   &lt;artifactId>micrometer-registry-prometheus&lt;/artifactId&gt;
+   &lt;scope>runtime&lt;/scope&gt;
+ &lt;/dependency>
+                         </code></pre>
+                        </p>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">3. Configure Actuator in application properties/yaml</h5>
+                        </div>
+                        <p class="mb-1">
+                        <pre><code>management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+                         </code></pre>
+                         <small class="text-muted">Alternatively, you can define a custom io.micrometer.core.instrument.MeterRegistry bean in the application context.</small>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">4. View metrics (Prometheus format)</h5>
+                        </div>
+                        <p>Actuator will expose SDK metrics automatically.<br/>
+                            You can access raw metrics at "localhost:3030/actuator/prometheus".<br/>
+                            This is already set up for the samples project.
+                        </p>
+                        <small class="text-muted">You can set up Prometheus config to scrape SDK metrics from this endpoint.</small>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
