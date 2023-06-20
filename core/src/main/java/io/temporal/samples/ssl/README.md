@@ -48,7 +48,7 @@ export TEMPORAL_SERVER_HOSTNAME="tls-sample" # Temporal server host name
 3.Start the Worker
 
 ```bash
-gradle -q execute -PmainClass=io.temporal.samples.ssl.SslEnabledWorkerCustomCA
+./gradlew -q execute -PmainClass="io.temporal.samples.ssl.SslEnabledWorkerCustomCA"
 ```
 
 4.Expected result
