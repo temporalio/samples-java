@@ -17,32 +17,16 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.springboot.hello.model;
+package io.temporal.samples.springboot.update;
 
-public class Person {
-  private String firstName;
-  private String lastName;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-  public Person() {}
+@ResponseStatus(value = HttpStatus.NOT_FOUND)
+public class ResourceNotFoundException extends Exception {
+  private static final long serialVersionUID = 1L;
 
-  public Person(String firstName, String lastName) {
-    this.firstName = firstName;
-    this.lastName = lastName;
-  }
-
-  public String getFirstName() {
-    return firstName;
-  }
-
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
-  }
-
-  public String getLastName() {
-    return lastName;
-  }
-
-  public void setLastName(String lastName) {
-    this.lastName = lastName;
+  public ResourceNotFoundException(String message) {
+    super(message);
   }
 }

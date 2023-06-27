@@ -17,32 +17,32 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.springboot.hello.model;
+package io.temporal.samples.springboot.update.model;
 
-public class Person {
-  private String firstName;
-  private String lastName;
+public class Purchase {
+  int product;
+  int amount;
 
-  public Person() {}
+  public Purchase() {}
 
-  public Person(String firstName, String lastName) {
-    this.firstName = firstName;
-    this.lastName = lastName;
+  public Purchase(int product, int amount) {
+    this.product = product;
+    this.amount = amount;
   }
 
-  public String getFirstName() {
-    return firstName;
+  public int getProduct() {
+    return product;
   }
 
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
+  public void setProduct(int product) {
+    this.product = product;
   }
 
-  public String getLastName() {
-    return lastName;
+  public int getAmount() {
+    return amount;
   }
 
-  public void setLastName(String lastName) {
-    this.lastName = lastName;
+  public void setAmount(int amount) {
+    this.amount = amount;
   }
 }
