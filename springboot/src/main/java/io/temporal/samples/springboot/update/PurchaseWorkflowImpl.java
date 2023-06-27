@@ -20,6 +20,7 @@
 package io.temporal.samples.springboot.update;
 
 import io.temporal.activity.LocalActivityOptions;
+import io.temporal.failure.ApplicationFailure;
 import io.temporal.samples.springboot.update.model.Purchase;
 import io.temporal.spring.boot.WorkflowImpl;
 import io.temporal.workflow.Workflow;
@@ -43,17 +44,35 @@ public class PurchaseWorkflowImpl implements PurchaseWorkflow {
 
   @Override
   public boolean makePurchase(Purchase purchase) {
+
+    if (!activities.isProductInStockForPurchase(purchase)) {
+
+      throw ApplicationFailure.newFailure(
+          "Product "
+              + purchase.getProduct()
+              + " is not in stock for amount "
+              + purchase.getAmount(),
+          ProductNotAvailableForAmountException.class.getName(),
+          purchase);
+    }
+
     return activities.makePurchase(purchase);
   }
 
   @Override
   public void makePurchaseValidator(Purchase purchase) {
-    if (!activities.isProductInStockForPurchase(purchase)) {
+    // Not allowed to change workflow state inside validator
+    // So invocations of (local) activities is prohibited
+    // We can validate the purchase with some business logic here
+
+    // Assume we have some max inventory amount for single item set to 100
+    if (purchase == null || (purchase.getAmount() < 0 || purchase.getAmount() > 100)) {
       throw new IllegalArgumentException(
-          "Product "
+          "Invalid Product or amount (Product id:"
               + purchase.getProduct()
-              + " is not in stock for amount "
-              + purchase.getAmount());
+              + ", amount"
+              + purchase.getAmount()
+              + ")");
     }
   }
 
