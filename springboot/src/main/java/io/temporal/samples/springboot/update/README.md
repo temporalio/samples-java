@@ -16,9 +16,10 @@ Try first picking an item and then an amount that is less or equal to the items 
 inventory. You will see that the purchase goes through and the inventory table is updated
 dynamically.
 
-Now try to pick and item and amount that is greater than whats in our inventory.
-You will see that the update fails and you see the message (IllegalArgumentException)
-with message. This is thrown from our update validator that blocks the update.
+Now try to pick and item and amount that is greater than what's in our inventory.
+You will see that the update fails and you see the "Unable to perform purchase" 
+message that shows the underlying "ProductNotAvailableForAmountException" exception
+raised in the update handler. 
 
 Updating our inventory is done via local activities. The check if item and amount 
 of the fishing item you want to purchase is in inventory is also done by local 

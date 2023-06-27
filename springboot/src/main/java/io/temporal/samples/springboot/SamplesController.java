@@ -102,10 +102,13 @@ public class SamplesController {
 
     // send update
     try {
-      workflow.makePurchase(purchase);
+      boolean isValidPurchase = workflow.makePurchase(purchase);
       // for sample send exit to workflow exec and wait till it completes
       workflow.exit();
       WorkflowStub.fromTyped(workflow).getResult(Void.class);
+      if (!isValidPurchase) {
+        return new ResponseEntity("\"Invalid purchase\"", HttpStatus.NOT_FOUND);
+      }
       return new ResponseEntity("\"" + "Purchase successful" + "\"", HttpStatus.OK);
     } catch (WorkflowUpdateException | StatusRuntimeException e) {
       // for sample send exit to workflow exec and wait till it completes

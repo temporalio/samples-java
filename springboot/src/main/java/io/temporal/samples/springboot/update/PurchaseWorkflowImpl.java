@@ -46,7 +46,6 @@ public class PurchaseWorkflowImpl implements PurchaseWorkflow {
   public boolean makePurchase(Purchase purchase) {
 
     if (!activities.isProductInStockForPurchase(purchase)) {
-
       throw ApplicationFailure.newFailure(
           "Product "
               + purchase.getProduct()
