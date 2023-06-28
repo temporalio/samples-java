@@ -19,10 +19,16 @@
 
 package io.temporal.samples.springboot;
 
+import io.grpc.StatusRuntimeException;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.client.WorkflowStub;
+import io.temporal.client.WorkflowUpdateException;
 import io.temporal.samples.springboot.hello.HelloWorkflow;
 import io.temporal.samples.springboot.hello.model.Person;
+import io.temporal.samples.springboot.update.PurchaseWorkflow;
+import io.temporal.samples.springboot.update.model.ProductRepository;
+import io.temporal.samples.springboot.update.model.Purchase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,6 +41,8 @@ import org.springframework.web.bind.annotation.*;
 public class SamplesController {
 
   @Autowired WorkflowClient client;
+
+  @Autowired ProductRepository productRepository;
 
   @GetMapping("/hello")
   public String hello(Model model) {
@@ -63,5 +71,56 @@ public class SamplesController {
   public String metrics(Model model) {
     model.addAttribute("sample", "SDK Metrics");
     return "metrics";
+  }
+
+  @GetMapping("/update")
+  public String update(Model model) {
+    model.addAttribute("sample", "Synchronous Update");
+    model.addAttribute("products", productRepository.findAll());
+    return "update";
+  }
+
+  @GetMapping("/update/inventory")
+  public String updateInventory(Model model) {
+    model.addAttribute("products", productRepository.findAll());
+    return "update :: inventory";
+  }
+
+  @PostMapping(
+      value = "/update/purchase",
+      consumes = {MediaType.APPLICATION_JSON_VALUE},
+      produces = {MediaType.TEXT_HTML_VALUE})
+  ResponseEntity purchase(@RequestBody Purchase purchase) {
+    PurchaseWorkflow workflow =
+        client.newWorkflowStub(
+            PurchaseWorkflow.class,
+            WorkflowOptions.newBuilder()
+                .setTaskQueue("UpdateSampleTaskQueue")
+                .setWorkflowId("NewPurchase")
+                .build());
+    WorkflowClient.start(workflow::start);
+
+    // send update
+    try {
+      boolean isValidPurchase = workflow.makePurchase(purchase);
+      // for sample send exit to workflow exec and wait till it completes
+      workflow.exit();
+      WorkflowStub.fromTyped(workflow).getResult(Void.class);
+      if (!isValidPurchase) {
+        return new ResponseEntity("\"Invalid purchase\"", HttpStatus.NOT_FOUND);
+      }
+      return new ResponseEntity("\"" + "Purchase successful" + "\"", HttpStatus.OK);
+    } catch (WorkflowUpdateException | StatusRuntimeException e) {
+      // for sample send exit to workflow exec and wait till it completes
+      workflow.exit();
+      WorkflowStub.fromTyped(workflow).getResult(Void.class);
+
+      String message = e.getMessage();
+      if (e instanceof WorkflowUpdateException) {
+        message = e.getCause().getMessage();
+      }
+
+      return new ResponseEntity("\"" + message + "\"", HttpStatus.NOT_FOUND);
+    }
   }
 }

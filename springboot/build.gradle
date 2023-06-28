@@ -4,8 +4,10 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
     implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa"
     implementation "io.temporal:temporal-spring-boot-starter-alpha:$javaSDKVersion"
     runtimeOnly "io.micrometer:micrometer-registry-prometheus"
+    runtimeOnly "com.h2database:h2"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     dependencies {
         errorproneJavac('com.google.errorprone:javac:9+181-r4173-1')

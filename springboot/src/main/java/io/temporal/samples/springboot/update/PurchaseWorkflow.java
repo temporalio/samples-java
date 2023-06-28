@@ -17,32 +17,22 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.springboot.hello.model;
+package io.temporal.samples.springboot.update;
 
-public class Person {
-  private String firstName;
-  private String lastName;
+import io.temporal.samples.springboot.update.model.Purchase;
+import io.temporal.workflow.*;
 
-  public Person() {}
+@WorkflowInterface
+public interface PurchaseWorkflow {
+  @WorkflowMethod
+  void start();
 
-  public Person(String firstName, String lastName) {
-    this.firstName = firstName;
-    this.lastName = lastName;
-  }
+  @UpdateMethod
+  boolean makePurchase(Purchase purchase);
 
-  public String getFirstName() {
-    return firstName;
-  }
+  @UpdateValidatorMethod(updateName = "makePurchase")
+  void makePurchaseValidator(Purchase purchase);
 
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
-  }
-
-  public String getLastName() {
-    return lastName;
-  }
-
-  public void setLastName(String lastName) {
-    this.lastName = lastName;
-  }
+  @SignalMethod
+  void exit();
 }

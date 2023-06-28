@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: samples-header"></head>
+<body>
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title" th:text="'Temporal Java SDK Samples: ' + ${sample}">Temporal Java SDK Samples</h4>
+            <h6>This sample shows use of Synchronous Update feature. The page shows a form used to make a purchase.
+            <br/>Under the form you can see the total inventory of our fishing items.
+            Inventory has a pre-set stock (number of each item available). Once you make a purchase our workflow
+            is sent an update, meaning we want to make the purchase and respond back when its done.
+            <br/>The workflow update validator checks if the given amount of an item is still available in the inventory.
+            <br/>If it is then the update goes through and the inventory table is dynamically updated.
+            If not then the update is rejected and shown on the screen.</h6>
+            <br/>
+            <div class="container">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <h4>Purchase Form</h4>
+                        <form action="/update/purchase", id="inventoryform">
+                            <div class="form-group">
+                                <p>Select product:
+                                    <select class="form-control" id="productlist">
+                                    <option th:each="product : ${products}" th:value="${product.id}" th:text="${product.name}"></option>
+                                </select>
+                                </p>
+                                <label class="form-label" for="purchaseNumber">Enter amount:</label>
+                                <input type="number" id="purchaseNumber" class="form-control" />
+                                <br/>
+                                <p><input type="submit" value="Make purchase" class="btn btn-primary" />
+                            </div>
+                        </form>
+                        <br/>
+                        <div class="alert alert-dismissible" role="alert" style="display:none;">
+                            <strong>Some default title!</strong>
+                            <p>Some Default message</p>
+                        </div>
+                    </div>
+                    <div class="col-xs-6">
+                        <br/><br/>
+                        <h4>Inventory</h4>
+                        <div class="inventory_data">
+                        <table class="table table-striped" th:fragment="inventory">
+                            <thead class="thead-dark">
+                            <tr>
+                                <th>Id</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Price ($)</th>
+                                <th>Stock (Available)</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="product : ${products}">
+                                <td th:text="${product.id}">Id</td>
+                                <td th:text="${product.name}">Name</td>
+                                <td th:text="${product.description}">Description</td>
+                                <td th:text="${product.price}">Price</td>
+                                <td th:text="${product.stock}">Stock</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $("#inventoryform").submit(function( event ) {
+        event.preventDefault();
+
+        var $form = $( this ),
+            product = $form.find( "select" ).val(),
+            amount = $form.find( "input[id='purchaseNumber']" ).val(),
+            url = $form.attr( "action" );
+
+        var alertMsg = $('div[role="alert"]');
+        alertMsg.hide();
+
+        $.ajax({
+            'url': url,
+            'method':'POST',
+            'dataType': 'json',
+            'contentType': 'application/json',
+            'data':JSON.stringify({
+                "product": product,
+                "amount": amount
+            }),
+            success: function(response) {
+                $.ajax({
+                    'url': '/update/inventory',
+                    'method':'GET',
+                    success: function(response) {
+                        $('.inventory_data').html(response);
+                        showPurchaseResponse("Purchases successful",
+                            "Your purchase was validated and performed.", "success")
+                    },
+                    error: function (err) {
+                        showPurchaseResponse("Unable to perform purchase",
+                            err.responseText, "danger")
+                    }
+                });
+            },
+            error: function (err) {
+                showPurchaseResponse("Unable to perform purchase",
+                    err.responseText, "danger")
+            }
+        });
+    });
+
+    function showPurchaseResponse(msg_title, msg_body, msg_type) {
+        var alertMsg = $('div[role="alert"]');
+        $(alertMsg).find('strong').html(msg_title);
+        $(alertMsg).find('p').html(msg_body);
+        $(alertMsg).removeAttr('class');
+        $(alertMsg).addClass('alert alert-' + msg_type);
+        $(alertMsg).show();
+    }
+</script>
+<footer th:replace="fragments :: samples-footer"></footer>
+</body>
+</html>

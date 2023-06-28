@@ -17,32 +17,10 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.springboot.hello.model;
+package io.temporal.samples.springboot.update;
 
-public class Person {
-  private String firstName;
-  private String lastName;
-
-  public Person() {}
-
-  public Person(String firstName, String lastName) {
-    this.firstName = firstName;
-    this.lastName = lastName;
-  }
-
-  public String getFirstName() {
-    return firstName;
-  }
-
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
-  }
-
-  public String getLastName() {
-    return lastName;
-  }
-
-  public void setLastName(String lastName) {
-    this.lastName = lastName;
+public class ProductNotAvailableForAmountException extends Exception {
+  public ProductNotAvailableForAmountException(String message) {
+    super(message);
   }
 }
