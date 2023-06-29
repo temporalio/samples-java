@@ -29,13 +29,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest(classes = HelloUpdateTest.Configuration.class)
+@SpringBootTest(classes = UpdateSampleTest.Configuration.class)
+@EnableAutoConfiguration(exclude = {KafkaAutoConfiguration.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class HelloUpdateTest {
+@ActiveProfiles("test")
+@DirtiesContext
+public class UpdateSampleTest {
 
   @Autowired ConfigurableApplicationContext applicationContext;
 

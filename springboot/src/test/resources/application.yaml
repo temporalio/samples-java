@@ -1,6 +1,8 @@
 server:
   port: 3030
 spring:
+  main:
+    allow-bean-definition-overriding: true
   application:
     name: temporal-samples
   # temporal specific configs
@@ -24,7 +26,17 @@ spring:
     hibernate:
       ddl-auto: create-drop
     defer-datasource-initialization: true
+  ## kafka setup for samples
+  kafka:
+    consumer:
+      auto-offset-reset: earliest
+    bootstrap-servers: ${spring.embedded.kafka.brokers}
 # specific for samples
 samples:
   data:
     language: english
+  message:
+    topic:
+      name: samples-test-topic
+    group:
+      name: samples-group
