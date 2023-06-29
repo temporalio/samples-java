@@ -37,10 +37,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest(classes = UpdateSampleTest.Configuration.class)
-@EnableAutoConfiguration(exclude = {KafkaAutoConfiguration.class})
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@SpringBootTest(classes = HelloSampleTest.Configuration.class)
 @ActiveProfiles("test")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+// set this to omit setting up embedded kafka
+@EnableAutoConfiguration(exclude = {KafkaAutoConfiguration.class})
 @DirtiesContext
 public class UpdateSampleTest {
 

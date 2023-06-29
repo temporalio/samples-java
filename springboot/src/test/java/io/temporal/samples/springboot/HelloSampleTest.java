@@ -38,9 +38,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.Assert;
 
 @SpringBootTest(classes = HelloSampleTest.Configuration.class)
-@EnableAutoConfiguration(exclude = {KafkaAutoConfiguration.class})
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+// set this to omit setting up embedded kafka
+@EnableAutoConfiguration(exclude = {KafkaAutoConfiguration.class})
 @DirtiesContext
 public class HelloSampleTest {
 
