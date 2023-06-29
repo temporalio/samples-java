@@ -50,7 +50,7 @@ public class KafkaSampleTest {
 
   @Autowired WorkflowClient workflowClient;
 
-  @Autowired private KafkaConsumerTestHelper consumer;
+  @Autowired KafkaConsumerTestHelper consumer;
 
   @BeforeEach
   void setUp() {
