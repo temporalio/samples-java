@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: samples-header"></head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title" th:text="'Temporal Java SDK Samples: ' + ${sample}">Temporal Java SDK Samples</h4>
+            <h6>This sample shows how we can trigger and signal workflow executions by sending messages
+            to Kafka topic. It also shows how workflows can send updates and result to Kafka for other
+            services to consume. <br/>Enter a message in the form and submit. This will trigger a workflow
+            and the messages it sends to Kafka are shown on the page dynamically.</h6>
+            <br/><br/><br/>
+            <div class="form-group">
+                <form action="/kafka", id="sampleform">
+                    <p>Message: <input type="text" name="message"/></p>
+                    <p><input type="submit" value="Send Message" class="btn btn-primary" />
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="row" >
+        <div class="col-md-6">
+            <div class="panel panel-default" th:fragment="MessageList" id="MessageData">
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="kafka-messages">
+                            <thead>
+                            <tr>
+                                <th>Kafka Messages:</th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/js/jquery.sse.js"></script>
+<script type="text/javascript" src="/js/samplessse.js"></script>
+<script>
+    $("#sampleform").submit(function( event ) {
+        event.preventDefault();
+
+        var $form = $( this ),
+            message = $form.find( "input[name='message']" ).val(),
+            url = $form.attr( "action" );
+
+        $.ajax({
+            'url': url,
+            'method':'POST',
+            'dataType': 'text',
+            'contentType': 'text/plain',
+            'data': message,
+            success: function(response) {
+                // omit, message sent from activities to kafka topic will update
+            }
+        });
+    });
+</script>
+<footer th:replace="fragments :: samples-footer"></footer>
+</body>
+</html>

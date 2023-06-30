@@ -21,29 +21,28 @@ package io.temporal.samples.springboot;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.samples.springboot.hello.HelloWorkflow;
-import io.temporal.samples.springboot.hello.model.Person;
+import io.temporal.client.WorkflowStub;
+import io.temporal.samples.springboot.kafka.MessageWorkflow;
 import io.temporal.testing.TestWorkflowEnvironment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.util.Assert;
 
-@SpringBootTest(classes = HelloSampleTest.Configuration.class)
-@ActiveProfiles("test")
+@SpringBootTest(classes = KafkaSampleTest.Configuration.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-// set this to omit setting up embedded kafka
-@EnableAutoConfiguration(exclude = {KafkaAutoConfiguration.class})
+@EmbeddedKafka(
+    partitions = 1,
+    bootstrapServersProperty = "spring.kafka.bootstrap-servers",
+    controlledShutdown = true)
 @DirtiesContext
-public class HelloSampleTest {
+public class KafkaSampleTest {
 
   @Autowired ConfigurableApplicationContext applicationContext;
 
@@ -51,23 +50,32 @@ public class HelloSampleTest {
 
   @Autowired WorkflowClient workflowClient;
 
+  @Autowired KafkaConsumerTestHelper consumer;
+
   @BeforeEach
   void setUp() {
     applicationContext.start();
   }
 
   @Test
-  public void testHello() {
-    HelloWorkflow workflow =
+  public void testKafkaWorflow() throws Exception {
+    MessageWorkflow workflow =
         workflowClient.newWorkflowStub(
-            HelloWorkflow.class,
+            MessageWorkflow.class,
             WorkflowOptions.newBuilder()
-                .setTaskQueue("HelloSampleTaskQueue")
-                .setWorkflowId("HelloSampleTest")
+                .setTaskQueue("KafkaSampleTaskQueue")
+                .setWorkflowId("NewMessageWorkflow")
                 .build());
-    String result = workflow.sayHello(new Person("Temporal", "User"));
-    Assert.notNull(result, "Greeting should not be null");
-    Assert.isTrue(result.equals("Hello Temporal User!"), "Invalid result");
+
+    WorkflowClient.start(workflow::start);
+    workflow.update("This is a test message");
+    WorkflowStub.fromTyped(workflow).getResult(Void.class);
+    consumer.getLatch().await();
+
+    Assert.isTrue(consumer.getLatch().getCount() == 0L, "Invalid latch count");
+    Assert.isTrue(
+        consumer.getPayload().contains("Completing execution: NewMessageWorkflow"),
+        "Invalid last event payload");
   }
 
   @ComponentScan

@@ -26,6 +26,7 @@ import io.temporal.client.WorkflowStub;
 import io.temporal.client.WorkflowUpdateException;
 import io.temporal.samples.springboot.hello.HelloWorkflow;
 import io.temporal.samples.springboot.hello.model.Person;
+import io.temporal.samples.springboot.kafka.MessageWorkflow;
 import io.temporal.samples.springboot.update.PurchaseWorkflow;
 import io.temporal.samples.springboot.update.model.ProductRepository;
 import io.temporal.samples.springboot.update.model.Purchase;
@@ -122,5 +123,33 @@ public class SamplesController {
 
       return new ResponseEntity("\"" + message + "\"", HttpStatus.NOT_FOUND);
     }
+  }
+
+  @GetMapping("/kafka")
+  public String afka(Model model) {
+    model.addAttribute("sample", "Kafka Request / Reply");
+    return "kafka";
+  }
+
+  @PostMapping(
+      value = "/kafka",
+      consumes = {MediaType.TEXT_PLAIN_VALUE},
+      produces = {MediaType.TEXT_HTML_VALUE})
+  ResponseEntity sendToKafka(@RequestBody String message) {
+    MessageWorkflow workflow =
+        client.newWorkflowStub(
+            MessageWorkflow.class,
+            WorkflowOptions.newBuilder()
+                .setTaskQueue("KafkaSampleTaskQueue")
+                .setWorkflowId("MessageSample")
+                .build());
+
+    WorkflowClient.start(workflow::start);
+    workflow.update(message);
+
+    // wait till exec completes
+    WorkflowStub.fromTyped(workflow).getResult(Void.class);
+    // bypass thymeleaf, don't return template name just result
+    return new ResponseEntity("\" Message workflow completed\"", HttpStatus.OK);
   }
 }

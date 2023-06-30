@@ -1,6 +1,8 @@
 server:
   port: 3030
 spring:
+  main:
+    allow-bean-definition-overriding: true
   application:
     name: temporal-samples
   # temporal specific configs
@@ -37,6 +39,11 @@ spring:
   h2:
     console:
       enabled: true
+  ## kafka setup for samples
+  kafka:
+    consumer:
+      auto-offset-reset: earliest
+    bootstrap-servers: localhost:9092
 # actuator (sdk metrics)
 management:
   endpoints:
@@ -47,3 +54,8 @@ management:
 samples:
   data:
     language: english
+  message:
+    topic:
+      name: samples-topic
+    group:
+      name: samples-group
