@@ -153,36 +153,36 @@ public class HelloDetachedCancellationScope {
     // Get a Workflow service stub.
     WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
 
-    /**
+    /*
      * Get a Workflow service client which can be used to start, Signal, and Query Workflow
      * Executions.
      */
     WorkflowClient client = WorkflowClient.newInstance(service);
 
-    /**
+    /*
      * Define the workflow factory. It is used to create workflow workers for a specific task queue.
      */
     WorkerFactory factory = WorkerFactory.newInstance(client);
 
-    /**
+    /*
      * Define the workflow worker. Workflow workers listen to a defined task queue and process
      * workflows and activities.
      */
     Worker worker = factory.newWorker(TASK_QUEUE);
 
-    /**
+    /*
      * Register our Workflow Types with the Worker. Workflow Types must be known to the Worker at
      * runtime.
      */
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
-    /**
+    /*
      * Register our Activity Types with the Worker. Since Activities are stateless and thread-safe,
      * the Activity Type is a shared instance.
      */
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
 
-    /**
+    /*
      * Start all the Workers that are in this process. The Workers will then start polling for
      * Workflow Tasks and Activity Tasks.
      */

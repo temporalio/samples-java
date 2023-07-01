@@ -65,7 +65,7 @@ public class SamplesController {
                 .build());
 
     // bypass thymeleaf, don't return template name just result
-    return new ResponseEntity("\"" + workflow.sayHello(person) + "\"", HttpStatus.OK);
+    return new ResponseEntity<>("\"" + workflow.sayHello(person) + "\"", HttpStatus.OK);
   }
 
   @GetMapping("/metrics")
@@ -108,9 +108,9 @@ public class SamplesController {
       workflow.exit();
       WorkflowStub.fromTyped(workflow).getResult(Void.class);
       if (!isValidPurchase) {
-        return new ResponseEntity("\"Invalid purchase\"", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>("\"Invalid purchase\"", HttpStatus.NOT_FOUND);
       }
-      return new ResponseEntity("\"" + "Purchase successful" + "\"", HttpStatus.OK);
+      return new ResponseEntity<>("\"" + "Purchase successful" + "\"", HttpStatus.OK);
     } catch (WorkflowUpdateException | StatusRuntimeException e) {
       // for sample send exit to workflow exec and wait till it completes
       workflow.exit();
@@ -121,7 +121,7 @@ public class SamplesController {
         message = e.getCause().getMessage();
       }
 
-      return new ResponseEntity("\"" + message + "\"", HttpStatus.NOT_FOUND);
+      return new ResponseEntity<>("\"" + message + "\"", HttpStatus.NOT_FOUND);
     }
   }
 
@@ -150,6 +150,6 @@ public class SamplesController {
     // wait till exec completes
     WorkflowStub.fromTyped(workflow).getResult(Void.class);
     // bypass thymeleaf, don't return template name just result
-    return new ResponseEntity("\" Message workflow completed\"", HttpStatus.OK);
+    return new ResponseEntity<>("\" Message workflow completed\"", HttpStatus.OK);
   }
 }

@@ -107,7 +107,7 @@ public class HelloActivityExclusiveChoice {
   // Define the workflow implementation. It implements our orderFruit workflow method
   public static class PurchaseFruitsWorkflowImpl implements PurchaseFruitsWorkflow {
 
-    /**
+    /*
      * Define the OrderActivities stub. Activity stubs implements activity interfaces and proxy
      * calls to it to Temporal activity invocations. Since Temporal activities are reentrant, a
      * single activity stub can be used for multiple activity invocations.
@@ -208,7 +208,7 @@ public class HelloActivityExclusiveChoice {
      */
     worker.registerWorkflowImplementationTypes(PurchaseFruitsWorkflowImpl.class);
 
-    /**
+    /*
      * Register our Activity Types with the Worker. Since Activities are stateless and thread-safe,
      * the Activity Type is a shared instance.
      */

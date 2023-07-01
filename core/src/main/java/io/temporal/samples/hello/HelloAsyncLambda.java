@@ -83,7 +83,7 @@ public class HelloAsyncLambda {
   // Define the workflow implementation which implements our getGreeting workflow method.
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
-    /**
+    /*
      * Define the GreetingActivities stub. Activity stubs are proxies for activity invocations that
      * are executed outside of the workflow thread on the activity worker, that can be on a
      * different host. Temporal is going to dispatch the activity results back to the workflow and
@@ -173,7 +173,7 @@ public class HelloAsyncLambda {
      */
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
-    /**
+    /*
      * Register our Activity Types with the Worker. Since Activities are stateless and thread-safe,
      * the Activity Type is a shared instance.
      */

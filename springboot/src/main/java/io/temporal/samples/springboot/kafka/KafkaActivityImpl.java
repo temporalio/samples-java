@@ -19,6 +19,7 @@
 
 package io.temporal.samples.springboot.kafka;
 
+import io.temporal.failure.ApplicationFailure;
 import io.temporal.spring.boot.ActivityImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,6 +40,11 @@ public class KafkaActivityImpl implements KafkaActivity {
 
   @Override
   public void sendMessage(String message) {
-    kafkaTemplate.send(topicName, message);
+    try {
+      kafkaTemplate.send(topicName, message).get();
+    } catch (Exception e) {
+      throw ApplicationFailure.newFailure(
+          "Unable to send message.", e.getClass().getName(), e.getMessage());
+    }
   }
 }
