@@ -15,6 +15,11 @@ subprojects {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+
+    compileJava {
+        options.compilerArgs << "-Werror"
+    }
+
     ext {
         otelVersion = '1.26.0'
         otelVersionAlpha = "${otelVersion}-alpha"
