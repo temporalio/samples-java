@@ -28,7 +28,7 @@ import java.time.Duration;
 public class FrequentPollingWorkflowImpl implements PollingWorkflow {
   @Override
   public String exec() {
-    /**
+    /*
      * Frequent polling (1 second or faster) should be done inside the activity itself. Note that
      * the activity has to heart beat on each iteration. Note that we need to set our
      * HeartbeatTimeout in ActivityOptions shorter than the StartToClose timeout. You can use an

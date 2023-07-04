@@ -49,7 +49,7 @@ public class HelloDynamicTest {
     WorkflowStub workflow =
         testWorkflowRule.getWorkflowClient().newUntypedWorkflowStub("DynamicWF", workflowOptions);
 
-    /** Start workflow execution and signal right after Pass in the workflow args and signal args */
+    // Start workflow execution and signal right after Pass in the workflow args and signal args
     workflow.signalWithStart("greetingSignal", new Object[] {"John"}, new Object[] {"Hello"});
 
     // Wait for workflow to finish getting the results

@@ -114,7 +114,7 @@ public class HelloException {
   // Define the child workflow implementation. It implements the composeGreeting workflow method
   public static class GreetingChildImpl implements GreetingChild {
 
-    /**
+    /*
      * Define the GreetingActivities stub. Activity stubs are proxies for activity invocations that
      * are executed outside of the workflow thread on the activity worker, that can be on a
      * different host. Temporal is going to dispatch the activity results back to the workflow and
@@ -143,7 +143,7 @@ public class HelloException {
     }
   }
 
-  /**
+  /*
    * Implementation of the workflow activity interface. It overwrites the defined composeGreeting
    * activity method.
    */
@@ -197,7 +197,7 @@ public class HelloException {
      */
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class, GreetingChildImpl.class);
 
-    /**
+    /*
      * Register our Activity Types with the Worker. Since Activities are stateless and thread-safe,
      * the Activity Type is a shared instance.
      */

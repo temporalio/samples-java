@@ -47,6 +47,6 @@ public class MessageController {
   }
 
   public SseEmitter getLatestEmitter() {
-    return (emitters.isEmpty()) ? null : emitters.get(emitters.size() - 1);
+    return emitters.isEmpty() ? null : emitters.get(emitters.size() - 1);
   }
 }

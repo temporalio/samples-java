@@ -72,7 +72,7 @@ public class HelloSaga {
   // Define the child workflow implementation. It implements the execute workflow method
   public static class ChildWorkflowOperationImpl implements ChildWorkflowOperation {
 
-    /**
+    /*
      * Define the ActivityOperation stub. Activity stubs are proxies for activity invocations that
      * are executed outside of the workflow thread on the activity worker, that can be on a
      * different host. Temporal is going to dispatch the activity results back to the workflow and
@@ -116,7 +116,7 @@ public class HelloSaga {
   // workflow method
   public static class ChildWorkflowCompensationImpl implements ChildWorkflowCompensation {
 
-    /**
+    /*
      * Define the ActivityOperation stub. Activity stubs are proxies for activity invocations that
      * are executed outside of the workflow thread on the activity worker, that can be on a
      * different host. Temporal is going to dispatch activity results back to the workflow and
@@ -193,7 +193,7 @@ public class HelloSaga {
   // Define the main workflow implementation. It implements the execute workflow method
   public static class SagaWorkflowImpl implements SagaWorkflow {
 
-    /**
+    /*
      * Define the ActivityOperation stub. Activity stubs are proxies for activity invocations that
      * are executed outside of the workflow thread on the activity worker, that can be on a
      * different host. Temporal is going to dispatch activity results back to the workflow and
@@ -215,7 +215,7 @@ public class HelloSaga {
 
       try {
 
-        /**
+        /*
          * First we show how to compensate sync child workflow invocations. We first create a child
          * workflow stub and execute its "execute" method. Then we create a stub of the child
          * compensation workflow and register it with Saga. At this point this compensation workflow
@@ -228,7 +228,7 @@ public class HelloSaga {
             Workflow.newChildWorkflowStub(ChildWorkflowCompensation.class);
         saga.addCompensation(c1::compensate, -10);
 
-        /**
+        /*
          * Now we show compensation of workflow activities which are invoked asynchronously. We
          * invoke the activity "execute" method async. Then we register its "compensate" method as
          * the compensation method for it.
@@ -305,7 +305,7 @@ public class HelloSaga {
         HelloSaga.ChildWorkflowOperationImpl.class,
         HelloSaga.ChildWorkflowCompensationImpl.class);
 
-    /**
+    /*
      * Register our Activity Types with the Worker. Since Activities are stateless and thread-safe,
      * the Activity Type is a shared instance.
      */

@@ -29,7 +29,7 @@ import java.time.Duration;
 public class InfrequentPollingWorkflowImpl implements PollingWorkflow {
   @Override
   public String exec() {
-    /**
+    /*
      * Infrequent polling via activity can be implemented via activity retries. For this sample we
      * want to poll the test service every 60 seconds. Here we:
      *

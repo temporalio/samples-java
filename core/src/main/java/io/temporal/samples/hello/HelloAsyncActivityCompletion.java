@@ -84,7 +84,7 @@ public class HelloAsyncActivityCompletion {
   // Define the workflow implementation which implements the getGreeting workflow method.
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
-    /**
+    /*
      * Define the GreetingActivities stub. Activity stubs are proxies for activity invocations that
      * are executed outside of the workflow thread on the activity worker, that can be on a
      * different host. Temporal is going to dispatch the activity results back to the workflow and
@@ -112,7 +112,7 @@ public class HelloAsyncActivityCompletion {
    */
   static class GreetingActivitiesImpl implements GreetingActivities {
 
-    /**
+    /*
      * ActivityCompletionClient is used to asynchronously complete activities. In this example we
      * will use this client alongside with {@link
      * io.temporal.activity.ActivityExecutionContext#doNotCompleteOnReturn()} which means our
@@ -134,7 +134,7 @@ public class HelloAsyncActivityCompletion {
       // Set a correlation token that can be used to complete the activity asynchronously
       byte[] taskToken = context.getTaskToken();
 
-      /**
+      /*
        * For the example we will use a {@link java.util.concurrent.ForkJoinPool} to execute our
        * activity. In real-life applications this could be any service. The composeGreetingAsync
        * method is the one that will actually complete workflow action execution.
@@ -165,37 +165,37 @@ public class HelloAsyncActivityCompletion {
     // Get a Workflow service stub.
     WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
 
-    /**
+    /*
      * Get a Workflow service client which can be used to start, Signal, and Query Workflow
      * Executions.
      */
     WorkflowClient client = WorkflowClient.newInstance(service);
 
-    /**
+    /*
      * Define the workflow factory. It is used to create workflow workers for a specific task queue.
      */
     WorkerFactory factory = WorkerFactory.newInstance(client);
 
-    /**
+    /*
      * Define the workflow worker. Workflow workers listen to a defined task queue and process
      * workflows and activities.
      */
     Worker worker = factory.newWorker(TASK_QUEUE);
 
-    /**
+    /*
      * Register our Workflow Types with the Worker. Workflow Types must be known to the Worker at
      * runtime in order for it to poll for Workflow Tasks.
      */
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
 
-    /**
+    /*
      * Register our Activity Types with the Worker. Since Activities are stateless and thread-safe,
      * the Activity Type is a shared instance.
      */
     ActivityCompletionClient completionClient = client.newActivityCompletionClient();
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl(completionClient));
 
-    /**
+    /*
      * Start all the Workers registered for a specific Task Queue. The Workers then start polling
      * for Workflow Tasks and Activity Tasks.
      */
@@ -210,7 +210,7 @@ public class HelloAsyncActivityCompletion {
                 .setTaskQueue(TASK_QUEUE)
                 .build());
 
-    /**
+    /*
      * Here we use {@link io.temporal.client.WorkflowClient} to execute our workflow asynchronously.
      * It gives us back a {@link java.util.concurrent.CompletableFuture}. We can then call its get
      * method to block and wait until a result is available.
