@@ -24,6 +24,7 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
 import io.temporal.client.WorkflowUpdateException;
+import io.temporal.samples.springboot.customize.CustomizeWorkflow;
 import io.temporal.samples.springboot.hello.HelloWorkflow;
 import io.temporal.samples.springboot.hello.model.Person;
 import io.temporal.samples.springboot.kafka.MessageWorkflow;
@@ -151,5 +152,28 @@ public class SamplesController {
     WorkflowStub.fromTyped(workflow).getResult(Void.class);
     // bypass thymeleaf, don't return template name just result
     return new ResponseEntity<>("\" Message workflow completed\"", HttpStatus.OK);
+  }
+
+  @GetMapping("/customize")
+  public String customize(Model model) {
+    model.addAttribute("sample", "Customizing Options");
+    return "customize";
+  }
+
+  @PostMapping(
+      value = "/customize",
+      consumes = {MediaType.APPLICATION_JSON_VALUE},
+      produces = {MediaType.TEXT_HTML_VALUE})
+  ResponseEntity customizeSample() {
+    CustomizeWorkflow workflow =
+        client.newWorkflowStub(
+            CustomizeWorkflow.class,
+            WorkflowOptions.newBuilder()
+                .setTaskQueue("CustomizeTaskQueue")
+                .setWorkflowId("CustomizeSample")
+                .build());
+
+    // bypass thymeleaf, don't return template name just result
+    return new ResponseEntity<>("\"" + workflow.execute() + "\"", HttpStatus.OK);
   }
 }
