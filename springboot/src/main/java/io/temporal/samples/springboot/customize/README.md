@@ -8,7 +8,7 @@ This sample shows how to optimize default options such as
 
 WorkerOptions can be optimized per worker/task queue.
 
-For this sample we set our worker to be "local activity worker" via custom options meaning
+For this sample we set our specific worker to be "local activity worker" via custom options meaning
 it would not poll for activity tasks. Click on "Run Workflow" button to start instance of
 our sample workflow. This workflow will try to invoke our activity as "normal"
 activity which should time out on ScheduleToClose timeout, then we invoke this activity
