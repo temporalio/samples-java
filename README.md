@@ -144,4 +144,15 @@ More info on each sample:
 - [**Synchronous Update**](/springboot/src/main/java/io/temporal/samples/springboot/update): Learn how to use Synchronous Update feature with this purchase sample
 - [**Kafka Request / Reply**](/springboot/src/main/java/io/temporal/samples/springboot/kafka): Sample showing possible integration with event streaming platforms such as Kafka
 - [**Customize Options**](/springboot/src/main/java/io/temporal/samples/springboot/customize): Sample showing how to customize options such as WorkerOptions, WorkerFactoryOptions, etc (see options config [here](springboot/src/main/java/io/temporal/samples/springboot/customize/TemporalOptionsConfig.java))
-            
+
+
+#### Temporal Cloud
+To run any of the SpringBoot samples in your Temporal Cloud namespace:
+
+1. Edit the [application-tc.yaml](/springboot/src/main/resources/application-tc.yaml) to set your namespace and client certificates.
+
+2. Start SpringBoot from main repo dir with the `tc` profile:
+
+       ./gradlew bootRun --args='--spring.profiles.active=tc'
+
+3. Follow the previous section from step 2

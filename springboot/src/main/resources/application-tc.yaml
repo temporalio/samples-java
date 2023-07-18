@@ -1,0 +1,10 @@
+# https://github.com/temporalio/sdk-java/tree/master/temporal-spring-boot-autoconfigure-alpha#mtls
+spring.temporal:
+  namespace: <namespace_id> # https://docs.temporal.io/cloud/#temporal-cloud-namespace-id
+  connection:
+    target: <namespace_id>.tmprl.cloud:7233
+    mtls:
+      key-file: /path/to/key.key
+      cert-chain-file: /path/to/cert.pem # If you use PKCS12 (.pkcs12, .pfx or .p12), you don't need to set it because certificates chain is bundled into the key file
+      # key-password: <password_for_the_key>
+      # insecure-trust-manager: true # or add ca.pem to java default truststore
