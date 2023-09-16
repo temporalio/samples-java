@@ -24,13 +24,13 @@ import static org.mockito.Mockito.*;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.testing.TestWorkflowExtension;
 import io.temporal.worker.Worker;
-import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 /** Unit test for {@link HelloChild}. Doesn't use an external Temporal service. */
 public class HelloChildJUnit5Test {
+  private HelloChild.GreetingChild child = mock(HelloChild.GreetingChildImpl.class);
 
   @RegisterExtension
   public static final TestWorkflowExtension testWorkflowExtension =
@@ -40,28 +40,20 @@ public class HelloChildJUnit5Test {
           .build();
 
   @Test
-  public void testMockedChild(
+  public void testChild(
       TestWorkflowEnvironment testEnv, Worker worker, HelloChild.GreetingWorkflow workflow) {
-
-    // As new mock is created on each workflow task the only last one is useful to verify calls.
-    AtomicReference<HelloChild.GreetingChild> lastChildMock = new AtomicReference<>();
-    // Factory is called to create a new workflow object on each workflow task.
-    worker.addWorkflowImplementationFactory(
+    worker.registerWorkflowImplementationFactory(
         HelloChild.GreetingChild.class,
         () -> {
-          HelloChild.GreetingChild child = mock(HelloChild.GreetingChild.class);
-          when(child.composeGreeting("Hello", "World")).thenReturn("Bye World!");
-          lastChildMock.set(child);
+          when(child.composeGreeting(anyString(), anyString())).thenReturn("Bye World!");
           return child;
         });
-
     testEnv.start();
 
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.getGreeting("World");
     Assert.assertEquals("Bye World!", greeting);
-    HelloChild.GreetingChild mock = lastChildMock.get();
-    verify(mock).composeGreeting(eq("Hello"), eq("World"));
+    verify(child).composeGreeting(eq("Hello"), eq("World"));
 
     testEnv.shutdown();
   }

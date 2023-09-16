@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments :: samples-header"></head>
+<body>
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title" th:text="'Temporal Java SDK Samples: ' + ${sample}">Temporal Java SDK Samples</h4>
+            <h6>This sample shows how to optimize default options such as
+                <ul>
+                    <li>WorkflowServiceStubsOptions</li>
+                    <li>WorkflowClientOption</li>
+                    <li>WorkerFactoryOptions</li>
+                    <li>WorkerOptions</li>
+                </ul>
+                <br/>WorkerOptions can be optimized per worker/task queue.
+                For this sample we set our specific worker to be "local activity worker" via custom options meaning
+                it would not poll for activity tasks. Click on "Run Workflow" button to start instance of
+                our sample workflow. This workflow will try to invoke activity as "normal" activity which should
+                timeout on the set ScheduleToClose timeout, we handle this activity failure
+                and then invoke this activity as local activity which should succeed and update the
+                workflow execution result on the page.
+            </h6>
+            <div class="form-group">
+                <br/><br/><br/>
+                <form action="/customize", id="sampleform">
+                    <p><input type="submit" value="Run Workflow" class="btn btn-primary" />
+                </form>
+            </div>
+        </div>
+        <div style="width: 18rem;">
+            <div>
+                <h5 class="card-title">Workflow result:</h5>
+                <div id="result"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $("#sampleform").submit(function( event ) {
+        event.preventDefault();
+        $( "#result" ).empty().append( "" );
+
+        var $form = $( this ),
+            url = $form.attr( "action" );
+
+        $.ajax({
+            'url': url,
+            'method':'POST',
+            'contentType': 'application/json',
+            success: function(response) {
+                $( "#result" ).empty().append( response );
+            }
+        });
+    });
+</script>
+<footer th:replace="fragments :: samples-footer"></footer>
+</body>
+</html>
