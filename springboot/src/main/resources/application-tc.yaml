@@ -1,0 +1,9 @@
+spring.temporal:
+  namespace: <namespace_id> # https://docs.temporal.io/cloud/#temporal-cloud-namespace-id
+  connection:
+    target: <namespace_id>.tmprl.cloud:7233
+    mtls:
+      key-file: /path/to/key.key
+      cert-chain-file: /path/to/cert.pem
+
+# more configuration options https://github.com/temporalio/sdk-java/tree/master/temporal-spring-boot-autoconfigure-alpha#mtls

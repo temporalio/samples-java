@@ -21,9 +21,9 @@ subprojects {
     }
 
     ext {
-        otelVersion = '1.27.0'
+        otelVersion = '1.29.0'
         otelVersionAlpha = "${otelVersion}-alpha"
-        javaSDKVersion = '1.20.0'
+        javaSDKVersion = '1.21.1'
         jarVersion = '1.0.0'
     }
 

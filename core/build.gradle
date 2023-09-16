@@ -29,8 +29,8 @@ dependencies {
     implementation group: 'io.cloudevents', name: 'cloudevents-json-jackson', version: '2.5.0'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-api', version: '4.0.3.Final'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-validation', version: '4.0.4.Final'
-    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-spi', version: '4.0.3.Final'
-    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-util', version: '4.0.3.Final'
+    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-spi', version: '4.0.4.Final'
+    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-util', version: '4.0.4.Final'
     implementation group: 'net.thisptr', name: 'jackson-jq', version: '1.0.0-preview.20230409'
 
     // we don't update it to 2.1.0 because 2.1.0 requires Java 11
