@@ -21,14 +21,14 @@ package io.temporal.samples.hello;
 
 import static io.temporal.samples.hello.HelloSearchAttributes.getKeywordFromSearchAttribute;
 
-import io.temporal.api.common.v1.SearchAttributes;
 import io.temporal.api.common.v1.WorkflowExecution;
 import io.temporal.api.workflowservice.v1.DescribeWorkflowExecutionRequest;
 import io.temporal.api.workflowservice.v1.DescribeWorkflowExecutionResponse;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
+import io.temporal.common.SearchAttributeKey;
+import io.temporal.common.SearchAttributes;
 import io.temporal.testing.TestWorkflowRule;
-import java.util.Map;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,7 +49,8 @@ public class HelloSearchAttributesTest {
     final String taskQueue = testWorkflowRule.getTaskQueue();
     final String workflowId = "workflowId";
     final String customKeywordField = "CustomKeywordField";
-    final String customKeywordValue = "CustomKeywordValue";
+    final String customKeywordValue = "key";
+    final String upsertedKeywordValue = "key2";
 
     testWorkflowRule
         .getWorker()
@@ -63,7 +64,10 @@ public class HelloSearchAttributesTest {
             .newWorkflowStub(
                 HelloSearchAttributes.GreetingWorkflow.class,
                 WorkflowOptions.newBuilder()
-                    .setSearchAttributes(Map.of(customKeywordField, customKeywordValue))
+                    .setTypedSearchAttributes(
+                        SearchAttributes.newBuilder()
+                            .set(SearchAttributeKey.forText(customKeywordField), customKeywordValue)
+                            .build())
                     .setWorkflowId(workflowId)
                     .setTaskQueue(taskQueue)
                     .build());
@@ -85,9 +89,10 @@ public class HelloSearchAttributesTest {
                     .setExecution(execution)
                     .build());
     // get all search attributes
-    final SearchAttributes searchAttributes = resp.getWorkflowExecutionInfo().getSearchAttributes();
+    final io.temporal.api.common.v1.SearchAttributes searchAttributes =
+        resp.getWorkflowExecutionInfo().getSearchAttributes();
 
     Assert.assertEquals(
-        customKeywordValue, getKeywordFromSearchAttribute(searchAttributes, customKeywordField));
+        upsertedKeywordValue, getKeywordFromSearchAttribute(searchAttributes, customKeywordField));
   }
 }

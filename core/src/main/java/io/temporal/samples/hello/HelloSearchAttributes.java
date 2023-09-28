@@ -23,12 +23,14 @@ import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityMethod;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.api.common.v1.Payload;
-import io.temporal.api.common.v1.SearchAttributes;
 import io.temporal.api.common.v1.WorkflowExecution;
 import io.temporal.api.workflowservice.v1.DescribeWorkflowExecutionRequest;
 import io.temporal.api.workflowservice.v1.DescribeWorkflowExecutionResponse;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.common.SearchAttributeKey;
+import io.temporal.common.SearchAttributeUpdate;
+import io.temporal.common.SearchAttributes;
 import io.temporal.common.converter.DataConverter;
 import io.temporal.common.converter.GlobalDataConverter;
 import io.temporal.serviceclient.WorkflowServiceStubs;
@@ -38,11 +40,9 @@ import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
+import org.slf4j.Logger;
 
 /**
  * Sample Temporal workflow that demonstrates setting up and retrieving workflow search attributes.
@@ -108,9 +108,20 @@ public class HelloSearchAttributes {
             GreetingActivities.class,
             ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(2)).build());
 
+    private Logger logger = Workflow.getLogger(this.getClass().getName());
+
     @Override
     public String getGreeting(String name) {
       // This is a blocking call that returns only after the activity has completed.
+      Workflow.upsertTypedSearchAttributes(
+          SearchAttributeUpdate.valueSet(
+              SearchAttributeKey.forKeyword("CustomKeywordField"), "key2"));
+
+      OffsetDateTime offsetSA =
+          Workflow.getTypedSearchAttributes()
+              .get(SearchAttributeKey.forOffsetDateTime("CustomDatetimeField"));
+      logger.info("From workflow - OffsetSA: " + offsetSA);
+
       return activities.composeGreeting("Hello", name);
     }
   }
@@ -176,7 +187,17 @@ public class HelloSearchAttributes {
         WorkflowOptions.newBuilder()
             .setWorkflowId(WORKFLOW_ID)
             .setTaskQueue(TASK_QUEUE)
-            .setSearchAttributes(generateSearchAttributes())
+            .setTypedSearchAttributes(
+                SearchAttributes.newBuilder()
+                    .set(SearchAttributeKey.forKeyword("CustomKeywordField"), "key")
+                    .set(SearchAttributeKey.forLong("CustomIntField"), Long.valueOf(1L))
+                    .set(SearchAttributeKey.forDouble("CustomDoubleField"), Double.valueOf(1.0))
+                    .set(SearchAttributeKey.forBoolean("CustomBoolField"), true)
+                    .set(
+                        SearchAttributeKey.forOffsetDateTime("CustomDatetimeField"),
+                        OffsetDateTime.now(ZoneId.of("America/Los_Angeles")))
+                    .set(SearchAttributeKey.forText("CustomStringField"), "text")
+                    .build())
             .build();
 
     // Create the workflow client stub. It is used to start our workflow execution.
@@ -203,13 +224,14 @@ public class HelloSearchAttributes {
           service.blockingStub().describeWorkflowExecution(request);
 
       // get all search attributes
-      SearchAttributes searchAttributes = resp.getWorkflowExecutionInfo().getSearchAttributes();
+      io.temporal.api.common.v1.SearchAttributes sa =
+          resp.getWorkflowExecutionInfo().getSearchAttributes();
       // Get the specific value of a keyword from the payload.
       // In this case it is the "CustomKeywordField" with the value of "keys"
       // You can update the code to extract other defined search attribute as well
-      String keyword = getKeywordFromSearchAttribute(searchAttributes, "CustomKeywordField");
+      String keyword = getKeywordFromSearchAttribute(sa, "CustomKeywordField");
       // Print the value of the "CustomKeywordField" field
-      System.out.printf("In workflow we get CustomKeywordField is: %s\n", keyword);
+      System.out.printf("CustomKeywordField search attribute values: %s\n", keyword);
     } catch (Exception e) {
       System.out.println(e);
     }
@@ -219,30 +241,9 @@ public class HelloSearchAttributes {
     System.exit(0);
   }
 
-  // Generate our example search option
-  private static Map<String, Object> generateSearchAttributes() {
-    Map<String, Object> searchAttributes = new HashMap<>();
-    searchAttributes.put(
-        "CustomKeywordField",
-        "keys"); // each field can also be array such as: String[] keys = {"k1", "k2"};
-    searchAttributes.put("CustomIntField", 1);
-    searchAttributes.put("CustomDoubleField", 0.1);
-    searchAttributes.put("CustomBoolField", true);
-    searchAttributes.put("CustomDatetimeField", generateDateTimeFieldValue());
-    searchAttributes.put(
-        "CustomStringField",
-        "String field is for text. When query, it will be tokenized for partial match. StringTypeField cannot be used in Order By");
-    return searchAttributes;
-  }
-
-  // CustomDatetimeField takes times encoded in the  RFC 3339 format.
-  private static String generateDateTimeFieldValue() {
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
-    return ZonedDateTime.now(ZoneId.systemDefault()).format(formatter);
-  }
-
   // example for extracting a value from search attributes
-  static String getKeywordFromSearchAttribute(SearchAttributes searchAttributes, String key) {
+  static String getKeywordFromSearchAttribute(
+      io.temporal.api.common.v1.SearchAttributes searchAttributes, String key) {
     Payload field = searchAttributes.getIndexedFieldsOrThrow(key);
     DataConverter dataConverter = GlobalDataConverter.get();
     return dataConverter.fromPayload(field, String.class, String.class);
