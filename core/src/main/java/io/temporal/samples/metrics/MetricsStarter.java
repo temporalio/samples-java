@@ -49,7 +49,7 @@ public class MetricsStarter {
             .reporter(new MicrometerClientStatsReporter(registry))
             .reportEvery(com.uber.m3.util.Duration.ofSeconds(1));
     // Start the prometheus scrape endpoint for starter metrics
-    HttpServer scrapeEndpoint = MetricsUtils.startPrometheusScrapeEndpoint(registry, 8081);
+    HttpServer scrapeEndpoint = MetricsUtils.startPrometheusScrapeEndpoint(registry, 8078);
     // Stopping the starter will stop the http server that exposes the
     // scrape endpoint.
     Runtime.getRuntime().addShutdownHook(new Thread(() -> scrapeEndpoint.stop(1)));

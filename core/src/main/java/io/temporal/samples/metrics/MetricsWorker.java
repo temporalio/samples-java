@@ -56,7 +56,7 @@ public class MetricsWorker {
             .reporter(new MicrometerClientStatsReporter(registry))
             .reportEvery(com.uber.m3.util.Duration.ofSeconds(1));
     // Start the prometheus scrape endpoint
-    HttpServer scrapeEndpoint = MetricsUtils.startPrometheusScrapeEndpoint(registry, 8080);
+    HttpServer scrapeEndpoint = MetricsUtils.startPrometheusScrapeEndpoint(registry, 8077);
     // Stopping the worker will stop the http server that exposes the
     // scrape endpoint.
     Runtime.getRuntime().addShutdownHook(new Thread(() -> scrapeEndpoint.stop(1)));
