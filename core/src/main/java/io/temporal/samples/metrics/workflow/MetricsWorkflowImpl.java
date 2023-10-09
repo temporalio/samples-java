@@ -35,8 +35,10 @@ public class MetricsWorkflowImpl implements MetricsWorkflow {
 
   @Override
   public String exec(String input) {
-    // Custom metric, we can use child scope and attach workflow_id as it's not attached by default like task_queue,
-    // workflow_type, etc
+    /*
+     * Custom metric, we can use child scope and attach workflow_id as it's not attached by default
+     * like task_queue ,workflow_type, etc
+     */
     Scope scope =
         Workflow.getMetricsScope()
             .tagged(Collections.singletonMap("workflow_id", Workflow.getInfo().getWorkflowId()));
