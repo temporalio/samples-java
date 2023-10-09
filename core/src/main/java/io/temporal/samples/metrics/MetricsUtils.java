@@ -38,7 +38,7 @@ public class MetricsUtils {
     try {
       HttpServer server = HttpServer.create(new InetSocketAddress(port), 0);
       server.createContext(
-          "/prometheus",
+          "/metrics",
           httpExchange -> {
             String response = registry.scrape();
             httpExchange.sendResponseHeaders(200, response.getBytes(UTF_8).length);

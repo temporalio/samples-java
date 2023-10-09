@@ -151,7 +151,7 @@ public class MetricsTest {
             "ActivityWorker",
             SDK_CUSTOM_KEY,
             SDK_CUSTOM_VALUE);
-    return registry.counter("activity_retries", tags);
+    return registry.counter("custom_activity_retries", tags);
   }
 
   private void assertIntCounter(int expectedValue, Counter counter) {
