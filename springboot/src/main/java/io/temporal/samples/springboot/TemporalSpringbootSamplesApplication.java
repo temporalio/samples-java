@@ -25,6 +25,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class TemporalSpringbootSamplesApplication {
   public static void main(String[] args) {
-    SpringApplication.run(TemporalSpringbootSamplesApplication.class, args).start();
+    SpringApplication.run(TemporalSpringbootSamplesApplication.class, args);
   }
 }

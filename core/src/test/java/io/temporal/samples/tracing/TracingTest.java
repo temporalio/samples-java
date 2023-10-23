@@ -96,6 +96,6 @@ public class TracingTest {
 
     List<JaegerSpan> reportedSpans = reporter.getSpans();
     assertNotNull(reportedSpans);
-    assertTrue(reportedSpans.size() == 6);
+    assertEquals(7, reportedSpans.size());
   }
 }

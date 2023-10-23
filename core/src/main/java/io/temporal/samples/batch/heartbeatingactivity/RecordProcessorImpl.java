@@ -36,6 +36,5 @@ public final class RecordProcessorImpl implements RecordProcessor {
     } catch (InterruptedException ignored) {
       return;
     }
-    return;
   }
 }
