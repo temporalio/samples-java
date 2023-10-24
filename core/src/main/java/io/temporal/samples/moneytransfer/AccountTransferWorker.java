@@ -38,8 +38,8 @@ public class AccountTransferWorker {
 
     // worker factory that can be used to create workers for specific task queues
     WorkerFactory factory = WorkerFactory.newInstance(client);
-    Worker workerForCommonTaskQueue = factory.newWorker(TASK_QUEUE);
-    workerForCommonTaskQueue.registerWorkflowImplementationTypes(AccountTransferWorkflowImpl.class);
+    Worker worker = factory.newWorker(TASK_QUEUE);
+    worker.registerWorkflowImplementationTypes(AccountTransferWorkflowImpl.class);
     // Start all workers created by this factory.
     factory.start();
     System.out.println("Worker started for task queue: " + TASK_QUEUE);
