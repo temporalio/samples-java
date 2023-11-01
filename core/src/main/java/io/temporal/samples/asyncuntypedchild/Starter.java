@@ -33,10 +33,10 @@ import io.temporal.worker.WorkerFactory;
 public class Starter {
 
   // Define the task queue name
-  static final String TASK_QUEUE = "HelloUntypedChildAsyncQueue";
+  static final String TASK_QUEUE = "AsyncUntypedChildQueue";
 
   // Define the workflow unique id
-  static final String WORKFLOW_ID = "HelloUntypedChildAsync";
+  static final String WORKFLOW_ID = "AsyncUntypedParent";
 
   /**
    * With the workflow, and child workflow defined, we can now start execution. The main method is
@@ -68,7 +68,7 @@ public class Starter {
      * Since workflows are stateful in nature,
      * we need to register the workflow types.
      */
-    worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class, GreetingChildImpl.class);
+    worker.registerWorkflowImplementationTypes(ParentWorkflowImpl.class, ChildWorkflowImpl.class);
 
     /*
      * Start all the workers registered for a specific task queue.
@@ -80,9 +80,9 @@ public class Starter {
     // Uses task queue from the GreetingWorkflow @WorkflowMethod annotation.
 
     // Create our parent workflow client stub. It is used to start the parent workflow execution.
-    GreetingWorkflow workflow =
+    ParentWorkflow workflow =
         client.newWorkflowStub(
-            GreetingWorkflow.class,
+            ParentWorkflow.class,
             WorkflowOptions.newBuilder()
                 .setWorkflowId(WORKFLOW_ID)
                 .setTaskQueue(TASK_QUEUE)
