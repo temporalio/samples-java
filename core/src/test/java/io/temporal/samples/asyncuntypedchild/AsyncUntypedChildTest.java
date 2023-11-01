@@ -66,7 +66,7 @@ public class AsyncUntypedChildTest {
             ParentWorkflow.class,
             WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build());
 
-    // Execute a workflow waiting for it to complete.
+    // Execute the parent workflow and wait for it to complete.
     String childWorkflowId = workflow.getGreeting("World");
     assertNotNull(childWorkflowId);
 

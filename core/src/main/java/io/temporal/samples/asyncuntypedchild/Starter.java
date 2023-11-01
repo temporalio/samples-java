@@ -32,11 +32,9 @@ import io.temporal.worker.WorkerFactory;
  */
 public class Starter {
 
-  // Define the task queue name
-  static final String TASK_QUEUE = "AsyncUntypedChildQueue";
+  static final String WORKFLOW_ID = "ParentWithAsyncUntypedChild";
 
-  // Define the workflow unique id
-  static final String WORKFLOW_ID = "AsyncUntypedParent";
+  static final String TASK_QUEUE = WORKFLOW_ID + "Queue";
 
   /**
    * With the workflow, and child workflow defined, we can now start execution. The main method is

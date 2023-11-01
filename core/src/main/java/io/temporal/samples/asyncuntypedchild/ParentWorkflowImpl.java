@@ -19,6 +19,8 @@
 
 package io.temporal.samples.asyncuntypedchild;
 
+import static io.temporal.samples.asyncuntypedchild.Starter.WORKFLOW_ID;
+
 import io.temporal.api.common.v1.WorkflowExecution;
 import io.temporal.api.enums.v1.ParentClosePolicy;
 import io.temporal.workflow.*;
@@ -37,6 +39,7 @@ public class ParentWorkflowImpl implements ParentWorkflow {
             ChildWorkflow.class.getSimpleName(),
             ChildWorkflowOptions.newBuilder()
                 .setParentClosePolicy(ParentClosePolicy.PARENT_CLOSE_POLICY_ABANDON)
+                .setWorkflowId("Child_of_" + WORKFLOW_ID)
                 .build());
 
     /*
