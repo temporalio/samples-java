@@ -70,7 +70,7 @@ public class HelloChildTest {
     // Factory is called to create a new workflow object on each workflow task.
     testWorkflowRule
         .getWorker()
-        .addWorkflowImplementationFactory(
+        .registerWorkflowImplementationFactory(
             GreetingChild.class,
             () -> {
               GreetingChild child = mock(GreetingChild.class);

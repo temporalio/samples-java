@@ -93,6 +93,8 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 
 #### API demonstrations
 
+- [**Async Untyped Child Workflow**](/core/src/main/java/io/temporal/samples/asyncuntypedchild): Demonstrates how to invoke an untyped child workflow async, that can complete after parent workflow is already completed.
+
 - [**Updatable Timer**](/core/src/main/java/io/temporal/samples/updatabletimer): Demonstrates the use of a helper class which relies on `Workflow.await` to implement a blocking sleep that can be updated at any moment.
 
 - [**Workflow Count Interceptor**](/core/src/main/java/io/temporal/samples/countinterceptor): Demonstrates how to create and register a simple Workflow Count Interceptor.
