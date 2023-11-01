@@ -119,7 +119,7 @@ public class HelloExceptionTest {
     // Mock a child that times out.
     testWorkflowRule
         .getWorker()
-        .addWorkflowImplementationFactory(
+        .registerWorkflowImplementationFactory(
             HelloException.GreetingChild.class,
             () -> {
               GreetingChildImpl child = mock(GreetingChildImpl.class);
