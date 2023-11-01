@@ -17,117 +17,26 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.hello;
+package io.temporal.samples.asyncuntypedchild;
 
-import io.temporal.api.common.v1.WorkflowExecution;
-import io.temporal.api.enums.v1.ParentClosePolicy;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
-import io.temporal.workflow.*;
 
 /**
  * Sample Temporal Workflow Definition that demonstrates the execution of a Child Workflow. Child
  * workflows allow you to group your Workflow logic into small logical and reusable units that solve
  * a particular problem. They can be typically reused by multiple other Workflows.
  */
-public class HelloUntypedChildAsync {
+public class Starter {
 
   // Define the task queue name
-  static final String TASK_QUEUE = "HelloChildTaskQueue";
+  static final String TASK_QUEUE = "HelloUntypedChildAsyncQueue";
 
   // Define the workflow unique id
-  static final String WORKFLOW_ID = "HelloParentWithAbandonChildWorkflow";
-
-  /**
-   * Define the parent workflow interface. It must contain one method annotated with @WorkflowMethod
-   *
-   * @see WorkflowInterface
-   * @see WorkflowMethod
-   */
-  @WorkflowInterface
-  public interface GreetingWorkflow {
-
-    /**
-     * Define the parent workflow method. This method is executed when the workflow is started. The
-     * workflow completes when the workflow method finishes execution.
-     */
-    @WorkflowMethod
-    String getGreeting(String name);
-  }
-
-  /**
-   * Define the child workflow Interface. It must contain one method annotated with @WorkflowMethod
-   *
-   * @see WorkflowInterface
-   * @see WorkflowMethod
-   */
-  @WorkflowInterface
-  public interface GreetingChild {
-
-    /**
-     * Define the child workflow method. This method is executed when the workflow is started. The
-     * workflow completes when the workflow method finishes execution.
-     */
-    @WorkflowMethod
-    String composeGreeting(String greeting, String name);
-  }
-
-  // Define the parent workflow implementation. It implements the getGreeting workflow method
-  public static class GreetingWorkflowImpl implements GreetingWorkflow {
-
-    @Override
-    public String getGreeting(String name) {
-      /*
-       * Define the child workflow stub. Since workflows are stateful,
-       * a new stub must be created for each child workflow.
-       */
-      GreetingChild child =
-          Workflow.newChildWorkflowStub(
-              GreetingChild.class,
-              ChildWorkflowOptions.newBuilder()
-                  .setParentClosePolicy(ParentClosePolicy.PARENT_CLOSE_POLICY_ABANDON)
-                  .build());
-
-      // This is a non blocking call that returns immediately.
-      // Use child.composeGreeting("Hello", name) to call synchronously.
-
-      /*
-       * Invoke the child workflows composeGreeting workflow method.
-       * This call is non-blocking and returns immediately returning a {@link io.temporal.workflow.Promise}
-       *
-       * You can use child.composeGreeting("Hello", name) instead to call the child workflow method synchronously.
-       */
-      Async.function(child::composeGreeting, "Hello", name);
-
-      // Wait for the child workflow to start before returning the result
-      Promise<WorkflowExecution> childExecution = Workflow.getWorkflowExecution(child);
-      // Wait for child to start
-      WorkflowExecution childWorkflowExecution = childExecution.get();
-
-      // return the child workflowId
-      return childWorkflowExecution.getWorkflowId();
-    }
-  }
-
-  /**
-   * Define the parent workflow implementation. It implements the getGreeting workflow method
-   *
-   * <p>Note that a workflow implementation must always be public for the Temporal library to be
-   * able to create its instances.
-   */
-  public static class GreetingChildImpl implements GreetingChild {
-
-    @Override
-    public String composeGreeting(String greeting, String name) {
-
-      Workflow.sleep(2000);
-
-      return greeting + " " + name + "!";
-    }
-  }
+  static final String WORKFLOW_ID = "HelloUntypedChildAsync";
 
   /**
    * With the workflow, and child workflow defined, we can now start execution. The main method is
@@ -181,10 +90,11 @@ public class HelloUntypedChildAsync {
 
     // Execute our parent workflow and wait for it to complete, it returns the child workflow id.
     String childWorkflowId = workflow.getGreeting("World");
+    System.out.println("Child WorkflowId=[" + childWorkflowId + "] started in abandon mode");
 
     String childResult = client.newUntypedWorkflowStub(childWorkflowId).getResult(String.class);
 
-    System.out.println(childResult);
+    System.out.println("Result from child workflow = " + childResult);
 
     System.exit(0);
   }

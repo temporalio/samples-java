@@ -17,21 +17,20 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.hello;
+package io.temporal.samples.asyncuntypedchild;
 
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import io.temporal.client.WorkflowOptions;
-import io.temporal.samples.hello.HelloUntypedChildAsync.*;
 import io.temporal.testing.TestWorkflowRule;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.Rule;
 import org.junit.Test;
 
-/** Unit test for {@link HelloUntypedChildAsync}. Doesn't use an external Temporal service. */
-public class HelloUntypedChildAsyncTest {
+/** Unit test for {@link Starter}. Doesn't use an external Temporal service. */
+public class AsyncUntypedChildTest {
 
   @Rule
   public TestWorkflowRule testWorkflowRule =
@@ -70,7 +69,10 @@ public class HelloUntypedChildAsyncTest {
     assertNotNull(childWorkflowId);
 
     // Wait for the child to complete
-    testWorkflowRule.getWorkflowClient().newUntypedWorkflowStub(childWorkflowId).getResult(String.class);
+    testWorkflowRule
+        .getWorkflowClient()
+        .newUntypedWorkflowStub(childWorkflowId)
+        .getResult(String.class);
 
     GreetingChild mock = lastChildMock.get();
     verify(mock).composeGreeting(eq("Hello"), eq("World"));
