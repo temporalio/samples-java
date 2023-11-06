@@ -2,7 +2,7 @@ plugins {
     id 'org.cadixdev.licenser' version '0.6.1'
     id "net.ltgt.errorprone" version "3.1.0"
     id 'com.diffplug.spotless' version '6.22.0' apply false
-    id 'org.springframework.boot' version '2.7.13'
+    id 'org.springframework.boot' version '3.1.5'
 }
 
 subprojects {
