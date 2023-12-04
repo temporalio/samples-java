@@ -6,17 +6,17 @@ fail or retry.
 Starts Worker. The worker upon start initiates a workflow that has an activity that fails on the fist invocation.
 
 ```bash
-./gradlew -q execute -PmainClass=io.temporal.samples.retryonsignalinterceptor.Worker
+./gradlew -q execute -PmainClass=io.temporal.samples.retryonsignalinterceptor.MyWorkflowWorker
 ```
 
 Sends Signal to indicate that the activity should be retried.
 
 ```bash
-./gradlew -q execute -PmainClass=io.temporal.samples.retryonsignalinterceptor.RetryActivity
+./gradlew -q execute -PmainClass=io.temporal.samples.retryonsignalinterceptor.RetryRequester
 ```
 
 Sends a signal to propagate the activity failure to the workflow instead of retrying.
 
 ```bash
-./gradlew -q execute -PmainClass=io.temporal.samples.retryonsignalinterceptor.FailActivity
+./gradlew -q execute -PmainClass=io.temporal.samples.retryonsignalinterceptor.FailureRequester
 ```
