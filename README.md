@@ -5,7 +5,7 @@ Temporal using the [Java SDK](https://github.com/temporalio/sdk-java).
 
 It contains two modules:
 * [Core](/core): showcases many different SDK features.
-* [SpringBoot](/springboot): showcases springboot autoconfig integration.
+* [SpringBoot](/springboot): showcases SpringBoot autoconfig integration.
 
 ## Learn more about Temporal and Java SDK
 
@@ -15,8 +15,8 @@ It contains two modules:
 
 ## Requirements
 
-- Java 1.8+ for build and runtime
-- Java 11+ for development and contribution
+- Java 1.8+ for build and runtime of core samples
+- Java 1.17+ for build and runtime of Spring Boot samples
 - Local Temporal Server, easiest to get started would be using [Temporal CLI](https://github.com/temporalio/cli).
 For more options see docs [here](https://docs.temporal.io/kb/all-the-ways-to-run-a-cluster).
 
@@ -132,6 +132,8 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 <!-- @@@SNIPEND -->
 
 ### Running SpringBoot Samples
+
+These samples use SpringBoot 3
 
 1. Start SpringBoot from main repo dir:
 

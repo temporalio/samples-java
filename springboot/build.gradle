@@ -14,11 +14,7 @@ dependencies {
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     dependencies {
         errorproneJavac('com.google.errorprone:javac:9+181-r4173-1')
-        if (JavaVersion.current().isJava11Compatible()) {
-            errorprone('com.google.errorprone:error_prone_core:2.23.0')
-        } else {
-            errorprone('com.google.errorprone:error_prone_core:2.23.0')
-        }
+        errorprone('com.google.errorprone:error_prone_core:2.23.0')
     }
 }
 
@@ -28,4 +24,9 @@ bootJar {
 
 jar {
     enabled = true
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }

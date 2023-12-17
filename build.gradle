@@ -2,7 +2,7 @@ plugins {
     id 'org.cadixdev.licenser' version '0.6.1'
     id "net.ltgt.errorprone" version "3.1.0"
     id 'com.diffplug.spotless' version '6.22.0' apply false
-    id 'org.springframework.boot' version '2.7.13'
+    id 'org.springframework.boot' version '3.2.0'
 }
 
 subprojects {
@@ -10,11 +10,6 @@ subprojects {
     apply plugin: 'org.cadixdev.licenser'
     apply plugin: 'net.ltgt.errorprone'
     apply plugin: 'com.diffplug.spotless'
-
-    java {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
 
     compileJava {
         options.compilerArgs << "-Werror"
@@ -47,20 +42,17 @@ subprojects {
         exclude '**/*.js'
     }
 
-    if (JavaVersion.current().isJava11Compatible()) {
-        // Code should be formatted using the latest googleJavaFormat, but it doesn't support Java <11 since version 1.8
-        apply plugin: 'com.diffplug.spotless'
+    apply plugin: 'com.diffplug.spotless'
 
-        spotless {
-            java {
-                target 'src/*/java/**/*.java'
-                targetExclude '**/.idea/**'
-                googleJavaFormat('1.16.0')
-            }
+    spotless {
+        java {
+            target 'src/*/java/**/*.java'
+            targetExclude '**/.idea/**'
+            googleJavaFormat('1.16.0')
         }
-
-        compileJava.dependsOn 'spotlessApply'
     }
+
+    compileJava.dependsOn 'spotlessApply'
 
     test {
         useJUnitPlatform()
