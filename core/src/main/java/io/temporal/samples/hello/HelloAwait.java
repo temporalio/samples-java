@@ -21,6 +21,8 @@ package io.temporal.samples.hello;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.client.WorkflowStub;
+import io.temporal.failure.ApplicationFailure;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -28,20 +30,19 @@ import io.temporal.workflow.SignalMethod;
 import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.Duration;
 
 /**
- * Sample Temporal workflow that demonstrates how to use workflow signal methods to signal from
- * external sources.
+ * Sample Temporal workflow that demonstrates how to use workflow await methods to wait up to a
+ * specified timeout for a condition updated from a signal handler.
  */
-public class HelloSignal {
+public class HelloAwait {
 
   // Define the task queue name
-  static final String TASK_QUEUE = "HelloSignalTaskQueue";
+  static final String TASK_QUEUE = "HelloAwaitTaskQueue";
 
   // Define the workflow unique id
-  static final String WORKFLOW_ID = "HelloSignalWorkflow";
+  static final String WORKFLOW_ID = "HelloAwaitWorkflow";
 
   /**
    * The Workflow Definition's Interface must contain one method annotated with @WorkflowMethod.
@@ -50,8 +51,8 @@ public class HelloSignal {
    * code, network calls, database operations, etc. Those things should be handled by the
    * Activities.
    *
-   * @see io.temporal.workflow.WorkflowInterface
-   * @see io.temporal.workflow.WorkflowMethod
+   * @see WorkflowInterface
+   * @see WorkflowMethod
    */
   @WorkflowInterface
   public interface GreetingWorkflow {
@@ -60,50 +61,35 @@ public class HelloSignal {
      * Execution completes when this method finishes execution.
      */
     @WorkflowMethod
-    List<String> getGreetings();
+    String getGreeting();
 
     // Define the workflow waitForName signal method. This method is executed when the workflow
-    // receives a signal.
+    // receives a "WaitForName" signal.
     @SignalMethod
     void waitForName(String name);
-
-    // Define the workflow exit signal method. This method is executed when the workflow receives a
-    // signal.
-    @SignalMethod
-    void exit();
   }
 
   // Define the workflow implementation which implements the getGreetings workflow method.
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
 
-    // messageQueue holds up to 10 messages (received from signals)
-    List<String> messageQueue = new ArrayList<>(10);
-    boolean exit = false;
+    private String name;
 
     @Override
-    public List<String> getGreetings() {
-      List<String> receivedMessages = new ArrayList<>(10);
-
-      while (true) {
-        // Block current thread until the unblocking condition is evaluated to true
-        Workflow.await(() -> !messageQueue.isEmpty() || exit);
-        if (messageQueue.isEmpty() && exit) {
-          // no messages in queue and exit signal was sent, return the received messages
-          return receivedMessages;
-        }
-        String message = messageQueue.remove(0);
-        receivedMessages.add(message);
+    public String getGreeting() {
+      boolean ok = Workflow.await(Duration.ofSeconds(10), () -> name != null);
+      if (ok) {
+        return "Hello " + name + "!";
+      } else {
+        // To fail workflow use ApplicationFailure. Any other exception would cause workflow to
+        // stall, not to fail.
+        throw ApplicationFailure.newFailure(
+            "WaitForName signal is not received within 10 seconds.", "signal-timeout");
       }
     }
 
     @Override
     public void waitForName(String name) {
-      messageQueue.add("Hello " + name + "!");
-    }
-
-    @Override
-    public void exit() {
-      exit = true;
+      this.name = name;
     }
   }
 
@@ -117,7 +103,7 @@ public class HelloSignal {
     WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
 
     /*
-     * Get a Workflow service client which can be used to start, Signal, and Query Workflow Executions.
+     * Get a Workflow service client which can be used to start, Await, and Query Workflow Executions.
      */
     WorkflowClient client = WorkflowClient.newInstance(service);
 
@@ -153,41 +139,21 @@ public class HelloSignal {
     GreetingWorkflow workflow = client.newWorkflowStub(GreetingWorkflow.class, workflowOptions);
 
     // Start workflow asynchronously and call its getGreeting workflow method
-    WorkflowClient.start(workflow::getGreetings);
+    WorkflowClient.start(workflow::getGreeting);
 
     // After start for getGreeting returns, the workflow is guaranteed to be started.
-    // So we can send a signal to it using the workflow stub.
-    // This workflow keeps receiving signals until exit is called
-
-    // When the workflow is started the getGreetings will block for the previously defined
-    // conditions
-    // Send the first workflow signal
+    // Send WaitForName signal.
     workflow.waitForName("World");
 
     /*
-     * Here we create a new workflow stub using the same workflow id.
-     * We do this to demonstrate that to send a signal to an already running workflow
-     * you only need to know its workflow id.
+     * Here we create a new untyped workflow stub using the same workflow id.
+     * The untyped stub is a convenient way to wait for a workflow result.
      */
-    GreetingWorkflow workflowById = client.newWorkflowStub(GreetingWorkflow.class, WORKFLOW_ID);
+    WorkflowStub workflowById = client.newUntypedWorkflowStub(WORKFLOW_ID);
 
-    // Send the second signal to our workflow
-    workflowById.waitForName("Universe");
+    String greeting = workflowById.getResult(String.class);
 
-    // Now let's send our exit signal to the workflow
-    workflowById.exit();
-
-    /*
-     * We now call our getGreetings workflow method synchronously after our workflow has started.
-     * This reconnects our workflowById workflow stub to the existing workflow and blocks until
-     * a result is available. Note that this behavior assumes that WorkflowOptions are not configured
-     * with WorkflowIdReusePolicy.AllowDuplicate. If they were, this call would fail with the
-     * WorkflowExecutionAlreadyStartedException exception.
-     */
-    List<String> greetings = workflowById.getGreetings();
-
-    // Print our two greetings which were sent by signals
-    System.out.println(greetings);
+    System.out.println(greeting);
     System.exit(0);
   }
 }
