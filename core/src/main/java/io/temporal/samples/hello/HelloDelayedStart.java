@@ -107,7 +107,7 @@ public class HelloDelayedStart {
             WorkflowOptions.newBuilder()
                 .setWorkflowId(WORKFLOW_ID)
                 .setTaskQueue(TASK_QUEUE)
-                // set delayed start in 10s
+                // set delayed start in 2 seconds
                 .setStartDelay(Duration.ofSeconds(2))
                 .build());
 
