@@ -16,7 +16,8 @@ It contains two modules:
 ## Requirements
 
 - Java 1.8+ for build and runtime of core samples
-- Java 1.17+ for build and runtime of Spring Boot samples
+- Java 1.8+ for build and runtime of SpringBoot samples when using SpringBoot 2
+- Java 1.17+ for build and runtime of Spring Boot samples when using SpringBoot 3
 - Local Temporal Server, easiest to get started would be using [Temporal CLI](https://github.com/temporalio/cli).
 For more options see docs [here](https://docs.temporal.io/kb/all-the-ways-to-run-a-cluster).
 
@@ -133,7 +134,8 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 
 ### Running SpringBoot Samples
 
-These samples use SpringBoot 3
+These samples use SpringBoot 2 by default. To switch to using SpringBoot 3 look at the [gradle.properties](gradle.properties) file
+and follow simple instructions there.
 
 1. Start SpringBoot from main repo dir:
 
