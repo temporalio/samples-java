@@ -25,13 +25,13 @@ public class Task {
 
   private String token;
   private Object data;
-  private STATE state;
+  private State state;
 
   public Task() {}
 
   public Task(String token) {
     this.token = token;
-    this.state = STATE.PENDING;
+    this.state = State.pending;
   }
 
   public String getToken() {
@@ -46,17 +46,17 @@ public class Task {
     return (T) data;
   }
 
-  public void setState(STATE state) {
+  public void setState(State state) {
     this.state = state;
   }
 
-  public STATE getState() {
+  public State getState() {
     return state;
   }
 
   @JsonIgnore
   public boolean isCompleted() {
-    return STATE.COMPLETED == this.state;
+    return State.completed == this.state;
   }
 
   @Override
@@ -64,9 +64,9 @@ public class Task {
     return "Task{" + "token='" + token + '\'' + ", data=" + data + ", state=" + state + '}';
   }
 
-  public enum STATE {
-    PENDING,
-    STARTED,
-    COMPLETED
+  public enum State {
+    pending,
+    started,
+    completed
   }
 }
