@@ -21,7 +21,6 @@ package io.temporal.samples.taskinteraction;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.temporal.workflow.CompletablePromise;
-import io.temporal.workflow.Promise;
 import io.temporal.workflow.Workflow;
 import java.util.Collections;
 import java.util.HashMap;
@@ -74,10 +73,6 @@ public class TaskService<R> {
   private final Logger logger = Workflow.getLogger(TaskService.class);
 
   public R executeTask(Callback<R> callback, String token) {
-    return executeTaskAsync(callback, token).get();
-  }
-
-  public Promise<R> executeTaskAsync(Callback<R> callback, String token) {
 
     final Task task = new Task(token);
     logger.info("Before creating task : " + task);
@@ -88,7 +83,7 @@ public class TaskService<R> {
     final CompletablePromise<R> promise = Workflow.newPromise();
     pendingPromises.put(token, promise);
 
-    return promise;
+    return promise.get();
   }
 
   public List<Task> getOpenTasks() {
