@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 
 public class TaskService<R> {
 
-  private final Map<String, Task> tasks = Collections.synchronizedMap(new HashMap<>());
+  private final Map<String, Task> tasks = new HashMap<>();
   private final Map<String, CompletablePromise<R>> pendingPromises =
       Collections.synchronizedMap(new HashMap<>());
 
