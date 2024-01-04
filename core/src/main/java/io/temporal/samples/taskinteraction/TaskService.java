@@ -55,7 +55,7 @@ public class TaskService<R> {
 
           logger.info("Task updated: " + t);
 
-          if (taskRequest.state == Task.STATE.COMPLETED) {
+          if (taskRequest.state == Task.State.completed) {
             final CompletablePromise<R> completablePromise = pendingPromises.get(token);
             completablePromise.complete((R) data);
           }
@@ -101,13 +101,13 @@ public class TaskService<R> {
 
   public static class TaskRequest {
 
-    private Task.STATE state;
+    private Task.State state;
     private String data;
     private String token;
 
     public TaskRequest() {}
 
-    public TaskRequest(Task.STATE state, String data, String token) {
+    public TaskRequest(Task.State state, String data, String token) {
       this.state = state;
       this.data = data;
       this.token = token;
@@ -115,7 +115,7 @@ public class TaskService<R> {
 
     @JsonIgnore
     public boolean isCompleted() {
-      return this.state == Task.STATE.COMPLETED;
+      return this.state == Task.State.completed;
     }
 
     public String getToken() {

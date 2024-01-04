@@ -80,20 +80,20 @@ public class TaskWorkflowImplTest {
     final List<Task> asyncTasksStarted = taskClient.getOpenTasks();
     assertEquals(2, asyncTasksStarted.size());
     // Change tasks state, not completing them yet
-    changeTaskState(taskClient, asyncTasksStarted, Task.STATE.STARTED);
+    changeTaskState(taskClient, asyncTasksStarted, Task.State.started);
 
     // The two tasks are still open, lets complete them
     final List<Task> asyncTasksPending = taskClient.getOpenTasks();
     assertEquals(2, asyncTasksPending.size());
-    changeTaskState(taskClient, asyncTasksPending, Task.STATE.COMPLETED);
+    changeTaskState(taskClient, asyncTasksPending, Task.State.completed);
 
     // Wait for the activity to get executed for the third time. One more task gets created
     completedActivities[0].get();
 
     final List<Task> syncTask = taskClient.getOpenTasks();
     assertEquals(1, syncTask.size());
-    changeTaskState(taskClient, syncTask, Task.STATE.STARTED);
-    changeTaskState(taskClient, syncTask, Task.STATE.COMPLETED);
+    changeTaskState(taskClient, syncTask, Task.State.started);
+    changeTaskState(taskClient, syncTask, Task.State.completed);
 
     // Workflow completes
     final WorkflowStub untyped =
@@ -101,7 +101,7 @@ public class TaskWorkflowImplTest {
     untyped.getResult(String.class);
   }
 
-  private static void changeTaskState(TaskClient client, List<Task> tasks, Task.STATE state) {
+  private static void changeTaskState(TaskClient client, List<Task> tasks, Task.State state) {
     tasks.forEach(
         t -> {
           client.updateTask(

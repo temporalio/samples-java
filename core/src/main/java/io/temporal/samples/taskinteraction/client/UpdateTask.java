@@ -41,9 +41,9 @@ public class UpdateTask {
     final List<Task> openTasks = taskClient.getOpenTasks();
 
     final Task randomOpenTask = openTasks.get(0);
-    final List<Task.STATE> states = Arrays.asList(Task.STATE.values());
+    final List<Task.State> states = Arrays.asList(Task.State.values());
 
-    final Task.STATE nextState = states.get(states.indexOf(randomOpenTask.getState()) + 1);
+    final Task.State nextState = states.get(states.indexOf(randomOpenTask.getState()) + 1);
 
     System.out.println("\nUpdating task " + randomOpenTask + " to " + nextState);
     taskClient.updateTask(
