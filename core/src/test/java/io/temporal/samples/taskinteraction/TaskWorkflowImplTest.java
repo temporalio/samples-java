@@ -105,7 +105,8 @@ public class TaskWorkflowImplTest {
     tasks.forEach(
         t -> {
           client.updateTask(
-              new TaskService.TaskRequest(state, "Changing state to: " + state, t.getToken()));
+              new TaskService.UpdateTaskRequest(
+                  state, new Task.TaskData("Changing state to: " + state), t.getToken()));
         });
   }
 
