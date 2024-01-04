@@ -20,6 +20,7 @@
 package io.temporal.samples.taskinteraction;
 
 import io.temporal.activity.ActivityOptions;
+import io.temporal.workflow.Async;
 import io.temporal.workflow.Promise;
 import io.temporal.workflow.Workflow;
 import java.time.Duration;
@@ -45,9 +46,14 @@ public class TaskWorkflowImpl implements TaskWorkflow {
     // to change the task state, and ultimately to complete the task
     logger.info("About to create async tasks");
     final Promise<String> task1 =
-        taskService.executeTaskAsync(() -> activity.createTask("TODO 1"), taskToken.getNext());
+        Async.function(
+            () ->
+                taskService.executeTask(() -> activity.createTask("TODO 1"), taskToken.getNext()));
+
     final Promise<String> task2 =
-        taskService.executeTaskAsync(() -> activity.createTask("TODO 2"), taskToken.getNext());
+        Async.function(
+            () ->
+                taskService.executeTask(() -> activity.createTask("TODO 2"), taskToken.getNext()));
 
     logger.info("Awaiting for two tasks to get completed");
     // Block execution until both tasks complete
