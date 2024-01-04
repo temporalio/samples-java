@@ -24,7 +24,6 @@ import io.temporal.workflow.Promise;
 import io.temporal.workflow.Workflow;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 
 public class TaskWorkflowImpl implements TaskWorkflow {
@@ -40,14 +39,15 @@ public class TaskWorkflowImpl implements TaskWorkflow {
 
   @Override
   public void execute() {
+    final TaskToken taskToken = new TaskToken();
 
     // Schedule two "tasks" in parallel. The last parameter is the token the client needs
     // to change the task state, and ultimately to complete the task
     logger.info("About to create async tasks");
     final Promise<String> task1 =
-        taskService.executeTaskAsync(() -> activity.createTask("TODO 1"), taskToken());
+        taskService.executeTaskAsync(() -> activity.createTask("TODO 1"), taskToken.getNext());
     final Promise<String> task2 =
-        taskService.executeTaskAsync(() -> activity.createTask("TODO 2"), taskToken());
+        taskService.executeTaskAsync(() -> activity.createTask("TODO 2"), taskToken.getNext());
 
     logger.info("Awaiting for two tasks to get completed");
     // Block execution until both tasks complete
@@ -56,18 +56,22 @@ public class TaskWorkflowImpl implements TaskWorkflow {
 
     logger.info("About to create one blocking task");
     // Blocking invocation
-    taskService.executeTask(() -> activity.createTask("TODO 3"), taskToken());
+    taskService.executeTask(() -> activity.createTask("TODO 3"), taskToken.getNext());
     logger.info("Task completed");
     logger.info("Completing workflow");
   }
 
-  private final AtomicInteger atomicInteger = new AtomicInteger(1);
+  private static class TaskToken {
 
-  private String taskToken() {
-    return Workflow.getInfo().getWorkflowId()
-        + "-"
-        + Workflow.currentTimeMillis()
-        + "-"
-        + atomicInteger.getAndIncrement();
+    private int taskToken = 1;
+
+    public String getNext() {
+
+      return Workflow.getInfo().getWorkflowId()
+          + "-"
+          + Workflow.currentTimeMillis()
+          + "-"
+          + taskToken++;
+    }
   }
 }
