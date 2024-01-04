@@ -41,22 +41,22 @@ public class TaskService<R> {
       new TaskClient() {
 
         @Override
-        public void updateTask(TaskRequest taskRequest) {
+        public void updateTask(UpdateTaskRequest updateTaskRequest) {
 
-          final String token = taskRequest.getToken();
-          final String data = taskRequest.getData();
+          final String token = updateTaskRequest.getToken();
+          final Task.TaskData data = updateTaskRequest.getData();
           tasks.get(token).setData(data);
 
           final Task t = tasks.get(token);
 
-          t.setState(taskRequest.state);
+          t.setState(updateTaskRequest.state);
           tasks.put(t.getToken(), t);
 
           logger.info("Task updated: " + t);
 
-          if (taskRequest.state == Task.State.completed) {
+          if (updateTaskRequest.state == Task.State.completed) {
             final CompletablePromise<R> completablePromise = pendingPromises.get(token);
-            completablePromise.complete((R) data);
+            completablePromise.complete((R) data.getValue());
           }
         }
 
@@ -94,15 +94,15 @@ public class TaskService<R> {
     T execute();
   }
 
-  public static class TaskRequest {
+  public static class UpdateTaskRequest {
 
     private Task.State state;
-    private String data;
+    private Task.TaskData data;
     private String token;
 
-    public TaskRequest() {}
+    public UpdateTaskRequest() {}
 
-    public TaskRequest(Task.State state, String data, String token) {
+    public UpdateTaskRequest(Task.State state, Task.TaskData data, String token) {
       this.state = state;
       this.data = data;
       this.token = token;
@@ -117,7 +117,7 @@ public class TaskService<R> {
       return token;
     }
 
-    public String getData() {
+    public Task.TaskData getData() {
       return data;
     }
   }

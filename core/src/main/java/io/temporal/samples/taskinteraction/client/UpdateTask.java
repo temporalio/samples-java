@@ -47,8 +47,8 @@ public class UpdateTask {
 
     System.out.println("\nUpdating task " + randomOpenTask + " to " + nextState);
     taskClient.updateTask(
-        new TaskService.TaskRequest(
-            nextState, "Updated to " + nextState, randomOpenTask.getToken()));
+        new TaskService.UpdateTaskRequest(
+            nextState, new Task.TaskData("Updated to " + nextState), randomOpenTask.getToken()));
 
     System.exit(0);
   }

@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class Task {
 
   private String token;
-  private Object data;
+  private TaskData data;
   private State state;
 
   public Task() {}
@@ -38,12 +38,12 @@ public class Task {
     return token;
   }
 
-  public void setData(Object data) {
+  public void setData(TaskData data) {
     this.data = data;
   }
 
-  public <T> T result(Class<T> tClass) {
-    return (T) data;
+  public TaskData getData() {
+    return data;
   }
 
   public void setState(State state) {
@@ -68,5 +68,29 @@ public class Task {
     pending,
     started,
     completed
+  }
+
+  public static class TaskData {
+    private String value;
+
+    public TaskData() {}
+
+    public TaskData(final String value) {
+
+      this.value = value;
+    }
+
+    public void setValue(final String value) {
+      this.value = value;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return "TaskData{" + "value='" + value + '\'' + '}';
+    }
   }
 }
