@@ -86,10 +86,6 @@ public class TaskService<R> {
     return promise.get();
   }
 
-  public List<Task> getOpenTasks() {
-    return listener.getOpenTasks();
-  }
-
   public interface Callback<T> {
     T execute();
   }
