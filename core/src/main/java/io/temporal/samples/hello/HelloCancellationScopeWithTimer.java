@@ -82,7 +82,7 @@ public class HelloCancellationScopeWithTimer {
             UpdateInfoActivities.class,
             ActivityOptions.newBuilder()
                 // If heartbeat timeout is not set, activity heartbeats will be throttled to one
-                // every 30 seconds
+                // every 30 seconds, it also will not have a heartbeat timeout.
                 .setHeartbeatTimeout(Duration.ofSeconds(2))
                 .setStartToCloseTimeout(Duration.ofSeconds(10))
                 .setCancellationType(ActivityCancellationType.WAIT_CANCELLATION_COMPLETED)
