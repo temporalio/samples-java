@@ -6,6 +6,7 @@ Temporal using the [Java SDK](https://github.com/temporalio/sdk-java).
 It contains two modules:
 * [Core](/core): showcases many different SDK features.
 * [SpringBoot](/springboot): showcases SpringBoot autoconfig integration.
+* [SpringBoot Basic](/springboot-basic): Minimal sample showing SpringBoot autoconfig integration without any extra external dependencies.
 
 ## Learn more about Temporal and Java SDK
 
@@ -140,7 +141,12 @@ and follow simple instructions there.
 
 1. Start SpringBoot from main repo dir:
 
-       ./gradlew bootRun
+       ./gradlew :springboot:bootRun
+
+To run the basic sample run
+
+       ./gradlew :springboot-basic:bootRun
+
 
 2. Navigate to [localhost:3030](http://localhost:3030)
 

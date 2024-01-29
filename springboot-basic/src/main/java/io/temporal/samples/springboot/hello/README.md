@@ -2,7 +2,7 @@
 
 1. Start SpringBoot from main samples repo directory:
    
-       ./gradlew :springboot:bootRun
+       ./gradlew :springboot-basic:bootRun
 
 2. In your browser navigate to:
  

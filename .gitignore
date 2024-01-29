@@ -8,9 +8,11 @@ target
 /build
 /core/build
 /springboot/build
+/springboot-basic/build
 /out
 /core/out
 /springboot/out
+/springboot-basic/out
 .classpath
 .project
 .settings/
