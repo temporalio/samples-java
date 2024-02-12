@@ -75,6 +75,12 @@ public class SamplesController {
     return "metrics";
   }
 
+  @GetMapping("/customendpoint")
+  public String customEndpoint(Model model) {
+    model.addAttribute("sample", "Custom Actuator Worker Info Endpoint");
+    return "actuator";
+  }
+
   @GetMapping("/update")
   public String update(Model model) {
     model.addAttribute("sample", "Synchronous Update");

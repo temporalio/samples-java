@@ -49,7 +49,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: prometheus
+        include: prometheus,temporalworkerinfo
 # specific for samples
 samples:
   data:

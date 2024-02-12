@@ -153,6 +153,7 @@ More info on each sample:
 - [**Synchronous Update**](/springboot/src/main/java/io/temporal/samples/springboot/update): Learn how to use Synchronous Update feature with this purchase sample
 - [**Kafka Request / Reply**](/springboot/src/main/java/io/temporal/samples/springboot/kafka): Sample showing possible integration with event streaming platforms such as Kafka
 - [**Customize Options**](/springboot/src/main/java/io/temporal/samples/springboot/customize): Sample showing how to customize options such as WorkerOptions, WorkerFactoryOptions, etc (see options config [here](springboot/src/main/java/io/temporal/samples/springboot/customize/TemporalOptionsConfig.java))
+- [**Customize Options**](/springboot/src/main/java/io/temporal/samples/springboot/actuator): Sample showing how to create a custom Actuator endpoint that shows registered Workflow and Activity impls per task queue.
 
 
 #### Temporal Cloud
