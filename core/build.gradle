@@ -5,7 +5,7 @@ dependencies {
     testImplementation("io.temporal:temporal-testing:$javaSDKVersion")
 
     // Needed for SDK related functionality
-    implementation(platform("com.fasterxml.jackson:jackson-bom:2.15.3"))
+    implementation(platform("com.fasterxml.jackson:jackson-bom:2.16.1"))
     implementation "com.fasterxml.jackson.core:jackson-databind"
     implementation "com.fasterxml.jackson.core:jackson-core"
 
