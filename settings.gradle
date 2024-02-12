@@ -1,4 +1,4 @@
 rootProject.name = 'temporal-java-samples'
 include 'core'
 include 'springboot'
-
+include 'springboot-basic'

@@ -5,7 +5,8 @@ Temporal using the [Java SDK](https://github.com/temporalio/sdk-java).
 
 It contains two modules:
 * [Core](/core): showcases many different SDK features.
-* [SpringBoot](/springboot): showcases springboot autoconfig integration.
+* [SpringBoot](/springboot): showcases SpringBoot autoconfig integration.
+* [SpringBoot Basic](/springboot-basic): Minimal sample showing SpringBoot autoconfig integration without any extra external dependencies.
 
 ## Learn more about Temporal and Java SDK
 
@@ -15,8 +16,9 @@ It contains two modules:
 
 ## Requirements
 
-- Java 1.8+ for build and runtime
-- Java 11+ for development and contribution
+- Java 1.8+ for build and runtime of core samples
+- Java 1.8+ for build and runtime of SpringBoot samples when using SpringBoot 2
+- Java 1.17+ for build and runtime of Spring Boot samples when using SpringBoot 3
 - Local Temporal Server, easiest to get started would be using [Temporal CLI](https://github.com/temporalio/cli).
 For more options see docs [here](https://docs.temporal.io/kb/all-the-ways-to-run-a-cluster).
 
@@ -50,10 +52,12 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
     - [**HelloActivityRetry**](/core/src/main/java/io/temporal/samples/hello/HelloActivityRetry.java): Demonstrates how to Retry an Activity Execution.
     - [**HelloActivityExclusiveChoice**](/core/src/main/java/io/temporal/samples/hello/HelloActivityExclusiveChoice.java): Demonstrates how to execute Activities based on dynamic input.
     - [**HelloAsync**](/core/src/main/java/io/temporal/samples/hello/HelloAsync.java): Demonstrates how to execute Activities asynchronously and wait for them using Promises.
+    - [**HelloAwait**](/core/src/main/java/io/temporal/samples/hello/HelloAwait.java): Demonstrates how to use Await statement to wait for a condition.
     - [**HelloParallelActivity**](/core/src/main/java/io/temporal/samples/hello/HelloParallelActivity.java): Demonstrates how to execute multiple Activities in parallel, asynchronously, and wait for them using `Promise.allOf`.
     - [**HelloAsyncActivityCompletion**](/core/src/main/java/io/temporal/samples/hello/HelloAsyncActivityCompletion.java): Demonstrates how to complete an Activity Execution asynchronously.
     - [**HelloAsyncLambda**](/core/src/main/java/io/temporal/samples/hello/HelloAsyncLambda.java): Demonstrates how to execute part of a Workflow asynchronously in a separate task (thread).
     - [**HelloCancellationScope**](/core/src/main/java/io/temporal/samples/hello/HelloCancellationScope.java): Demonstrates how to explicitly cancel parts of a Workflow Execution.
+    - [**HelloCancellationScopeWithTimer**](/core/src/main/java/io/temporal/samples/hello/HelloCancellationScopeWithTimer.java): Demonstrates how to cancel activity when workflow timer fires and complete execution. This can prefered over using workflow run/execution timeouts.
     - [**HelloDetachedCancellationScope**](/core/src/main/java/io/temporal/samples/hello/HelloDetachedCancellationScope.java): Demonstrates how to execute cleanup code after a Workflow Execution has been explicitly cancelled.
     - [**HelloChild**](/core/src/main/java/io/temporal/samples/hello/HelloChild.java): Demonstrates how to execute a simple Child Workflow.
     - [**HelloCron**](/core/src/main/java/io/temporal/samples/hello/HelloCron.java): Demonstrates how to execute a Workflow according to a cron schedule.
@@ -69,6 +73,7 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
     - [**HelloSearchAttributes**](/core/src/main/java/io/temporal/samples/hello/HelloSearchAttributes.java): Demonstrates how to add custom Search Attributes to Workflow Executions.
     - [**HelloSideEffect**](/core/src/main/java/io/temporal/samples/hello/HelloSideEffect.java)**: Demonstrates how to implement a Side Effect.
     - [**HelloUpdate**](/core/src/main/java/io/temporal/samples/hello/HelloUpdate.java): Demonstrates how to create and interact with an Update.
+    - [**HelloDelayedStart**](/core/src/main/java/io/temporal/samples/hello/HelloDelayedStart.java): Demonstrates how to use delayed start config option when starting a Workflow Executions.
 
 
 #### Scenario-based samples
@@ -132,9 +137,17 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 
 ### Running SpringBoot Samples
 
+These samples use SpringBoot 2 by default. To switch to using SpringBoot 3 look at the [gradle.properties](gradle.properties) file
+and follow simple instructions there.
+
 1. Start SpringBoot from main repo dir:
 
-       ./gradlew bootRun
+       ./gradlew :springboot:bootRun
+
+To run the basic sample run
+
+       ./gradlew :springboot-basic:bootRun
+
 
 2. Navigate to [localhost:3030](http://localhost:3030)
 
