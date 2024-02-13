@@ -67,6 +67,9 @@ public class HelloSignalWithTimer {
           Workflow.newCancellationScope(
               () -> {
                 try {
+                  // You can add a signal handler that updates the sleep duration
+                  // As it may change via business logic over time
+                  // For sample we just hard code it to 5 seconds
                   Workflow.newTimer(Duration.ofSeconds(5)).get();
                 } catch (CanceledFailure e) {
                   // Exit signal is received causing cancellation of timer scope and timer
@@ -79,10 +82,9 @@ public class HelloSignalWithTimer {
       // Process last received signal and either exit or ContinueAsNew depending if we got
       // Exit signal or not
       // Note you would here call an activity to process last signal value received
-      // For sample we just print it in workflow rather than a dummy activity
+      // For sample we just log it in workflow rather than a dummy activity
       try {
-        logger.info(
-                "Workflow processing last value received: " + updates.get(updates.size() - 1));
+        logger.info("Workflow processing last value received: " + updates.get(updates.size() - 1));
       } catch (IndexOutOfBoundsException e) {
         logger.info("No updates received, nothing to process");
       }
