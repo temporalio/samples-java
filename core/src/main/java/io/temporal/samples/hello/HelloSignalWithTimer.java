@@ -136,12 +136,12 @@ public class HelloSignalWithTimer {
     // Start execution, this unblocks when its created by service
     WorkflowClient.start(workflow::execute);
 
-    // Send signals 3s apart for 10 seconds (to simulate cancellation on last ContinueAsNew)
-    for (int i = 0; i < 10; i++) {
+    // Send signals 2s apart 12 times (to simulate cancellation on last ContinueAsNew)
+    for (int i = 0; i < 12; i++) {
       workflow.doUpdate("Update " + i);
-      sleep(1);
+      sleep(2);
     }
-    sleep(3);
+    sleep(1);
     // Send exit signal
     workflow.exit();
 
