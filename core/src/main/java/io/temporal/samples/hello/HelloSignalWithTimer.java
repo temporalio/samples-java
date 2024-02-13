@@ -76,18 +76,20 @@ public class HelloSignalWithTimer {
               });
       timerScope.run();
 
+      // Process last received signal and either exit or ContinueAsNew depending if we got
+      // Exit signal or not
+      // Note you would here call an activity to process last signal value received
+      // For sample we just print it in workflow rather than a dummy activity
+      try {
+        logger.info(
+                "Workflow processing last value received: " + updates.get(updates.size() - 1));
+      } catch (IndexOutOfBoundsException e) {
+        logger.info("No updates received, nothing to process");
+      }
+
       if (exit) {
         return;
       } else {
-        // Process last received signal and continueasnew
-        // Note you would here call an activity to process last signal value received
-        // For sample we just print it in workflow rather than a dummy activity
-        try {
-          logger.info(
-              "Workflow processing last value received: " + updates.get(updates.size() - 1));
-        } catch (IndexOutOfBoundsException e) {
-          logger.info("No updates received, nothing to process");
-        }
         SignalWithTimerWorkflow nextRun =
             Workflow.newContinueAsNewStub(SignalWithTimerWorkflow.class);
         nextRun.execute();
