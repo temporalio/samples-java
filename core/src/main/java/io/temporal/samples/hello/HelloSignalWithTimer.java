@@ -85,6 +85,7 @@ public class HelloSignalWithTimer {
       // For sample we just log it in workflow rather than a dummy activity
       try {
         logger.info("Workflow processing last value received: " + updates.get(updates.size() - 1));
+        processedLast = true;
       } catch (IndexOutOfBoundsException e) {
         logger.info("No updates received, nothing to process");
       }
