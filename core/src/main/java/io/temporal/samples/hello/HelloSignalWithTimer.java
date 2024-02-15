@@ -85,12 +85,8 @@ public class HelloSignalWithTimer {
       // Exit signal or not
       // Note you would here call an activity to process last signal value received
       // For sample we just log it in workflow rather than a dummy activity
-      try {
-        logger.info("Workflow processing last value received: " + lastValue);
-        processedLast = true;
-      } catch (IndexOutOfBoundsException e) {
-        logger.info("No updates received, nothing to process");
-      }
+      logger.info("Workflow processing last value received: " + lastValue);
+      processedLast = true;
 
       if (exit) {
         return;
