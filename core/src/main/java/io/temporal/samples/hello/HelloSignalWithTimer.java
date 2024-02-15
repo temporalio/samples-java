@@ -63,7 +63,6 @@ public class HelloSignalWithTimer {
     private String lastValue = "";
     private CancellationScope timerScope;
     private boolean exit = false;
-    private boolean processedLast = false;
 
     private final ValueProcessingActivities activities =
         Workflow.newActivityStub(
@@ -96,7 +95,6 @@ public class HelloSignalWithTimer {
       // Process last received signal and either exit or ContinueAsNew depending on if we got
       // Exit signal or not
       activities.processValue(lastValue);
-      processedLast = true;
 
       if (exit) {
         return;
@@ -115,9 +113,7 @@ public class HelloSignalWithTimer {
       // You can choose what to do in this case depending on business logic.
       // For this sample we just ignore it, alternative could be to process it or carry it over
       // to the continued execution if needed.
-      if (!processedLast) {
-        lastValue = value;
-      }
+      lastValue = value;
     }
 
     @Override
