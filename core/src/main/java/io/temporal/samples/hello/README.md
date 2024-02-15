@@ -31,4 +31,5 @@ To run each hello world sample, use one of the following commands:
 ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloTypedSearchAttributes
 ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSideEffect
 ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloUpdate
+./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSignalWithTimer
 ```
