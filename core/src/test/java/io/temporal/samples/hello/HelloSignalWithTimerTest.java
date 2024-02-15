@@ -53,8 +53,8 @@ public class HelloSignalWithTimerTest {
                     .build());
 
     WorkflowClient.start(workflow::execute);
-    workflow.doUpdate("1");
-    workflow.doUpdate("2");
+    workflow.newValue("1");
+    workflow.newValue("2");
     workflow.exit();
 
     WorkflowStub.fromTyped(workflow).getResult(Void.class);

@@ -28,13 +28,11 @@ import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.*;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import org.slf4j.Logger;
 
 /**
  * Sample Temporal workflow that shows receiving signals for a specific time period and then process
- * last one received and continueasnew.
+ * last one received and continue as new.
  */
 public class HelloSignalWithTimer {
   static final String TASK_QUEUE = "HelloSignalWithTimerTaskQueue";
@@ -46,7 +44,7 @@ public class HelloSignalWithTimer {
     void execute();
 
     @SignalMethod
-    void doUpdate(String value);
+    void newValue(String value);
 
     @SignalMethod
     void exit();
@@ -55,13 +53,17 @@ public class HelloSignalWithTimer {
   public static class SignalWithTimerWorkflowImpl implements SignalWithTimerWorkflow {
 
     private Logger logger = Workflow.getLogger(SignalWithTimerWorkflowImpl.class);
-    private List<String> updates = new ArrayList<>();
+    private String lastValue = "";
     private CancellationScope timerScope;
     private boolean exit = false;
     private boolean processedLast = false;
 
     @Override
     public void execute() {
+      // Just in case if exit signal is sent as soon as execution is started
+      if (exit) {
+        return;
+      }
       // Start timer in cancellation scope so we can cancel it on exit signal received
       timerScope =
           Workflow.newCancellationScope(
@@ -84,7 +86,7 @@ public class HelloSignalWithTimer {
       // Note you would here call an activity to process last signal value received
       // For sample we just log it in workflow rather than a dummy activity
       try {
-        logger.info("Workflow processing last value received: " + updates.get(updates.size() - 1));
+        logger.info("Workflow processing last value received: " + lastValue);
         processedLast = true;
       } catch (IndexOutOfBoundsException e) {
         logger.info("No updates received, nothing to process");
@@ -100,7 +102,7 @@ public class HelloSignalWithTimer {
     }
 
     @Override
-    public void doUpdate(String value) {
+    public void newValue(String value) {
       // Note that we can receive a signal at the same time workflow is trying to complete or
       // ContinueAsNew. This would cause workflow task failure with UnhandledCommand
       // in order to deliver this signal to our execution.
@@ -108,7 +110,7 @@ public class HelloSignalWithTimer {
       // For this sample we just ignore it, alternative could be to process it or carry it over
       // to the continued execution if needed.
       if (!processedLast) {
-        updates.add(value);
+        lastValue = value;
       }
     }
 
@@ -143,7 +145,7 @@ public class HelloSignalWithTimer {
 
     // Send signals 2s apart 12 times (to simulate cancellation on last ContinueAsNew)
     for (int i = 0; i < 12; i++) {
-      workflow.doUpdate("Update " + i);
+      workflow.newValue("Value " + i);
       sleep(2);
     }
     sleep(1);
