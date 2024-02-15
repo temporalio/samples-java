@@ -36,6 +36,7 @@ public class HelloSignalWithTimerTest {
   public TestWorkflowRule testWorkflowRule =
       TestWorkflowRule.newBuilder()
           .setWorkflowTypes(HelloSignalWithTimer.SignalWithTimerWorkflowImpl.class)
+          .setActivityImplementations(new HelloSignalWithTimer.ValueProcessingActivitiesImpl())
           .build();
 
   private static final String WORKFLOW_ID = "SignalWithTimerTestWorkflow";

@@ -19,6 +19,8 @@
 
 package io.temporal.samples.hello;
 
+import io.temporal.activity.ActivityInterface;
+import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
@@ -50,6 +52,11 @@ public class HelloSignalWithTimer {
     void exit();
   }
 
+  @ActivityInterface
+  public interface ValueProcessingActivities {
+    void processValue(String value);
+  }
+
   public static class SignalWithTimerWorkflowImpl implements SignalWithTimerWorkflow {
 
     private Logger logger = Workflow.getLogger(SignalWithTimerWorkflowImpl.class);
@@ -57,6 +64,11 @@ public class HelloSignalWithTimer {
     private CancellationScope timerScope;
     private boolean exit = false;
     private boolean processedLast = false;
+
+    private final ValueProcessingActivities activities =
+        Workflow.newActivityStub(
+            ValueProcessingActivities.class,
+            ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(2)).build());
 
     @Override
     public void execute() {
@@ -81,11 +93,9 @@ public class HelloSignalWithTimer {
               });
       timerScope.run();
 
-      // Process last received signal and either exit or ContinueAsNew depending if we got
+      // Process last received signal and either exit or ContinueAsNew depending on if we got
       // Exit signal or not
-      // Note you would here call an activity to process last signal value received
-      // For sample we just log it in workflow rather than a dummy activity
-      logger.info("Workflow processing last value received: " + lastValue);
+      activities.processValue(lastValue);
       processedLast = true;
 
       if (exit) {
@@ -119,6 +129,15 @@ public class HelloSignalWithTimer {
     }
   }
 
+  static class ValueProcessingActivitiesImpl implements ValueProcessingActivities {
+    @Override
+    public void processValue(String value) {
+      // Here you would access downstream services to process the value
+      // Dummy impl for sample, do nothing
+      System.out.println("Processing value: " + value);
+    }
+  }
+
   public static void main(String[] args) {
     WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
     WorkflowClient client = WorkflowClient.newInstance(service);
@@ -126,6 +145,7 @@ public class HelloSignalWithTimer {
 
     Worker worker = factory.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(SignalWithTimerWorkflowImpl.class);
+    worker.registerActivitiesImplementations(new ValueProcessingActivitiesImpl());
 
     factory.start();
 
