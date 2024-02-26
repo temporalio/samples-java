@@ -127,7 +127,7 @@ public class SamplesController {
   }
 
   @GetMapping("/kafka")
-  public String afka(Model model) {
+  public String kafka(Model model) {
     model.addAttribute("sample", "Kafka Request / Reply");
     return "kafka";
   }
@@ -175,5 +175,11 @@ public class SamplesController {
 
     // bypass thymeleaf, don't return template name just result
     return new ResponseEntity<>("\"" + workflow.execute() + "\"", HttpStatus.OK);
+  }
+
+  @GetMapping("/camel")
+  public String camel(Model model) {
+    model.addAttribute("sample", "Camel Route");
+    return "camel";
   }
 }

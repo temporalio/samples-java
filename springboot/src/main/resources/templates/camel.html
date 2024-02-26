@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head th:replace="fragments :: samples-header"></head>
+<body>
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title" th:text="'Temporal Java SDK Samples: ' + ${sample}">Temporal Java SDK Samples</h4>
+            <h6>This sample shows how to start Workflow execution from an Apache Camel Route</h6>
+            <br/><br/><br/>
+            <div>
+                <p><a href="https://camel.apache.org/" target="_blank">Apache Camel</a> is an integration framework
+                    with a large number of out-of box integrations with many different apis.
+                    In this sample we show how to integrate Temporal as part of a Camel Route which define steps
+                    of messages from its source to destination. It allows you to bring numerous
+                    advantages of Temporal such as high reliability and fault tolerance into your existing Camel applications.
+                </p>
+                <p>To run the sample navigate to <a href="http://localhost:3030/orders" target="_blank">localhost:3030/orders</a>
+                    <br/>This endpoint starts a Camel Route which in turn starts our Workflow executipn and delivers results.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<footer th:replace="fragments :: samples-footer"></footer>
+</body>
+</html>
