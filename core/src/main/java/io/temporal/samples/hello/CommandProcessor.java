@@ -118,6 +118,7 @@ public class CommandProcessor {
                 .setWorkflowId(WORKFLOW_ID)
                 .setTaskQueue(TASK_QUEUE)
                 .setWorkflowIdReusePolicy(
+                    // This is just for convenience during command-line development!
                     WorkflowIdReusePolicy.WORKFLOW_ID_REUSE_POLICY_TERMINATE_IF_RUNNING)
                 .build());
 
