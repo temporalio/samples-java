@@ -31,7 +31,7 @@ dependencies {
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-validation', version: '4.0.5.Final'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-spi', version: '4.0.5.Final'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-util', version: '4.0.5.Final'
-    implementation group: 'net.thisptr', name: 'jackson-jq', version: '1.0.0-preview.20230409'
+    implementation group: 'net.thisptr', name: 'jackson-jq', version: '1.0.0-preview.20240207'
 
     // we don't update it to 2.1.0 because 2.1.0 requires Java 11
     implementation 'com.codingrodent:jackson-json-crypto:1.1.0'
