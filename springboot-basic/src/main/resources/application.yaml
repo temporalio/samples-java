@@ -1,0 +1,18 @@
+server:
+  port: 3030
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: temporal-samples
+  # temporal specific configs
+  temporal:
+    namespace: default
+    connection:
+      target: 127.0.0.1:7233
+    workersAutoDiscovery:
+      packages: io.temporal.samples.springboot
+# specific for samples
+samples:
+  data:
+    language: english

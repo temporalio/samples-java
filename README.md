@@ -6,6 +6,7 @@ Temporal using the [Java SDK](https://github.com/temporalio/sdk-java).
 It contains two modules:
 * [Core](/core): showcases many different SDK features.
 * [SpringBoot](/springboot): showcases SpringBoot autoconfig integration.
+* [SpringBoot Basic](/springboot-basic): Minimal sample showing SpringBoot autoconfig integration without any extra external dependencies.
 
 ## Learn more about Temporal and Java SDK
 
@@ -73,6 +74,7 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
     - [**HelloSideEffect**](/core/src/main/java/io/temporal/samples/hello/HelloSideEffect.java)**: Demonstrates how to implement a Side Effect.
     - [**HelloUpdate**](/core/src/main/java/io/temporal/samples/hello/HelloUpdate.java): Demonstrates how to create and interact with an Update.
     - [**HelloDelayedStart**](/core/src/main/java/io/temporal/samples/hello/HelloDelayedStart.java): Demonstrates how to use delayed start config option when starting a Workflow Executions.
+    - [**HelloSignalWithTimer**](/core/src/main/java/io/temporal/samples/hello/HelloSignalWithTimer.java): Demonstrates how to use collect signals for certain amount of time and then process last one. 
 
 
 #### Scenario-based samples
@@ -141,7 +143,12 @@ and follow simple instructions there.
 
 1. Start SpringBoot from main repo dir:
 
-       ./gradlew bootRun
+       ./gradlew :springboot:bootRun
+
+To run the basic sample run
+
+       ./gradlew :springboot-basic:bootRun
+
 
 2. Navigate to [localhost:3030](http://localhost:3030)
 
@@ -153,8 +160,8 @@ More info on each sample:
 - [**Synchronous Update**](/springboot/src/main/java/io/temporal/samples/springboot/update): Learn how to use Synchronous Update feature with this purchase sample
 - [**Kafka Request / Reply**](/springboot/src/main/java/io/temporal/samples/springboot/kafka): Sample showing possible integration with event streaming platforms such as Kafka
 - [**Customize Options**](/springboot/src/main/java/io/temporal/samples/springboot/customize): Sample showing how to customize options such as WorkerOptions, WorkerFactoryOptions, etc (see options config [here](springboot/src/main/java/io/temporal/samples/springboot/customize/TemporalOptionsConfig.java))
-- [**Customize Options**](/springboot/src/main/java/io/temporal/samples/springboot/actuator): Sample showing how to create a custom Actuator endpoint that shows registered Workflow and Activity impls per task queue.
-
+- [**Custom Actuator Endpoint**](/springboot/src/main/java/io/temporal/samples/springboot/actuator): Sample showing how to create a custom Actuator endpoint that shows registered Workflow and Activity impls per task queue.
+- [**Apache Camel Route**](/springboot/src/main/java/io/temporal/samples/springboot/camel): Sample showing how to start Workflow execution from a Camel Route
 
 #### Temporal Cloud
 To run any of the SpringBoot samples in your Temporal Cloud namespace:
