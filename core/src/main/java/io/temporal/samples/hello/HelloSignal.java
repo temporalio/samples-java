@@ -19,16 +19,16 @@
 
 package io.temporal.samples.hello;
 
+import io.temporal.activity.LocalActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
-import io.temporal.workflow.SignalMethod;
-import io.temporal.workflow.Workflow;
-import io.temporal.workflow.WorkflowInterface;
-import io.temporal.workflow.WorkflowMethod;
+import io.temporal.workflow.*;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -67,6 +67,9 @@ public class HelloSignal {
     @SignalMethod
     void waitForName(String name);
 
+    @QueryMethod
+    String query();
+
     // Define the workflow exit signal method. This method is executed when the workflow receives a
     // signal.
     @SignalMethod
@@ -75,6 +78,13 @@ public class HelloSignal {
 
   // Define the workflow implementation which implements the getGreetings workflow method.
   public static class GreetingWorkflowImpl implements GreetingWorkflow {
+
+    private final HelloLocalActivity.GreetingActivities activities =
+        Workflow.newLocalActivityStub(
+            HelloLocalActivity.GreetingActivities.class,
+            LocalActivityOptions.newBuilder()
+                .setStartToCloseTimeout(Duration.ofMinutes(2))
+                .build());
 
     // messageQueue holds up to 10 messages (received from signals)
     List<String> messageQueue = new ArrayList<>(10);
@@ -91,6 +101,8 @@ public class HelloSignal {
           // no messages in queue and exit signal was sent, return the received messages
           return receivedMessages;
         }
+        activities.composeGreeting("", "");
+
         String message = messageQueue.remove(0);
         receivedMessages.add(message);
       }
@@ -98,7 +110,13 @@ public class HelloSignal {
 
     @Override
     public void waitForName(String name) {
+
       messageQueue.add("Hello " + name + "!");
+    }
+
+    @Override
+    public String query() {
+      return null;
     }
 
     @Override
@@ -138,6 +156,7 @@ public class HelloSignal {
      * order to dispatch workflow tasks.
      */
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
+    worker.registerActivitiesImplementations(new HelloLocalActivity.GreetingLocalActivityImpl());
 
     /*
      * Start all the workers registered for a specific task queue.
@@ -155,15 +174,6 @@ public class HelloSignal {
     // Start workflow asynchronously and call its getGreeting workflow method
     WorkflowClient.start(workflow::getGreetings);
 
-    // After start for getGreeting returns, the workflow is guaranteed to be started.
-    // So we can send a signal to it using the workflow stub.
-    // This workflow keeps receiving signals until exit is called
-
-    // When the workflow is started the getGreetings will block for the previously defined
-    // conditions
-    // Send the first workflow signal
-    workflow.waitForName("World");
-
     /*
      * Here we create a new workflow stub using the same workflow id.
      * We do this to demonstrate that to send a signal to an already running workflow
@@ -174,20 +184,14 @@ public class HelloSignal {
     // Send the second signal to our workflow
     workflowById.waitForName("Universe");
 
-    // Now let's send our exit signal to the workflow
-    workflowById.exit();
+    try {
+      System.out.println(new Date() + " init ");
 
-    /*
-     * We now call our getGreetings workflow method synchronously after our workflow has started.
-     * This reconnects our workflowById workflow stub to the existing workflow and blocks until
-     * a result is available. Note that this behavior assumes that WorkflowOptions are not configured
-     * with WorkflowIdReusePolicy.AllowDuplicate. If they were, this call would fail with the
-     * WorkflowExecutionAlreadyStartedException exception.
-     */
-    List<String> greetings = workflowById.getGreetings();
-
-    // Print our two greetings which were sent by signals
-    System.out.println(greetings);
-    System.exit(0);
+      String result = workflow.query();
+      System.out.println(new Date() + " Result  " + result);
+    } catch (Exception e) {
+      System.out.println(new Date() + " Error   ");
+      e.printStackTrace();
+    }
   }
 }

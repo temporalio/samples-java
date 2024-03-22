@@ -103,6 +103,7 @@ public class Starter {
     ListWorkflowExecutionsRequest listWorkflowExecutionRequest =
         ListWorkflowExecutionsRequest.newBuilder()
             .setNamespace(client.getOptions().getNamespace())
+            .setPageSize(2000)
             .setQuery(query)
             .build();
     ListWorkflowExecutionsResponse listWorkflowExecutionsResponse =

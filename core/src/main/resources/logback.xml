@@ -27,8 +27,8 @@
             <pattern>%d{HH:mm:ss.SSS} {%X{WorkflowId} %X{ActivityId}} [%thread] %-5level %logger{36} - %msg %n</pattern>
         </encoder>
     </appender>
-    <logger name="io.grpc.netty" level="INFO"/>
-    <root level="INFO">
+    <logger name="io.grpc.netty" level="TRACE"/>
+    <root level="TRACE">
         <appender-ref ref="STDOUT" />
     </root>
 </configuration>
