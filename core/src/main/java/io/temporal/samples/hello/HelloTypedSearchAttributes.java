@@ -34,10 +34,24 @@ import io.temporal.workflow.WorkflowMethod;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * Sample Temporal workflow that demonstrates setting up, updating, and retrieving workflow search
  * attributes using the typed search attributes API.
+ *
+ * <p>NOTE: you may need to add these custom search attributes yourself before running the sample.
+ * If you are using autosetup image for service, you will need to create the
+ * "CustomKeywordListField" search attribute with Temporal cli, for example:
+ *
+ * <p>temporal operator search-attribute create -name "CustomKeywordListField" -type "KeywordList"
+ *
+ * <p>If you run your test and don't have some custom SA defined that are used here you would see
+ * error like: INVALID_ARGUMENT: Namespace default has no mapping defined for search attribute
+ * CustomBoolField when trying to start the workflow execution. In that case use cli to add the
+ * needed search attribute with its needed type.
  */
 public class HelloTypedSearchAttributes {
 
@@ -50,6 +64,8 @@ public class HelloTypedSearchAttributes {
   // Define all our search attributes with appropriate types
   static final SearchAttributeKey<String> CUSTOM_KEYWORD_SA =
       SearchAttributeKey.forKeyword("CustomKeywordField");
+  static final SearchAttributeKey<List<String>> CUSTOM_KEYWORD_LIST_SA =
+      SearchAttributeKey.forKeywordList("CustomKeywordListField");
   static final SearchAttributeKey<Long> CUSTOM_LONG_SA =
       SearchAttributeKey.forLong("CustomIntField");
   static final SearchAttributeKey<Double> CUSTOM_DOUBLE_SA =
@@ -95,7 +111,7 @@ public class HelloTypedSearchAttributes {
   @ActivityInterface
   public interface GreetingActivities {
     @ActivityMethod
-    String composeGreeting(String greeting, String name);
+    String composeGreeting(String greeting, List<String> salutations, String name);
   }
 
   // Define the workflow implementation which implements our getGreeting workflow method.
@@ -124,8 +140,9 @@ public class HelloTypedSearchAttributes {
       io.temporal.common.SearchAttributes searchAttributes = Workflow.getTypedSearchAttributes();
       // Get a particular value out of the container using the typed key
       String greeting = searchAttributes.get(CUSTOM_KEYWORD_SA);
+      List<String> salutations = searchAttributes.get(CUSTOM_KEYWORD_LIST_SA);
       // This is a blocking call that returns only after the activity has completed.
-      return activities.composeGreeting(greeting, name);
+      return activities.composeGreeting(greeting, salutations, name);
     }
   }
 
@@ -135,8 +152,13 @@ public class HelloTypedSearchAttributes {
    */
   static class GreetingActivitiesImpl implements GreetingActivities {
     @Override
-    public String composeGreeting(String greeting, String name) {
-      return greeting + " " + name + "!";
+    public String composeGreeting(String greeting, List<String> salutations, String name) {
+      StringJoiner greetingJoiner = new StringJoiner(" ");
+      greetingJoiner.add(greeting);
+      greetingJoiner.add(name);
+      salutations.forEach(s -> greetingJoiner.add(s));
+
+      return greetingJoiner.toString();
     }
   }
 
@@ -211,6 +233,7 @@ public class HelloTypedSearchAttributes {
   private static io.temporal.common.SearchAttributes generateTypedSearchAttributes() {
     return io.temporal.common.SearchAttributes.newBuilder()
         .set(CUSTOM_KEYWORD_SA, "keyword")
+        .set(CUSTOM_KEYWORD_LIST_SA, Arrays.asList("how", "are", "you", "doing?"))
         .set(CUSTOM_LONG_SA, 1l)
         .set(CUSTOM_DOUBLE_SA, 0.1)
         .set(CUSTOM_BOOL_SA, true)
