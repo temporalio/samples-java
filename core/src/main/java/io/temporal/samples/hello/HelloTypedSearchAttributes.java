@@ -42,17 +42,16 @@ import java.util.StringJoiner;
  * Sample Temporal workflow that demonstrates setting up, updating, and retrieving workflow search
  * attributes using the typed search attributes API.
  *
- * NOTE: you may need to add these custom search attributes yourself before running the sample.
- * If you are using autosetup image for service, you will need to create the "CustomKeywordListField"
- * search attribute with Temporal cli, for example:
+ * <p>NOTE: you may need to add these custom search attributes yourself before running the sample.
+ * If you are using autosetup image for service, you will need to create the
+ * "CustomKeywordListField" search attribute with Temporal cli, for example:
  *
- * temporal operator search-attribute create -name "CustomKeywordListField" -type "KeywordList"
+ * <p>temporal operator search-attribute create -name "CustomKeywordListField" -type "KeywordList"
  *
- * If you run your test and don't have some custom SA defined that are used here you would see error like:
- * INVALID_ARGUMENT: Namespace default has no mapping defined for search attribute CustomBoolField
- * when trying to start the workflow execution. In that case use cli to add the needed search attribute with its
- * needed type.
- *
+ * <p>If you run your test and don't have some custom SA defined that are used here you would see
+ * error like: INVALID_ARGUMENT: Namespace default has no mapping defined for search attribute
+ * CustomBoolField when trying to start the workflow execution. In that case use cli to add the
+ * needed search attribute with its needed type.
  */
 public class HelloTypedSearchAttributes {
 
@@ -66,7 +65,7 @@ public class HelloTypedSearchAttributes {
   static final SearchAttributeKey<String> CUSTOM_KEYWORD_SA =
       SearchAttributeKey.forKeyword("CustomKeywordField");
   static final SearchAttributeKey<List<String>> CUSTOM_KEYWORD_LIST_SA =
-          SearchAttributeKey.forKeywordList("CustomKeywordListField");
+      SearchAttributeKey.forKeywordList("CustomKeywordListField");
   static final SearchAttributeKey<Long> CUSTOM_LONG_SA =
       SearchAttributeKey.forLong("CustomIntField");
   static final SearchAttributeKey<Double> CUSTOM_DOUBLE_SA =
@@ -234,7 +233,7 @@ public class HelloTypedSearchAttributes {
   private static io.temporal.common.SearchAttributes generateTypedSearchAttributes() {
     return io.temporal.common.SearchAttributes.newBuilder()
         .set(CUSTOM_KEYWORD_SA, "keyword")
-            .set(CUSTOM_KEYWORD_LIST_SA, Arrays.asList("how", "are", "you", "doing?"))
+        .set(CUSTOM_KEYWORD_LIST_SA, Arrays.asList("how", "are", "you", "doing?"))
         .set(CUSTOM_LONG_SA, 1l)
         .set(CUSTOM_DOUBLE_SA, 0.1)
         .set(CUSTOM_BOOL_SA, true)
