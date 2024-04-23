@@ -224,14 +224,14 @@ public class HelloAccumulator {
           String greetEveryone = processGreetings(greetings);
 
           if (unprocessedGreetings.isEmpty()) {
-            logger.info("Signal queue is still empty");
+            logger.info("Greeting queue is still empty");
             return greetEveryone;
           } else if (stopWaiting && unprocessedGreetings.isEmpty()) {
             return greetEveryone;
           } else {
             // you can get here if you send a signal after an exit, causing rollback just after the
             // last processed activity
-            logger.info("Signal queue not empty, looping");
+            logger.info("Greeting queue not empty, looping");
           }
         }
       } while (!unprocessedGreetings.isEmpty() || !Workflow.getInfo().isContinueAsNewSuggested());
