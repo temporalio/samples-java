@@ -66,8 +66,6 @@ public class HelloAccumulatorTest {
 
     workflow.waitforGreeting(xvxGreeting);
 
-    workflow.exit();
-
     String results = workflow.accumulateGreetings(bucket, greetingList, allGreetingsSet);
     assert results.contains("Hello (1)");
     assert results.contains("XVX Robot");
@@ -371,6 +369,58 @@ public class HelloAccumulatorTest {
     request = client.newSignalWithStartRequest();
     request.add(workflow2::accumulateGreetings, bucket, greetingList, allGreetingsSet);
     request.add(workflow2::waitforGreeting, secondGreeting);
+    client.signalWithStart(request);
+
+    String results = workflow.accumulateGreetings(bucket, greetingList, allGreetingsSet);
+    assert results.contains("Hello (2)");
+    assert results.contains("Robby Robot");
+    assert results.contains("Dave Robot");
+  }
+
+  @Test
+  public void testSignalAfterExit() {
+    String bucket = "blue";
+
+    ArrayDeque<Greeting> greetingList = new ArrayDeque<Greeting>();
+    HashSet<String> allGreetingsSet = new HashSet<String>();
+    testEnv = testWorkflowRule.getTestEnvironment();
+    testEnv.start();
+
+    WorkflowClient client = testWorkflowRule.getWorkflowClient();
+    HelloAccumulator.AccumulatorWorkflow workflow =
+        client.newWorkflowStub(
+            HelloAccumulator.AccumulatorWorkflow.class,
+            WorkflowOptions.newBuilder()
+                .setTaskQueue(testWorkflowRule.getTaskQueue())
+                .setWorkflowId(bucket)
+                .setWorkflowId("helloacc-blue")
+                .build());
+
+    Greeting starterGreeting = new Greeting("Robby Robot", bucket, "112");
+    BatchRequest request = client.newSignalWithStartRequest();
+    request.add(workflow::accumulateGreetings, bucket, greetingList, allGreetingsSet);
+    request.add(workflow::waitforGreeting, starterGreeting);
+    client.signalWithStart(request);
+
+    HelloAccumulator.AccumulatorWorkflow workflow2 =
+        client.newWorkflowStub(
+            HelloAccumulator.AccumulatorWorkflow.class,
+            WorkflowOptions.newBuilder()
+                .setTaskQueue(testWorkflowRule.getTaskQueue())
+                .setWorkflowId(bucket)
+                .setWorkflowId("helloacc-blue")
+                .build());
+
+    Greeting secondGreeting = new Greeting("Dave Robot", bucket, "1123");
+
+    request = client.newSignalWithStartRequest();
+    request.add(workflow2::accumulateGreetings, bucket, greetingList, allGreetingsSet);
+    request.add(workflow2::waitforGreeting, secondGreeting);
+
+    // exit signal the workflow we signaled-to-start
+    workflow.exit();
+
+    // try to signal with start the workflow
     client.signalWithStart(request);
 
     String results = workflow.accumulateGreetings(bucket, greetingList, allGreetingsSet);

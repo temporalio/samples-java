@@ -358,11 +358,11 @@ public class HelloAccumulator {
     // setup which tests to run
     // by default it will run an accumulation with a few (20) signals
     // to a set of 4 buckets with Signal To Start
-    boolean testContinueAsNew = true;
+    boolean testContinueAsNew = false;
 
     boolean testSignalEdgeCases = true;
     // configure signal edge cases to test
-    boolean testSignalAfterWorkflowExit = true;
+    boolean testSignalAfterWorkflowExit = false;
     boolean testSignalAfterExitSignal = !testSignalAfterWorkflowExit;
     boolean testDuplicate = true;
     boolean testBadBucket = true;
