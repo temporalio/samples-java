@@ -25,40 +25,27 @@ import io.temporal.workflow.Async;
 import io.temporal.workflow.ChildWorkflowOptions;
 import io.temporal.workflow.Promise;
 import io.temporal.workflow.Workflow;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ParentWorkflowImpl implements ParentWorkflow {
   @Override
   public WorkflowExecution executeParent() {
 
-    final List<Promise<WorkflowExecution>> promises = new ArrayList<>();
+    // We set the parentClosePolicy to "Abandon"
+    // This will allow child workflow to continue execution after parent completes
+    ChildWorkflowOptions childWorkflowOptions =
+        ChildWorkflowOptions.newBuilder()
+            .setWorkflowId("childWorkflow")
+            .setParentClosePolicy(ParentClosePolicy.PARENT_CLOSE_POLICY_ABANDON)
+            .build();
 
-    for (int i = 0; i < 1000; i++) {
-      // We set the parentClosePolicy to "Abandon"
-      // This will allow child workflow to continue execution after parent completes
-      ChildWorkflowOptions childWorkflowOptions =
-          ChildWorkflowOptions.newBuilder()
-              .setWorkflowId("childWorkflow" + Math.random())
-              .setParentClosePolicy(ParentClosePolicy.PARENT_CLOSE_POLICY_ABANDON)
-              .build();
-
-      // Get the child workflow stub
-      ChildWorkflow child =
-          Workflow.newChildWorkflowStub(ChildWorkflow.class, childWorkflowOptions);
-      // Start the child workflow async
-      Async.function(child::executeChild);
-      // Get the child workflow execution promise
-      Promise<WorkflowExecution> childExecution = Workflow.getWorkflowExecution(child);
-      // Call .get on the promise. This will block until the child workflow starts execution (or
-      // start
-      // fails)
-
-      promises.add(childExecution);
-    }
-
-    Promise.allOf(promises).get();
-
-    return promises.get(0).get();
+    // Get the child workflow stub
+    ChildWorkflow child = Workflow.newChildWorkflowStub(ChildWorkflow.class, childWorkflowOptions);
+    // Start the child workflow async
+    Async.function(child::executeChild);
+    // Get the child workflow execution promise
+    Promise<WorkflowExecution> childExecution = Workflow.getWorkflowExecution(child);
+    // Call .get on the promise. This will block until the child workflow starts execution (or start
+    // fails)
+    return childExecution.get();
   }
 }
