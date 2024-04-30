@@ -23,6 +23,7 @@ import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityMethod;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
+import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -78,7 +79,7 @@ public class HelloActivity {
 
     // Define your activity method which can be called during workflow execution
     @ActivityMethod(name = "greet")
-    int composeGreeting(String greeting, String name);
+    String composeGreeting(String greeting, String name);
   }
 
   // Define the workflow implementation which implements our getGreeting workflow method.
@@ -102,12 +103,7 @@ public class HelloActivity {
     @Override
     public String getGreeting(String name) {
       // This is a blocking call that returns only after the activity has completed.
-
-      activities.composeGreeting("Hello", name);
-
-      Workflow.sleep(Duration.ofSeconds(20));
-
-      return "hello";
+      return activities.composeGreeting("Hello", name);
     }
   }
 
@@ -116,10 +112,9 @@ public class HelloActivity {
     private static final Logger log = LoggerFactory.getLogger(GreetingActivitiesImpl.class);
 
     @Override
-    public int composeGreeting(String greeting, String name) {
+    public String composeGreeting(String greeting, String name) {
       log.info("Composing greeting...");
-
-      return 1;
+      return greeting + " " + name + "!";
     }
   }
 
@@ -166,5 +161,27 @@ public class HelloActivity {
      * The started workers then start polling for workflows and activities.
      */
     factory.start();
+
+    // Create the workflow client stub. It is used to start our workflow execution.
+    GreetingWorkflow workflow =
+        client.newWorkflowStub(
+            GreetingWorkflow.class,
+            WorkflowOptions.newBuilder()
+                .setWorkflowId(WORKFLOW_ID)
+                .setTaskQueue(TASK_QUEUE)
+                .build());
+
+    /*
+     * Execute our workflow and wait for it to complete. The call to our getGreeting method is
+     * synchronous.
+     *
+     * See {@link io.temporal.samples.hello.HelloSignal} for an example of starting workflow
+     * without waiting synchronously for its result.
+     */
+    String greeting = workflow.getGreeting("World");
+
+    // Display workflow execution results
+    System.out.println(greeting);
+    System.exit(0);
   }
 }

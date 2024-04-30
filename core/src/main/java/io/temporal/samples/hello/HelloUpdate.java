@@ -144,7 +144,7 @@ public class HelloUpdate {
         throw ApplicationFailure.newFailure("Cannot greet someone with an empty name", "Failure");
       }
       // Updates can mutate workflow state like variables or call activities
-      // messageQueue.add(activities.composeGreeting("Hello", name));
+      messageQueue.add(activities.composeGreeting("Hello", name));
       // Updates can return data back to the client
       return receivedMessages.size() + messageQueue.size();
     }

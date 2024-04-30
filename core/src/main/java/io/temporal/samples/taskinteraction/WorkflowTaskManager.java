@@ -19,17 +19,23 @@
 
 package io.temporal.samples.taskinteraction;
 
-public class TaskActivityImpl implements TaskActivity {
-  @Override
-  public String createTask(String task) {
+import io.temporal.workflow.*;
+import java.util.List;
 
-    // Simulating delay in task creation
-    try {
-      Thread.sleep(500);
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
-    }
+@WorkflowInterface
+public interface WorkflowTaskManager {
 
-    return "activity created";
-  }
+  String WORKFLOW_ID = WorkflowTaskManager.class.getSimpleName();
+
+  @WorkflowMethod
+  void execute(List<Task> inputPendingTask, List<String> inputTaskToComplete);
+
+  @UpdateMethod
+  void createTask(Task task);
+
+  @UpdateMethod
+  void completeTaskByToken(String taskToken);
+
+  @QueryMethod
+  List<Task> getPendingTask();
 }

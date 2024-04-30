@@ -19,65 +19,58 @@
 
 package io.temporal.samples.taskinteraction;
 
-import io.temporal.activity.ActivityOptions;
 import io.temporal.workflow.Async;
 import io.temporal.workflow.Promise;
 import io.temporal.workflow.Workflow;
-import java.time.Duration;
 import java.util.Arrays;
 import org.slf4j.Logger;
 
-public class TaskWorkflowImpl implements TaskWorkflow {
+/** Workflow that creates three task and waits for them to complete */
+public class WorkflowWithTasksImpl implements WorkflowWithTasks {
 
-  private final Logger logger = Workflow.getLogger(TaskWorkflowImpl.class);
+  private final Logger logger = Workflow.getLogger(WorkflowWithTasksImpl.class);
 
-  private final TaskService<String> taskService = new TaskService<>();
-
-  private final TaskActivity activity =
-      Workflow.newActivityStub(
-          TaskActivity.class,
-          ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(5)).build());
+  private final TaskService<Void> taskService = new TaskService<>();
 
   @Override
   public void execute() {
-    final TaskToken taskToken = new TaskToken();
 
     // Schedule two "tasks" in parallel. The last parameter is the token the client needs
-    // to change the task state, and ultimately to complete the task
+    // to unblock/complete the task. This token contains the workflowId that the
+    // client can use to create the workflow stub.
+    final TaskToken taskToken = new TaskToken();
+
     logger.info("About to create async tasks");
-    final Promise<String> task1 =
-        Async.function(
-            () ->
-                taskService.executeTask(() -> activity.createTask("TODO 1"), taskToken.getNext()));
+    final Promise<Void> task1 =
+        Async.procedure(
+            () -> {
+              final Task task = new Task(taskToken.getNext(), new Task.TaskTitle("TODO 1"));
+              taskService.executeTask(task);
+            });
 
-    final Promise<String> task2 =
-        Async.function(
-            () ->
-                taskService.executeTask(() -> activity.createTask("TODO 2"), taskToken.getNext()));
+    final Promise<Void> task2 =
+        Async.procedure(
+            () -> {
+              final Task task = new Task(taskToken.getNext(), new Task.TaskTitle("TODO 2"));
+              taskService.executeTask(task);
+            });
 
-    logger.info("Awaiting for two tasks to get completed");
+    logger.info("Awaiting for the two tasks to complete");
     // Block execution until both tasks complete
     Promise.allOf(Arrays.asList(task1, task2)).get();
-    logger.info("Two tasks completed");
+    logger.info("Tasks completed");
 
-    logger.info("About to create one blocking task");
     // Blocking invocation
-    taskService.executeTask(() -> activity.createTask("TODO 3"), taskToken.getNext());
-    logger.info("Task completed");
+    taskService.executeTask(new Task(taskToken.getNext(), new Task.TaskTitle("TODO 3")));
     logger.info("Completing workflow");
   }
 
   private static class TaskToken {
-
     private int taskToken = 1;
 
     public String getNext() {
 
-      return Workflow.getInfo().getWorkflowId()
-          + "-"
-          + Workflow.currentTimeMillis()
-          + "-"
-          + taskToken++;
+      return Workflow.getInfo().getWorkflowId() + "_" + taskToken++;
     }
   }
 }

@@ -23,32 +23,32 @@ import static io.temporal.samples.taskinteraction.worker.Worker.TASK_QUEUE;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.samples.taskinteraction.TaskWorkflow;
+import io.temporal.samples.taskinteraction.WorkflowWithTasks;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 
+/** Client that start schedule WorkflowWithTasks. */
 public class StartWorkflow {
 
-  static final String WORKFLOW_ID = "TaskWorkflow";
-
-  public static void main(String[] args) {
+  public static void main(String[] args) throws InterruptedException {
 
     final WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
     final WorkflowClient client = WorkflowClient.newInstance(service);
 
-    final TaskWorkflow workflow =
+    final WorkflowWithTasks workflow =
         client.newWorkflowStub(
-            TaskWorkflow.class,
+            WorkflowWithTasks.class,
             WorkflowOptions.newBuilder()
-                .setWorkflowId(WORKFLOW_ID)
+                .setWorkflowId(WorkflowWithTasks.WORKFLOW_ID + System.currentTimeMillis())
                 .setTaskQueue(TASK_QUEUE)
                 .build());
 
-    System.out.println("Starting workflow " + WORKFLOW_ID);
+    System.out.println("Starting workflow: " + WorkflowWithTasks.WORKFLOW_ID);
 
-    // Execute workflow waiting for it to complete.
+    // Schedule workflow and waiting for it to complete.
     workflow.execute();
 
-    System.out.println("Workflow completed");
+    System.out.println("Workflow completed: " + WorkflowWithTasks.WORKFLOW_ID);
+
     System.exit(0);
   }
 }

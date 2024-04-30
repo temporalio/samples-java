@@ -19,68 +19,38 @@
 
 package io.temporal.samples.taskinteraction;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 public class Task {
 
   private String token;
-  private TaskData data;
-  private State state;
+  private TaskTitle title;
 
   public Task() {}
 
-  public Task(String token) {
+  public Task(String token, TaskTitle title) {
     this.token = token;
-    this.state = State.pending;
+    this.title = title;
   }
 
   public String getToken() {
     return token;
   }
 
-  public void setData(TaskData data) {
-    this.data = data;
-  }
-
-  public TaskData getData() {
-    return data;
-  }
-
-  public void setState(State state) {
-    this.state = state;
-  }
-
-  public State getState() {
-    return state;
-  }
-
-  @JsonIgnore
-  public boolean isCompleted() {
-    return State.completed == this.state;
+  public TaskTitle getTitle() {
+    return title;
   }
 
   @Override
   public String toString() {
-    return "Task{" + "token='" + token + '\'' + ", data=" + data + ", state=" + state + '}';
+    return "Task{" + "token='" + token + '\'' + ", title=" + title + '}';
   }
 
-  public enum State {
-    pending,
-    started,
-    completed
-  }
-
-  public static class TaskData {
+  public static class TaskTitle {
     private String value;
 
-    public TaskData() {}
+    public TaskTitle() {}
 
-    public TaskData(final String value) {
+    public TaskTitle(final String value) {
 
-      this.value = value;
-    }
-
-    public void setValue(final String value) {
       this.value = value;
     }
 
@@ -88,9 +58,13 @@ public class Task {
       return value;
     }
 
+    public void setValue(final String value) {
+      this.value = value;
+    }
+
     @Override
     public String toString() {
-      return "TaskData{" + "value='" + value + '\'' + '}';
+      return "TaskTitle{" + "value='" + value + '\'' + '}';
     }
   }
 }

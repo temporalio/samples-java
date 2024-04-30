@@ -19,37 +19,42 @@
 
 package io.temporal.samples.taskinteraction.client;
 
-import static io.temporal.samples.taskinteraction.client.StartWorkflow.WORKFLOW_ID;
-
 import io.temporal.client.WorkflowClient;
 import io.temporal.samples.taskinteraction.Task;
-import io.temporal.samples.taskinteraction.TaskClient;
-import io.temporal.samples.taskinteraction.TaskService;
+import io.temporal.samples.taskinteraction.WorkflowTaskManager;
 import io.temporal.serviceclient.WorkflowServiceStubs;
-import java.util.Arrays;
 import java.util.List;
 
-public class UpdateTask {
+/**
+ * This class helps to complete tasks in the external workflow. Queries for pending task and
+ * complete one of them
+ */
+public class CompleteTask {
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws InterruptedException {
 
     final WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
     final WorkflowClient client = WorkflowClient.newInstance(service);
 
-    final TaskClient taskClient = client.newWorkflowStub(TaskClient.class, WORKFLOW_ID);
+    // WorkflowTaskManager keeps and manage workflow task lifecycle
+    final WorkflowTaskManager workflowTaskManager =
+        client.newWorkflowStub(WorkflowTaskManager.class, WorkflowTaskManager.WORKFLOW_ID);
 
-    final List<Task> openTasks = taskClient.getOpenTasks();
+    Thread.sleep(200);
+    final List<Task> pendingTask = getPendingTask(workflowTaskManager);
+    System.out.println("Pending task " + pendingTask);
 
-    final Task randomOpenTask = openTasks.get(0);
-    final List<Task.State> states = Arrays.asList(Task.State.values());
+    if (!pendingTask.isEmpty()) {
 
-    final Task.State nextState = states.get(states.indexOf(randomOpenTask.getState()) + 1);
+      final Task nextOpenTask = pendingTask.get(0);
+      System.out.println("Completing task with token " + nextOpenTask);
+      workflowTaskManager.completeTaskByToken(nextOpenTask.getToken());
+    }
 
-    System.out.println("\nUpdating task " + randomOpenTask + " to " + nextState);
-    taskClient.updateTask(
-        new TaskService.UpdateTaskRequest(
-            nextState, new Task.TaskData("Updated to " + nextState), randomOpenTask.getToken()));
+    System.out.println("Pending task " + getPendingTask(workflowTaskManager));
+  }
 
-    System.exit(0);
+  private static List<Task> getPendingTask(final WorkflowTaskManager workflowTaskManager) {
+    return workflowTaskManager.getPendingTask();
   }
 }

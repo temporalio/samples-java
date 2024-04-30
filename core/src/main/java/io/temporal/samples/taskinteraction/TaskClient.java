@@ -19,16 +19,12 @@
 
 package io.temporal.samples.taskinteraction;
 
-import io.temporal.workflow.QueryMethod;
 import io.temporal.workflow.SignalMethod;
-import java.util.List;
+import io.temporal.workflow.WorkflowInterface;
 
-/** Interface used to dynamically register signal and query handlers from the interceptor. */
+@WorkflowInterface
 public interface TaskClient {
 
   @SignalMethod
-  void updateTask(TaskService.UpdateTaskRequest task);
-
-  @QueryMethod
-  List<Task> getOpenTasks();
+  void completeTaskByToken(String taskToken);
 }

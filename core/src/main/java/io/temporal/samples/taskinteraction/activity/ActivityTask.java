@@ -17,12 +17,13 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.taskinteraction;
+package io.temporal.samples.taskinteraction.activity;
 
 import io.temporal.activity.ActivityInterface;
+import io.temporal.samples.taskinteraction.Task;
 
 @ActivityInterface
-public interface TaskActivity {
+public interface ActivityTask {
 
-  String createTask(String task);
+  void createTask(Task task);
 }
