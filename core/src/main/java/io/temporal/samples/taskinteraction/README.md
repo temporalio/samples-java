@@ -5,7 +5,7 @@ which can be easily implemented as follows:
 - The main workflow [WorkflowWithTasks](./WorkflowWithTasks.java) have an activity (or local activity) that send the request to an external service. 
 The _external service_, for this example, is another workflow ([WorkflowTaskManager](WorkflowTaskManager.java)), 
 that takes care of the task life-cicle.
-- The main workflow waits, with `Workflow.await`, to receive a Signal. 
+- The main workflow waits to receive a Signal. 
 - The _external service_ signal back the main 
 workflow to unblock it.
 
