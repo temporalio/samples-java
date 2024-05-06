@@ -254,7 +254,8 @@ public class HelloAccumulatorTest {
     request.add(workflow::waitforGreeting, starterGreeting);
     client.signalWithStart(request);
 
-    // testEnv.sleep(MAX_AWAIT_TIME.plus(Duration.ofMillis(1))); is not long enough
+    // testEnv.sleep(MAX_AWAIT_TIME.plus(Duration.ofMillis(1))); is not long enough to guarantee the
+    // first workflow will end
     testEnv.sleep(MAX_AWAIT_TIME.plus(Duration.ofMillis(100)));
 
     HelloAccumulator.AccumulatorWorkflow workflow2 =

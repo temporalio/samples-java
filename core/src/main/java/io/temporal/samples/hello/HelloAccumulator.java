@@ -40,6 +40,7 @@ import io.temporal.workflow.WorkflowMethod;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -138,7 +139,7 @@ public class HelloAccumulator {
      */
     @WorkflowMethod
     String accumulateGreetings(
-        String bucketKey, ArrayDeque<Greeting> greetings, Set<String> allGreetingsSet);
+        String bucketKey, Deque<Greeting> greetings, Set<String> allGreetingsSet);
 
     // Define the workflow waitForName signal method. This method is executed when
     // the workflow receives a greeting signal.
@@ -163,7 +164,7 @@ public class HelloAccumulator {
    */
   @ActivityInterface
   public interface GreetingActivities {
-    String composeGreeting(ArrayDeque<Greeting> greetings);
+    String composeGreeting(Deque<Greeting> greetings);
   }
 
   /** Simple activity implementation. */
@@ -171,7 +172,7 @@ public class HelloAccumulator {
 
     // here is where we process all of the signals together
     @Override
-    public String composeGreeting(ArrayDeque<Greeting> greetings) {
+    public String composeGreeting(Deque<Greeting> greetings) {
       List<String> greetingList =
           greetings.stream().map(u -> u.greetingText).collect(Collectors.toList());
       return "Hello (" + greetingList.size() + ") robots: " + greetingList + "!";
@@ -195,9 +196,7 @@ public class HelloAccumulator {
 
     @Override
     public String accumulateGreetings(
-        String bucketKeyInput,
-        ArrayDeque<Greeting> greetingsInput,
-        Set<String> allGreetingsSetInput) {
+        String bucketKeyInput, Deque<Greeting> greetingsInput, Set<String> allGreetingsSetInput) {
       bucketKey = bucketKeyInput;
       if (unprocessedGreetings == null) unprocessedGreetings = new ArrayDeque<Greeting>();
       greetings = new ArrayDeque<Greeting>();
@@ -225,8 +224,6 @@ public class HelloAccumulator {
 
           if (unprocessedGreetings.isEmpty()) {
             logger.info("Greeting queue is still empty");
-            return greetEveryone;
-          } else if (stopWaiting && unprocessedGreetings.isEmpty()) {
             return greetEveryone;
           } else {
             // you can get here if you send a signal after an exit, causing rollback just after the
@@ -259,14 +256,11 @@ public class HelloAccumulator {
         return;
       }
 
+      // this just ignores incorrect buckets - you can use workflowupdate to validate and reject
+      // bad bucket requests if needed
       if (!greeting.bucket.equals(bucketKey)) {
         logger.warn("wrong bucket, something is wrong with your signal processing: " + greeting);
         return;
-      }
-
-      if (allGreetingsSet == null) {
-        logger.warn("allGreetingsSet is null - " + allGreetingsSet);
-        allGreetingsSet = new HashSet<String>();
       }
 
       if (!allGreetingsSet.add(greeting.greetingKey)) {
@@ -278,9 +272,8 @@ public class HelloAccumulator {
       greetings.add(greeting);
     }
 
-    private String processGreetings(ArrayDeque<Greeting> greetings) {
-      logger.info("Timer fired for WorkflowId: " + Workflow.getInfo().getWorkflowId());
-      logger.info("processing greetings- " + greetings);
+    private String processGreetings(Deque<Greeting> greetings) {
+      logger.info("Composing greetings for: " + greetings);
       return activities.composeGreeting(greetings);
     }
 
@@ -362,10 +355,10 @@ public class HelloAccumulator {
 
     boolean testSignalEdgeCases = true;
     // configure signal edge cases to test
-    boolean testSignalAfterWorkflowExit = false;
+    boolean testSignalAfterWorkflowExit = true;
     boolean testSignalAfterExitSignal = !testSignalAfterWorkflowExit;
     boolean testDuplicate = true;
-    boolean testBadBucket = true;
+    boolean testIgnoreBadBucket = true;
 
     // setup to send signals
     String bucket = "blue";
@@ -480,8 +473,9 @@ public class HelloAccumulator {
       Greeting janeGreeting = new Greeting("Jane Robot", bucket, "112358132134");
       workflowSync.waitforGreeting(janeGreeting);
 
-      if (testBadBucket) {
-        // send a third signal with an incorrect bucket
+      if (testIgnoreBadBucket) {
+        // send a third signal with an incorrect bucket - this will be ignored
+        // can use workflow update to validate and reject a request if needed
         workflowSync.waitforGreeting(new Greeting("Sally Robot", "taupe", "112358132134"));
       }
 
