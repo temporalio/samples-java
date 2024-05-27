@@ -8,5 +8,5 @@
 
        http://localhost:3030/orders
 
-This sample starts an Apache Camel route which runs our orders Workflow. 
-Results of the workflow are returned by the Camel route
+This sample starts an Apache Camel route which starts our orders Workflow.
+The workflow starts an activity which starts Camel route to get all orders JPA.

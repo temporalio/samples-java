@@ -29,6 +29,7 @@ import org.springframework.stereotype.Component;
 public class CamelRoutes extends RouteBuilder {
 
   @Autowired private WorkflowClient workflowClient;
+  @Autowired OrderRepository repository;
 
   @Override
   public void configure() {
@@ -45,6 +46,14 @@ public class CamelRoutes extends RouteBuilder {
                           .setTaskQueue("CamelSampleTaskQueue")
                           .build());
               exchange.getIn().setBody(workflow.start());
+            })
+        .end();
+
+    from("direct:findAllOrders")
+        .routeId("direct-findAllOrders")
+        .process(
+            exchange -> {
+              exchange.getIn().setBody(repository.findAll());
             })
         .end();
   }

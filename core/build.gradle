@@ -5,13 +5,13 @@ dependencies {
     testImplementation("io.temporal:temporal-testing:$javaSDKVersion")
 
     // Needed for SDK related functionality
-    implementation(platform("com.fasterxml.jackson:jackson-bom:2.17.0"))
+    implementation(platform("com.fasterxml.jackson:jackson-bom:2.17.1"))
     implementation "com.fasterxml.jackson.core:jackson-databind"
     implementation "com.fasterxml.jackson.core:jackson-core"
 
     implementation "io.micrometer:micrometer-registry-prometheus"
 
-    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.3'
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.6'
     implementation group: 'com.jayway.jsonpath', name: 'json-path', version: '2.9.0'
 
     implementation(platform("io.opentelemetry:opentelemetry-bom:$otelVersion"))
@@ -24,9 +24,9 @@ dependencies {
 
     // Used in samples
     implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
-    implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '2.5.0'
-    implementation group: 'io.cloudevents', name: 'cloudevents-api', version: '2.5.0'
-    implementation group: 'io.cloudevents', name: 'cloudevents-json-jackson', version: '2.5.0'
+    implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '3.0.0'
+    implementation group: 'io.cloudevents', name: 'cloudevents-api', version: '3.0.0'
+    implementation group: 'io.cloudevents', name: 'cloudevents-json-jackson', version: '3.0.0'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-api', version: '4.0.5.Final'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-validation', version: '4.0.5.Final'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-spi', version: '4.0.5.Final'
@@ -46,7 +46,7 @@ dependencies {
 
     dependencies {
         errorproneJavac('com.google.errorprone:javac:9+181-r4173-1')
-        errorprone('com.google.errorprone:error_prone_core:2.26.1')
+        errorprone('com.google.errorprone:error_prone_core:2.27.1')
     }
 }
 
