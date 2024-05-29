@@ -28,7 +28,7 @@ public interface WorkflowTaskManager {
   String WORKFLOW_ID = WorkflowTaskManager.class.getSimpleName();
 
   @WorkflowMethod
-  void execute(List<Task> inputPendingTask, List<String> inputTaskToComplete);
+  void execute(final WorkflowTaskManagerImpl.PendingTasks pendingTasks);
 
   @UpdateMethod
   void createTask(Task task);

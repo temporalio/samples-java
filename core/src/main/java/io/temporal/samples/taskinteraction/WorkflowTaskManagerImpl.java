@@ -20,85 +20,94 @@
 package io.temporal.samples.taskinteraction;
 
 import io.temporal.workflow.Workflow;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.StringTokenizer;
 
 public class WorkflowTaskManagerImpl implements WorkflowTaskManager {
 
-  private List<Task> pendingTask;
-
-  private List<String> tasksToComplete;
+  private PendingTasks pendingTasks = new PendingTasks();
 
   @Override
-  public void execute(List<Task> inputPendingTask, List<String> inputTaskToComplete) {
-    initPendingTasks(inputPendingTask);
-    initTaskToComplete(inputTaskToComplete);
+  public void execute(final PendingTasks inputPendingTasks) {
 
-    while (true) {
+    initTaskList(inputPendingTasks);
 
-      Workflow.await(
-          () ->
-              // Wait until there are pending task to complete
-              !tasksToComplete.isEmpty());
+    Workflow.await(() -> Workflow.getInfo().isContinueAsNewSuggested());
 
-      final String taskToken = tasksToComplete.remove(0);
-
-      // Find the workflow id of the workflow we have to signal back
-      final String externalWorkflowId = new StringTokenizer(taskToken, "_").nextToken();
-
-      Workflow.newExternalWorkflowStub(TaskClient.class, externalWorkflowId)
-          .completeTaskByToken(taskToken);
-
-      final Task task = getPendingTaskWithToken(taskToken).get();
-      pendingTask.remove(task);
-
-      if (Workflow.getInfo().isContinueAsNewSuggested()) {
-        Workflow.newContinueAsNewStub(WorkflowTaskManager.class)
-            .execute(pendingTask, tasksToComplete);
-      }
-    }
+    Workflow.newContinueAsNewStub(WorkflowTaskManager.class).execute(this.pendingTasks);
   }
 
   @Override
   public void createTask(Task task) {
-    initPendingTasks(new ArrayList<>());
-    pendingTask.add(task);
+    initTaskList(new PendingTasks());
+    pendingTasks.addTask(task);
   }
 
   @Override
   public void completeTaskByToken(String taskToken) {
 
-    tasksToComplete.add(taskToken);
+    Task task = this.pendingTasks.filterTaskByToken(taskToken).get();
 
-    Workflow.await(
-        () -> {
-          final boolean taskCompleted =
-              getPendingTask().stream().noneMatch((t) -> Objects.equals(t.getToken(), taskToken));
+    final String externalWorkflowId = extractWorkflowIdFromTaskToken(taskToken);
 
-          return taskCompleted;
-        });
+    // Signal back to the workflow that started this task to notify that the task was completed
+    Workflow.newExternalWorkflowStub(TaskClient.class, externalWorkflowId)
+        .completeTaskByToken(taskToken);
+
+    this.pendingTasks.markTaskAsCompleted(task);
   }
 
   @Override
   public List<Task> getPendingTask() {
-    return pendingTask;
+    return pendingTasks.getTasks();
   }
 
-  private Optional<Task> getPendingTaskWithToken(final String taskToken) {
-    return pendingTask.stream().filter((t) -> t.getToken().equals(taskToken)).findFirst();
-  }
+  private void initTaskList(final PendingTasks pendingTasks) {
+    this.pendingTasks = this.pendingTasks == null ? new PendingTasks() : this.pendingTasks;
 
-  private void initTaskToComplete(final List<String> tasks) {
-    if (tasksToComplete == null) {
-      tasksToComplete = new ArrayList<>();
+    // Update method addTask can be invoked before the main workflow method.
+    if (pendingTasks != null) {
+      this.pendingTasks.addAll(pendingTasks.getTasks());
     }
-    tasksToComplete.addAll(tasks);
   }
 
-  private void initPendingTasks(final List<Task> tasks) {
+  private String extractWorkflowIdFromTaskToken(final String taskToken) {
+    return new StringTokenizer(taskToken, "_").nextToken();
+  }
 
-    if (pendingTask == null) {
-      pendingTask = new ArrayList<>();
+  public static class PendingTasks {
+    private final List<Task> tasks;
+
+    public PendingTasks() {
+      this(new ArrayList<>());
     }
-    pendingTask.addAll(tasks);
+
+    public PendingTasks(final List<Task> tasks) {
+      this.tasks = tasks;
+    }
+
+    public void addTask(final Task task) {
+      this.tasks.add(task);
+    }
+
+    public void addAll(final List<Task> tasks) {
+      this.tasks.addAll(tasks);
+    }
+
+    public void markTaskAsCompleted(final Task task) {
+      // For the sake of simplicity, we delete the task if it is marked as completed.
+      // Nothing stops us from having a field to track the tasks' state
+      tasks.remove(task);
+    }
+
+    private Optional<Task> filterTaskByToken(final String taskToken) {
+      return tasks.stream().filter((t) -> t.getToken().equals(taskToken)).findFirst();
+    }
+
+    private List<Task> getTasks() {
+      return tasks;
+    }
   }
 }

@@ -19,6 +19,8 @@
 
 package io.temporal.samples.taskinteraction;
 
+import java.util.Objects;
+
 public class Task {
 
   private String token;
@@ -37,6 +39,19 @@ public class Task {
 
   public TaskTitle getTitle() {
     return title;
+  }
+
+  @Override
+  public boolean equals(final Object o) {
+    if (this == o) return true;
+    if (!(o instanceof Task)) return false;
+    final Task task = (Task) o;
+    return Objects.equals(token, task.token) && Objects.equals(title, task.title);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(token, title);
   }
 
   @Override
@@ -60,6 +75,19 @@ public class Task {
 
     public void setValue(final String value) {
       this.value = value;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+      if (this == o) return true;
+      if (!(o instanceof TaskTitle)) return false;
+      final TaskTitle taskTitle = (TaskTitle) o;
+      return Objects.equals(value, taskTitle.value);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(value);
     }
 
     @Override

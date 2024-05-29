@@ -39,34 +39,53 @@ public class TaskService<R> {
           ActivityTask.class,
           ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(5)).build());
 
-  private final Map<String, CompletablePromise<R>> pendingPromises = new HashMap<>();
-  private final Logger logger = Workflow.getLogger(TaskService.class);
-  private final TaskClient listener =
-      taskToken -> {
-        logger.info("Completing task with token: " + taskToken);
+  private TaskManager tasksManager = new TaskManager();
 
-        final CompletablePromise<R> completablePromise = pendingPromises.get(taskToken);
-        completablePromise.complete(null);
-      };
+  private final Logger logger = Workflow.getLogger(TaskService.class);
 
   public TaskService() {
-    Workflow.registerListener(listener);
+
+    // This listener exposes a signal method that clients use to notify the task has been completed
+    Workflow.registerListener(
+        new TaskClient() {
+          @Override
+          public void completeTaskByToken(final String taskToken) {
+            logger.info("Completing task with token: " + taskToken);
+            tasksManager.completeTask(taskToken);
+          }
+        });
   }
 
   public void executeTask(Task task) {
 
     logger.info("Before creating task : " + task);
-    final String token = task.getToken();
+
+    // Activity implementation is responsible for registering the task to the external service
+    // (which is responsible for managing the task life-cycle)
     activity.createTask(task);
 
     logger.info("Task created: " + task);
 
-    final CompletablePromise<R> promise = Workflow.newPromise();
-    pendingPromises.put(token, promise);
-
-    // Wait promise to complete or fail
-    promise.get();
+    tasksManager.waitForTaskCompletion(task);
 
     logger.info("Task completed: " + task);
+  }
+
+  private class TaskManager {
+
+    private final Map<String, CompletablePromise<R>> tasks = new HashMap<>();
+
+    public void waitForTaskCompletion(final Task task) {
+      final CompletablePromise<R> promise = Workflow.newPromise();
+      tasks.put(task.getToken(), promise);
+      // Wait promise to complete
+      promise.get();
+    }
+
+    public void completeTask(final String taskToken) {
+
+      final CompletablePromise<R> completablePromise = tasks.get(taskToken);
+      completablePromise.complete(null);
+    }
   }
 }

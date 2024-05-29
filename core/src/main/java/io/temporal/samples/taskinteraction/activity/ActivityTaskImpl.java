@@ -25,7 +25,7 @@ import io.temporal.client.WorkflowExecutionAlreadyStarted;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.samples.taskinteraction.Task;
 import io.temporal.samples.taskinteraction.WorkflowTaskManager;
-import java.util.ArrayList;
+import io.temporal.samples.taskinteraction.WorkflowTaskManagerImpl;
 
 public class ActivityTaskImpl implements ActivityTask {
 
@@ -35,11 +35,13 @@ public class ActivityTaskImpl implements ActivityTask {
     this.workflowClient = workflowClient;
   }
 
+  // This activity is responsible for registering the task to the external service
   @Override
   public void createTask(Task task) {
 
     final String taskQueue = Activity.getExecutionContext().getInfo().getActivityTaskQueue();
 
+    // In this case the service that manages the task life-cycle is another workflow.
     final WorkflowOptions workflowOptions =
         WorkflowOptions.newBuilder()
             .setWorkflowId(WorkflowTaskManager.WORKFLOW_ID)
@@ -49,13 +51,13 @@ public class ActivityTaskImpl implements ActivityTask {
     final WorkflowTaskManager taskManager =
         workflowClient.newWorkflowStub(WorkflowTaskManager.class, workflowOptions);
     try {
-      WorkflowClient.start(taskManager::execute, new ArrayList<>(), new ArrayList<>());
+      WorkflowClient.start(taskManager::execute, new WorkflowTaskManagerImpl.PendingTasks());
     } catch (WorkflowExecutionAlreadyStarted e) {
       // expected exception if workflow was started by a previous activity execution.
       // This will be handled differently once updateWithStart is implemented
     }
 
-    // register the "task" to the external workflow that manages task lifecycle
+    // Register the "task" to the external workflow and return
     taskManager.createTask(task);
   }
 }
