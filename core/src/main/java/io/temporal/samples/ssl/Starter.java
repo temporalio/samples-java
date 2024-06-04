@@ -19,6 +19,10 @@
 
 package io.temporal.samples.ssl;
 
+import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.shaded.io.netty.handler.ssl.SslContext;
+import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
+import io.grpc.util.AdvancedTlsX509KeyManager;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
 import io.temporal.client.WorkflowOptions;
@@ -27,8 +31,10 @@ import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import java.io.File;
 import java.io.FileInputStream;
-import java.io.InputStream;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Starter {
 
@@ -40,22 +46,45 @@ public class Starter {
     // -----BEGIN CERTIFICATE-----
     // ...
     // -----END CERTIFICATE-----
-    InputStream clientCert = new FileInputStream(System.getenv("TEMPORAL_CLIENT_CERT"));
+    File clientCertFile = new File(System.getenv("TEMPORAL_CLIENT_CERT"));
     // PKCS8 client key, which should look like:
     // -----BEGIN PRIVATE KEY-----
     // ...
     // -----END PRIVATE KEY-----
-    InputStream clientKey = new FileInputStream(System.getenv("TEMPORAL_CLIENT_KEY"));
+    File clientKeyFile = new File(System.getenv("TEMPORAL_CLIENT_KEY"));
     // For temporal cloud this would likely be ${namespace}.tmprl.cloud:7233
     String targetEndpoint = System.getenv("TEMPORAL_ENDPOINT");
     // Your registered namespace.
     String namespace = System.getenv("TEMPORAL_NAMESPACE");
+    // How often to refresh the client key and certificate
+    String refreshPeriodString = System.getenv("TEMPORAL_CREDENTIAL_REFRESH_PERIOD");
+    long refreshPeriod = refreshPeriodString != null ? Integer.parseInt(refreshPeriodString) : 0;
+    // Create SSL context from SimpleSslContextBuilder
+    SslContext sslContext =
+        SimpleSslContextBuilder.forPKCS8(
+                new FileInputStream(clientCertFile), new FileInputStream(clientKeyFile))
+            .build();
+    // To refresh the client key and certificate, create an AdvancedTlsX509KeyManager and manually
+    // configure the SSL context.
+    if (refreshPeriod > 0) {
+      AdvancedTlsX509KeyManager clientKeyManager = new AdvancedTlsX509KeyManager();
+      // Reload credentials every minute
+      clientKeyManager.updateIdentityCredentialsFromFile(
+          clientKeyFile,
+          clientCertFile,
+          refreshPeriod,
+          TimeUnit.MINUTES,
+          Executors.newScheduledThreadPool(1));
+      sslContext =
+          GrpcSslContexts.configure(SslContextBuilder.forClient().keyManager(clientKeyManager))
+              .build();
+    }
 
-    // Create SSL enabled client by passing SslContext, created by SimpleSslContextBuilder.
+    // Create SSL enabled client by passing SslContext
     WorkflowServiceStubs service =
         WorkflowServiceStubs.newServiceStubs(
             WorkflowServiceStubsOptions.newBuilder()
-                .setSslContext(SimpleSslContextBuilder.forPKCS8(clientCert, clientKey).build())
+                .setSslContext(sslContext)
                 .setTarget(targetEndpoint)
                 .build());
 
@@ -110,6 +139,6 @@ public class Starter {
 
     // Display workflow execution results
     System.out.println(greeting);
-    System.exit(0);
+    // System.exit(0);
   }
 }
