@@ -6,4 +6,4 @@ spring.temporal:
       key-file: /path/to/key.key
       cert-chain-file: /path/to/cert.pem
 
-# more configuration options https://github.com/temporalio/sdk-java/tree/master/temporal-spring-boot-autoconfigure-alpha#mtls
+# more configuration options https://github.com/temporalio/sdk-java/tree/master/temporal-spring-boot-autoconfigure#mtls
