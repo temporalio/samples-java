@@ -4,7 +4,7 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springframework.boot:spring-boot-starter-thymeleaf"
     implementation "org.springframework.boot:spring-boot-starter-actuator"
-    implementation "io.temporal:temporal-spring-boot-starter-alpha:$javaSDKVersion"
+    implementation "io.temporal:temporal-spring-boot-starter:$javaSDKVersion"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     runtimeOnly "io.micrometer:micrometer-registry-prometheus"
     dependencies {
