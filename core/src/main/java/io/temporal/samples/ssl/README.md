@@ -19,7 +19,13 @@ Before running the example you need to export the following env variables:
 ./gradlew -q execute -PmainClass=io.temporal.samples.ssl.Starter
 ```
 
-## Run SslEnabledWorkerCustomCA Sample
+## Refreshing credentials
+
+- TEMPORAL_CREDENTIAL_REFRESH_PERIOD: The period in seconds to refresh the credentials in minutes.
+
+Setting this env variable will cause the worker to periodically update its credentials. For the full documentation see [here](https://grpc.github.io/grpc-java/javadoc/io/grpc/util/AdvancedTlsX509KeyManager.html).
+
+# Workflow execution with mTLS and custom Certificate Authority
 
 This sample shows how to start a worker that connects to a temporal cluster with mTLS enabled; created by ([tls-simple sample](https://github.com/temporalio/samples-server/tree/main/tls/tls-simple));
 
@@ -27,6 +33,8 @@ SslEnabledWorkerCustomCA demonstrates:
 
 - Passing a custom CA certificate file as parameter
 - Overriding the authority name used for TLS handshakes (if needed)
+
+This can be useful when connecting to Temporal Cloud through [AWS Privatelink](https://docs.temporal.io/cloud/security#privatelink)
 
 1.Start a temporal cluster with tls
 
