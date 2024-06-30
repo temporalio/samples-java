@@ -182,4 +182,10 @@ public class SamplesController {
     model.addAttribute("sample", "Camel Route");
     return "camel";
   }
+
+  @GetMapping("/customendpoint")
+  public String customEndpoint(Model model) {
+    model.addAttribute("sample", "Custom Actuator Worker Info Endpoint");
+    return "actuator";
+  }
 }
