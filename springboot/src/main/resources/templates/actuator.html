@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head th:replace="fragments :: samples-header"></head>
+<body>
+<div class="container">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="card-title" th:text="'Temporal Java SDK Samples: ' + ${sample}">Temporal Java SDK Samples</h4>
+            <h6>In this sample we show how to create a custom Actuator Endpoint showing Worker Info.</h6>
+            <br/><br/>
+            <div>
+                <h6><a href="https://docs.spring.io/spring-boot/docs/current/reference/html/actuator.html" target="_blank">Spring Actuator</a> allows
+                    us to create custom endpoints. This sample shows how to create a Worker Info custom endpoint that shows registered Workflow and Activity impls per task queue.</h6><br/>
+                View the custom endpoint at <a href="http://localhost:3030/actuator/temporalworkerinfo" target="_blank">localhost:3030/actuator/temporalworkerinfo</a>
+            </div>
+        </div>
+    </div>
+    <footer th:replace="fragments :: samples-footer"></footer>
+</body>
+</html>

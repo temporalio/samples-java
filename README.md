@@ -161,6 +161,7 @@ More info on each sample:
 - [**Kafka Request / Reply**](/springboot/src/main/java/io/temporal/samples/springboot/kafka): Sample showing possible integration with event streaming platforms such as Kafka
 - [**Customize Options**](/springboot/src/main/java/io/temporal/samples/springboot/customize): Sample showing how to customize options such as WorkerOptions, WorkerFactoryOptions, etc (see options config [here](springboot/src/main/java/io/temporal/samples/springboot/customize/TemporalOptionsConfig.java))
 - [**Apache Camel Route**](/springboot/src/main/java/io/temporal/samples/springboot/camel): Sample showing how to start Workflow execution from a Camel Route
+- [**Custom Actuator Endpoint**](/springboot/src/main/java/io/temporal/samples/springboot/actuator): Sample showing how to create a custom Actuator endpoint that shows registered Workflow and Activity impls per task queue.
 
 #### Temporal Cloud
 To run any of the SpringBoot samples in your Temporal Cloud namespace:
