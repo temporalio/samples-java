@@ -25,6 +25,7 @@ import io.temporal.spring.boot.TemporalOptionsCustomizer;
 import io.temporal.spring.boot.WorkerOptionsCustomizer;
 import io.temporal.worker.WorkerFactoryOptions;
 import io.temporal.worker.WorkerOptions;
+import io.temporal.worker.WorkflowImplementationOptions;
 import javax.annotation.Nonnull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -94,6 +95,21 @@ public class TemporalOptionsConfig {
           @Nonnull WorkerFactoryOptions.Builder optionsBuilder) {
         // set options on optionsBuilder as needed
         // ...
+        return optionsBuilder;
+      }
+    };
+  }
+
+  // WorkflowImplementationOptions customization
+  @Bean
+  public TemporalOptionsCustomizer<WorkflowImplementationOptions.Builder>
+      customWorkflowImplementationOptions() {
+    return new TemporalOptionsCustomizer<>() {
+      @Nonnull
+      @Override
+      public WorkflowImplementationOptions.Builder customize(
+          @Nonnull WorkflowImplementationOptions.Builder optionsBuilder) {
+        // set options on optionsBuilder such as per-activity options
         return optionsBuilder;
       }
     };
