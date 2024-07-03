@@ -215,11 +215,14 @@ public class HelloAccumulator {
       // - if exit signal is received, process any remaining signals and exit
       do {
 
-        Workflow.await(MAX_AWAIT_TIME, () -> !unprocessedGreetings.isEmpty() || exitRequested);
+        boolean timedout =
+            !Workflow.await(MAX_AWAIT_TIME, () -> !unprocessedGreetings.isEmpty() || exitRequested);
 
-        if (!unprocessedGreetings.isEmpty()) {
+        while (!unprocessedGreetings.isEmpty()) {
           processGreeting(unprocessedGreetings.removeFirst());
-        } else {
+        }
+
+        if (exitRequested || timedout) {
           String greetEveryone = processGreetings(greetings);
 
           if (unprocessedGreetings.isEmpty()) {
