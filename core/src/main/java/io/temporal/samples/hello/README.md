@@ -7,6 +7,7 @@ Each Hello World sample  demonstrates one feature of the SDK in a single file.
 To run each hello world sample, use one of the following commands:
 
 ```bash
+./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloAccumulator
 ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivity
 ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivityRetry
 ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivityExclusiveChoice

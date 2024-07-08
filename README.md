@@ -48,6 +48,8 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 #### Hello samples
 
 - [**Hello**](/core/src/main/java/io/temporal/samples/hello): This sample includes a number of individual Workflows that can be executed independently. Each one demonstrates something specific.
+
+    - [**HelloAccumulator**](/core/src/main/java/io/temporal/samples/hello/HelloAccumulator.java): Demonstrates a Workflow Definition that accumulates signals and continues as new.
     - [**HelloActivity**](/core/src/main/java/io/temporal/samples/hello/HelloActivity.java): Demonstrates a Workflow Definition that executes a single Activity.
     - [**HelloActivityRetry**](/core/src/main/java/io/temporal/samples/hello/HelloActivityRetry.java): Demonstrates how to Retry an Activity Execution.
     - [**HelloActivityExclusiveChoice**](/core/src/main/java/io/temporal/samples/hello/HelloActivityExclusiveChoice.java): Demonstrates how to execute Activities based on dynamic input.
