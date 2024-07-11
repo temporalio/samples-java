@@ -72,7 +72,7 @@ public class MetricsStarter {
 
     System.out.println("Result: " + result);
 
-    System.out.println("Starter metrics are available at http://localhost:8081/prometheus");
+    System.out.println("Starter metrics are available at http://localhost:8078/metrics");
 
     // We don't shut down the process here so metrics can be viewed.
   }
