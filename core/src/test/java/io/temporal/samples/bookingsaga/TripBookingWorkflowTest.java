@@ -71,9 +71,9 @@ public class TripBookingWorkflowTest {
   @Test
   public void testSAGA() {
     TripBookingActivities activities = mock(TripBookingActivities.class);
-    when(activities.bookHotel("trip1")).thenReturn("HotelBookingID1");
-    when(activities.reserveCar("trip1")).thenReturn("CarBookingID1");
-    when(activities.bookFlight("trip1"))
+    when(activities.bookHotel("r1", "trip1")).thenReturn("HotelBookingID1");
+    when(activities.reserveCar("r2", "trip1")).thenReturn("CarBookingID1");
+    when(activities.bookFlight("r3", "trip1"))
         .thenThrow(new RuntimeException("Flight booking did not work"));
     testWorkflowRule.getWorker().registerActivitiesImplementations(activities);
 
@@ -94,8 +94,8 @@ public class TripBookingWorkflowTest {
           ((ApplicationFailure) e.getCause().getCause()).getOriginalMessage());
     }
 
-    verify(activities).cancelHotel(eq("HotelBookingID1"), eq("trip1"));
-    verify(activities).cancelCar(eq("CarBookingID1"), eq("trip1"));
+    verify(activities).cancelHotel(eq("r1"), eq("trip1"));
+    verify(activities).cancelCar(eq("r2"), eq("trip1"));
 
     testWorkflowRule.getTestEnvironment().shutdown();
   }

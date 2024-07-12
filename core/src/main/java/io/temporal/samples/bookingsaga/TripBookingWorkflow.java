@@ -25,5 +25,5 @@ import io.temporal.workflow.WorkflowMethod;
 @WorkflowInterface
 public interface TripBookingWorkflow {
   @WorkflowMethod
-  void bookTrip(String name);
+  Booking bookTrip(String name);
 }
