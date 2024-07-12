@@ -23,7 +23,6 @@ import io.temporal.activity.ActivityOptions;
 import io.temporal.failure.ActivityFailure;
 import io.temporal.workflow.Saga;
 import io.temporal.workflow.Workflow;
-
 import java.time.Duration;
 
 public class TripBookingWorkflowImpl implements TripBookingWorkflow {
