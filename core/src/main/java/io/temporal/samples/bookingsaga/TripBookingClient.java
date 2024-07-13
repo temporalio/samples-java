@@ -34,11 +34,9 @@ public class TripBookingClient {
     // client that can be used to start and signal workflows
     WorkflowClient client = WorkflowClient.newInstance(service);
 
-    // now we can start running instances of our saga - its state will be persisted
     WorkflowOptions options =
         WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).setWorkflowId("Booking1").build();
     TripBookingWorkflow trip = client.newWorkflowStub(TripBookingWorkflow.class, options);
-    // Start workflow asynchronously
     try {
       Booking booking = trip.bookTrip("trip1");
       System.out.println("Booking: " + booking);
