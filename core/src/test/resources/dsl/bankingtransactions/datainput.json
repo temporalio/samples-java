@@ -1,8 +1,0 @@
-{
-  "customer": {
-    "name": "John",
-    "age": 22,
-    "transactions": [100, -50, 20]
-  },
-  "results": []
-}

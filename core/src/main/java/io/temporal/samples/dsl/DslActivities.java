@@ -20,18 +20,14 @@
 package io.temporal.samples.dsl;
 
 import io.temporal.activity.ActivityInterface;
-import io.temporal.samples.dsl.model.ActResult;
-import io.temporal.samples.dsl.model.Customer;
 
 @ActivityInterface
 public interface DslActivities {
-  ActResult checkCustomerInfo(Customer customer);
+  String one();
 
-  ActResult approveApplication(Customer customer);
+  String two();
 
-  ActResult rejectApplication(Customer customer);
+  String three();
 
-  ActResult updateApplicationInfo(Customer customer);
-
-  ActResult invokeBankingService(Customer customer);
+  String four();
 }

@@ -89,7 +89,7 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 
 - [**Money Batch**](/core/src/main/java/io/temporal/samples/moneybatch): Demonstrates a situation where a single deposit should be initiated for multiple withdrawals. For example, a seller might want to be paid once per fixed number of transactions. This sample can be easily extended to perform a payment based on more complex criteria, such as at a specific time or an accumulated amount. The sample also demonstrates how to Signal the Workflow when it executes (*Signal with start*). If the Workflow is already executing, it just receives the Signal. If it is not executing, then the Workflow executes first, and then the Signal is delivered to it. *Signal with start* is a "lazy" way to execute Workflows when Signaling them.
 
-- [**Customer Application Approval DSL**](/core/src/main/java/io/temporal/samples/dsl): Demonstrates execution of a customer application approval workflow defined in a DSL (like JSON or YAML)
+- [**DSL (JSON)**](/core/src/main/java/io/temporal/samples/dsl): Demonstrates using domain specific language (DSL) defined in JSON to specify sequence of steps to be performed in our workflow.
 
 - [**Polling Services**](/core/src/main/java/io/temporal/samples/polling): Recommended implementation of an activity that needs to periodically poll an external resource waiting its successful completion
 

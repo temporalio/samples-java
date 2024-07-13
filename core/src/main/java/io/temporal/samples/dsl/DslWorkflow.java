@@ -17,32 +17,14 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.dsl.model;
+package io.temporal.samples.dsl;
 
-public class ActResult {
-  private String type;
-  private String result;
+import io.temporal.samples.dsl.model.Flow;
+import io.temporal.workflow.WorkflowInterface;
+import io.temporal.workflow.WorkflowMethod;
 
-  public ActResult() {}
-
-  public ActResult(String type, String result) {
-    this.type = type;
-    this.result = result;
-  }
-
-  public String getResult() {
-    return result;
-  }
-
-  public void setResult(String result) {
-    this.result = result;
-  }
-
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
-  }
+@WorkflowInterface
+public interface DslWorkflow {
+  @WorkflowMethod
+  String run(Flow flow, String input);
 }
