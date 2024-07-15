@@ -55,7 +55,8 @@ public class InfrequentPollingWithRetryAfterActivityImpl implements PollingActiv
           e.getMessage(),
           e.getClass().getName(),
           e,
-          // here we set the next retry interval based on Retry-After duration given to us by our service
+          // here we set the next retry interval based on Retry-After duration given to us by our
+          // service
           Duration.ofMinutes(e.getRetryAfterInMinutes()));
     }
   }
