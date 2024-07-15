@@ -26,7 +26,7 @@ dependencies {
     implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
     implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '4.0.1'
     implementation group: 'io.cloudevents', name: 'cloudevents-api', version: '4.0.1'
-    implementation group: 'io.cloudevents', name: 'cloudevents-json-jackson', version: '3.0.0'
+    implementation group: 'io.cloudevents', name: 'cloudevents-json-jackson', version: '4.0.1'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-api', version: '4.0.5.Final'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-validation', version: '4.0.5.Final'
     implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-spi', version: '4.0.5.Final'
