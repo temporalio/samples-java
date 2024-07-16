@@ -20,7 +20,6 @@
 package io.temporal.samples.hello;
 
 import io.temporal.activity.*;
-import io.temporal.client.ActivityCompletionException;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.failure.ActivityFailure;
@@ -30,14 +29,12 @@ import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.worker.WorkerOptions;
 import io.temporal.workflow.*;
-import java.text.MessageFormat;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,7 +97,8 @@ public class HelloCancellationScopeMultithreadHeartbeat {
 
     //    private static final String[] greetings =
     //        new String[] {"Hello", "Bye", "Hola", "Привет", "Oi", "Hallo"};
-    private static final String[] greetings = new String[] {"Hello"};
+    private static final String[] greetings =
+        new String[] {"Hello", "Bye", "Hola", "Привет", "Oi", "Hallo"};
 
     /**
      * Define the GreetingActivities stub. Activity stubs are proxies for activity invocations that
@@ -146,8 +144,7 @@ public class HelloCancellationScopeMultithreadHeartbeat {
               () -> {
                 for (String greeting : greetings) {
                   logger.info("starting greeting {}", greeting);
-                  results.add(
-                      Async.function(activities::composeGreeting, greeting, name));
+                  results.add(Async.function(activities::composeGreeting, greeting, name));
                 }
               });
       /*
@@ -182,7 +179,7 @@ public class HelloCancellationScopeMultithreadHeartbeat {
           }
         }
       }
-      return "don";
+      return "done";
     }
   }
 
@@ -202,15 +199,23 @@ public class HelloCancellationScopeMultithreadHeartbeat {
     public String call() throws Exception {
       try {
         LOGGER.info(
-            "GREETER sleeping "
+            "GREETER ("
+                + greeting
+                + ") sleeping "
                 + mockActivityTimeSecs
                 + " seconds on thread "
                 + Thread.currentThread().getName());
         Thread.sleep(TimeUnit.SECONDS.toMillis(mockActivityTimeSecs));
-        LOGGER.info("GREETER awakened after " + mockActivityTimeSecs + " seconds");
+        LOGGER.info(
+            "GREETER (" + greeting + ") awakened after " + mockActivityTimeSecs + " seconds");
         return greeting + " " + name + "! from thread: " + Thread.currentThread().getName();
       } catch (InterruptedException ee) {
-        LOGGER.info("GREETER interrupted. aborted");
+        LOGGER.info(
+            "GREETER ("
+                + greeting
+                + ") interrupted from timeout of "
+                + mockActivityTimeSecs
+                + " - ABORTED!");
         throw ee;
       }
     }
@@ -224,141 +229,21 @@ public class HelloCancellationScopeMultithreadHeartbeat {
     private static final Logger LOGGER = LoggerFactory.getLogger(GreetingActivitiesImpl.class);
 
     @Override
-    public String composeGreetingMulti(String greeting, String name) {
-
-      var context = Activity.getExecutionContext();
-
-      var greeter = new Greeter(30, greeting, name);
-
-      final ScheduledExecutorService heartbeatExecutor =
-          Executors.newSingleThreadScheduledExecutor();
-      final ScheduledExecutorService workExecutor = Executors.newSingleThreadScheduledExecutor();
-      var greetInvocation = workExecutor.schedule(greeter, 0, TimeUnit.SECONDS);
-      AtomicReference<Runnable> canceller =
-          new AtomicReference<>(
-              () -> {
-                LOGGER.info("Canceller invoked on thread {}", Thread.currentThread().getName());
-                greetInvocation.cancel(true);
-                //                workExecutor.shutdown();
-                //                heartbeatExecutor.shutdown();
-                // cancel the main thing here
-              });
-      var heartbeatInvocation =
-          heartbeatExecutor.scheduleAtFixedRate(
-              () -> {
-                try {
-                  LOGGER.info("heartbeating...");
-                  context.heartbeat(null);
-                } catch (ActivityCompletionException e) {
-                  LOGGER.info("activity completed in thread {}", Thread.currentThread().getName());
-                  canceller.get().run();
-                  throw e;
-                }
-              },
-              0,
-              4,
-              TimeUnit.SECONDS);
-
-      try {
-        // block here
-        var result = greetInvocation.get();
-        LOGGER.info("unblocked");
-        // this is the special sauce...blocking on the heartbeat
-        var unused = heartbeatInvocation.get();
-        LOGGER.info(
-            "heartbeat invocation got on thread {} / {}", Thread.currentThread().getName(), unused);
-        LOGGER.info("got result {}", result);
-      } catch (ExecutionException e) {
-        LOGGER.info("received execution exception", e);
-        return MessageFormat.format("Execution exception {0}", e.getMessage());
-      } catch (InterruptedException e) {
-        LOGGER.info("received interrupt exception", e);
-      } catch (Throwable e) {
-        LOGGER.info("received unexpected exception", e);
-      } finally {
-        LOGGER.info("shutting down the activity executors");
-        canceller.get().run();
-        // these are redundant
-        workExecutor.shutdown();
-        heartbeatExecutor.shutdown();
-      }
-      return "NEVER GOT IT";
-    }
-
-    @Override
-    public String composeGreetingWithHelper(String greeting, String name) {
+    public String composeGreeting(String greeting, String name) {
       // simulate a random time this activity should execute for
       Random random = new Random();
       int activityDurationSecs =
           random.nextInt(GreetingWorkflowImpl.ACTIVITY_MAX_SLEEP_SECONDS - 5) + 5;
       // Get the activity execution context
-      LOGGER.info(
-          "composeGreetingWithHelper started with activityDurationSecs {}", activityDurationSecs);
+      LOGGER.info("composeGreeting started with activityDurationSecs {}", activityDurationSecs);
 
-      var greeter = new Greeter(30, greeting, name);
+      var greeter = new Greeter(activityDurationSecs, greeting, name);
       try {
-        var result =
-            HeartbeatUtils.withBackgroundHeartbeatAndActivity(
-                null, greeter, Activity::getExecutionContext, 4);
-        return result;
+        return HeartbeatUtils.withBackgroundHeartbeatAndActivity(
+            null, greeter, Activity::getExecutionContext, 4);
       } catch (ExecutionException e) {
         LOGGER.error("Caught ExecutionException", e);
         return "NO SOUP FOR YOU";
-      }
-    }
-
-    @Override
-    public String composeGreeting(String greeting, String name) {
-
-      // Get the activity execution context
-      ActivityExecutionContext context = Activity.getExecutionContext();
-
-      // simulate a random time this activity should execute for
-      Random random = new Random();
-      int seconds = random.nextInt(GreetingWorkflowImpl.ACTIVITY_MAX_SLEEP_SECONDS - 5) + 5;
-      System.out.println("Activity for " + greeting + " going to take " + seconds + " seconds");
-
-      for (int i = 0; i < seconds; i++) {
-        sleep(1);
-        try {
-          // Perform the heartbeat. Used to notify the workflow that activity execution is alive
-          context.heartbeat(i);
-        } catch (ActivityCompletionException e) {
-          /*
-           * Activity heartbeat can throw an exception for multiple reasons, including:
-           * 1) activity cancellation
-           * 2) activity not existing (due to a timeout for example) from the service point of view
-           * 3) activity worker shutdown request
-           *
-           * In our case our activity fails because one of the other performed activities
-           * has completed execution and our workflow method has issued the "cancel" request
-           * to cancel all other activities in the cancellation scope.
-           *
-           * The following code simulates our activity after cancellation "cleanup"
-           */
-          seconds = random.nextInt(GreetingWorkflowImpl.ACTIVITY_MAX_CLEANUP_SECONDS);
-          System.out.println(
-              "Activity for "
-                  + greeting
-                  + " was cancelled. Cleanup is expected to take "
-                  + seconds
-                  + " seconds.");
-          sleep(seconds);
-          System.out.println("Activity for " + greeting + " finished cancellation");
-          throw e;
-        }
-      }
-
-      // return results of activity invocation
-      System.out.println("Activity for " + greeting + " completed");
-      return greeting + " " + name + "!";
-    }
-
-    private void sleep(int seconds) {
-      try {
-        Thread.sleep(TimeUnit.SECONDS.toMillis(seconds));
-      } catch (InterruptedException ee) {
-        // Empty
       }
     }
   }

@@ -15,7 +15,8 @@ public class HeartbeatUtils {
       final AtomicReference<Runnable> cancellationCallbackRef,
       final Callable<T> callable,
       final Supplier<ActivityExecutionContext> activityContext,
-      final int heartbeatIntervalSeconds) throws ExecutionException {
+      final int heartbeatIntervalSeconds)
+      throws ExecutionException {
 
     var context = activityContext.get();
     final ScheduledExecutorService heartbeatExecutor = Executors.newSingleThreadScheduledExecutor();
@@ -53,7 +54,10 @@ public class HeartbeatUtils {
       LOGGER.warn("Background heartbeated invocation interrupt {}", e.getMessage(), e);
       throw e;
     } catch (InterruptedException e) {
-        throw new ExecutionException(e);
+      throw new ExecutionException(e);
+    } catch (CancellationException e) {
+      LOGGER.warn("Cancellation exception", e);
+      throw new ExecutionException(e);
     } finally {
       activityExecutor.shutdown();
       heartbeatExecutor.shutdown();
