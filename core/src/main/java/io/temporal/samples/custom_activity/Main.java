@@ -63,6 +63,7 @@ public class Main {
     String doSomeWork();
   }
 
+  // https://aozturk.medium.com/how-to-handle-uncaught-exceptions-in-java-abf819347906
   public static class CustomActivityImpl implements CustomActivity {
 
     @Override
