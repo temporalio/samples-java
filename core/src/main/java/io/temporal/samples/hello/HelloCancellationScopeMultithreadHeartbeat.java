@@ -23,6 +23,7 @@ import io.temporal.activity.*;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.failure.ActivityFailure;
+import io.temporal.failure.ApplicationFailure;
 import io.temporal.failure.CanceledFailure;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
@@ -205,6 +206,7 @@ public class HelloCancellationScopeMultithreadHeartbeat {
                 + mockActivityTimeSecs
                 + " seconds on thread "
                 + Thread.currentThread().getName());
+        // spoof some long-running work that never iterates to allow us to heartbeat
         Thread.sleep(TimeUnit.SECONDS.toMillis(mockActivityTimeSecs));
         LOGGER.info(
             "GREETER (" + greeting + ") awakened after " + mockActivityTimeSecs + " seconds");
@@ -240,10 +242,11 @@ public class HelloCancellationScopeMultithreadHeartbeat {
       var greeter = new Greeter(activityDurationSecs, greeting, name);
       try {
         return HeartbeatUtils.withBackgroundHeartbeatAndActivity(
-            null, greeter, Activity::getExecutionContext, 4);
-      } catch (ExecutionException e) {
-        LOGGER.error("Caught ExecutionException", e);
-        return "NO SOUP FOR YOU";
+            Activity::getExecutionContext, greeter, 4, (unused) -> false);
+      } catch (ApplicationFailure e) {
+        LOGGER.error(
+            "Caught Exception but rethrowing to show activities as failed due to cancellation", e);
+        throw e;
       }
     }
   }
