@@ -17,7 +17,7 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.bookingsaga;
+package io.temporal.samples.bookingsyncsaga;
 
 import io.temporal.activity.ActivityInterface;
 

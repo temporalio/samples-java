@@ -17,16 +17,14 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.bookingsaga;
+package io.temporal.samples.bookingsyncsaga;
 
 import io.temporal.client.WorkflowClient;
-import io.temporal.client.WorkflowException;
-import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 
-public class TripBookingSaga {
+public class TripBookingWorker {
 
   static final String TASK_QUEUE = "TripBooking";
 
@@ -53,23 +51,5 @@ public class TripBookingSaga {
     // Start all workers created by this factory.
     factory.start();
     System.out.println("Worker started for task queue: " + TASK_QUEUE);
-
-    // now we can start running instances of our saga - its state will be persisted
-    WorkflowOptions options = WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build();
-    TripBookingWorkflow trip1 = client.newWorkflowStub(TripBookingWorkflow.class, options);
-    try {
-      trip1.bookTrip("trip1");
-    } catch (WorkflowException e) {
-      // Expected
-    }
-
-    try {
-      TripBookingWorkflow trip2 = client.newWorkflowStub(TripBookingWorkflow.class, options);
-      trip2.bookTrip("trip2");
-    } catch (WorkflowException e) {
-      // Expected
-    }
-
-    System.exit(0);
   }
 }

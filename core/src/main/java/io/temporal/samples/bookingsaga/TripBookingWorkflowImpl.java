@@ -20,7 +20,6 @@
 package io.temporal.samples.bookingsaga;
 
 import io.temporal.activity.ActivityOptions;
-import io.temporal.common.RetryOptions;
 import io.temporal.failure.ActivityFailure;
 import io.temporal.workflow.Saga;
 import io.temporal.workflow.Workflow;
@@ -29,30 +28,35 @@ import java.time.Duration;
 public class TripBookingWorkflowImpl implements TripBookingWorkflow {
 
   private final ActivityOptions options =
-      ActivityOptions.newBuilder()
-          .setStartToCloseTimeout(Duration.ofHours(1))
-          // disable retries for example to run faster
-          .setRetryOptions(RetryOptions.newBuilder().setMaximumAttempts(1).build())
-          .build();
+      ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(10)).build();
   private final TripBookingActivities activities =
       Workflow.newActivityStub(TripBookingActivities.class, options);
 
   @Override
-  public void bookTrip(String name) {
+  public Booking bookTrip(String name) {
     // Configure SAGA to run compensation activities in parallel
     Saga.Options sagaOptions = new Saga.Options.Builder().setParallelCompensation(true).build();
     Saga saga = new Saga(sagaOptions);
     try {
-      String carReservationID = activities.reserveCar(name);
-      saga.addCompensation(activities::cancelCar, carReservationID, name);
+      // addCompensation is added before the actual call to handle situations when the call failed
+      // due to a timeout and its success is not clear.
+      // The compensation code must handle situations when the actual function wasn't executed
+      // gracefully.
+      String carReservationRequestId = Workflow.randomUUID().toString();
+      saga.addCompensation(activities::cancelCar, carReservationRequestId, name);
+      String carReservationID = activities.reserveCar(carReservationRequestId, name);
 
-      String hotelReservationID = activities.bookHotel(name);
-      saga.addCompensation(activities::cancelHotel, hotelReservationID, name);
+      String hotelReservationRequestID = Workflow.randomUUID().toString();
+      saga.addCompensation(activities::cancelHotel, hotelReservationRequestID, name);
+      String hotelReservationId = activities.bookHotel(hotelReservationRequestID, name);
 
-      String flightReservationID = activities.bookFlight(name);
-      saga.addCompensation(activities::cancelFlight, flightReservationID, name);
+      String flightReservationRequestID = Workflow.randomUUID().toString();
+      saga.addCompensation(activities::cancelFlight, flightReservationRequestID, name);
+      String flightReservationID = activities.bookFlight(flightReservationRequestID, name);
+      return new Booking(carReservationID, hotelReservationId, flightReservationID);
     } catch (ActivityFailure e) {
-      saga.compensate();
+      // Ensure that compensations are executed even if the workflow is canceled.
+      Workflow.newDetachedCancellationScope(() -> saga.compensate()).run();
       throw e;
     }
   }

@@ -17,23 +17,26 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.bookingsaga;
+package io.temporal.samples.bookingsyncsaga;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
+import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowException;
+import io.temporal.client.WorkflowStub;
+import io.temporal.client.WorkflowUpdateException;
 import io.temporal.failure.ApplicationFailure;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.testing.TestWorkflowExtension;
 import io.temporal.worker.Worker;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.ArgumentCaptor;
 
-public class TripBookingWorkflowJUnit5Test {
+public class TripBookingWorkflowTest {
 
   @RegisterExtension
   public static final TestWorkflowExtension testWorkflowExtension =
@@ -54,7 +57,7 @@ public class TripBookingWorkflowJUnit5Test {
 
     WorkflowException exception =
         assertThrows(WorkflowException.class, () -> workflow.bookTrip("trip1"));
-    assertEquals(
+    Assertions.assertEquals(
         "Flight booking did not work",
         ((ApplicationFailure) exception.getCause().getCause()).getOriginalMessage());
   }
@@ -64,20 +67,43 @@ public class TripBookingWorkflowJUnit5Test {
   public void testSAGA(
       TestWorkflowEnvironment testEnv, Worker worker, TripBookingWorkflow workflow) {
     TripBookingActivities activities = mock(TripBookingActivities.class);
-    when(activities.bookHotel("trip1")).thenReturn("HotelBookingID1");
-    when(activities.reserveCar("trip1")).thenReturn("CarBookingID1");
-    when(activities.bookFlight("trip1"))
-        .thenThrow(new RuntimeException("Flight booking did not work"));
+
+    ArgumentCaptor<String> captorHotelRequestId = ArgumentCaptor.forClass(String.class);
+    when(activities.bookHotel(captorHotelRequestId.capture(), eq("trip1")))
+        .thenReturn("HotelBookingID1");
+
+    ArgumentCaptor<String> captorCarRequestId = ArgumentCaptor.forClass(String.class);
+    when(activities.reserveCar(captorCarRequestId.capture(), eq("trip1")))
+        .thenReturn("CarBookingID1");
+
+    ArgumentCaptor<String> captorFlightRequestId = ArgumentCaptor.forClass(String.class);
+    when(activities.bookFlight(captorFlightRequestId.capture(), eq("trip1")))
+        .thenThrow(
+            ApplicationFailure.newNonRetryableFailure(
+                "Flight booking did not work", "bookingFailure"));
     worker.registerActivitiesImplementations(activities);
     testEnv.start();
 
-    WorkflowException exception =
-        assertThrows(WorkflowException.class, () -> workflow.bookTrip("trip1"));
-    assertEquals(
-        "Flight booking did not work",
-        ((ApplicationFailure) exception.getCause().getCause()).getOriginalMessage());
+    // Starts workflow asynchronously.
+    WorkflowClient.start(workflow::bookTrip, "trip1");
 
-    verify(activities).cancelHotel("HotelBookingID1", "trip1");
-    verify(activities).cancelCar("CarBookingID1", "trip1");
+    // Waits for update to return.
+    WorkflowException exception1 =
+        assertThrows(WorkflowUpdateException.class, () -> workflow.waitForBooking());
+    Assertions.assertEquals(
+        "Flight booking did not work",
+        ((ApplicationFailure) exception1.getCause().getCause()).getOriginalMessage());
+
+    // Waits for workflow to complete.
+    WorkflowStub stub = WorkflowStub.fromTyped(workflow);
+    WorkflowException exception2 =
+        assertThrows(WorkflowException.class, () -> stub.getResult(Void.class));
+    Assertions.assertEquals(
+        "Flight booking did not work",
+        ((ApplicationFailure) exception2.getCause().getCause()).getOriginalMessage());
+
+    verify(activities).cancelHotel(captorHotelRequestId.getValue(), "trip1");
+    verify(activities).cancelCar(captorCarRequestId.getValue(), "trip1");
+    verify(activities).cancelFlight(captorFlightRequestId.getValue(), "trip1");
   }
 }
