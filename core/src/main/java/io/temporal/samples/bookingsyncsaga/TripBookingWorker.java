@@ -26,8 +26,6 @@ import io.temporal.worker.WorkerFactory;
 
 public class TripBookingWorker {
 
-  static final String TASK_QUEUE = "TripBooking";
-
   @SuppressWarnings("CatchAndPrintStackTrace")
   public static void main(String[] args) {
     // gRPC stubs wrapper that talks to the local docker instance of temporal service.
@@ -39,7 +37,7 @@ public class TripBookingWorker {
     WorkerFactory factory = WorkerFactory.newInstance(client);
 
     // Worker that listens on a task queue and hosts both workflow and activity implementations.
-    Worker worker = factory.newWorker(TASK_QUEUE);
+    Worker worker = factory.newWorker(TripBookingClient.TASK_QUEUE);
 
     // Workflows are stateful. So you need a type to create instances.
     worker.registerWorkflowImplementationTypes(TripBookingWorkflowImpl.class);
@@ -50,6 +48,6 @@ public class TripBookingWorker {
 
     // Start all workers created by this factory.
     factory.start();
-    System.out.println("Worker started for task queue: " + TASK_QUEUE);
+    System.out.println("Worker started for task queue: " + TripBookingClient.TASK_QUEUE);
   }
 }
