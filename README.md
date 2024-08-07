@@ -108,7 +108,7 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 - [**Updatable Timer**](/core/src/main/java/io/temporal/samples/updatabletimer): Demonstrates the use of a helper class which relies on `Workflow.await` to implement a blocking sleep that can be updated at any moment.
 
 - [**Workflow Count Interceptor**](/core/src/main/java/io/temporal/samples/countinterceptor): Demonstrates how to create and register a simple Workflow Count Interceptor.
--
+
 - [**Workflow Retry On Signal Interceptor**](/core/src/main/java/io/temporal/samples/retryonsignalinterceptor): Demonstrates how to create and register an interceptor that retries an activity on a signal.
 
 - [**List Workflows**](/core/src/main/java/io/temporal/samples/listworkflows): Demonstrates the use of custom search attributes and ListWorkflowExecutionsRequest with custom queries.
@@ -128,6 +128,8 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 - [**Configure WorkflowClient to use mTLS**](/core/src/main/java/io/temporal/samples/ssl): Demonstrates how to configure WorkflowClient when using mTLS.
 
 - [**Payload Codec**](/core/src/main/java/io/temporal/samples/encodefailures): Demonstrates how to use simple codec to encode/decode failure messages.
+
+- [**Exclude Workflow/ActivityTypes from Interceptors**](/core/src/main/java/io/temporal/samples/excludefrominterceptor): Demonstrates how to exclude certain workflow / activity types from interceptors.
 
 #### SDK Metrics
 
