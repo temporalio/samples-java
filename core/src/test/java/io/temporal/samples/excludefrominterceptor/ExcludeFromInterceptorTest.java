@@ -106,7 +106,7 @@ public class ExcludeFromInterceptorTest {
         testWorkflowRule.getWorkflowClient().fetchHistory(workflowId);
     int counter = 0;
     for (HistoryEvent event : history.getEvents()) {
-      if (event.getEventType().equals(EventType.EVENT_TYPE_ACTIVITY_TASK_STARTED)) {
+      if (event.getEventType().equals(EventType.EVENT_TYPE_ACTIVITY_TASK_COMPLETED)) {
         counter++;
       }
     }
