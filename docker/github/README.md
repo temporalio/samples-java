@@ -1,4 +1,4 @@
-# Using BuildKite
+# Using Github Actions
 
 Github action simply runs Docker containers. So it is easy to perform the 
 same build locally that Github will do. To handle this, there are 
@@ -13,6 +13,5 @@ docker-compose -f docker/github/docker-compose.yaml run unit-test
 
 Note that Github action will run basically the same commands.
 
-## Testing the build in BuildKite
-Creating a PR against the main branch will trigger the Github action. Members of the Temporal team can view the build pipeline here:
-https://buildkite.com/temporal/java-samples
+## Testing the build in Github Actions
+Creating a PR against the main branch will trigger the Github action.
