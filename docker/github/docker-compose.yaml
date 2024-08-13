@@ -4,7 +4,7 @@ services:
   unit-test:
     build:
       context: ../../
-      dockerfile: ./docker/buildkite/Dockerfile
+      dockerfile: ./docker/github/Dockerfile
     command: "./gradlew --no-daemon test"
     environment:
       - "USER=unittest"
