@@ -133,13 +133,13 @@ public class HelloChild {
     WorkflowClient client = WorkflowClient.newInstance(service);
 
     /*
-     * Define the workflow factory. It is used to create workflow workers for a specific task queue.
+     * Define the worker factory. It is used to create workers for a specific task queue.
      */
     WorkerFactory factory = WorkerFactory.newInstance(client);
 
     /*
-     * Define the workflow worker. Workflow workers listen to a defined task queue and process
-     * workflows and activities.
+     * Define the worker. Workers listen to a defined task queue and process workflows and
+     * activities.
      */
     Worker worker = factory.newWorker(TASK_QUEUE);
 
