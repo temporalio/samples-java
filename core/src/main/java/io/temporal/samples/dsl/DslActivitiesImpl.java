@@ -19,53 +19,38 @@
 
 package io.temporal.samples.dsl;
 
-import io.temporal.activity.Activity;
-import io.temporal.samples.dsl.model.ActResult;
-import io.temporal.samples.dsl.model.Customer;
+import java.util.concurrent.TimeUnit;
 
 public class DslActivitiesImpl implements DslActivities {
   @Override
-  public ActResult checkCustomerInfo(Customer customer) {
-    try {
-      return new ActResult(Activity.getExecutionContext().getInfo().getActivityType(), "invoked");
-    } catch (Exception e) {
-      return null;
-    }
+  public String one() {
+    sleep(1);
+    return "Activity one done...";
   }
 
   @Override
-  public ActResult updateApplicationInfo(Customer customer) {
-    try {
-      return new ActResult(Activity.getExecutionContext().getInfo().getActivityType(), "invoked");
-    } catch (Exception e) {
-      return null;
-    }
+  public String two() {
+    sleep(1);
+    return "Activity two done...";
   }
 
   @Override
-  public ActResult approveApplication(Customer customer) {
-    try {
-      return new ActResult("decision", "APPROVED");
-    } catch (Exception e) {
-      return null;
-    }
+  public String three() {
+    sleep(1);
+    return "Activity three done...";
   }
 
   @Override
-  public ActResult rejectApplication(Customer customer) {
-    try {
-      return new ActResult("decision-" + customer.getName(), "DENIED");
-    } catch (Exception e) {
-      return null;
-    }
+  public String four() {
+    sleep(1);
+    return "Activity four done...";
   }
 
-  @Override
-  public ActResult invokeBankingService(Customer customer) {
+  private void sleep(int seconds) {
     try {
-      return new ActResult(Activity.getExecutionContext().getInfo().getActivityType(), "invoked");
-    } catch (Exception e) {
-      return null;
+      Thread.sleep(TimeUnit.SECONDS.toMillis(seconds));
+    } catch (InterruptedException ee) {
+      // Empty
     }
   }
 }

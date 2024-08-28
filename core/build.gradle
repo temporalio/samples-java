@@ -5,7 +5,7 @@ dependencies {
     testImplementation("io.temporal:temporal-testing:$javaSDKVersion")
 
     // Needed for SDK related functionality
-    implementation(platform("com.fasterxml.jackson:jackson-bom:2.17.1"))
+    implementation(platform("com.fasterxml.jackson:jackson-bom:2.17.2"))
     implementation "com.fasterxml.jackson.core:jackson-databind"
     implementation "com.fasterxml.jackson.core:jackson-core"
 
@@ -24,13 +24,9 @@ dependencies {
 
     // Used in samples
     implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
-    implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '3.0.0'
-    implementation group: 'io.cloudevents', name: 'cloudevents-api', version: '3.0.0'
+    implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '4.0.1'
+    implementation group: 'io.cloudevents', name: 'cloudevents-api', version: '4.0.1'
     implementation group: 'io.cloudevents', name: 'cloudevents-json-jackson', version: '3.0.0'
-    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-api', version: '4.0.5.Final'
-    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-validation', version: '4.0.5.Final'
-    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-spi', version: '4.0.5.Final'
-    implementation group: 'io.serverlessworkflow', name: 'serverlessworkflow-util', version: '4.0.5.Final'
     implementation group: 'net.thisptr', name: 'jackson-jq', version: '1.0.0-preview.20240207'
 
     // we don't update it to 2.1.0 because 2.1.0 requires Java 11
@@ -39,14 +35,14 @@ dependencies {
     testImplementation "junit:junit:4.13.2"
     testImplementation "org.mockito:mockito-core:5.12.0"
 
-    testImplementation(platform("org.junit:junit-bom:5.10.2"))
+    testImplementation(platform("org.junit:junit-bom:5.10.3"))
     testImplementation "org.junit.jupiter:junit-jupiter-api"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
     testRuntimeOnly "org.junit.vintage:junit-vintage-engine"
 
     dependencies {
         errorproneJavac('com.google.errorprone:javac:9+181-r4173-1')
-        errorprone('com.google.errorprone:error_prone_core:2.27.1')
+        errorprone('com.google.errorprone:error_prone_core:2.28.0')
     }
 }
 

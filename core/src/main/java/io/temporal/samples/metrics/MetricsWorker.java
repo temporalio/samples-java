@@ -74,6 +74,6 @@ public class MetricsWorker {
 
     factory.start();
 
-    System.out.println("Workers metrics are available at http://localhost:8080/prometheus");
+    System.out.println("Workers metrics are available at http://localhost:8077/metrics");
   }
 }

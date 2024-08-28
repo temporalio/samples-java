@@ -8,7 +8,7 @@ dependencies {
     implementation "org.springframework.kafka:spring-kafka"
     // we set this as impl depends to use embedded kafka in samples not just tests
     implementation "org.springframework.kafka:spring-kafka-test"
-    implementation "io.temporal:temporal-spring-boot-starter-alpha:$javaSDKVersion"
+    implementation "io.temporal:temporal-spring-boot-starter:$javaSDKVersion"
     implementation "org.apache.camel.springboot:camel-spring-boot-starter:$camelVersion"
     implementation "org.apache.camel.springboot:camel-servlet-starter:$camelVersion"
     runtimeOnly "io.micrometer:micrometer-registry-prometheus"
@@ -16,7 +16,7 @@ dependencies {
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     dependencies {
         errorproneJavac('com.google.errorprone:javac:9+181-r4173-1')
-        errorprone('com.google.errorprone:error_prone_core:2.27.1')
+        errorprone('com.google.errorprone:error_prone_core:2.28.0')
     }
 }
 

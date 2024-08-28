@@ -27,51 +27,54 @@ public interface TripBookingActivities {
   /**
    * Request a car rental reservation.
    *
+   * @param requestId used for idempotency and compensation correlation.
    * @param name customer name
    * @return reservationID
    */
-  String reserveCar(String name);
+  String reserveCar(String requestId, String name);
 
   /**
    * Request a flight reservation.
    *
+   * @param requestId used for idempotency and compensation correlation.
    * @param name customer name
    * @return reservationID
    */
-  String bookFlight(String name);
+  String bookFlight(String requestId, String name);
 
   /**
    * Request a hotel reservation.
    *
+   * @param requestId used for idempotency and compensation correlation.
    * @param name customer name
    * @return reservationID
    */
-  String bookHotel(String name);
+  String bookHotel(String requestId, String name);
 
   /**
    * Cancel a flight reservation.
    *
    * @param name customer name
-   * @param reservationID id returned by bookFlight
+   * @param requestId the same id is passed to bookFlight
    * @return cancellationConfirmationID
    */
-  String cancelFlight(String reservationID, String name);
+  String cancelFlight(String requestId, String name);
 
   /**
    * Cancel a hotel reservation.
    *
    * @param name customer name
-   * @param reservationID id returned by bookHotel
+   * @param requestId the same id is passed to bookHotel
    * @return cancellationConfirmationID
    */
-  String cancelHotel(String reservationID, String name);
+  String cancelHotel(String requestId, String name);
 
   /**
    * Cancel a car rental reservation.
    *
    * @param name customer name
-   * @param reservationID id returned by reserveCar
+   * @param requestId the same id is passed to reserveCar
    * @return cancellationConfirmationID
    */
-  String cancelCar(String reservationID, String name);
+  String cancelCar(String requestId, String name);
 }

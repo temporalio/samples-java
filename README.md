@@ -86,11 +86,13 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 
 - [**Booking SAGA**](/core/src/main/java/io/temporal/samples/bookingsaga): Demonstrates Temporals take on the Camunda BPMN "trip booking" example.
 
+- [**Synchronous Booking SAGA**](/core/src/main/java/io/temporal/samples/bookingsyncsaga): Demonstrates low latency SAGA with potentially long compensations.
+
 - [**Money Transfer**](/core/src/main/java/io/temporal/samples/moneytransfer): Demonstrates the use of a dedicated Activity Worker.
 
 - [**Money Batch**](/core/src/main/java/io/temporal/samples/moneybatch): Demonstrates a situation where a single deposit should be initiated for multiple withdrawals. For example, a seller might want to be paid once per fixed number of transactions. This sample can be easily extended to perform a payment based on more complex criteria, such as at a specific time or an accumulated amount. The sample also demonstrates how to Signal the Workflow when it executes (*Signal with start*). If the Workflow is already executing, it just receives the Signal. If it is not executing, then the Workflow executes first, and then the Signal is delivered to it. *Signal with start* is a "lazy" way to execute Workflows when Signaling them.
 
-- [**Customer Application Approval DSL**](/core/src/main/java/io/temporal/samples/dsl): Demonstrates execution of a customer application approval workflow defined in a DSL (like JSON or YAML)
+- [**Domain-Specific-Language - Define sequence of steps in JSON**](/core/src/main/java/io/temporal/samples/dsl): Demonstrates using domain specific language (DSL) defined in JSON to specify sequence of steps to be performed in our workflow.
 
 - [**Polling Services**](/core/src/main/java/io/temporal/samples/polling): Recommended implementation of an activity that needs to periodically poll an external resource waiting its successful completion
 
@@ -107,7 +109,7 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 - [**Updatable Timer**](/core/src/main/java/io/temporal/samples/updatabletimer): Demonstrates the use of a helper class which relies on `Workflow.await` to implement a blocking sleep that can be updated at any moment.
 
 - [**Workflow Count Interceptor**](/core/src/main/java/io/temporal/samples/countinterceptor): Demonstrates how to create and register a simple Workflow Count Interceptor.
--
+
 - [**Workflow Retry On Signal Interceptor**](/core/src/main/java/io/temporal/samples/retryonsignalinterceptor): Demonstrates how to create and register an interceptor that retries an activity on a signal.
 
 - [**List Workflows**](/core/src/main/java/io/temporal/samples/listworkflows): Demonstrates the use of custom search attributes and ListWorkflowExecutionsRequest with custom queries.
@@ -127,6 +129,8 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 - [**Configure WorkflowClient to use mTLS**](/core/src/main/java/io/temporal/samples/ssl): Demonstrates how to configure WorkflowClient when using mTLS.
 
 - [**Payload Codec**](/core/src/main/java/io/temporal/samples/encodefailures): Demonstrates how to use simple codec to encode/decode failure messages.
+
+- [**Exclude Workflow/ActivityTypes from Interceptors**](/core/src/main/java/io/temporal/samples/excludefrominterceptor): Demonstrates how to exclude certain workflow / activity types from interceptors.
 
 #### SDK Metrics
 
@@ -164,6 +168,7 @@ More info on each sample:
 - [**Kafka Request / Reply**](/springboot/src/main/java/io/temporal/samples/springboot/kafka): Sample showing possible integration with event streaming platforms such as Kafka
 - [**Customize Options**](/springboot/src/main/java/io/temporal/samples/springboot/customize): Sample showing how to customize options such as WorkerOptions, WorkerFactoryOptions, etc (see options config [here](springboot/src/main/java/io/temporal/samples/springboot/customize/TemporalOptionsConfig.java))
 - [**Apache Camel Route**](/springboot/src/main/java/io/temporal/samples/springboot/camel): Sample showing how to start Workflow execution from a Camel Route
+- [**Custom Actuator Endpoint**](/springboot/src/main/java/io/temporal/samples/springboot/actuator): Sample showing how to create a custom Actuator endpoint that shows registered Workflow and Activity impls per task queue.
 
 #### Temporal Cloud
 To run any of the SpringBoot samples in your Temporal Cloud namespace:

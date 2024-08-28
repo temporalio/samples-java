@@ -1,0 +1,50 @@
+name: "Continuous Integration"
+on: [push, pull_request]
+
+jobs:
+  validation:
+    name: "Gradle wrapper validation"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: gradle/wrapper-validation-action@v3
+
+  unittest:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        submodules: recursive
+        ref: ${{ github.event.pull_request.head.sha }}
+
+    - name: Run unit tests
+      run: |
+        docker compose -f ./docker/github/docker-compose.yaml up unit-test
+
+  copyright:
+    name:  Copyright and code format
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        submodules: recursive
+        ref: ${{ github.event.pull_request.head.sha }}
+
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        java-version: "11"
+        distribution: "temurin"
+
+    - name: Set up Gradle
+      uses: gradle/actions/setup-gradle@v3
+    
+    - name: Run copyright and code format checks
+      run: ./gradlew --no-daemon checkLicenseMain checkLicenses spotlessCheck

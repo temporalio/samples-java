@@ -19,23 +19,27 @@
 
 package io.temporal.samples.bookingsaga;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import io.temporal.client.WorkflowException;
-import io.temporal.client.WorkflowOptions;
 import io.temporal.failure.ApplicationFailure;
-import io.temporal.testing.TestWorkflowRule;
-import org.junit.Rule;
-import org.junit.Test;
+import io.temporal.testing.TestWorkflowEnvironment;
+import io.temporal.testing.TestWorkflowExtension;
+import io.temporal.worker.Worker;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.mockito.ArgumentCaptor;
 
 public class TripBookingWorkflowTest {
 
-  @Rule
-  public TestWorkflowRule testWorkflowRule =
-      TestWorkflowRule.newBuilder()
+  @RegisterExtension
+  public static final TestWorkflowExtension testWorkflowExtension =
+      TestWorkflowExtension.newBuilder()
           .setWorkflowTypes(TripBookingWorkflowImpl.class)
           .setDoNotStart(true)
           .build();
@@ -45,58 +49,48 @@ public class TripBookingWorkflowTest {
    * other tests on using mocked activities to test SAGA logic.
    */
   @Test
-  public void testTripBookingFails() {
-    testWorkflowRule.getWorker().registerActivitiesImplementations(new TripBookingActivitiesImpl());
-    testWorkflowRule.getTestEnvironment().start();
+  public void testTripBookingFails(
+      TestWorkflowEnvironment testEnv, Worker worker, TripBookingWorkflow workflow) {
+    worker.registerActivitiesImplementations(new TripBookingActivitiesImpl());
+    testEnv.start();
 
-    TripBookingWorkflow workflow =
-        testWorkflowRule
-            .getWorkflowClient()
-            .newWorkflowStub(
-                TripBookingWorkflow.class,
-                WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build());
-    try {
-      workflow.bookTrip("trip1");
-      fail("unreachable");
-    } catch (WorkflowException e) {
-      assertEquals(
-          "Flight booking did not work",
-          ((ApplicationFailure) e.getCause().getCause()).getOriginalMessage());
-    }
-
-    testWorkflowRule.getTestEnvironment().shutdown();
+    WorkflowException exception =
+        assertThrows(WorkflowException.class, () -> workflow.bookTrip("trip1"));
+    assertEquals(
+        "Flight booking did not work",
+        ((ApplicationFailure) exception.getCause().getCause()).getOriginalMessage());
   }
 
   /** Unit test workflow logic using mocked activities. */
   @Test
-  public void testSAGA() {
+  public void testSAGA(
+      TestWorkflowEnvironment testEnv, Worker worker, TripBookingWorkflow workflow) {
     TripBookingActivities activities = mock(TripBookingActivities.class);
-    when(activities.bookHotel("trip1")).thenReturn("HotelBookingID1");
-    when(activities.reserveCar("trip1")).thenReturn("CarBookingID1");
-    when(activities.bookFlight("trip1"))
-        .thenThrow(new RuntimeException("Flight booking did not work"));
-    testWorkflowRule.getWorker().registerActivitiesImplementations(activities);
 
-    testWorkflowRule.getTestEnvironment().start();
+    ArgumentCaptor<String> captorHotelRequestId = ArgumentCaptor.forClass(String.class);
+    when(activities.bookHotel(captorHotelRequestId.capture(), eq("trip1")))
+        .thenReturn("HotelBookingID1");
 
-    TripBookingWorkflow workflow =
-        testWorkflowRule
-            .getWorkflowClient()
-            .newWorkflowStub(
-                TripBookingWorkflow.class,
-                WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build());
-    try {
-      workflow.bookTrip("trip1");
-      fail("unreachable");
-    } catch (WorkflowException e) {
-      assertEquals(
-          "Flight booking did not work",
-          ((ApplicationFailure) e.getCause().getCause()).getOriginalMessage());
-    }
+    ArgumentCaptor<String> captorCarRequestId = ArgumentCaptor.forClass(String.class);
+    when(activities.reserveCar(captorCarRequestId.capture(), eq("trip1")))
+        .thenReturn("CarBookingID1");
 
-    verify(activities).cancelHotel(eq("HotelBookingID1"), eq("trip1"));
-    verify(activities).cancelCar(eq("CarBookingID1"), eq("trip1"));
+    ArgumentCaptor<String> captorFlightRequestId = ArgumentCaptor.forClass(String.class);
+    when(activities.bookFlight(captorFlightRequestId.capture(), eq("trip1")))
+        .thenThrow(
+            ApplicationFailure.newNonRetryableFailure(
+                "Flight booking did not work", "bookingFailure"));
+    worker.registerActivitiesImplementations(activities);
+    testEnv.start();
 
-    testWorkflowRule.getTestEnvironment().shutdown();
+    WorkflowException exception =
+        assertThrows(WorkflowException.class, () -> workflow.bookTrip("trip1"));
+    assertEquals(
+        "Flight booking did not work",
+        ((ApplicationFailure) exception.getCause().getCause()).getOriginalMessage());
+
+    verify(activities).cancelHotel(captorHotelRequestId.getValue(), "trip1");
+    verify(activities).cancelCar(captorCarRequestId.getValue(), "trip1");
+    verify(activities).cancelFlight(captorFlightRequestId.getValue(), "trip1");
   }
 }
