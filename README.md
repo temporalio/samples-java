@@ -64,6 +64,7 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
     - [**HelloChild**](/core/src/main/java/io/temporal/samples/hello/HelloChild.java): Demonstrates how to execute a simple Child Workflow.
     - [**HelloCron**](/core/src/main/java/io/temporal/samples/hello/HelloCron.java): Demonstrates how to execute a Workflow according to a cron schedule.
     - [**HelloDynamic**](/core/src/main/java/io/temporal/samples/hello/HelloDynamic.java): Demonstrates how to use `DynamicWorkflow` and `DynamicActivity` interfaces.
+    - [**HelloEagerWorkflowStart**](/core/src/main/java/io/temporal/samples/hello/HelloEagerWorkflowStart.java): Demonstrates the use of a eager workflow start.
     - [**HelloPeriodic**](/core/src/main/java/io/temporal/samples/hello/HelloPeriodic.java): Demonstrates the use of the Continue-As-New feature.
     - [**HelloException**](/core/src/main/java/io/temporal/samples/hello/HelloException.java): Demonstrates how to handle exception propagation and wrapping.
     - [**HelloLocalActivity**](/core/src/main/java/io/temporal/samples/hello/HelloLocalActivity.java): Demonstrates the use of a [Local Activity](https://docs.temporal.io/docs/jargon/mesh/#local-activity).
