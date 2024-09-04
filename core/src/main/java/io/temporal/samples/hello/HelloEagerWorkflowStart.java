@@ -36,12 +36,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Sample Temporal Workflow Definition that starts eagerly and executes a single Local Activity.
- * Important elements of eager starting are: 
- * the client starting the workflow and the worker
- * executing it need to be shared 
- * worker options needs to have .setDisableEagerExecution(false)
- * set 
- * the activity is recommended to be a local activity for best performance
+ * Important elements of eager starting are: the client starting the workflow and the worker
+ * executing it need to be shared, worker options needs to have .setDisableEagerExecution(false)
+ * set, the activity is recommended to be a local activity for best performance
  */
 public class HelloEagerWorkflowStart {
 
