@@ -34,7 +34,12 @@ import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** Sample Temporal Workflow Definition that starts eagerly and executes a single Local Activity. */
+/** Sample Temporal Workflow Definition that starts eagerly and executes a single Local Activity.
+ *  Important elements of eager starting are:
+ *   - the client starting the workflow and the worker executing it need to be shared
+ *   - worker options needs to have .setDisableEagerExecution(false) set
+ *   - the activity needs to be a local activity
+ */
 public class HelloEagerWorkflowStart {
 
   // Define the task queue name
@@ -134,6 +139,7 @@ public class HelloEagerWorkflowStart {
 
     /*
      * Define the workflow factory. It is used to create workflow workers for a specific task queue.
+     * Here it's important that the worker shares the client for eager execution.
      */
     WorkerFactory factory = WorkerFactory.newInstance(client);
 
@@ -169,7 +175,7 @@ public class HelloEagerWorkflowStart {
             WorkflowOptions.newBuilder()
                 .setWorkflowId(WORKFLOW_ID)
                 .setTaskQueue(TASK_QUEUE)
-                .setDisableEagerExecution(false)
+                .setDisableEagerExecution(false) // set this to enable eager execution
                 .build());
 
     /*
