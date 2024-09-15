@@ -20,6 +20,11 @@
 package io.temporal.samples.springboot;
 
 import io.grpc.StatusRuntimeException;
+import io.temporal.api.enums.v1.TaskQueueKind;
+import io.temporal.api.enums.v1.TaskQueueType;
+import io.temporal.api.taskqueue.v1.TaskQueue;
+import io.temporal.api.workflowservice.v1.DescribeTaskQueueRequest;
+import io.temporal.api.workflowservice.v1.DescribeTaskQueueResponse;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
@@ -31,6 +36,8 @@ import io.temporal.samples.springboot.kafka.MessageWorkflow;
 import io.temporal.samples.springboot.update.PurchaseWorkflow;
 import io.temporal.samples.springboot.update.model.ProductRepository;
 import io.temporal.samples.springboot.update.model.Purchase;
+import io.temporal.serviceclient.WorkflowServiceStubs;
+import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -187,5 +194,44 @@ public class SamplesController {
   public String customEndpoint(Model model) {
     model.addAttribute("sample", "Custom Actuator Worker Info Endpoint");
     return "actuator";
+  }
+
+  @GetMapping("/health")
+  public String health() {
+    getQueueStatus();
+    return "up";
+  }
+
+  public void getQueueStatus() {
+
+    TaskQueue tq =
+        TaskQueue.newBuilder()
+            .setKind(TaskQueueKind.TASK_QUEUE_KIND_UNSPECIFIED)
+            .setName("HelloSampleTaskQueue")
+            .build();
+
+    DescribeTaskQueueRequest taskQrqst =
+        DescribeTaskQueueRequest.newBuilder()
+            .setNamespace("default")
+            .setTaskQueue(tq)
+            .setIncludeTaskQueueStatus(true)
+            .setTaskQueueType(TaskQueueType.TASK_QUEUE_TYPE_ACTIVITY)
+            .build();
+
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newConnectedServiceStubs(
+            WorkflowServiceStubsOptions.newBuilder().setTarget("localhost:7233").build(), null);
+
+    DescribeTaskQueueResponse activityResponse =
+        service.blockingStub().describeTaskQueue(taskQrqst);
+    System.out.println(activityResponse);
+
+    taskQrqst =
+        DescribeTaskQueueRequest.newBuilder(taskQrqst)
+            .setTaskQueueType(TaskQueueType.TASK_QUEUE_TYPE_WORKFLOW)
+            .build();
+
+    DescribeTaskQueueResponse wfResponse = service.blockingStub().describeTaskQueue(taskQrqst);
+    System.out.println(wfResponse);
   }
 }

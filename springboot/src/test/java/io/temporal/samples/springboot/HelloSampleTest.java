@@ -19,11 +19,21 @@
 
 package io.temporal.samples.springboot;
 
+import io.temporal.api.enums.v1.TaskQueueKind;
+import io.temporal.api.enums.v1.TaskQueueType;
+import io.temporal.api.taskqueue.v1.TaskQueue;
+import io.temporal.api.workflowservice.v1.DescribeTaskQueueRequest;
+import io.temporal.api.workflowservice.v1.DescribeTaskQueueResponse;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.samples.springboot.hello.HelloWorkflow;
 import io.temporal.samples.springboot.hello.model.Person;
+import io.temporal.serviceclient.WorkflowServiceStubs;
+import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 import io.temporal.testing.TestWorkflowEnvironment;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -68,6 +78,77 @@ public class HelloSampleTest {
     String result = workflow.sayHello(new Person("Temporal", "User"));
     Assert.notNull(result, "Greeting should not be null");
     Assert.isTrue(result.equals("Hello Temporal User!"), "Invalid result");
+  }
+
+  @Test
+  public void testGetQueueStatus() {
+
+    Assert.notNull(workflowClient, "workflowClient should not be null");
+
+    TaskQueue tq =
+        TaskQueue.newBuilder()
+            .setKind(TaskQueueKind.TASK_QUEUE_KIND_UNSPECIFIED)
+            .setName("HelloSampleTaskQueue")
+            .build();
+
+    DescribeTaskQueueRequest taskQrqst =
+        DescribeTaskQueueRequest.newBuilder()
+            .setNamespace("default")
+            .setTaskQueue(tq)
+            .setIncludeTaskQueueStatus(true)
+            .setTaskQueueType(TaskQueueType.TASK_QUEUE_TYPE_ACTIVITY)
+            .build();
+
+    WorkflowServiceStubsOptions serviceStubOptions =
+        WorkflowServiceStubsOptions.newBuilder().setTarget("localhost:7233").build();
+
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newConnectedServiceStubs(serviceStubOptions, null);
+
+    // below describeTaskQueue is having issue and is throwing io.grpc.StatusRuntimeException:
+    // RESOURCE_EXHAUSTED: namespace rate limit exceeded
+    // since temporal server 1.24.2 and 1.25.0 when concurrent requests to describeTaskQueue are
+    // sent
+    // same code runs ok with temporal server 1.22.2
+    DescribeTaskQueueResponse activityResponse =
+        service.blockingStub().describeTaskQueue(taskQrqst);
+    // System.out.println(activityResponse.getPollersCount());
+
+    Assert.isTrue(activityResponse.getPollersCount() > 0, "activity Poller count must be > 0");
+
+    taskQrqst =
+        DescribeTaskQueueRequest.newBuilder(taskQrqst)
+            .setTaskQueueType(TaskQueueType.TASK_QUEUE_TYPE_WORKFLOW)
+            .build();
+
+    // below describeTaskQueue is having issue and is throwing io.grpc.StatusRuntimeException:
+    // RESOURCE_EXHAUSTED: namespace rate limit exceeded
+    // since temporal server 1.24.2 and 1.25.0 when concurrent requests to describeTaskQueue are
+    // sent
+    // same code runs ok with temporal server 1.22.2
+    DescribeTaskQueueResponse wfResponse = service.blockingStub().describeTaskQueue(taskQrqst);
+    // System.out.println(wfResponse.getPollersCount());
+    Assert.isTrue(wfResponse.getPollersCount() > 0, "workflow Poller count must be > 0");
+  }
+
+  /**
+   * This test succeeds when temporal server 1.22.2 is run but fails since temporal server 1.24.2 or
+   * 1.25.0 and starts throwing io.grpc.StatusRuntimeException: RESOURCE_EXHAUSTED: namespace rate
+   * limit exceeded *
+   */
+  @Test
+  public void testWithConcurrency() throws InterruptedException {
+    int numberOfThreads = 10;
+    ExecutorService service = Executors.newFixedThreadPool(10);
+    CountDownLatch latch = new CountDownLatch(numberOfThreads);
+    for (int i = 0; i < numberOfThreads; i++) {
+      service.execute(
+          () -> {
+            testGetQueueStatus();
+            latch.countDown();
+          });
+    }
+    // latch.await();
   }
 
   @ComponentScan
