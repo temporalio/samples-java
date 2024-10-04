@@ -22,16 +22,15 @@ package io.temporal.samples.safemessagepassing;
 import io.temporal.client.*;
 import io.temporal.failure.ApplicationFailure;
 import io.temporal.testing.TestWorkflowRule;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
 
 public class ClusterManagerWorkflowWorkerTest {
 
