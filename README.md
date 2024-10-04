@@ -101,6 +101,8 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 - [**Iterator Batch**](/core/src/main/java/io/temporal/samples/batch/iterator): Batch job implementation using the workflow iterator pattern.
 
 - [**Sliding Window Batch**](/core/src/main/java/io/temporal/samples/batch/slidingwindow): A batch implementation that maintains a configured number of child workflows during processing.
+- 
+- [**Safe Message Passing**](/core/src/main/java/io/temporal/samples/safemessagepassing): Safely handling concurrent updates and signals messages.
 
 #### API demonstrations
 
