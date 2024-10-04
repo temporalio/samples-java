@@ -19,23 +19,22 @@
 
 package io.temporal.samples.safemessagepassing;
 
+import static io.temporal.samples.safemessagepassing.ClusterManagerWorkflowWorker.CLUSTER_MANAGER_WORKFLOW_ID;
+import static io.temporal.samples.safemessagepassing.ClusterManagerWorkflowWorker.TASK_QUEUE;
+
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
 import io.temporal.client.WorkflowUpdateStage;
 import io.temporal.serviceclient.WorkflowServiceStubs;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-
-import static io.temporal.samples.safemessagepassing.ClusterManagerWorkflowWorker.CLUSTER_MANAGER_WORKFLOW_ID;
-import static io.temporal.samples.safemessagepassing.ClusterManagerWorkflowWorker.TASK_QUEUE;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClusterManagerWorkflowStarter {
 
