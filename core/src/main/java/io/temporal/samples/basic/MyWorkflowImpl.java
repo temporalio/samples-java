@@ -34,7 +34,7 @@ public class MyWorkflowImpl implements MyWorkflow {
               .setRetryOptions(RetryOptions.newBuilder().setMaximumAttempts(1).build())
               .build());
 
-  private boolean done;
+  private boolean done = false;
 
   @Override
   public void run() {
@@ -43,6 +43,7 @@ public class MyWorkflowImpl implements MyWorkflow {
 
   @Override
   public int myUpdate() {
+    Workflow.sleep(Duration.ofSeconds(4));
     int result = activity.myActivityMethod();
     done = true;
     return result;

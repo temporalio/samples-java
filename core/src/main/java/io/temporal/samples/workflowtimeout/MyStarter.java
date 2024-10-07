@@ -1,6 +1,6 @@
-package io.temporal.samples.basic;
+package io.temporal.samples.workflowtimeout;
 
-import io.temporal.api.enums.v1.WorkflowIdReusePolicy;
+import io.temporal.api.enums.v1.WorkflowIdConflictPolicy;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
@@ -19,16 +19,20 @@ public class MyStarter {
         WorkflowOptions.newBuilder()
             .setTaskQueue(MyWorker.TASK_QUEUE)
             .setWorkflowId(WORKFLOW_ID)
-            .setWorkflowIdReusePolicy(
-                WorkflowIdReusePolicy.WORKFLOW_ID_REUSE_POLICY_TERMINATE_IF_RUNNING)
-            .setWorkflowRunTimeout(java.time.Duration.ofSeconds(2))
+            .setWorkflowIdConflictPolicy(
+                WorkflowIdConflictPolicy.WORKFLOW_ID_CONFLICT_POLICY_TERMINATE_EXISTING)
+            .setWorkflowExecutionTimeout(java.time.Duration.ofSeconds(2))
             .build();
     MyWorkflow workflow = client.newWorkflowStub(MyWorkflow.class, workflowOptions);
 
     WorkflowClient.start(workflow::run);
 
-    int result = workflow.myUpdate();
-    System.out.println(result);
+    int upResult = workflow.myUpdate();
+    System.out.println("upResult: " + upResult);
+
+    int wfResult = workflow.run();
+    System.out.println("wfResult: " + wfResult);
+
     System.exit(0);
   }
 }
