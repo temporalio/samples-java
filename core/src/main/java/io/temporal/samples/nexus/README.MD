@@ -53,8 +53,9 @@ temporal operator namespace create --namespace my-caller-namespace
 temporal operator nexus endpoint create \
   --name my-nexus-endpoint-name \
   --target-namespace my-target-namespace \
-  --target-task-queue my-handler-task-queue
-  ```
+  --target-task-queue my-handler-task-queue \
+  --description-file ./service/description.md
+```
 
 ## Getting started with a self-hosted service or Temporal Cloud
 
@@ -75,19 +76,22 @@ In separate terminal windows:
 ### Nexus handler worker
 
 ```
-./gradlew -q execute -PmainClass=io.temporal.samples.nexus.handler.HandlerWorker
+./gradlew -q execute -PmainClass=io.temporal.samples.nexus.handler.HandlerWorker \
+    --args="-target-host localhost:7233 -namespace my-target-namespace"
 ```
 
 ### Nexus caller worker
 
 ```
-./gradlew -q execute -PmainClass=io.temporal.samples.nexus.caller.CallerWorker
+./gradlew -q execute -PmainClass=io.temporal.samples.nexus.caller.CallerWorker \
+    --args="-target-host localhost:7233 -namespace my-caller-namespace"
 ```
 
 ### Start caller workflow
 
 ```
-./gradlew -q execute -PmainClass=io.temporal.samples.nexus.caller.CallerStarter
+./gradlew -q execute -PmainClass=io.temporal.samples.nexus.caller.CallerStarter \
+    --args="-target-host localhost:7233 -namespace my-caller-namespace"
 ```
 
 ### Output

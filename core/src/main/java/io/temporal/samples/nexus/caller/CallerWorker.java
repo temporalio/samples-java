@@ -1,8 +1,7 @@
 package io.temporal.samples.nexus.caller;
 
 import io.temporal.client.WorkflowClient;
-import io.temporal.client.WorkflowClientOptions;
-import io.temporal.serviceclient.WorkflowServiceStubs;
+import io.temporal.samples.nexus.options.ClientOptions;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.worker.WorkflowImplementationOptions;
@@ -12,12 +11,8 @@ public class CallerWorker {
   public static final String DEFAULT_TASK_QUEUE_NAME = "my-caller-workflow-task-queue";
 
   public static void main(String[] args) {
-    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
+    WorkflowClient client = ClientOptions.getWorkflowClient(args);
 
-    WorkflowClient client =
-        WorkflowClient.newInstance(
-            service,
-            WorkflowClientOptions.newBuilder().setNamespace("my-caller-namespace").build());
     WorkerFactory factory = WorkerFactory.newInstance(client);
 
     Worker worker = factory.newWorker(DEFAULT_TASK_QUEUE_NAME);
