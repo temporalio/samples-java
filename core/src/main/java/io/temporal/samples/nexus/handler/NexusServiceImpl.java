@@ -7,6 +7,9 @@ import io.temporal.client.WorkflowOptions;
 import io.temporal.nexus.WorkflowClientOperationHandlers;
 import io.temporal.samples.nexus.service.NexusService;
 
+// To create a service implementation, annotate the class with @ServiceImpl and provide the
+// interface that the service implements. The service implementation class should have methods that
+// return OperationHandler that correspond to the operations defined in the service interface.
 @ServiceImpl(service = NexusService.class)
 public class NexusServiceImpl {
   @OperationImpl
@@ -25,7 +28,6 @@ public class NexusServiceImpl {
   public OperationHandler<NexusService.HelloInput, NexusService.HelloOutput> hello() {
     // Use the WorkflowClientOperationHandlers.fromWorkflowMethod constructor, which is the easiest
     // way to expose a workflow as an operation.
-    // See alternatives at TODO.
     return WorkflowClientOperationHandlers.fromWorkflowMethod(
         (ctx, details, client, input) ->
             client.newWorkflowStub(

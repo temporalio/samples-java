@@ -99,5 +99,5 @@ In separate terminal windows:
 which should result in:
 ```
 [main] INFO  i.t.s.nexus.caller.CallerStarter - Workflow result: Nexus Echo 👋 
-[main] INFO  i.t.s.nexus.caller.CallerStarter - Workflow result: Hola Nexus 👋  
+[main] INFO  i.t.s.nexus.caller.CallerStarter - Workflow result: ¡Hola! Nexus 👋  
 ```

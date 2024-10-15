@@ -14,7 +14,7 @@ public class HelloHandlerWorkflowImpl implements HelloHandlerWorkflow {
       case DE:
         return new NexusService.HelloOutput("Hallo " + input.getName() + " 👋");
       case ES:
-        return new NexusService.HelloOutput("Hola " + input.getName() + " 👋");
+        return new NexusService.HelloOutput("¡Hola! " + input.getName() + " 👋");
       case TR:
         return new NexusService.HelloOutput("Merhaba " + input.getName() + " 👋");
     }
