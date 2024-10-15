@@ -29,6 +29,8 @@ import io.temporal.workflow.NexusServiceOptions;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.Collections;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -44,6 +46,8 @@ public class CallerWorkflowTest {
           // of the TestWorkflowRule will automatically inherit the endpoint if none is set.
           .setNexusServiceImplementation(new NexusServiceImpl())
           .setWorkflowTypes(HelloCallerWorkflowImpl.class)
+          // Disable automatic worker startup as we are going to register some workflows manually
+          // per test
           .setDoNotStart(true)
           .build();
 
@@ -51,6 +55,7 @@ public class CallerWorkflowTest {
   public void testHelloWorkflow() {
     testWorkflowRule
         .getWorker()
+        // Workflows started by a Nexus service can be mocked just like any other workflow
         .registerWorkflowImplementationFactory(
             HelloHandlerWorkflow.class,
             () -> {
@@ -74,14 +79,19 @@ public class CallerWorkflowTest {
 
   @Test
   public void testEchoWorkflow() {
+    // If Workflows are registered later than the endpoint can be set manually
+    // either by setting the endpoint in the NexusServiceOptions in the Workflow implementation or by setting the
+    // NexusServiceOptions on the WorkflowImplementationOptions when registering the Workflow.
     testWorkflowRule
         .getWorker()
         .registerWorkflowImplementationTypes(
             WorkflowImplementationOptions.newBuilder()
-                .setDefaultNexusServiceOptions(
-                    NexusServiceOptions.newBuilder()
-                        .setEndpoint(testWorkflowRule.getNexusEndpoint().getSpec().getName())
-                        .build())
+                .setNexusServiceOptions(
+                    Collections.singletonMap(
+                        "NexusService",
+                        NexusServiceOptions.newBuilder()
+                            .setEndpoint(testWorkflowRule.getNexusEndpoint().getSpec().getName())
+                            .build()))
                 .build(),
             EchoCallerWorkflowImpl.class);
     testWorkflowRule.getTestEnvironment().start();
