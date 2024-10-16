@@ -28,6 +28,7 @@ dependencies {
     implementation group: 'io.cloudevents', name: 'cloudevents-api', version: '4.0.1'
     implementation group: 'io.cloudevents', name: 'cloudevents-json-jackson', version: '3.0.0'
     implementation group: 'net.thisptr', name: 'jackson-jq', version: '1.0.0-preview.20240207'
+    implementation group: 'commons-cli', name: 'commons-cli', version: '1.9.0'
 
     // we don't update it to 2.1.0 because 2.1.0 requires Java 11
     implementation 'com.codingrodent:jackson-json-crypto:1.1.0'
