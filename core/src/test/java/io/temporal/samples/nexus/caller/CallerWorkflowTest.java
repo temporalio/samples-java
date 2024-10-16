@@ -19,6 +19,11 @@
 
 package io.temporal.samples.nexus.caller;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import io.temporal.client.WorkflowOptions;
 import io.temporal.samples.nexus.handler.HelloHandlerWorkflow;
 import io.temporal.samples.nexus.handler.NexusServiceImpl;
@@ -26,15 +31,9 @@ import io.temporal.samples.nexus.service.NexusService;
 import io.temporal.testing.TestWorkflowRule;
 import io.temporal.worker.WorkflowImplementationOptions;
 import io.temporal.workflow.NexusServiceOptions;
+import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.util.Collections;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class CallerWorkflowTest {
 
@@ -80,7 +79,8 @@ public class CallerWorkflowTest {
   @Test
   public void testEchoWorkflow() {
     // If Workflows are registered later than the endpoint can be set manually
-    // either by setting the endpoint in the NexusServiceOptions in the Workflow implementation or by setting the
+    // either by setting the endpoint in the NexusServiceOptions in the Workflow implementation or
+    // by setting the
     // NexusServiceOptions on the WorkflowImplementationOptions when registering the Workflow.
     testWorkflowRule
         .getWorker()
