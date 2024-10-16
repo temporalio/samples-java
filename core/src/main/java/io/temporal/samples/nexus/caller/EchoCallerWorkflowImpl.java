@@ -16,7 +16,7 @@
  *  express or implied. See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-
+// @@@SNIPSTART samples-java-nexus-caller-echo-workflow
 package io.temporal.samples.nexus.caller;
 
 import io.temporal.samples.nexus.service.NexusService;
@@ -41,3 +41,4 @@ public class EchoCallerWorkflowImpl implements EchoCallerWorkflow {
     return nexusService.echo(new NexusService.EchoInput(message)).getMessage();
   }
 }
+// @@@SNIPEND

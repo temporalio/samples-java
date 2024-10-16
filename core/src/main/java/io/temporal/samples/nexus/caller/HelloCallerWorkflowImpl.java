@@ -16,7 +16,7 @@
  *  express or implied. See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-
+// @@@SNIPSTART samples-java-nexus-caller-hello-workflow
 package io.temporal.samples.nexus.caller;
 
 import io.temporal.samples.nexus.service.NexusService;
@@ -48,3 +48,4 @@ public class HelloCallerWorkflowImpl implements HelloCallerWorkflow {
     return handle.getResult().get().getMessage();
   }
 }
+// @@@SNIPEND
