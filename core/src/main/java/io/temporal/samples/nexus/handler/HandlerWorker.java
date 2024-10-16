@@ -16,7 +16,7 @@
  *  express or implied. See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-
+// @@@SNIPSTART samples-java-nexus-handler-worker
 package io.temporal.samples.nexus.handler;
 
 import io.temporal.client.WorkflowClient;
@@ -39,3 +39,4 @@ public class HandlerWorker {
     factory.start();
   }
 }
+// @@@SNIPEND

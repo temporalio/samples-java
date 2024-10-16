@@ -16,7 +16,7 @@
  *  express or implied. See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-
+// @@@SNIPSTART samples-java-nexus-cli
 package io.temporal.samples.nexus.options;
 
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
@@ -25,11 +25,12 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
+import org.apache.commons.cli.*;
+
+import javax.net.ssl.SSLException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
-import javax.net.ssl.SSLException;
-import org.apache.commons.cli.*;
 
 public class ClientOptions {
   public static WorkflowClient getWorkflowClient(String[] args) {
@@ -123,3 +124,4 @@ public class ClientOptions {
         service, WorkflowClientOptions.newBuilder().setNamespace(namespace).build());
   }
 }
+// @@@SNIPEND
