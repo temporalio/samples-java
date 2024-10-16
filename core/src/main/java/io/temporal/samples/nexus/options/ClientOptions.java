@@ -20,6 +20,7 @@
 package io.temporal.samples.nexus.options;
 
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
+import io.grpc.netty.shaded.io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
@@ -64,7 +65,7 @@ public class ClientOptions {
     Option insercureSkipVerifyOption =
         new Option(
             "insecure-skip-verify",
-            true,
+            false,
             "Skip verification of the server's certificate and host name");
     insercureSkipVerifyOption.setRequired(false);
     options.addOption(insercureSkipVerifyOption);
@@ -88,16 +89,23 @@ public class ClientOptions {
     String clientCert = cmd.getOptionValue("client-cert", "");
     String clientKey = cmd.getOptionValue("client-key", "");
     String serverName = cmd.getOptionValue("server-name", "");
+    boolean insecureSkipVerify = cmd.hasOption("insecure-skip-verify");
 
     WorkflowServiceStubsOptions.Builder serviceStubOptionsBuilder =
         WorkflowServiceStubsOptions.newBuilder().setTarget(targetHost);
-    if (!clientCert.isEmpty()) {
+    if (!clientCert.isEmpty() || !clientKey.isEmpty()) {
+      if (clientCert.isEmpty() || clientKey.isEmpty()) {
+        throw new IllegalArgumentException("Both client-cert and client-key must be provided");
+      }
       try {
         SslContextBuilder sslContext =
             SslContextBuilder.forClient()
                 .keyManager(new FileInputStream(clientCert), new FileInputStream(clientKey));
         if (serverRootCaCert != null && !serverRootCaCert.isEmpty()) {
           sslContext.trustManager(new FileInputStream(serverRootCaCert));
+        }
+        if (insecureSkipVerify) {
+          sslContext.trustManager(InsecureTrustManagerFactory.INSTANCE);
         }
         serviceStubOptionsBuilder.setSslContext(sslContext.build());
       } catch (SSLException e) {

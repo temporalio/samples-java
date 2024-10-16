@@ -80,8 +80,8 @@ public class CallerWorkflowTest {
   public void testEchoWorkflow() {
     // If Workflows are registered later than the endpoint can be set manually
     // either by setting the endpoint in the NexusServiceOptions in the Workflow implementation or
-    // by setting the
-    // NexusServiceOptions on the WorkflowImplementationOptions when registering the Workflow.
+    // by setting the NexusServiceOptions on the WorkflowImplementationOptions when registering the
+    // Workflow.
     testWorkflowRule
         .getWorker()
         .registerWorkflowImplementationTypes(
