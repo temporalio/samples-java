@@ -1,3 +1,4 @@
+// @@@SNIPSTART samples-java-nexus-caller-worker
 package io.temporal.samples.nexus.caller;
 
 import io.temporal.client.WorkflowClient;
@@ -30,3 +31,4 @@ public class CallerWorker {
     factory.start();
   }
 }
+// @@@SNIPEND

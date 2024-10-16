@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.nexusrpc.Operation;
 import io.nexusrpc.Service;
 
+// @@@SNIPSTART samples-java-nexus-service
 @Service
 public interface NexusService {
   enum Language {
@@ -85,3 +86,4 @@ public interface NexusService {
   @Operation
   EchoOutput echo(EchoInput input);
 }
+// @@@SNIPEND

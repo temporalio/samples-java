@@ -1,3 +1,4 @@
+// @@@SNIPSTART samples-java-nexus-handler-worker
 package io.temporal.samples.nexus.handler;
 
 import io.temporal.client.WorkflowClient;
@@ -20,3 +21,4 @@ public class HandlerWorker {
     factory.start();
   }
 }
+// @@@SNIPEND
