@@ -39,14 +39,14 @@ public class CallerStarter {
         client.newWorkflowStub(EchoCallerWorkflow.class, workflowOptions);
     logger.info("Workflow result: {}", echoWorkflow.echo("Nexus Echo 👋"));
     logger.info(
-        "Started workflow workflowId: {} runId; {}",
+        "Started workflow workflowId: {} runId: {}",
         WorkflowStub.fromTyped(echoWorkflow).getExecution().getWorkflowId(),
         WorkflowStub.fromTyped(echoWorkflow).getExecution().getRunId());
     HelloCallerWorkflow helloWorkflow =
         client.newWorkflowStub(HelloCallerWorkflow.class, workflowOptions);
     logger.info("Workflow result: {}", helloWorkflow.hello("Nexus", NexusService.Language.ES));
     logger.info(
-        "Started workflow workflowId: {} runId; {}",
+        "Started workflow workflowId: {} runId: {}",
         WorkflowStub.fromTyped(helloWorkflow).getExecution().getWorkflowId(),
         WorkflowStub.fromTyped(helloWorkflow).getExecution().getRunId());
   }

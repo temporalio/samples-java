@@ -11,7 +11,7 @@ This sample shows how to use Temporal for authoring a Nexus service and call it 
 
 ### Sample directory structure
 
-- [service](./service) - shared service defintion
+- [service](./service) - shared service definition
 - [caller](./caller) - caller workflows, worker, and starter
 - [handler](./handler) - handler workflow, operations, and worker
 - [options](./options) - command line argument parsing utility
@@ -68,8 +68,8 @@ deployments with server version 1.25.0.
 
 ### Make Nexus calls across namespace boundaries
 
-> Instructions apply for local development, for Temporal Cloud or a self hosted setups, supply the relevant [CLI
-> flags](./options/cli.go) to properly set up the connection.
+> Instructions apply for local development, for Temporal Cloud or a self-hosted setups, supply the relevant [CLI
+> flags](./options/ClientOptions.java) to properly set up the connection.
 
 In separate terminal windows:
 
