@@ -16,7 +16,7 @@
  *  express or implied. See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-
+// @@@SNIPSTART samples-java-nexus-caller-starter
 package io.temporal.samples.nexus.caller;
 
 import io.temporal.api.common.v1.WorkflowExecution;
@@ -53,3 +53,4 @@ public class CallerStarter {
     logger.info("Workflow result: {}", helloWorkflow.hello("Nexus", NexusService.Language.ES));
   }
 }
+// @@@SNIPEND
