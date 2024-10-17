@@ -109,5 +109,6 @@ public class ClusterManagerWorkflowStarter {
         "Cluster shut down successfully.  It had "
             + result.getNumCurrentlyAssignedNodes()
             + " nodes assigned at the end.");
+    System.exit(0);
   }
 }

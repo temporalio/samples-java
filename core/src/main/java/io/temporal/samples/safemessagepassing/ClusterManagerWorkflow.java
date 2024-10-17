@@ -43,7 +43,7 @@ public interface ClusterManagerWorkflow {
   // In workflows that continue-as-new, it's convenient to store all your state in one serializable
   // structure to make it easier to pass between runs
   class ClusterManagerState {
-    public ClusterState workflowState;
+    public ClusterState workflowState = ClusterState.NOT_STARTED;
     public Map<String, Optional<String>> nodes = new HashMap<>();
     public Set<String> jobAssigned = new HashSet<>();
   }
