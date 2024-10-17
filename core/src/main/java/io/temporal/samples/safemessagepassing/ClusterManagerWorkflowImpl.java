@@ -24,13 +24,14 @@ import io.temporal.common.RetryOptions;
 import io.temporal.failure.ApplicationFailure;
 import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowLock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ClusterManagerWorkflowImpl implements ClusterManagerWorkflow {
 
@@ -59,14 +60,16 @@ public class ClusterManagerWorkflowImpl implements ClusterManagerWorkflow {
       maxHistoryLength = 120;
       sleepInterval = Duration.ofSeconds(1);
     }
-    Workflow.await(() -> state.clusterStarted);
+    Workflow.await(() -> state.workflowState != ClusterState.NOT_STARTED);
     // The cluster manager is a long-running "entity" workflow so we need to periodically checkpoint
     // its state and
     // continue-as-new.
     while (true) {
       performHealthChecks();
-      if (!Workflow.await(sleepInterval, () -> state.clusterShutdown || shouldContinueAsNew())) {
-      } else if (state.clusterShutdown) {
+      if (!Workflow.await(
+          sleepInterval,
+          () -> state.workflowState == ClusterState.SHUTTING_DOWN || shouldContinueAsNew())) {
+      } else if (state.workflowState == ClusterState.SHUTTING_DOWN) {
         break;
       } else if (shouldContinueAsNew()) {
         // We don't want to leave any job assignment or deletion handlers half-finished when we
@@ -84,7 +87,11 @@ public class ClusterManagerWorkflowImpl implements ClusterManagerWorkflow {
 
   @Override
   public void startCluster() {
-    state.clusterStarted = true;
+    if (state.workflowState != ClusterState.NOT_STARTED) {
+      logger.warn("Cannot start cluster in state {}", state.workflowState);
+      return;
+    }
+    state.workflowState = ClusterState.STARTED;
     for (int i = 0; i < 25; i++) {
       state.nodes.put(String.valueOf(i), Optional.empty());
     }
@@ -92,17 +99,23 @@ public class ClusterManagerWorkflowImpl implements ClusterManagerWorkflow {
   }
 
   @Override
-  public void stopCluster() {
-    Workflow.await(() -> state.clusterStarted);
-    state.clusterShutdown = true;
+  public boolean stopCluster() {
+    if (state.workflowState != ClusterState.STARTED) {
+      // This is used as an Update handler we return an error to the caller.
+      throw ApplicationFailure.newFailure(
+          "Cannot shutdown cluster in state " + state.workflowState, "IllegalState");
+    }
+    activities.shutdown();
+    state.workflowState = ClusterState.SHUTTING_DOWN;
     logger.info("Cluster shut down");
+    return true;
   }
 
   @Override
   public ClusterManagerAssignNodesToJobResult assignNodesToJobs(
       ClusterManagerAssignNodesToJobInput input) {
-    Workflow.await(() -> state.clusterStarted);
-    if (state.clusterShutdown) {
+    Workflow.await(() -> state.workflowState != ClusterState.NOT_STARTED);
+    if (state.workflowState == ClusterState.SHUTTING_DOWN) {
       throw ApplicationFailure.newFailure(
           "Cannot assign nodes to a job: Cluster is already shut down", "IllegalState");
     }
@@ -116,16 +129,14 @@ public class ClusterManagerWorkflowImpl implements ClusterManagerWorkflow {
       if (unassignedNodes.size() < input.getTotalNumNodes()) {
         // If you want the client to receive a failure, either add an update validator and throw the
         // exception from there, or raise an ApplicationFailure. Other exceptions in the main
-        // handler
-        // will cause the workflow to keep retrying and get it stuck.
+        // handler will cause the workflow to keep retrying and get it stuck.
         throw ApplicationFailure.newFailure(
             "Cannot assign nodes to a job: Not enough nodes available", "IllegalState");
       }
       Set<String> nodesToAssign =
           unassignedNodes.stream().limit(input.getTotalNumNodes()).collect(Collectors.toSet());
       // This call would be dangerous without nodesLock because it yields control and allows
-      // interleaving
-      // with deleteJob and performHealthChecks, which both touch this.state.nodes.
+      // interleaving with deleteJob and performHealthChecks, which both touch this.state.nodes.
       activities.assignNodesToJob(
           new ClusterManagerActivities.AssignNodesToJobInput(nodesToAssign, input.getJobName()));
       for (String node : nodesToAssign) {
@@ -140,8 +151,8 @@ public class ClusterManagerWorkflowImpl implements ClusterManagerWorkflow {
 
   @Override
   public void deleteJob(ClusterManagerDeleteJobInput input) {
-    Workflow.await(() -> state.clusterStarted);
-    if (state.clusterShutdown) {
+    Workflow.await(() -> state.workflowState != ClusterState.NOT_STARTED);
+    if (state.workflowState == ClusterState.SHUTTING_DOWN) {
       // If you want the client to receive a failure, either add an update validator and throw the
       // exception from there, or raise an ApplicationFailure. Other exceptions in the main handler
       // will cause the workflow to keep retrying and get it stuck.

@@ -34,12 +34,16 @@ import java.util.*;
  */
 @WorkflowInterface
 public interface ClusterManagerWorkflow {
+
+  enum ClusterState {
+    NOT_STARTED,
+    STARTED,
+    SHUTTING_DOWN
+  }
   // In workflows that continue-as-new, it's convenient to store all your state in one serializable
-  // structure
-  // to make it easier to pass between runs
+  // structure to make it easier to pass between runs
   class ClusterManagerState {
-    public boolean clusterStarted;
-    public boolean clusterShutdown;
+    public ClusterState workflowState;
     public Map<String, Optional<String>> nodes = new HashMap<>();
     public Set<String> jobAssigned = new HashSet<>();
   }
@@ -151,19 +155,17 @@ public interface ClusterManagerWorkflow {
   @SignalMethod
   void startCluster();
 
-  @SignalMethod
-  void stopCluster();
+  @UpdateMethod
+  boolean stopCluster();
 
   // This is an update as opposed to a signal because the client may want to wait for nodes to be
-  // allocated
-  // before sending work to those nodes.
-  // Returns the list of node names that were allocated to the job.
+  // allocated before sending work to those nodes. Returns the list of node names that were
+  // allocated to the job.
   @UpdateMethod
   ClusterManagerAssignNodesToJobResult assignNodesToJobs(ClusterManagerAssignNodesToJobInput input);
 
   // Even though it returns nothing, this is an update because the client may want to track it, for
-  // example
-  // to wait for nodes to be unassigned before reassigning them.
+  // example to wait for nodes to be unassigned before reassigning them.
   @UpdateMethod
   void deleteJob(ClusterManagerDeleteJobInput input);
 }

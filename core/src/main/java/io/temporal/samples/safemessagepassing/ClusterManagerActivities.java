@@ -96,4 +96,7 @@ public interface ClusterManagerActivities {
 
   @ActivityMethod
   Set<String> findBadNodes(FindBadNodesInput input);
+
+  @ActivityMethod
+  void shutdown();
 }
