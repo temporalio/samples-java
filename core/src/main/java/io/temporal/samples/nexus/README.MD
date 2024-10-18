@@ -54,7 +54,7 @@ temporal operator nexus endpoint create \
   --name my-nexus-endpoint-name \
   --target-namespace my-target-namespace \
   --target-task-queue my-handler-task-queue \
-  --description-file ./service/description.md
+  --description-file ./core/src/main/java/io/temporal/samples/nexus/service/description.md
 ```
 
 ## Getting started with a self-hosted service or Temporal Cloud
