@@ -19,6 +19,7 @@
 
 package io.temporal.samples.nexus.options;
 
+import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.temporal.client.WorkflowClient;
@@ -27,13 +28,11 @@ import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
 import javax.net.ssl.SSLException;
 import org.apache.commons.cli.*;
 
 public class ClientOptions {
   public static WorkflowClient getWorkflowClient(String[] args) {
-    System.out.println(Arrays.toString(args));
     Options options = new Options();
     Option targetHostOption = new Option("target-host", true, "Host:port for the Temporal service");
     targetHostOption.setRequired(false);
@@ -107,7 +106,7 @@ public class ClientOptions {
         if (insecureSkipVerify) {
           sslContext.trustManager(InsecureTrustManagerFactory.INSTANCE);
         }
-        serviceStubOptionsBuilder.setSslContext(sslContext.build());
+        serviceStubOptionsBuilder.setSslContext(GrpcSslContexts.configure(sslContext).build());
       } catch (SSLException e) {
         throw new RuntimeException(e);
       } catch (FileNotFoundException e) {
