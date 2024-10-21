@@ -29,21 +29,18 @@ public class EarlyReturnClient {
       System.out.println("Starting workflow with UpdateWithStart");
 
       UpdateWithStartWorkflowOperation<String> updateOp =
-          UpdateWithStartWorkflowOperation.newBuilder(workflow::returnInitResult)
-              .setWaitForStage(WorkflowUpdateStage.COMPLETED)
-              .build();
+              UpdateWithStartWorkflowOperation.newBuilder(workflow::returnInitResult)
+                      .setWaitForStage(WorkflowUpdateStage.COMPLETED) // Wait for update to complete
+                      .build();
 
-      // Ensure tx is passed directly into the correct start method.
       WorkflowUpdateHandle<String> updateHandle =
-          WorkflowClient.updateWithStart(() -> workflow.processTransaction(tx), updateOp);
+              WorkflowClient.updateWithStart(workflow::processTransaction, tx, updateOp);
 
       String transactionId = updateHandle.getResultAsync().get();
 
       System.out.println("Transaction initialized successfully: " + transactionId);
 
-      //      // Get the final result of the workflow
-      //      String result = updateHandle.getId()
-      //      System.out.println("Workflow completed with result: " + result);
+      // TODO get the result of the workflow
 
     } catch (Exception e) {
       System.err.println("Transaction initialization failed: " + e.getMessage());
