@@ -19,17 +19,20 @@
 
 package io.temporal.samples.nexus.options;
 
+import io.grpc.Metadata;
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import io.grpc.stub.MetadataUtils;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
+import org.apache.commons.cli.*;
+
+import javax.net.ssl.SSLException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import javax.net.ssl.SSLException;
-import org.apache.commons.cli.*;
 
 public class ClientOptions {
   public static WorkflowClient getWorkflowClient(String[] args) {
@@ -47,13 +50,22 @@ public class ClientOptions {
     serverRootCaOption.setRequired(false);
     options.addOption(serverRootCaOption);
 
-    Option clientCertOption = new Option("client-cert", true, "Optional path to client cert");
+    Option clientCertOption =
+        new Option(
+            "client-cert", true, "Optional path to client cert, mutually exclusive with API key");
     clientCertOption.setRequired(false);
     options.addOption(clientCertOption);
 
-    Option clientKeyOption = new Option("client-key", true, "Optional path to client key");
+    Option clientKeyOption =
+        new Option(
+            "client-key", true, "Optional path to client key, mutually exclusive with API key");
     clientKeyOption.setRequired(false);
     options.addOption(clientKeyOption);
+
+    Option apiKeyOption =
+        new Option("api-key", true, "Optional API key, mutually exclusive with cert/key");
+    apiKeyOption.setRequired(false);
+    options.addOption(apiKeyOption);
 
     Option serverNameOption =
         new Option(
@@ -89,9 +101,15 @@ public class ClientOptions {
     String clientKey = cmd.getOptionValue("client-key", "");
     String serverName = cmd.getOptionValue("server-name", "");
     boolean insecureSkipVerify = cmd.hasOption("insecure-skip-verify");
+    String apiKey = cmd.getOptionValue("api-key", "");
 
+    // API key and client cert/key are mutually exclusive
+    if (!apiKey.isEmpty() && (!clientCert.isEmpty() || !clientKey.isEmpty())) {
+      throw new IllegalArgumentException("API key and client cert/key are mutually exclusive");
+    }
     WorkflowServiceStubsOptions.Builder serviceStubOptionsBuilder =
         WorkflowServiceStubsOptions.newBuilder().setTarget(targetHost);
+    // Configure TLS if client cert and key are provided
     if (!clientCert.isEmpty() || !clientKey.isEmpty()) {
       if (clientCert.isEmpty() || clientKey.isEmpty()) {
         throw new IllegalArgumentException("Both client-cert and client-key must be provided");
@@ -112,10 +130,24 @@ public class ClientOptions {
       } catch (FileNotFoundException e) {
         throw new RuntimeException(e);
       }
+      if (serverName != null && !serverName.isEmpty()) {
+        serviceStubOptionsBuilder.setChannelInitializer(c -> c.overrideAuthority(serverName));
+      }
     }
-    if (serverName != null && !serverName.isEmpty()) {
-      serviceStubOptionsBuilder.setChannelInitializer(c -> c.overrideAuthority(serverName));
+    // Configure API key if provided
+    if (!apiKey.isEmpty()) {
+      serviceStubOptionsBuilder.setEnableHttps(true);
+      serviceStubOptionsBuilder.addApiKey(() -> apiKey);
+      Metadata.Key<String> TEMPORAL_NAMESPACE_HEADER_KEY =
+          Metadata.Key.of("temporal-namespace", Metadata.ASCII_STRING_MARSHALLER);
+      Metadata metadata = new Metadata();
+      metadata.put(TEMPORAL_NAMESPACE_HEADER_KEY, namespace);
+      serviceStubOptionsBuilder.setChannelInitializer(
+          (channel) -> {
+            channel.intercept(MetadataUtils.newAttachHeadersInterceptor(metadata));
+          });
     }
+
     WorkflowServiceStubs service =
         WorkflowServiceStubs.newServiceStubs(serviceStubOptionsBuilder.build());
     return WorkflowClient.newInstance(
