@@ -28,11 +28,10 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
-import org.apache.commons.cli.*;
-
-import javax.net.ssl.SSLException;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import javax.net.ssl.SSLException;
+import org.apache.commons.cli.*;
 
 public class ClientOptions {
   public static WorkflowClient getWorkflowClient(String[] args) {
