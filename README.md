@@ -102,6 +102,8 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 
 - [**Sliding Window Batch**](/core/src/main/java/io/temporal/samples/batch/slidingwindow): A batch implementation that maintains a configured number of child workflows during processing.
 
+- [**Safe Message Passing**](/core/src/main/java/io/temporal/samples/safemessagepassing): Safely handling concurrent updates and signals messages.
+
 #### API demonstrations
 
 - [**Async Untyped Child Workflow**](/core/src/main/java/io/temporal/samples/asyncuntypedchild): Demonstrates how to invoke an untyped child workflow async, that can complete after parent workflow is already completed.
