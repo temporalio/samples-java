@@ -39,7 +39,9 @@ public class EarlyReturnClient {
 
   // Run workflow using 'updateWithStart'
   private static void runWorkflowWithUpdateWithStart(WorkflowClient client) {
-    Transaction tx = new Transaction("", "Bob", "Alice",
+    Transaction tx =
+        new Transaction(
+            "", "Bob", "Alice",
             1000); // Change this amount to a negative number to have initTransaction fail
 
     WorkflowOptions options = buildWorkflowOptions();
