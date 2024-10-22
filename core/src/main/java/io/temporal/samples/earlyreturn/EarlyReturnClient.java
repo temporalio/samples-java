@@ -1,3 +1,22 @@
+/*
+ *  Copyright (c) 2020 Temporal Technologies, Inc. All Rights Reserved
+ *
+ *  Copyright 2012-2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ *
+ *  Modifications copyright (C) 2017 Uber Technologies, Inc.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License"). You may not
+ *  use this file except in compliance with the License. A copy of the License is
+ *  located at
+ *
+ *  http://aws.amazon.com/apache2.0
+ *
+ *  or in the "license" file accompanying this file. This file is distributed on
+ *  an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+ *  express or implied. See the License for the specific language governing
+ *  permissions and limitations under the License.
+ */
+
 package io.temporal.samples.earlyreturn;
 
 import io.temporal.client.*;
@@ -20,7 +39,8 @@ public class EarlyReturnClient {
 
   // Run workflow using 'updateWithStart'
   private static void runWorkflowWithUpdateWithStart(WorkflowClient client) {
-    Transaction tx = new Transaction("", "Bob", "Alice", -1000);
+    Transaction tx = new Transaction("", "Bob", "Alice",
+            1000); // Change this amount to a negative number to have initTransaction fail
 
     WorkflowOptions options = buildWorkflowOptions();
     TransactionWorkflow workflow = client.newWorkflowStub(TransactionWorkflow.class, options);
@@ -29,18 +49,19 @@ public class EarlyReturnClient {
       System.out.println("Starting workflow with UpdateWithStart");
 
       UpdateWithStartWorkflowOperation<String> updateOp =
-              UpdateWithStartWorkflowOperation.newBuilder(workflow::returnInitResult)
-                      .setWaitForStage(WorkflowUpdateStage.COMPLETED) // Wait for update to complete
-                      .build();
+          UpdateWithStartWorkflowOperation.newBuilder(workflow::returnInitResult)
+              .setWaitForStage(WorkflowUpdateStage.COMPLETED) // Wait for update to complete
+              .build();
 
       WorkflowUpdateHandle<String> updateHandle =
-              WorkflowClient.updateWithStart(workflow::processTransaction, tx, updateOp);
+          WorkflowClient.updateWithStart(workflow::processTransaction, tx, updateOp);
 
       String transactionId = updateHandle.getResultAsync().get();
 
       System.out.println("Transaction initialized successfully: " + transactionId);
 
-      // TODO get the result of the workflow
+      String result = WorkflowStub.fromTyped(workflow).getResult(String.class);
+      System.out.println("Workflow completed with result: " + result);
 
     } catch (Exception e) {
       System.err.println("Transaction initialization failed: " + e.getMessage());
