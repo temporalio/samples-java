@@ -26,8 +26,8 @@ import io.temporal.workflow.WorkflowMethod;
 @WorkflowInterface
 public interface TransactionWorkflow {
   @WorkflowMethod
-  String processTransaction(Transaction tx);
+  TxResult processTransaction(Transaction tx);
 
   @UpdateMethod(name = "early-return")
-  String returnInitResult();
+  TxResult returnInitResult();
 }
