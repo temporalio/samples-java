@@ -47,18 +47,20 @@ public class EarlyReturnClient {
     WorkflowOptions options = buildWorkflowOptions();
     TransactionWorkflow workflow = client.newWorkflowStub(TransactionWorkflow.class, options);
 
+    System.out.println("Starting workflow with UpdateWithStart");
+
+    UpdateWithStartWorkflowOperation<TxResult> updateOp =
+        UpdateWithStartWorkflowOperation.newBuilder(workflow::returnInitResult)
+            .setWaitForStage(WorkflowUpdateStage.COMPLETED) // Wait for update to complete
+            .build();
+
+    TxResult updateResult = null;
     try {
-      System.out.println("Starting workflow with UpdateWithStart");
-
-      UpdateWithStartWorkflowOperation<TxResult> updateOp =
-          UpdateWithStartWorkflowOperation.newBuilder(workflow::returnInitResult)
-              .setWaitForStage(WorkflowUpdateStage.COMPLETED) // Wait for update to complete
-              .build();
-
       WorkflowUpdateHandle<TxResult> updateHandle =
           WorkflowClient.updateWithStart(workflow::processTransaction, tx, updateOp);
 
-      TxResult updateResult = updateHandle.getResultAsync().get();
+      updateResult = updateHandle.getResultAsync().get();
+
       System.out.println(
           "Workflow initialized with result: "
               + updateResult.getStatus()
@@ -66,9 +68,13 @@ public class EarlyReturnClient {
               + updateResult.getTransactionId()
               + ")");
 
-      String result = WorkflowStub.fromTyped(workflow).getResult(String.class);
-      System.out.println("Workflow completed with result: " + result);
-
+      TxResult result = WorkflowStub.fromTyped(workflow).getResult(TxResult.class);
+      System.out.println(
+          "Workflow completed with result: "
+              + result.getStatus()
+              + " (transactionId: "
+              + result.getTransactionId()
+              + ")");
     } catch (Exception e) {
       System.err.println("Transaction initialization failed: " + e.getMessage());
     }
