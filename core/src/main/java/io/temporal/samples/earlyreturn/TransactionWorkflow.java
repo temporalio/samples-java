@@ -26,7 +26,7 @@ import io.temporal.workflow.WorkflowMethod;
 @WorkflowInterface
 public interface TransactionWorkflow {
   @WorkflowMethod
-  TxResult processTransaction(Transaction tx);
+  TxResult processTransaction(TransactionRequest txRequest);
 
   @UpdateMethod(name = "early-return")
   TxResult returnInitResult();

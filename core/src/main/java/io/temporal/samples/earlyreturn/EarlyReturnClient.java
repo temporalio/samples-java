@@ -31,7 +31,7 @@ public class EarlyReturnClient {
     runWorkflowWithUpdateWithStart(client);
   }
 
-  // Setup the WorkflowClient
+  // Set up the WorkflowClient
   public static WorkflowClient setupWorkflowClient() {
     WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
     return WorkflowClient.newInstance(service);
@@ -39,10 +39,10 @@ public class EarlyReturnClient {
 
   // Run workflow using 'updateWithStart'
   private static void runWorkflowWithUpdateWithStart(WorkflowClient client) {
-    Transaction tx =
-        new Transaction(
-            "", "Bob", "Alice",
-            1000); // Change this amount to a negative number to have initTransaction fail
+    TransactionRequest txRequest =
+        new TransactionRequest(
+            "Bob", "Alice",
+            -1000); // Change this amount to a negative number to have initTransaction fail
 
     WorkflowOptions options = buildWorkflowOptions();
     TransactionWorkflow workflow = client.newWorkflowStub(TransactionWorkflow.class, options);
@@ -57,7 +57,7 @@ public class EarlyReturnClient {
     TxResult updateResult = null;
     try {
       WorkflowUpdateHandle<TxResult> updateHandle =
-          WorkflowClient.updateWithStart(workflow::processTransaction, tx, updateOp);
+          WorkflowClient.updateWithStart(workflow::processTransaction, txRequest, updateOp);
 
       updateResult = updateHandle.getResultAsync().get();
 

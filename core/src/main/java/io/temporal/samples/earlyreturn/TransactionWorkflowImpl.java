@@ -37,10 +37,9 @@ public class TransactionWorkflowImpl implements TransactionWorkflow {
   private Exception initError = null;
 
   @Override
-  public TxResult processTransaction(Transaction txInput) {
-    this.tx = txInput;
+  public TxResult processTransaction(TransactionRequest txRequest) {
     try {
-      this.tx = activities.initTransaction(this.tx);
+      this.tx = activities.initTransaction(txRequest);
     } catch (Exception e) {
       initError = e;
     } finally {
@@ -48,8 +47,9 @@ public class TransactionWorkflowImpl implements TransactionWorkflow {
     }
 
     if (initError != null) {
-      activities.cancelTransaction(this.tx);
-      return new TxResult(this.tx.getId(), "Transaction cancelled.");
+      // If initialization failed, cancel the transaction
+      activities.cancelTransaction(txRequest);
+      return new TxResult("", "Transaction cancelled.");
     } else {
       activities.completeTransaction(this.tx);
       return new TxResult(this.tx.getId(), "Transaction completed successfully.");

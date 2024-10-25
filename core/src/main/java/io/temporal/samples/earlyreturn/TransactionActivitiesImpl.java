@@ -24,23 +24,31 @@ import io.temporal.failure.ApplicationFailure;
 public class TransactionActivitiesImpl implements TransactionActivities {
 
   @Override
-  public Transaction initTransaction(Transaction tx) {
+  public Transaction initTransaction(TransactionRequest txRequest) {
     System.out.println("Initializing transaction");
     sleep(500);
-    if (tx.getAmount() <= 0) {
-      System.out.println("Invalid amount: " + tx.getAmount());
+    if (txRequest.getAmount() <= 0) {
+      System.out.println("Invalid amount: " + txRequest.getAmount());
       throw ApplicationFailure.newNonRetryableFailure(
           "Non-retryable Activity Failure: Invalid Amount", "InvalidAmount");
     }
-    tx.setId("TXID" + String.format("%010d", (long) (Math.random() * 1_000_000_0000L)));
+    // Simulate transaction ID generation
+    String txId = "TXID" + String.format("%010d", (long) (Math.random() * 1_000_000_0000L));
+    Transaction tx =
+        new Transaction(
+            txId,
+            txRequest.getSourceAccount(),
+            txRequest.getTargetAccount(),
+            txRequest.getAmount());
+
     sleep(500);
     return tx;
   }
 
   @Override
-  public void cancelTransaction(Transaction tx) {
+  public void cancelTransaction(TransactionRequest txRequest) {
     System.out.println("Cancelling transaction");
-    sleep(2000);
+    sleep(300);
     System.out.println("Transaction cancelled");
   }
 
