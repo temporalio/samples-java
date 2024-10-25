@@ -27,7 +27,6 @@ import io.temporal.client.*;
 import io.temporal.failure.ActivityFailure;
 import io.temporal.failure.ApplicationFailure;
 import io.temporal.testing.TestWorkflowRule;
-import java.time.Duration;
 import java.util.UUID;
 import org.junit.Rule;
 import org.junit.Test;
@@ -140,9 +139,6 @@ public class TransactionWorkflowTest {
     ApplicationFailure appFailure = (ApplicationFailure) exception.getCause().getCause().getCause();
     assertEquals("InvalidAmount", appFailure.getType());
     assertTrue(appFailure.getMessage().contains("Invalid Amount"));
-
-    // Let workflow process error handling
-    testWorkflowRule.getTestEnvironment().sleep(Duration.ofSeconds(1));
 
     // Create a new stub to get the result
     TransactionWorkflow workflowById =
