@@ -31,6 +31,7 @@ public class DynamicSleepWorkflowWorker {
   static final String TASK_QUEUE = "TimerUpdate";
 
   private static final Logger logger = LoggerFactory.getLogger(DynamicSleepWorkflowWorker.class);
+
   /** Create just one workflow instance for the sake of the sample. */
   static final String DYNAMIC_SLEEP_WORKFLOW_ID = "DynamicSleepWorkflow";
 

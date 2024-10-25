@@ -30,6 +30,7 @@ import org.junit.Test;
 public class IteratorIteratorBatchWorkflowTest {
 
   private static final int PAGE_SIZE = 10;
+
   /** The sample RecordLoaderImpl always returns the fixed number pages. */
   private static boolean[] processedRecords = new boolean[PAGE_SIZE * PAGE_COUNT];
 
