@@ -24,29 +24,32 @@ import io.temporal.failure.ApplicationFailure;
 public class TransactionActivitiesImpl implements TransactionActivities {
 
   @Override
-  public Transaction initTransaction(TransactionRequest txRequest) {
+  public Transaction mintTransactionId(TransactionRequest request) {
+    System.out.println("Minting transaction ID");
+    // Simulate transaction ID generation
+    String txId = "TXID" + String.format("%010d", (long) (Math.random() * 1_000_000_0000L));
+    sleep(100);
+    System.out.println("Transaction ID minted: " + txId);
+    return new Transaction(
+        txId, request.getSourceAccount(), request.getTargetAccount(), request.getAmount());
+  }
+
+  @Override
+  public Transaction initTransaction(Transaction tx) {
     System.out.println("Initializing transaction");
-    sleep(500);
-    if (txRequest.getAmount() <= 0) {
-      System.out.println("Invalid amount: " + txRequest.getAmount());
+    sleep(300);
+    if (tx.getAmount() <= 0) {
+      System.out.println("Invalid amount: " + tx.getAmount());
       throw ApplicationFailure.newNonRetryableFailure(
           "Non-retryable Activity Failure: Invalid Amount", "InvalidAmount");
     }
-    // Simulate transaction ID generation
-    String txId = "TXID" + String.format("%010d", (long) (Math.random() * 1_000_000_0000L));
-    Transaction tx =
-        new Transaction(
-            txId,
-            txRequest.getSourceAccount(),
-            txRequest.getTargetAccount(),
-            txRequest.getAmount());
 
     sleep(500);
     return tx;
   }
 
   @Override
-  public void cancelTransaction(TransactionRequest txRequest) {
+  public void cancelTransaction(Transaction tx) {
     System.out.println("Cancelling transaction");
     sleep(300);
     System.out.println("Transaction cancelled");

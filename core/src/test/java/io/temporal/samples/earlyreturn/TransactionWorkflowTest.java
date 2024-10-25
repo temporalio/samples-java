@@ -85,7 +85,8 @@ public class TransactionWorkflowTest {
     TxResult finalResult = WorkflowStub.fromTyped(workflow).getResult(TxResult.class);
     assertEquals("Transaction completed successfully.", finalResult.getStatus());
 
-    // Verify activities were called
+    // Verify activities were calledgit
+    verify(activities).mintTransactionId(any());
     verify(activities).initTransaction(any());
     verify(activities).completeTransaction(any());
     verifyNoMoreInteractions(activities);
@@ -148,6 +149,7 @@ public class TransactionWorkflowTest {
     assertEquals("Transaction cancelled.", finalResult.getStatus());
 
     // Verify activities were called in correct order
+    verify(activities).mintTransactionId(any());
     verify(activities).initTransaction(any());
     verify(activities).cancelTransaction(any());
     verifyNoMoreInteractions(activities);

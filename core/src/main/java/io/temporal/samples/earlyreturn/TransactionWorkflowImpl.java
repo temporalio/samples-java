@@ -38,8 +38,10 @@ public class TransactionWorkflowImpl implements TransactionWorkflow {
 
   @Override
   public TxResult processTransaction(TransactionRequest txRequest) {
+    this.tx = activities.mintTransactionId(txRequest);
+
     try {
-      this.tx = activities.initTransaction(txRequest);
+      this.tx = activities.initTransaction(this.tx);
     } catch (Exception e) {
       initError = e;
     } finally {
@@ -48,7 +50,7 @@ public class TransactionWorkflowImpl implements TransactionWorkflow {
 
     if (initError != null) {
       // If initialization failed, cancel the transaction
-      activities.cancelTransaction(txRequest);
+      activities.cancelTransaction(this.tx);
       return new TxResult("", "Transaction cancelled.");
     } else {
       activities.completeTransaction(this.tx);

@@ -25,10 +25,13 @@ import io.temporal.activity.ActivityMethod;
 @ActivityInterface
 public interface TransactionActivities {
   @ActivityMethod
-  Transaction initTransaction(TransactionRequest txRequest);
+  Transaction mintTransactionId(TransactionRequest txRequest);
 
   @ActivityMethod
-  void cancelTransaction(TransactionRequest txRequest);
+  Transaction initTransaction(Transaction tx);
+
+  @ActivityMethod
+  void cancelTransaction(Transaction tx);
 
   @ActivityMethod
   void completeTransaction(Transaction tx);

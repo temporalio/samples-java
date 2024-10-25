@@ -42,7 +42,7 @@ public class EarlyReturnClient {
     TransactionRequest txRequest =
         new TransactionRequest(
             "Bob", "Alice",
-            -1000); // Change this amount to a negative number to have initTransaction fail
+            1000); // Change this amount to a negative number to have initTransaction fail
 
     WorkflowOptions options = buildWorkflowOptions();
     TransactionWorkflow workflow = client.newWorkflowStub(TransactionWorkflow.class, options);
