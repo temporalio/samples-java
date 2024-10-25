@@ -25,7 +25,7 @@ import io.temporal.activity.ActivityMethod;
 @ActivityInterface
 public interface TransactionActivities {
   @ActivityMethod
-  Transaction initTransaction(TransactionRequest tx);
+  Transaction initTransaction(TransactionRequest txRequest);
 
   @ActivityMethod
   void cancelTransaction(TransactionRequest txRequest);
