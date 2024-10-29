@@ -59,7 +59,7 @@ subprojects {
         java {
             target 'src/*/java/**/*.java'
             targetExclude '**/.idea/**'
-            googleJavaFormat('1.16.0')
+            googleJavaFormat('1.24.0')
         }
     }
 
