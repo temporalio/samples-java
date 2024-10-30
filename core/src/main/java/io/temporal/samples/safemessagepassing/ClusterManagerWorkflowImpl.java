@@ -111,7 +111,7 @@ public class ClusterManagerWorkflowImpl implements ClusterManagerWorkflow {
   @Override
   public boolean stopCluster() {
     if (state.workflowState != ClusterState.STARTED) {
-      // This is used as an Update handler we return an error to the caller.
+      // This is used as an Update handler so that we can return an error to the caller.
       throw ApplicationFailure.newFailure(
           "Cannot shutdown cluster in state " + state.workflowState, "IllegalState");
     }
