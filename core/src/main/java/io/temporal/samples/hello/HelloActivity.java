@@ -108,7 +108,7 @@ public class HelloActivity {
   }
 
   /** Simple activity implementation, that concatenates two strings. */
-  static class GreetingActivitiesImpl implements GreetingActivities {
+  public static class GreetingActivitiesImpl implements GreetingActivities {
     private static final Logger log = LoggerFactory.getLogger(GreetingActivitiesImpl.class);
 
     @Override

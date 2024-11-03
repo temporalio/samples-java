@@ -30,6 +30,13 @@ dependencies {
     implementation group: 'net.thisptr', name: 'jackson-jq', version: '1.0.0-preview.20240207'
     implementation group: 'commons-cli', name: 'commons-cli', version: '1.9.0'
 
+    // Used in AWS Encryption SDK sample
+    implementation group: 'com.amazonaws', name: 'aws-encryption-sdk-java', version: '3.0.1'
+    implementation("software.amazon.cryptography:aws-cryptographic-material-providers:1.0.2")
+    implementation(platform("software.amazon.awssdk:bom:2.20.91"))
+    implementation("software.amazon.awssdk:kms")
+    implementation("software.amazon.awssdk:dynamodb")
+
     // we don't update it to 2.1.0 because 2.1.0 requires Java 11
     implementation 'com.codingrodent:jackson-json-crypto:1.1.0'
 
