@@ -40,6 +40,7 @@ public interface ClusterManagerWorkflow {
     STARTED,
     SHUTTING_DOWN
   }
+
   // In workflows that continue-as-new, it's convenient to store all your state in one serializable
   // structure to make it easier to pass between runs
   class ClusterManagerState {
