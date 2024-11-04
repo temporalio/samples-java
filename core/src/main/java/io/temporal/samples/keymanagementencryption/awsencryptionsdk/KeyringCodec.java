@@ -28,6 +28,7 @@ import io.temporal.payload.codec.PayloadCodec;
 import io.temporal.payload.context.ActivitySerializationContext;
 import io.temporal.payload.context.HasWorkflowSerializationContext;
 import io.temporal.payload.context.SerializationContext;
+import io.temporal.workflow.unsafe.WorkflowUnsafe;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
@@ -92,13 +93,19 @@ class KeyringCodec implements PayloadCodec {
   @NotNull
   @Override
   public List<Payload> encode(@NotNull List<Payload> payloads) {
-    return payloads.stream().map(this::encodePayload).collect(Collectors.toList());
+    // Disable deadlock detection for encoding payloads because this may make a network call
+    // to encrypt the data.
+    return WorkflowUnsafe.deadlockDetectorOff(
+        () -> payloads.stream().map(this::encodePayload).collect(Collectors.toList()));
   }
 
   @NotNull
   @Override
   public List<Payload> decode(@NotNull List<Payload> payloads) {
-    return payloads.stream().map(this::decodePayload).collect(Collectors.toList());
+    // Disable deadlock detection for decoding payloads because this may make a network call
+    // to decrypt the data.
+    return WorkflowUnsafe.deadlockDetectorOff(
+        () -> payloads.stream().map(this::decodePayload).collect(Collectors.toList()));
   }
 
   @NotNull
