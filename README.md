@@ -142,6 +142,11 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 
 - [**Set up OpenTracing and/or OpenTelemetry with Jaeger**](/core/src/main/java/io/temporal/samples/tracing): Demonstrates how to set up OpenTracing and/or OpenTelemetry and view traces using Jaeger.
 
+#### Encryption Support
+
+- [**Encrypted Payloads**](/core/src/main/java/io/temporal/samples/encryptedpayloads): Demonstrates how to use simple codec to encrypt and decrypt payloads.
+
+- [**AWS Encryption SDK**](/core/src/main/java/io/temporal/samples/keymanagementencryption/awsencryptionsdk): Demonstrates how to use the AWS Encryption SDK to encrypt and decrypt payloads with AWS KMS.
 
 <!-- @@@SNIPEND -->
 
