@@ -77,6 +77,7 @@ public class EarlyReturnClient {
               + ")");
     } catch (Exception e) {
       System.err.println("Transaction initialization failed: " + e.getMessage());
+      System.err.println("Cause: " + e.getCause());
     }
   }
 
