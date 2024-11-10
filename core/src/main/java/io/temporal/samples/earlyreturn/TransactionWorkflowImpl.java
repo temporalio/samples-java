@@ -45,7 +45,7 @@ public class TransactionWorkflowImpl implements TransactionWorkflow {
     } catch (Exception e) {
       initError = e;
     } finally {
-      initDone = true;
+      initDone = true; // Will unblock the early-return returnInitResult method
     }
 
     if (initError != null) {
@@ -60,13 +60,14 @@ public class TransactionWorkflowImpl implements TransactionWorkflow {
 
   @Override
   public TxResult returnInitResult() {
-    Workflow.await(() -> initDone);
+    Workflow.await(() -> initDone); // Wait for the initialization step of the workflow to complete
 
     if (initError != null) {
       log.info("Initialization failed.");
       throw Workflow.wrap(initError);
     }
 
-    return new TxResult(tx.getId(), "Initialization successful");
+    return new TxResult(
+        tx.getId(), "Initialization successful"); // Return the update result to the caller
   }
 }
