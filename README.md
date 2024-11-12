@@ -134,6 +134,9 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 
 - [**Exclude Workflow/ActivityTypes from Interceptors**](/core/src/main/java/io/temporal/samples/excludefrominterceptor): Demonstrates how to exclude certain workflow / activity types from interceptors.
 
+- [**Early Return**](/core/src/main/java/io/temporal/samples/earlyreturn): Demonstrates how a client can start a new workflow and synchronously receive
+  a response mid-workflow, while the workflow continues to run to completion (using Update-with-Start).
+
 #### SDK Metrics
 
 - [**Set up SDK metrics**](/core/src/main/java/io/temporal/samples/metrics): Demonstrates how to set up and scrape SDK metrics.
