@@ -86,7 +86,8 @@ public class EarlyReturnClient {
             && sre.getMessage()
                 .contains("ExecuteMultiOperation API is disabled on this namespace")) {
 
-          // Inform the user that UpdateWithStart requires the ExecuteMultiOperation API to be enabled
+          // Inform the user that UpdateWithStart requires the ExecuteMultiOperation API to be
+          // enabled
           System.err.println(
               "UpdateWithStart requires the ExecuteMultiOperation API to be enabled on this namespace.");
         }
