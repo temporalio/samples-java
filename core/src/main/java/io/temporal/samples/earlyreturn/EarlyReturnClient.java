@@ -76,8 +76,24 @@ public class EarlyReturnClient {
               + result.getTransactionId()
               + ")");
     } catch (Exception e) {
-      System.err.println("Transaction initialization failed: " + e.getMessage());
-      System.err.println("Cause: " + e.getCause());
+      if (e.getCause() instanceof io.grpc.StatusRuntimeException) {
+        io.grpc.StatusRuntimeException sre = (io.grpc.StatusRuntimeException) e.getCause();
+
+        System.err.println("Workflow failed with StatusRuntimeException: " + sre.getMessage());
+        System.err.println("Cause: " + e.getCause());
+
+        if (sre.getStatus().getCode() == io.grpc.Status.Code.PERMISSION_DENIED
+            && sre.getMessage()
+                .contains("ExecuteMultiOperation API is disabled on this namespace")) {
+
+          // Inform the user that UpdateWithStart requires the ExecuteMultiOperation API to be enabled
+          System.err.println(
+              "UpdateWithStart requires the ExecuteMultiOperation API to be enabled on this namespace.");
+        }
+      } else {
+        System.err.println("Transaction initialization failed: " + e.getMessage());
+        System.err.println("Cause: " + e.getCause());
+      }
     }
   }
 
