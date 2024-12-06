@@ -19,7 +19,9 @@
 
 package io.temporal.samples.excludefrominterceptor.interceptor;
 
+import io.nexusrpc.handler.OperationContext;
 import io.temporal.common.interceptors.ActivityInboundCallsInterceptor;
+import io.temporal.common.interceptors.NexusOperationInboundCallsInterceptor;
 import io.temporal.common.interceptors.WorkerInterceptor;
 import io.temporal.common.interceptors.WorkflowInboundCallsInterceptor;
 import java.util.ArrayList;
@@ -48,5 +50,11 @@ public class MyWorkerInterceptor implements WorkerInterceptor {
   @Override
   public ActivityInboundCallsInterceptor interceptActivity(ActivityInboundCallsInterceptor next) {
     return new MyActivityInboundCallsInterceptor(excludeActivityTypes, next);
+  }
+
+  @Override
+  public NexusOperationInboundCallsInterceptor interceptNexusOperation(
+      OperationContext context, NexusOperationInboundCallsInterceptor next) {
+    return next;
   }
 }
