@@ -49,17 +49,13 @@ public class EarlyReturnClient {
 
     System.out.println("Starting workflow with UpdateWithStart");
 
-    UpdateWithStartWorkflowOperation<TxResult> updateOp =
-        UpdateWithStartWorkflowOperation.newBuilder(workflow::returnInitResult)
-            .setWaitForStage(WorkflowUpdateStage.COMPLETED) // Wait for update to complete
-            .build();
-
     TxResult updateResult = null;
     try {
-      WorkflowUpdateHandle<TxResult> updateHandle =
-          WorkflowClient.updateWithStart(workflow::processTransaction, txRequest, updateOp);
-
-      updateResult = updateHandle.getResultAsync().get();
+      updateResult =
+          WorkflowClient.executeUpdateWithStart(
+              workflow::returnInitResult,
+              UpdateOptions.<TxResult>newBuilder().build(),
+              new WithStartWorkflowOperation<>(workflow::processTransaction, txRequest));
 
       System.out.println(
           "Workflow initialized with result: "
