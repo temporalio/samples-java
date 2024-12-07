@@ -20,13 +20,10 @@
 package io.temporal.samples.retryonsignalinterceptor;
 
 import io.nexusrpc.handler.OperationContext;
-import io.temporal.common.interceptors.ActivityInboundCallsInterceptor;
-import io.temporal.common.interceptors.NexusOperationInboundCallsInterceptor;
-import io.temporal.common.interceptors.WorkerInterceptor;
-import io.temporal.common.interceptors.WorkflowInboundCallsInterceptor;
+import io.temporal.common.interceptors.*;
 
 /** Should be registered through WorkerFactoryOptions. */
-public class RetryOnSignalWorkerInterceptor implements WorkerInterceptor {
+public class RetryOnSignalWorkerInterceptor extends WorkerInterceptorBase {
   @Override
   public WorkflowInboundCallsInterceptor interceptWorkflow(WorkflowInboundCallsInterceptor next) {
     return new RetryOnSignalWorkflowInboundCallsInterceptor(next);
@@ -34,12 +31,6 @@ public class RetryOnSignalWorkerInterceptor implements WorkerInterceptor {
 
   @Override
   public ActivityInboundCallsInterceptor interceptActivity(ActivityInboundCallsInterceptor next) {
-    return next;
-  }
-
-  @Override
-  public NexusOperationInboundCallsInterceptor interceptNexusOperation(
-      OperationContext context, NexusOperationInboundCallsInterceptor next) {
     return next;
   }
 }

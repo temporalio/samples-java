@@ -20,12 +20,10 @@
 package io.temporal.samples.countinterceptor;
 
 import io.nexusrpc.handler.OperationContext;
-import io.temporal.common.interceptors.ActivityInboundCallsInterceptor;
-import io.temporal.common.interceptors.NexusOperationInboundCallsInterceptor;
-import io.temporal.common.interceptors.WorkerInterceptor;
-import io.temporal.common.interceptors.WorkflowInboundCallsInterceptor;
+import io.temporal.common.interceptors.*;
+import io.temporal.internal.sync.BaseRootWorkflowInboundCallsInterceptor;
 
-public class SimpleCountWorkerInterceptor implements WorkerInterceptor {
+public class SimpleCountWorkerInterceptor extends WorkerInterceptorBase {
 
   @Override
   public WorkflowInboundCallsInterceptor interceptWorkflow(WorkflowInboundCallsInterceptor next) {
@@ -35,11 +33,5 @@ public class SimpleCountWorkerInterceptor implements WorkerInterceptor {
   @Override
   public ActivityInboundCallsInterceptor interceptActivity(ActivityInboundCallsInterceptor next) {
     return new SimpleCountActivityInboundCallsInterceptor(next);
-  }
-
-  @Override
-  public NexusOperationInboundCallsInterceptor interceptNexusOperation(
-      OperationContext context, NexusOperationInboundCallsInterceptor next) {
-    return next;
   }
 }
