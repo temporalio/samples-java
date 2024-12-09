@@ -19,13 +19,11 @@
 
 package io.temporal.samples.excludefrominterceptor.interceptor;
 
-import io.temporal.common.interceptors.ActivityInboundCallsInterceptor;
-import io.temporal.common.interceptors.WorkerInterceptor;
-import io.temporal.common.interceptors.WorkflowInboundCallsInterceptor;
+import io.temporal.common.interceptors.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyWorkerInterceptor implements WorkerInterceptor {
+public class MyWorkerInterceptor extends WorkerInterceptorBase {
   private List<String> excludeWorkflowTypes = new ArrayList<>();
   private List<String> excludeActivityTypes = new ArrayList<>();
 

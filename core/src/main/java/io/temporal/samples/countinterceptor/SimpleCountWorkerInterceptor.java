@@ -19,11 +19,9 @@
 
 package io.temporal.samples.countinterceptor;
 
-import io.temporal.common.interceptors.ActivityInboundCallsInterceptor;
-import io.temporal.common.interceptors.WorkerInterceptor;
-import io.temporal.common.interceptors.WorkflowInboundCallsInterceptor;
+import io.temporal.common.interceptors.*;
 
-public class SimpleCountWorkerInterceptor implements WorkerInterceptor {
+public class SimpleCountWorkerInterceptor extends WorkerInterceptorBase {
 
   @Override
   public WorkflowInboundCallsInterceptor interceptWorkflow(WorkflowInboundCallsInterceptor next) {

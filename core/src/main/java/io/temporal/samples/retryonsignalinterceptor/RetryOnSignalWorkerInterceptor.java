@@ -19,12 +19,10 @@
 
 package io.temporal.samples.retryonsignalinterceptor;
 
-import io.temporal.common.interceptors.ActivityInboundCallsInterceptor;
-import io.temporal.common.interceptors.WorkerInterceptor;
-import io.temporal.common.interceptors.WorkflowInboundCallsInterceptor;
+import io.temporal.common.interceptors.*;
 
 /** Should be registered through WorkerFactoryOptions. */
-public class RetryOnSignalWorkerInterceptor implements WorkerInterceptor {
+public class RetryOnSignalWorkerInterceptor extends WorkerInterceptorBase {
   @Override
   public WorkflowInboundCallsInterceptor interceptWorkflow(WorkflowInboundCallsInterceptor next) {
     return new RetryOnSignalWorkflowInboundCallsInterceptor(next);
