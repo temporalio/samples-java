@@ -19,9 +19,7 @@
 
 package io.temporal.samples.countinterceptor;
 
-import io.nexusrpc.handler.OperationContext;
 import io.temporal.common.interceptors.*;
-import io.temporal.internal.sync.BaseRootWorkflowInboundCallsInterceptor;
 
 public class SimpleCountWorkerInterceptor extends WorkerInterceptorBase {
 

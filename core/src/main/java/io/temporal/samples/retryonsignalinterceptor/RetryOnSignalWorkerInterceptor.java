@@ -19,7 +19,6 @@
 
 package io.temporal.samples.retryonsignalinterceptor;
 
-import io.nexusrpc.handler.OperationContext;
 import io.temporal.common.interceptors.*;
 
 /** Should be registered through WorkerFactoryOptions. */

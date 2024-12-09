@@ -19,9 +19,7 @@
 
 package io.temporal.samples.excludefrominterceptor.interceptor;
 
-import io.nexusrpc.handler.OperationContext;
 import io.temporal.common.interceptors.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
