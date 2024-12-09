@@ -19,6 +19,7 @@
 
 package io.temporal.samples.earlyreturn;
 
+import io.temporal.api.enums.v1.WorkflowIdConflictPolicy;
 import io.temporal.client.*;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 
@@ -80,6 +81,7 @@ public class EarlyReturnClient {
   private static WorkflowOptions buildWorkflowOptions() {
     return WorkflowOptions.newBuilder()
         .setTaskQueue(TASK_QUEUE)
+        .setWorkflowIdConflictPolicy(WorkflowIdConflictPolicy.WORKFLOW_ID_CONFLICT_POLICY_FAIL)
         .setWorkflowId(WORKFLOW_ID_PREFIX + System.currentTimeMillis())
         .build();
   }

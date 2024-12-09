@@ -23,6 +23,7 @@ import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import io.temporal.api.enums.v1.WorkflowIdConflictPolicy;
 import io.temporal.client.*;
 import io.temporal.failure.ActivityFailure;
 import io.temporal.failure.ApplicationFailure;
@@ -63,23 +64,22 @@ public class TransactionWorkflowTest {
     TransactionWorkflow workflow =
         workflowClient.newWorkflowStub(
             TransactionWorkflow.class,
-            WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build());
-
-    // Create update operation
-    UpdateWithStartWorkflowOperation<TxResult> updateOp =
-        UpdateWithStartWorkflowOperation.newBuilder(workflow::returnInitResult)
-            .setWaitForStage(WorkflowUpdateStage.COMPLETED)
-            .build();
+            WorkflowOptions.newBuilder()
+                .setWorkflowIdConflictPolicy(
+                    WorkflowIdConflictPolicy.WORKFLOW_ID_CONFLICT_POLICY_FAIL)
+                .setTaskQueue(testWorkflowRule.getTaskQueue())
+                .build());
 
     // Execute UpdateWithStart
-    WorkflowUpdateHandle<TxResult> handle =
-        WorkflowClient.updateWithStart(
-            workflow::processTransaction,
-            new TransactionRequest(SOURCE_ACCOUNT, TARGET_ACCOUNT, VALID_AMOUNT),
-            updateOp);
+    TransactionRequest txRequest =
+        new TransactionRequest(SOURCE_ACCOUNT, TARGET_ACCOUNT, VALID_AMOUNT);
+    TxResult updateResult =
+        WorkflowClient.executeUpdateWithStart(
+            workflow::returnInitResult,
+            UpdateOptions.<TxResult>newBuilder().build(),
+            new WithStartWorkflowOperation<>(workflow::processTransaction, txRequest));
 
     // Verify both update and final results
-    TxResult updateResult = handle.getResultAsync().get();
     assertEquals(TEST_TRANSACTION_ID, updateResult.getTransactionId());
 
     TxResult finalResult = WorkflowStub.fromTyped(workflow).getResult(TxResult.class);
@@ -111,6 +111,7 @@ public class TransactionWorkflowTest {
     String workflowId = "test-workflow-" + UUID.randomUUID();
     WorkflowOptions options =
         WorkflowOptions.newBuilder()
+            .setWorkflowIdConflictPolicy(WorkflowIdConflictPolicy.WORKFLOW_ID_CONFLICT_POLICY_FAIL)
             .setTaskQueue(testWorkflowRule.getTaskQueue())
             .setWorkflowId(workflowId)
             .build();
@@ -118,26 +119,21 @@ public class TransactionWorkflowTest {
     TransactionWorkflow workflow =
         workflowClient.newWorkflowStub(TransactionWorkflow.class, options);
 
-    // Create update operation
-    UpdateWithStartWorkflowOperation<TxResult> updateOp =
-        UpdateWithStartWorkflowOperation.newBuilder(workflow::returnInitResult)
-            .setWaitForStage(WorkflowUpdateStage.COMPLETED)
-            .build();
-
     // Execute UpdateWithStart and expect the exception
-    WorkflowServiceException exception =
+    TransactionRequest txRequest =
+        new TransactionRequest(SOURCE_ACCOUNT, TARGET_ACCOUNT, INVALID_AMOUNT);
+    WorkflowUpdateException exception =
         assertThrows(
-            WorkflowServiceException.class,
+            WorkflowUpdateException.class,
             () ->
-                WorkflowClient.updateWithStart(
-                    workflow::processTransaction,
-                    new TransactionRequest(SOURCE_ACCOUNT, TARGET_ACCOUNT, INVALID_AMOUNT),
-                    updateOp));
+                WorkflowClient.executeUpdateWithStart(
+                    workflow::returnInitResult,
+                    UpdateOptions.<TxResult>newBuilder().build(),
+                    new WithStartWorkflowOperation<>(workflow::processTransaction, txRequest)));
 
     // Verify the exception chain
-    assertTrue(exception.getCause() instanceof WorkflowUpdateException);
-    assertTrue(exception.getCause().getCause() instanceof ActivityFailure);
-    ApplicationFailure appFailure = (ApplicationFailure) exception.getCause().getCause().getCause();
+    assertTrue(exception.getCause() instanceof ActivityFailure);
+    ApplicationFailure appFailure = (ApplicationFailure) exception.getCause().getCause();
     assertEquals("InvalidAmount", appFailure.getType());
     assertTrue(appFailure.getMessage().contains("Invalid Amount"));
 

@@ -105,9 +105,8 @@ public class ClusterManagerWorkflowWorkerTest {
             .newWorkflowStub(
                 ClusterManagerWorkflow.class,
                 WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build());
-    CompletableFuture<ClusterManagerWorkflow.ClusterManagerResult> result =
-        WorkflowClient.execute(
-            cluster::run, new ClusterManagerWorkflow.ClusterManagerInput(Optional.empty(), false));
+    WorkflowClient.execute(
+        cluster::run, new ClusterManagerWorkflow.ClusterManagerInput(Optional.empty(), false));
 
     cluster.startCluster();
 
