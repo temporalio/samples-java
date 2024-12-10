@@ -19,6 +19,7 @@
 
 package io.temporal.samples.earlyreturn;
 
+import io.temporal.api.enums.v1.WorkflowIdConflictPolicy;
 import io.temporal.client.*;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 
@@ -49,17 +50,13 @@ public class EarlyReturnClient {
 
     System.out.println("Starting workflow with UpdateWithStart");
 
-    UpdateWithStartWorkflowOperation<TxResult> updateOp =
-        UpdateWithStartWorkflowOperation.newBuilder(workflow::returnInitResult)
-            .setWaitForStage(WorkflowUpdateStage.COMPLETED) // Wait for update to complete
-            .build();
-
     TxResult updateResult = null;
     try {
-      WorkflowUpdateHandle<TxResult> updateHandle =
-          WorkflowClient.updateWithStart(workflow::processTransaction, txRequest, updateOp);
-
-      updateResult = updateHandle.getResultAsync().get();
+      updateResult =
+          WorkflowClient.executeUpdateWithStart(
+              workflow::returnInitResult,
+              UpdateOptions.<TxResult>newBuilder().build(),
+              new WithStartWorkflowOperation<>(workflow::processTransaction, txRequest));
 
       System.out.println(
           "Workflow initialized with result: "
@@ -84,6 +81,7 @@ public class EarlyReturnClient {
   private static WorkflowOptions buildWorkflowOptions() {
     return WorkflowOptions.newBuilder()
         .setTaskQueue(TASK_QUEUE)
+        .setWorkflowIdConflictPolicy(WorkflowIdConflictPolicy.WORKFLOW_ID_CONFLICT_POLICY_FAIL)
         .setWorkflowId(WORKFLOW_ID_PREFIX + System.currentTimeMillis())
         .build();
   }
