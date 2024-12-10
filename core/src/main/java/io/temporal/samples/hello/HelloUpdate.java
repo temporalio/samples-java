@@ -21,10 +21,12 @@ package io.temporal.samples.hello;
 
 import com.google.common.base.Throwables;
 import io.temporal.activity.ActivityOptions;
+import io.temporal.client.UpdateHandle;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
 import io.temporal.client.WorkflowUpdateException;
+import io.temporal.client.WorkflowUpdateStage;
 import io.temporal.failure.ApplicationFailure;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
@@ -249,6 +251,17 @@ public class HelloUpdate {
      */
     WorkflowStub greetingStub = client.newUntypedWorkflowStub(WORKFLOW_ID);
     greetingStub.update("addGreeting", int.class, "Temporal");
+
+    /*
+     * Use the untyped stub to start an update, but wait only until it's
+     * accepted, receiving an update handle in return. Then use the update
+     * handle to get the result.
+     */
+    UpdateHandle<Integer> updateHandle =
+        greetingStub.startUpdate(
+            "addGreeting", WorkflowUpdateStage.ACCEPTED, int.class, "Started asynchronously");
+
+    updateHandle.getResultAsync().get();
 
     try {
       // The update request will fail on a empty name and the exception will be thrown here.
