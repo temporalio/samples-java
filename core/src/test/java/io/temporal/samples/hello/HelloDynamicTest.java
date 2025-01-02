@@ -23,7 +23,9 @@ import static org.junit.Assert.*;
 
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
+import io.temporal.client.WorkflowUpdateException;
 import io.temporal.testing.TestWorkflowRule;
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -49,13 +51,23 @@ public class HelloDynamicTest {
     WorkflowStub workflow =
         testWorkflowRule.getWorkflowClient().newUntypedWorkflowStub("DynamicWF", workflowOptions);
 
-    // Start workflow execution and signal right after Pass in the workflow args and signal args
-    workflow.signalWithStart("greetingSignal", new Object[] {"John"}, new Object[] {"Hello"});
+    // Start execution
+    workflow.start(new Object[] {"Hello"});
+    // Send signal to execution with first name
+    workflow.signal("greetingSignal", new Object[] {"John"});
+    // Send invalid name via update
+    WorkflowUpdateException workflowUpdateException =
+        Assert.assertThrows(
+            WorkflowUpdateException.class,
+            () -> workflow.update("greetingUpdate", String.class, new Object[] {"Invalid Name"}));
+    // Send valid name via update
+    workflow.update("greetingUpdate", Object.class, new Object[] {"Mary"});
 
     // Wait for workflow to finish getting the results
     String result = workflow.getResult(String.class);
 
     assertNotNull(result);
-    assertEquals("DynamicACT: Hello John from: DynamicWF", result);
+    assertEquals(
+        "DynamicACT: Hello John from: DynamicWF\nDynamicACT: Hello Mary from: DynamicWF\n", result);
   }
 }
