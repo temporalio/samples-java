@@ -73,7 +73,6 @@ public class SleepForDaysTest {
     workflow.complete();
     // Expect no more activity calls to have been made - workflow is complete.
     verify(activities, times(4)).sendEmail(anyString());
-    ;
     // Expect more than 90 days to have passed.
     long endTime = testWorkflowRule.getTestEnvironment().currentTimeMillis();
     assertEquals(true, endTime - startTime > Duration.ofDays(90).toMillis());
