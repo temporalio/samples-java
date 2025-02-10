@@ -66,7 +66,7 @@ public class AutoHeartbeater {
                     + printShortCurrentTime());
             context.heartbeat(details);
           } catch (Exception e) {
-            System.out.println("Stopping: " + e.getMessage());
+            System.out.println("Stopping Autoheartbeater[" + heartbeaterId + "]: " + e.getMessage());
             stop();
           }
         },
@@ -76,7 +76,7 @@ public class AutoHeartbeater {
   }
 
   public void stop() {
-    System.out.println("Autoheartbeater being requested to stop.");
+    System.out.println("Autoheartbeater[" + heartbeaterId + "] being requested to stop.");
     // Try not to execute another heartbeat that could have been queued up
     timerService.shutdownNow();
   }
