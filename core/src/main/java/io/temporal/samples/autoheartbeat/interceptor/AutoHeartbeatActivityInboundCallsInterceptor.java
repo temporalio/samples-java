@@ -47,7 +47,7 @@ public class AutoHeartbeatActivityInboundCallsInterceptor
   public ActivityOutput execute(ActivityInput input) {
     // If activity has heartbeat timeout defined we want to apply auto-heartbeter
     AutoHeartbeatUtil autoHearbeater = null;
-    if (activityHeartbeatTimeout != null) {
+    if (activityHeartbeatTimeout != null && activityHeartbeatTimeout.getSeconds() > 0) {
       System.out.println(
           "Auto heartbeating applied for activity: "
               + activityExecutionContext.getInfo().getActivityType());

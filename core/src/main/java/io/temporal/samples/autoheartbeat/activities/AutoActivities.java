@@ -26,4 +26,6 @@ public interface AutoActivities {
   String runActivityOne(String input);
 
   String runActivityTwo(String input);
+
+  String runActivityThree(String input);
 }

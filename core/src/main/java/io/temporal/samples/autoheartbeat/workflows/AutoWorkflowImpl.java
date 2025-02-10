@@ -37,7 +37,9 @@ public class AutoWorkflowImpl implements AutoWorkflow {
   @Override
   public String exec(String input) {
     // Crete separate workflow stubs for same interface so we can show
-    // use of different heartbeat timeouts
+    // use of different heartbeat timeouts and activit that does not heartbeat
+    // Note you can do this also via WorkflowImplementationOptions instead of using different
+    // activity stubs if you wanted
     AutoActivities activitiesOne =
         Workflow.newActivityStub(
             AutoActivities.class,
@@ -54,6 +56,12 @@ public class AutoWorkflowImpl implements AutoWorkflow {
                 .setHeartbeatTimeout(Duration.ofSeconds(3))
                 .build());
 
+    // Activity three does not heartbeat so autoheartbeat should not be applied to it
+    AutoActivities activitiesThree =
+        Workflow.newActivityStub(
+            AutoActivities.class,
+            ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(5)).build());
+
     // Start our activity in CancellationScope so we can cancel it if needed
     List<Promise<String>> activityPromises = new ArrayList<>();
     scope =
@@ -61,6 +69,7 @@ public class AutoWorkflowImpl implements AutoWorkflow {
             () -> {
               activityPromises.add(Async.function(activitiesOne::runActivityOne, input));
               activityPromises.add(Async.function(activitiesTwo::runActivityTwo, input));
+              activityPromises.add(Async.function(activitiesThree::runActivityThree, input));
             });
 
     scope.run();

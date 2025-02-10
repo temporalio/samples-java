@@ -34,6 +34,11 @@ public class AutoActivitiesImpl implements AutoActivities {
     return runActivity("runActivityTwo - " + input, 10);
   }
 
+  @Override
+  public String runActivityThree(String input) {
+    return runActivity("runActivityThree - " + input, 3);
+  }
+
   @SuppressWarnings("FutureReturnValueIgnored")
   private String runActivity(String input, int seconds) {
     for (int i = 0; i < seconds; i++) {
