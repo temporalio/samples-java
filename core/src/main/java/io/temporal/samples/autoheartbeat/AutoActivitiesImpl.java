@@ -37,7 +37,6 @@ public class AutoActivitiesImpl implements AutoActivities {
 
   @SuppressWarnings("FutureReturnValueIgnored")
   private String runActivity(String input) {
-    // Calculate heartbeat period based on our heartbeat timeout
     // Start Autoheartbeater
     AutoHeartbeater autoHearbeater =
         new AutoHeartbeater(
