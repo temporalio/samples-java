@@ -17,9 +17,8 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.autoheartbeat;
+package io.temporal.samples.autoheartbeat.activities;
 
-import io.temporal.activity.Activity;
 import io.temporal.client.ActivityCompletionException;
 import java.util.concurrent.TimeUnit;
 
@@ -27,24 +26,17 @@ public class AutoActivitiesImpl implements AutoActivities {
 
   @Override
   public String runActivityOne(String input) {
-    return runActivity("runActivityOne - " + input);
+    return runActivity("runActivityOne - " + input, 20);
   }
 
   @Override
   public String runActivityTwo(String input) {
-    return runActivity("runActivityTwo - " + input);
+    return runActivity("runActivityTwo - " + input, 10);
   }
 
   @SuppressWarnings("FutureReturnValueIgnored")
-  private String runActivity(String input) {
-    // Start Autoheartbeater
-    AutoHeartbeater autoHearbeater =
-        new AutoHeartbeater(
-            getHeartbeatPeriod(), 0, TimeUnit.SECONDS, Activity.getExecutionContext(), input);
-    autoHearbeater.start();
-
-    // For sample our activity just sleeps for a second for 20 seconds
-    for (int i = 0; i < 20; i++) {
+  private String runActivity(String input, int seconds) {
+    for (int i = 0; i < seconds; i++) {
       try {
         sleep(1);
       } catch (ActivityCompletionException e) {
@@ -58,22 +50,11 @@ public class AutoActivitiesImpl implements AutoActivities {
                 + "Workflow runid: "
                 + e.getRunId().get()
                 + " was canceled. Shutting down auto heartbeats");
-        autoHearbeater.stop();
         // We want to rethrow the cancel failure
         throw e;
       }
     }
     return "Activity completed: " + input;
-  }
-
-  private long getHeartbeatPeriod() {
-    // Note you can add checks if heartbeat timeout is set if not and
-    // decide to log / fail activity / not start autoheartbeater based on your business logic
-
-    // For sample we want to heartbeat 1 seconds less than heartbeat timeout
-    return Activity.getExecutionContext().getInfo().getHeartbeatTimeout().getSeconds() <= 1
-        ? 1
-        : Activity.getExecutionContext().getInfo().getHeartbeatTimeout().getSeconds() - 1;
   }
 
   private void sleep(int seconds) {

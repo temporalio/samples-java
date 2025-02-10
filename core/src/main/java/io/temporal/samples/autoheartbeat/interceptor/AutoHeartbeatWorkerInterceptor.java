@@ -17,17 +17,14 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.autoheartbeat;
+package io.temporal.samples.autoheartbeat.interceptor;
 
-import io.temporal.workflow.SignalMethod;
-import io.temporal.workflow.WorkflowInterface;
-import io.temporal.workflow.WorkflowMethod;
+import io.temporal.common.interceptors.ActivityInboundCallsInterceptor;
+import io.temporal.common.interceptors.WorkerInterceptorBase;
 
-@WorkflowInterface
-public interface AutoWorkflow {
-  @WorkflowMethod
-  String exec(String input);
-
-  @SignalMethod
-  void cancelActivity();
+public class AutoHeartbeatWorkerInterceptor extends WorkerInterceptorBase {
+  @Override
+  public ActivityInboundCallsInterceptor interceptActivity(ActivityInboundCallsInterceptor next) {
+    return new AutoHeartbeatActivityInboundCallsInterceptor(next);
+  }
 }

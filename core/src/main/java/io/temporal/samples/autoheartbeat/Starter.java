@@ -21,9 +21,14 @@ package io.temporal.samples.autoheartbeat;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.samples.autoheartbeat.activities.AutoActivitiesImpl;
+import io.temporal.samples.autoheartbeat.interceptor.AutoHeartbeatWorkerInterceptor;
+import io.temporal.samples.autoheartbeat.workflows.AutoWorkflow;
+import io.temporal.samples.autoheartbeat.workflows.AutoWorkflowImpl;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import io.temporal.worker.WorkerFactoryOptions;
 
 public class Starter {
   static final String TASK_QUEUE = "AutoheartbeatTaskQueue";
@@ -32,7 +37,16 @@ public class Starter {
   public static void main(String[] args) {
     WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
     WorkflowClient client = WorkflowClient.newInstance(service);
-    WorkerFactory factory = WorkerFactory.newInstance(client);
+
+    // Configure our auto heartbeat workflow interceptor which will apply
+    // AutoHeartbeaterUtil to each activity workflow schedules which has a heartbeat
+    // timeout configured
+    WorkerFactoryOptions wfo =
+        WorkerFactoryOptions.newBuilder()
+            .setWorkerInterceptors(new AutoHeartbeatWorkerInterceptor())
+            .build();
+
+    WorkerFactory factory = WorkerFactory.newInstance(client, wfo);
     Worker worker = factory.newWorker(TASK_QUEUE);
 
     worker.registerWorkflowImplementationTypes(AutoWorkflowImpl.class);

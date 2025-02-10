@@ -17,7 +17,7 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.autoheartbeat;
+package io.temporal.samples.autoheartbeat.activities;
 
 import io.temporal.activity.ActivityInterface;
 

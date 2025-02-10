@@ -17,11 +17,12 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.autoheartbeat;
+package io.temporal.samples.autoheartbeat.workflows;
 
 import io.temporal.activity.ActivityOptions;
 import io.temporal.failure.ActivityFailure;
 import io.temporal.failure.CanceledFailure;
+import io.temporal.samples.autoheartbeat.activities.AutoActivities;
 import io.temporal.workflow.Async;
 import io.temporal.workflow.CancellationScope;
 import io.temporal.workflow.Promise;
@@ -42,15 +43,15 @@ public class AutoWorkflowImpl implements AutoWorkflow {
             AutoActivities.class,
             ActivityOptions.newBuilder()
                 .setStartToCloseTimeout(Duration.ofSeconds(22))
-                .setHeartbeatTimeout(Duration.ofSeconds(3))
+                .setHeartbeatTimeout(Duration.ofSeconds(5))
                 .build());
 
     AutoActivities activitiesTwo =
         Workflow.newActivityStub(
             AutoActivities.class,
             ActivityOptions.newBuilder()
-                .setStartToCloseTimeout(Duration.ofSeconds(22))
-                .setHeartbeatTimeout(Duration.ofSeconds(5))
+                .setStartToCloseTimeout(Duration.ofSeconds(12))
+                .setHeartbeatTimeout(Duration.ofSeconds(3))
                 .build());
 
     // Start our activity in CancellationScope so we can cancel it if needed

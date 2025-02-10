@@ -28,7 +28,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public class AutoHeartbeater {
+public class AutoHeartbeatUtil {
   private final long period;
   private final long initialDelay;
   private final TimeUnit periodTimeUnit;
@@ -38,7 +38,7 @@ public class AutoHeartbeater {
   private final Object details;
   private String heartbeaterId;
 
-  public AutoHeartbeater(
+  public AutoHeartbeatUtil(
       long period,
       long initialDelay,
       TimeUnit periodTimeUnit,
