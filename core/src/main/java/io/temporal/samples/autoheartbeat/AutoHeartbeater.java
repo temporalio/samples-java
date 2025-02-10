@@ -66,7 +66,8 @@ public class AutoHeartbeater {
                     + printShortCurrentTime());
             context.heartbeat(details);
           } catch (Exception e) {
-            System.out.println("Stopping Autoheartbeater[" + heartbeaterId + "]: " + e.getMessage());
+            System.out.println(
+                "Stopping Autoheartbeater[" + heartbeaterId + "]: " + e.getMessage());
             stop();
           }
         },
