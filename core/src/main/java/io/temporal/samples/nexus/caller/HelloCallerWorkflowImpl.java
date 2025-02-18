@@ -43,7 +43,7 @@ public class HelloCallerWorkflowImpl implements HelloCallerWorkflow {
         Workflow.startNexusOperation(
             nexusService::hello, new NexusService.HelloInput(message, language));
     // Optionally wait for the operation to be started. NexusOperationExecution will contain the
-    // operation ID in case this operation is asynchronous.
+    // operation token in case this operation is asynchronous.
     handle.getExecution().get();
     return handle.getResult().get().getMessage();
   }
