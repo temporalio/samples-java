@@ -36,7 +36,7 @@ public class NexusServiceImpl {
   public OperationHandler<NexusService.EchoInput, NexusService.EchoOutput> echo() {
     // OperationHandler.sync is a meant for exposing simple RPC handlers.
     return OperationHandler.sync(
-        // The method is for to make arbitrary short calls to other services or databases, or
+        // The method is for making arbitrary short calls to other services or databases, or
         // perform simple computations such as this one. Users can also access a workflow client by
         // calling
         // Nexus.getOperationContext().getWorkflowClient(ctx) to make arbitrary calls such as
