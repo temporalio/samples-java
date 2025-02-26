@@ -73,6 +73,9 @@ public class HelloCallerWorkflowImpl implements HelloCallerWorkflow {
     // scope
     scope.cancel();
     // Optionally, wait for all nexus operations to complete
+    //
+    // Note: Once the workflow completes any pending cancellation requests are dropped by the
+    // server.
     for (Promise<NexusService.HelloOutput> promise : results) {
       try {
         promise.get();

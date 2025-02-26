@@ -21,6 +21,7 @@ package io.temporal.samples.nexuscancellation.caller;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.samples.nexus.options.ClientOptions;
+import io.temporal.samples.nexus.service.NexusService;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.worker.WorkflowImplementationOptions;
@@ -40,7 +41,7 @@ public class CallerWorker {
         WorkflowImplementationOptions.newBuilder()
             .setNexusServiceOptions(
                 Collections.singletonMap(
-                    "NexusService",
+                    NexusService.class.getSimpleName(),
                     NexusServiceOptions.newBuilder().setEndpoint("my-nexus-endpoint-name").build()))
             .build(),
         HelloCallerWorkflowImpl.class);
