@@ -19,17 +19,16 @@
 
 package io.temporal.samples.nexuscancellation.caller;
 
+import static io.temporal.samples.nexus.service.NexusService.Language.*;
+
 import io.temporal.failure.CanceledFailure;
 import io.temporal.failure.NexusOperationFailure;
 import io.temporal.samples.nexus.service.NexusService;
 import io.temporal.workflow.*;
-import org.slf4j.Logger;
-
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-
-import static io.temporal.samples.nexus.service.NexusService.Language.*;
+import org.slf4j.Logger;
 
 public class HelloCallerWorkflowImpl implements HelloCallerWorkflow {
   public static final Logger log = Workflow.getLogger(HelloCallerWorkflowImpl.class);
