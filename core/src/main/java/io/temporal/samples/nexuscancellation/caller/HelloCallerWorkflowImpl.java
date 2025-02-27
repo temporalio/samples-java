@@ -19,17 +19,20 @@
 
 package io.temporal.samples.nexuscancellation.caller;
 
-import static io.temporal.samples.nexus.service.NexusService.Language.*;
-
 import io.temporal.failure.CanceledFailure;
 import io.temporal.failure.NexusOperationFailure;
 import io.temporal.samples.nexus.service.NexusService;
 import io.temporal.workflow.*;
+import org.slf4j.Logger;
+
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.temporal.samples.nexus.service.NexusService.Language.*;
+
 public class HelloCallerWorkflowImpl implements HelloCallerWorkflow {
+  public static final Logger log = Workflow.getLogger(HelloCallerWorkflowImpl.class);
   private static final NexusService.Language[] languages =
       new NexusService.Language[] {EN, FR, DE, ES, TR};
   NexusService nexusService =
@@ -82,6 +85,7 @@ public class HelloCallerWorkflowImpl implements HelloCallerWorkflow {
       } catch (NexusOperationFailure e) {
         // If the operation was cancelled, we can ignore the failure
         if (e.getCause() instanceof CanceledFailure) {
+          log.info("Operation was cancelled");
           continue;
         }
         throw e;
