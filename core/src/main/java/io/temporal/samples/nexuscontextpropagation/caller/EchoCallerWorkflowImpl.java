@@ -17,18 +17,17 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.nexuscontextpropogation.caller;
+package io.temporal.samples.nexuscontextpropagation.caller;
 
-import io.temporal.samples.nexus.caller.HelloCallerWorkflow;
+import io.temporal.samples.nexus.caller.EchoCallerWorkflow;
 import io.temporal.samples.nexus.service.NexusService;
-import io.temporal.workflow.NexusOperationHandle;
 import io.temporal.workflow.NexusOperationOptions;
 import io.temporal.workflow.NexusServiceOptions;
 import io.temporal.workflow.Workflow;
 import java.time.Duration;
 import org.slf4j.MDC;
 
-public class HelloCallerWorkflowImpl implements HelloCallerWorkflow {
+public class EchoCallerWorkflowImpl implements EchoCallerWorkflow {
   NexusService nexusService =
       Workflow.newNexusServiceStub(
           NexusService.class,
@@ -40,14 +39,8 @@ public class HelloCallerWorkflowImpl implements HelloCallerWorkflow {
               .build());
 
   @Override
-  public String hello(String message, NexusService.Language language) {
+  public String echo(String message) {
     MDC.put("x-nexus-caller-workflow-id", Workflow.getInfo().getWorkflowId());
-    NexusOperationHandle<NexusService.HelloOutput> handle =
-        Workflow.startNexusOperation(
-            nexusService::hello, new NexusService.HelloInput(message, language));
-    // Optionally wait for the operation to be started. NexusOperationExecution will contain the
-    // operation token in case this operation is asynchronous.
-    handle.getExecution().get();
-    return handle.getResult().get().getMessage();
+    return nexusService.echo(new NexusService.EchoInput(message)).getMessage();
   }
 }

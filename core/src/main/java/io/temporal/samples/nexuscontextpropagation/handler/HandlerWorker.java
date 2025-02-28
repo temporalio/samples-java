@@ -17,13 +17,13 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.nexuscontextpropogation.handler;
+package io.temporal.samples.nexuscontextpropagation.handler;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
 import io.temporal.samples.nexus.options.ClientOptions;
-import io.temporal.samples.nexuscontextpropogation.propogation.MDCContextPropagator;
-import io.temporal.samples.nexuscontextpropogation.propogation.NexusMDCContextInterceptor;
+import io.temporal.samples.nexuscontextpropagation.propogation.MDCContextPropagator;
+import io.temporal.samples.nexuscontextpropagation.propogation.NexusMDCContextInterceptor;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.worker.WorkerFactoryOptions;

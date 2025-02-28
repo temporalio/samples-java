@@ -17,7 +17,7 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.nexuscontextpropogation.propogation;
+package io.temporal.samples.nexuscontextpropagation.propogation;
 
 import io.nexusrpc.OperationException;
 import io.nexusrpc.handler.OperationContext;

@@ -17,7 +17,7 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.nexuscontextpropogation.caller;
+package io.temporal.samples.nexuscontextpropagation.caller;
 
 import io.temporal.api.common.v1.WorkflowExecution;
 import io.temporal.client.WorkflowClient;
@@ -27,7 +27,7 @@ import io.temporal.samples.nexus.caller.EchoCallerWorkflow;
 import io.temporal.samples.nexus.caller.HelloCallerWorkflow;
 import io.temporal.samples.nexus.options.ClientOptions;
 import io.temporal.samples.nexus.service.NexusService;
-import io.temporal.samples.nexuscontextpropogation.propogation.MDCContextPropagator;
+import io.temporal.samples.nexuscontextpropagation.propogation.MDCContextPropagator;
 import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
