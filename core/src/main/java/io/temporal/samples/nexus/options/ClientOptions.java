@@ -19,11 +19,9 @@
 
 package io.temporal.samples.nexus.options;
 
-import io.grpc.Metadata;
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-import io.grpc.stub.MetadataUtils;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
@@ -137,14 +135,6 @@ public class ClientOptions {
     if (!apiKey.isEmpty()) {
       serviceStubOptionsBuilder.setEnableHttps(true);
       serviceStubOptionsBuilder.addApiKey(() -> apiKey);
-      Metadata.Key<String> TEMPORAL_NAMESPACE_HEADER_KEY =
-          Metadata.Key.of("temporal-namespace", Metadata.ASCII_STRING_MARSHALLER);
-      Metadata metadata = new Metadata();
-      metadata.put(TEMPORAL_NAMESPACE_HEADER_KEY, namespace);
-      serviceStubOptionsBuilder.setChannelInitializer(
-          (channel) -> {
-            channel.intercept(MetadataUtils.newAttachHeadersInterceptor(metadata));
-          });
     }
 
     WorkflowServiceStubs service =
