@@ -32,7 +32,13 @@ import javax.net.ssl.SSLException;
 import org.apache.commons.cli.*;
 
 public class ClientOptions {
+
   public static WorkflowClient getWorkflowClient(String[] args) {
+    return getWorkflowClient(args, WorkflowClientOptions.newBuilder());
+  }
+
+  public static WorkflowClient getWorkflowClient(
+      String[] args, WorkflowClientOptions.Builder clientOptions) {
     Options options = new Options();
     Option targetHostOption = new Option("target-host", true, "Host:port for the Temporal service");
     targetHostOption.setRequired(false);
@@ -139,7 +145,6 @@ public class ClientOptions {
 
     WorkflowServiceStubs service =
         WorkflowServiceStubs.newServiceStubs(serviceStubOptionsBuilder.build());
-    return WorkflowClient.newInstance(
-        service, WorkflowClientOptions.newBuilder().setNamespace(namespace).build());
+    return WorkflowClient.newInstance(service, clientOptions.setNamespace(namespace).build());
   }
 }
