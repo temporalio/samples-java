@@ -28,7 +28,10 @@ import io.temporal.common.interceptors.WorkflowOutboundCallsInterceptor;
 import java.util.Map;
 import org.slf4j.MDC;
 
-/** Propagates MDC context from the caller workflow to the Nexus service through the headers. */
+/**
+ * Propagates MDC context from the caller workflow to the Nexus service through the operation
+ * headers.
+ */
 public class NexusMDCContextInterceptor extends WorkerInterceptorBase {
   private static final String NEXUS_HEADER_PREFIX = "x-nexus-";
 

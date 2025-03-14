@@ -1,6 +1,7 @@
 # Nexus Context Propagation
 
-This sample shows how to propagate MDC context values from Workflows to Nexus operations.
+This sample shows how to propagate MDC context values from Workflows to Nexus operations. 
+Nexus does not support `ContextPropagator` since the header format is not compatible. Users should look at `NexusMDCContextInterceptor` for propagating MDC context values.
 
 From more details on Nexus and how to setup to run this samples please see the [Nexus Sample](../nexus/README.MD).
 
