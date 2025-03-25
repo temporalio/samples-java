@@ -27,7 +27,7 @@ import io.temporal.samples.nexus.caller.EchoCallerWorkflow;
 import io.temporal.samples.nexus.caller.HelloCallerWorkflow;
 import io.temporal.samples.nexus.options.ClientOptions;
 import io.temporal.samples.nexus.service.NexusService;
-import io.temporal.samples.nexuscontextpropagation.propogation.MDCContextPropagator;
+import io.temporal.samples.nexuscontextpropagation.propagation.MDCContextPropagator;
 import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
