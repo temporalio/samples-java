@@ -2,9 +2,10 @@
 
 This sample shows how to cancel a Nexus operation from a caller workflow.
 
-From more details on Nexus and how to setup to run this samples please see the [Nexus Sample](../nexus/README.MD).
+Follow the instructions in the main [Nexus Sample](../nexus/README.MD) to set up your environment to run this sample
+(run a Temporal server, create caller and target namespaces, and create a Nexus endpoint).
 
-In separate terminal windows:
+Next, in separate terminal windows:
 
 ### Nexus handler worker
 
