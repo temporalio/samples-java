@@ -3,8 +3,7 @@
 This sample shows how to propagate MDC (Mapped Diagnostic Context) context values from Workflows to Nexus operations.
 Nexus does not support `ContextPropagator` since the header format is not compatible. Users should look at `NexusMDCContextInterceptor` for propagating MDC context values.
 
-Follow the instructions in the main [Nexus Sample](../nexus/README.MD) to set up your environment to run this sample
-(run a Temporal server, create caller and target namespaces, and create a Nexus endpoint).
+To run this sample, set up your environment following the instructions in the main [Nexus Sample](../nexus/README.md).
 
 Next, in separate terminal windows:
 
