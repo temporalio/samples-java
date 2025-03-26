@@ -17,7 +17,7 @@
  *  permissions and limitations under the License.
  */
 
-package io.temporal.samples.nexuscontextpropagation.propogation;
+package io.temporal.samples.nexuscontextpropagation.propagation;
 
 import io.temporal.api.common.v1.Payload;
 import io.temporal.common.context.ContextPropagator;
