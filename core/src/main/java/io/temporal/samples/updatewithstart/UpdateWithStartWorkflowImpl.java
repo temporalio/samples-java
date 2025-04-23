@@ -19,28 +19,43 @@
 
 package io.temporal.samples.updatewithstart;
 
+import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UpdateWithStartWorkflowImpl implements UpdateWithStartWorkflow {
-  //  private static final Logger log = LoggerFactory.getLogger(UpdateWithStartWorkflowImpl.class);
+  private static final Logger log = LoggerFactory.getLogger(UpdateWithStartWorkflowImpl.class);
   private UpdateWithStartWorkflowState state;
 
   @WorkflowInit
   public UpdateWithStartWorkflowImpl(StartWorkflowRequest args) {
-    this.state = new UpdateWithStartWorkflowState(args);
+    this.state = new UpdateWithStartWorkflowState();
+    this.state.setInitArgs(args);
+    System.out.println("WorkflowInit args = " + args);
   }
 
   @Override
   public void execute(StartWorkflowRequest args) {
+    log.info("Workflow started {}", args);
+
+    this.state.setExecuteArgs(args);
     System.out.println("execute called");
-    //    log.info("Workflow started {}", args);
+
+    Workflow.await(() -> this.state.getUpdates().size() == 2);
   }
 
   @Override
   public UpdateWithStartWorkflowState putApplication(StartWorkflowRequest args) {
-    System.out.println("putApplication called");
-    this.state.getUpdates().add(args);
 
+    this.state.getUpdates().add(args);
+    System.out.println("put application called " + this.state.getUpdates().size());
+    return this.state;
+  }
+
+  @Override
+  public UpdateWithStartWorkflowState getState() {
+    System.out.println("getState called " + this.state.getInitArgs().getValue());
     return this.state;
   }
 }

@@ -23,6 +23,7 @@ import io.temporal.api.enums.v1.WorkflowIdConflictPolicy;
 import io.temporal.api.enums.v1.WorkflowIdReusePolicy;
 import io.temporal.client.*;
 import io.temporal.serviceclient.WorkflowServiceStubs;
+import java.util.UUID;
 
 public class UpdateWithStartClient {
   private static final String TASK_QUEUE = "UpdateWithStartTQ";
@@ -46,11 +47,13 @@ public class UpdateWithStartClient {
       WorkflowClient client, WorkflowOptions options) {
 
     var args = new StartWorkflowRequest();
+    args.setValue(UUID.randomUUID().toString());
 
     UpdateWithStartWorkflow workflow =
         client.newWorkflowStub(UpdateWithStartWorkflow.class, options);
 
     try {
+      // // First I tried this to updateWithStart
       //      var result =
       //          WorkflowClient.executeUpdateWithStart(
       //              workflow::putApplication,
@@ -63,16 +66,24 @@ public class UpdateWithStartClient {
               workflow::putApplication,
               args,
               UpdateOptions.<UpdateWithStartWorkflowState>newBuilder()
-                  .setWaitForStage(WorkflowUpdateStage.ACCEPTED)
+                  .setWaitForStage(WorkflowUpdateStage.COMPLETED)
                   .build(),
               new WithStartWorkflowOperation<>(workflow::execute, args));
       var result = handle.getResult();
 
       System.out.println(
           "Workflow UwS with value: "
-              + result.getArgs().getValue()
+              + result.getInitArgs().getValue()
               + ", with updates count:"
               + result.getUpdates().size());
+
+      System.out.println(
+          "Workflow QUERY with initArgs: "
+              + workflow.getState().getInitArgs().getValue()
+              + "\n with updates: "
+              + workflow.getState().getUpdates().size()
+              + "\nwith execute args "
+              + workflow.getState().getExecuteArgs().getValue());
 
     } catch (WorkflowExecutionAlreadyStarted e) {
       System.err.println("WorkflowAlreadyStarted" + e);

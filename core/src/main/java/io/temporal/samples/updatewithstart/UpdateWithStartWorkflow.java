@@ -19,6 +19,7 @@
 
 package io.temporal.samples.updatewithstart;
 
+import io.temporal.workflow.QueryMethod;
 import io.temporal.workflow.UpdateMethod;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
@@ -30,4 +31,7 @@ public interface UpdateWithStartWorkflow {
 
   @UpdateMethod
   UpdateWithStartWorkflowState putApplication(StartWorkflowRequest args);
+
+  @QueryMethod
+  UpdateWithStartWorkflowState getState();
 }

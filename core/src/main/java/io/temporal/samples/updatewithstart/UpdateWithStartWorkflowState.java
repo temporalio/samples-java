@@ -4,21 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UpdateWithStartWorkflowState {
-  private StartWorkflowRequest args;
+  private StartWorkflowRequest initArgs;
+  private StartWorkflowRequest executeArgs;
   private List<StartWorkflowRequest> updates = new ArrayList<>();
 
   public UpdateWithStartWorkflowState() {}
 
-  public UpdateWithStartWorkflowState(StartWorkflowRequest args) {
-    this.args = args;
+  public StartWorkflowRequest getInitArgs() {
+    return initArgs;
   }
 
-  public StartWorkflowRequest getArgs() {
-    return args;
-  }
-
-  public void setArgs(StartWorkflowRequest args) {
-    this.args = args;
+  public void setInitArgs(StartWorkflowRequest initArgs) {
+    this.initArgs = initArgs;
   }
 
   public List<StartWorkflowRequest> getUpdates() {
@@ -27,5 +24,13 @@ public class UpdateWithStartWorkflowState {
 
   public void setUpdates(List<StartWorkflowRequest> updates) {
     this.updates = updates;
+  }
+
+  public StartWorkflowRequest getExecuteArgs() {
+    return executeArgs;
+  }
+
+  public void setExecuteArgs(StartWorkflowRequest executeArgs) {
+    this.executeArgs = executeArgs;
   }
 }
