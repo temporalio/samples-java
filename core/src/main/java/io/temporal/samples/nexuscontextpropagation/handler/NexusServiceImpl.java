@@ -59,7 +59,10 @@ public class NexusServiceImpl {
   @OperationImpl
   public OperationHandler<NexusService.HelloInput, NexusService.HelloOutput> hello() {
     // Use the WorkflowRunOperation.fromWorkflowMethod constructor, which is the easiest
-    // way to expose a workflow as an operation.
+    // way to expose a workflow as an operation. To expose a workflow with a different input
+    // parameters then the operation or from an untyped stub, use the
+    // WorkflowRunOperation.fromWorkflowHandler constructor and the appropriate constructor method
+    // on WorkflowHandle.
     return WorkflowRunOperation.fromWorkflowMethod(
         (ctx, details, input) ->
             Nexus.getOperationContext()
