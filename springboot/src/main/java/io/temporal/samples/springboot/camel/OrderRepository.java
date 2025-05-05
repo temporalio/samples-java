@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.springboot.camel;
 
 import org.springframework.data.jpa.repository.JpaRepository;

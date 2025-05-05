@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.moneytransfer;
 
 import io.temporal.client.WorkflowClient;

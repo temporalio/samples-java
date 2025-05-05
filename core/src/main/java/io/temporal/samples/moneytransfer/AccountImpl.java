@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.moneytransfer;
 
 public class AccountImpl implements Account {

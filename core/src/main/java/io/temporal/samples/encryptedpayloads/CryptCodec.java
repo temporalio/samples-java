@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.encryptedpayloads;
 
 import com.google.protobuf.ByteString;

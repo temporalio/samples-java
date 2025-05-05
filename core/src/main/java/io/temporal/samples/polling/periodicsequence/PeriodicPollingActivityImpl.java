@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.polling.periodicsequence;
 
 import io.temporal.activity.Activity;

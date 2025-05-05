@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.springboot.actuator;
 
 import io.temporal.common.metadata.*;

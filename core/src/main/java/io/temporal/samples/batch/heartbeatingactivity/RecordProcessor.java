@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.batch.heartbeatingactivity;
 
 /** A helper class that implements record processing. */

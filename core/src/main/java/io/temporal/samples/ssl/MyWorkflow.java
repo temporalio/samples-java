@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.ssl;
 
 import io.temporal.workflow.WorkflowInterface;

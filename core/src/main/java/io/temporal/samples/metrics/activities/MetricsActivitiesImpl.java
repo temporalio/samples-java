@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.metrics.activities;
 
 import io.temporal.activity.Activity;

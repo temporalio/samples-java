@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.metrics.workflow;
 
 import io.temporal.workflow.WorkflowInterface;

@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.excludefrominterceptor.activities;
 
 import io.temporal.activity.ActivityInterface;

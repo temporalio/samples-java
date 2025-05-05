@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.tracing.workflow;
 
 public class TracingActivitiesImpl implements TracingActivities {

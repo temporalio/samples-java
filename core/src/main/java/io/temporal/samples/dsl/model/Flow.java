@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.dsl.model;
 
 import java.util.List;

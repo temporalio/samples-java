@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.bookingsaga;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

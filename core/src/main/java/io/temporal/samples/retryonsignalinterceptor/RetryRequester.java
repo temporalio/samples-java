@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.retryonsignalinterceptor;
 
 import static io.temporal.samples.retryonsignalinterceptor.MyWorkflowWorker.WORKFLOW_ID;

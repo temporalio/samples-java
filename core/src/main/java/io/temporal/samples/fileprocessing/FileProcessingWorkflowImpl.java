@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.fileprocessing;
 
 import io.temporal.activity.ActivityOptions;

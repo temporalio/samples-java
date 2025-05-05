@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.payloadconverter;
 
 import static org.junit.Assert.assertEquals;

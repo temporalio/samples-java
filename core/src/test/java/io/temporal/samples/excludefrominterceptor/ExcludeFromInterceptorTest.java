@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.excludefrominterceptor;
 
 import io.temporal.api.enums.v1.EventType;

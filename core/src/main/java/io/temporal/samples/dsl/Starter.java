@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.dsl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

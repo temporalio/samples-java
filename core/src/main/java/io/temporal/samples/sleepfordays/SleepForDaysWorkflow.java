@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.sleepfordays;
 
 import io.temporal.workflow.SignalMethod;

@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.metrics.workflow;
 
 import com.uber.m3.tally.Scope;

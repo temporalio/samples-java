@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.fileprocessing;
 
 import static org.mockito.ArgumentMatchers.any;

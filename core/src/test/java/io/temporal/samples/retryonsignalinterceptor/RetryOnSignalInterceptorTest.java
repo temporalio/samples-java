@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.retryonsignalinterceptor;
 
 import static org.junit.Assert.*;

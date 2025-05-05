@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.safemessagepassing;
 
 import static io.temporal.samples.safemessagepassing.ClusterManagerWorkflowWorker.CLUSTER_MANAGER_WORKFLOW_ID;

@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.springboot.customize;
 
 import io.temporal.activity.ActivityInterface;

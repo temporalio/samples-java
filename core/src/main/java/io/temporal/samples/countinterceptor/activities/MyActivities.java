@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.countinterceptor.activities;
 
 import io.temporal.activity.ActivityInterface;

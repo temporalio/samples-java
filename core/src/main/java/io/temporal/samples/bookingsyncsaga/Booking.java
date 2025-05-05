@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.bookingsyncsaga;
 
 public final class Booking {

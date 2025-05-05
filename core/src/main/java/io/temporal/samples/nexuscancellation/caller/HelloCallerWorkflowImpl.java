@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.nexuscancellation.caller;
 
 import static io.temporal.samples.nexus.service.NexusService.Language.*;

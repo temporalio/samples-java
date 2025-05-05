@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.batch.heartbeatingactivity;
 
 import static io.temporal.samples.batch.heartbeatingactivity.RecordLoaderImpl.RECORD_COUNT;

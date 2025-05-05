@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.hello;
 
 import static org.mockito.Mockito.*;

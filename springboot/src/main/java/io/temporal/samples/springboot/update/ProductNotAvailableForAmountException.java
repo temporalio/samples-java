@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.springboot.update;
 
 public class ProductNotAvailableForAmountException extends Exception {

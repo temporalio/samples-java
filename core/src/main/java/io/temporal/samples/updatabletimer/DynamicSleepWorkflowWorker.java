@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.updatabletimer;
 
 import io.temporal.client.WorkflowClient;

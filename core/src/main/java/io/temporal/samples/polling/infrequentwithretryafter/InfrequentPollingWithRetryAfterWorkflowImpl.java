@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.polling.infrequentwithretryafter;
 
 import io.temporal.activity.ActivityOptions;

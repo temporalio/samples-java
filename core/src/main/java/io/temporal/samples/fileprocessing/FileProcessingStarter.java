@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.fileprocessing;
 
 import static io.temporal.samples.fileprocessing.FileProcessingWorker.TASK_QUEUE;

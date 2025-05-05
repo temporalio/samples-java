@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.batch.heartbeatingactivity;
 
 import org.slf4j.Logger;

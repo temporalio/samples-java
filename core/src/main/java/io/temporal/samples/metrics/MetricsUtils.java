@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.metrics;
 
 import static java.nio.charset.StandardCharsets.UTF_8;

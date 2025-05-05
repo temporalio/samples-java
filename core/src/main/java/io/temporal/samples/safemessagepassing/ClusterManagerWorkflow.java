@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.safemessagepassing;
 
 import com.fasterxml.jackson.annotation.JsonCreator;

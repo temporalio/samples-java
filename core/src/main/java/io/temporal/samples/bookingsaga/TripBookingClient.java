@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.bookingsaga;
 
 import com.google.common.base.Throwables;

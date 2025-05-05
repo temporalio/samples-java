@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.encodefailures;
 
 import io.temporal.api.common.v1.Payload;

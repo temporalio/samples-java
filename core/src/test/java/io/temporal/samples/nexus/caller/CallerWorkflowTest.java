@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.nexus.caller;
 
 import static org.junit.Assert.assertEquals;

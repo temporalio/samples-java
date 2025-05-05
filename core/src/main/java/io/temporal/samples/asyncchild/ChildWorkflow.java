@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.asyncchild;
 
 import io.temporal.workflow.WorkflowInterface;

@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.updatabletimer;
 
 import static io.temporal.samples.updatabletimer.DynamicSleepWorkflowWorker.DYNAMIC_SLEEP_WORKFLOW_ID;

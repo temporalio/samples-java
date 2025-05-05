@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.earlyreturn;
 
 import io.temporal.activity.ActivityInterface;

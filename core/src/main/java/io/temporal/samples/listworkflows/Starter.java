@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.listworkflows;
 
 import io.temporal.api.enums.v1.WorkflowExecutionStatus;

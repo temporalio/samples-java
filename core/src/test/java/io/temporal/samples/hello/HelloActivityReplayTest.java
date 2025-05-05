@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.hello;
 
 import static org.hamcrest.MatcherAssert.assertThat;

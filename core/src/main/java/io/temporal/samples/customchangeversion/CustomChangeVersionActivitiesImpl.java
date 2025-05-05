@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.customchangeversion;
 
 public class CustomChangeVersionActivitiesImpl implements CustomChangeVersionActivities {

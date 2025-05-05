@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.springboot.update.model;
 
 import org.springframework.data.jpa.repository.JpaRepository;

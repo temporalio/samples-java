@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.polling;
 
 import java.util.concurrent.ThreadLocalRandom;

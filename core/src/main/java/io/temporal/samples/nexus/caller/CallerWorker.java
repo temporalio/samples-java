@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.nexus.caller;
 
 import io.temporal.client.WorkflowClient;

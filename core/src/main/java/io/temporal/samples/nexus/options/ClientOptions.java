@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.nexus.options;
 
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;

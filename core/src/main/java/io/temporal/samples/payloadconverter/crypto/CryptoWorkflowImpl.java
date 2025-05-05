@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.payloadconverter.crypto;
 
 public class CryptoWorkflowImpl implements CryptoWorkflow {

@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.dsl;
 
 import io.temporal.activity.ActivityOptions;

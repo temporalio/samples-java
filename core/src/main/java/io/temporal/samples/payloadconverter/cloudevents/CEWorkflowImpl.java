@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.payloadconverter.cloudevents;
 
 import io.cloudevents.CloudEvent;

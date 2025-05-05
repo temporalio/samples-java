@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.nexuscontextpropagation.handler;
 
 import io.temporal.failure.ApplicationFailure;

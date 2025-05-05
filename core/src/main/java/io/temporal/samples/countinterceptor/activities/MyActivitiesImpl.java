@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.countinterceptor.activities;
 
 public class MyActivitiesImpl implements MyActivities {

@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.excludefrominterceptor.workflows;
 
 import io.temporal.workflow.WorkflowMethod;

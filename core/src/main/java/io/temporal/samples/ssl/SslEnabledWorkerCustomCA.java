@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.ssl;
 
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;

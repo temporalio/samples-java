@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.safemessagepassing;
 
 import io.temporal.client.*;

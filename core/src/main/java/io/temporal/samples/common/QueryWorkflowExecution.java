@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.common;
 
 import io.temporal.api.common.v1.WorkflowExecution;

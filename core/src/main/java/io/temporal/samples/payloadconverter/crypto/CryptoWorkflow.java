@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.payloadconverter.crypto;
 
 import io.temporal.workflow.WorkflowInterface;

@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.excludefrominterceptor.activities;
 
 public class MyActivitiesImpl implements MyActivities {

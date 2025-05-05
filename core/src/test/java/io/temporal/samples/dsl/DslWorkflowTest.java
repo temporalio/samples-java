@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.dsl;
 
 import static org.junit.Assert.*;

@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.customchangeversion;
 
 import io.temporal.workflow.WorkflowInterface;

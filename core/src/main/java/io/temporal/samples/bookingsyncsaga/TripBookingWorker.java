@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.bookingsyncsaga;
 
 import io.temporal.client.WorkflowClient;

@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.nexuscancellation.handler;
 
 import io.temporal.failure.ApplicationFailure;

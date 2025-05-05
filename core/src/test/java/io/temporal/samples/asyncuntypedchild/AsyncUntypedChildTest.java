@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.asyncuntypedchild;
 
 import static io.temporal.api.enums.v1.WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_RUNNING;

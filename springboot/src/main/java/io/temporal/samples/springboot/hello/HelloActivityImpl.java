@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.springboot.hello;
 
 import io.temporal.samples.springboot.hello.model.Person;

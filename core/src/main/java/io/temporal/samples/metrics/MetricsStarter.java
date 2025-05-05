@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.metrics;
 
 import com.sun.net.httpserver.HttpServer;

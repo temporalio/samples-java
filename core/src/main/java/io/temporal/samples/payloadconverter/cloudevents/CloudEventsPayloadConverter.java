@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.payloadconverter.cloudevents;
 
 import com.google.protobuf.ByteString;

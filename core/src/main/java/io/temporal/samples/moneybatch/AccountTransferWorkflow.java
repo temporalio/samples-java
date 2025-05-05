@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.moneybatch;
 
 import io.temporal.workflow.QueryMethod;

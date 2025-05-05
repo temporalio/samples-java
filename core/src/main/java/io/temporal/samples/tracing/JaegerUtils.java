@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.tracing;
 
 import io.jaegertracing.internal.JaegerTracer;

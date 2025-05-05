@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.tracing.workflow;
 
 import io.temporal.activity.ActivityOptions;

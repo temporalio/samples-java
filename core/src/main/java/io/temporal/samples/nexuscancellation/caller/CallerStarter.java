@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.nexuscancellation.caller;
 
 import io.temporal.api.common.v1.WorkflowExecution;

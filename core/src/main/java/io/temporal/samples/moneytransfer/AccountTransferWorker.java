@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.moneytransfer;
 
 import static io.temporal.samples.moneytransfer.AccountActivityWorker.TASK_QUEUE;

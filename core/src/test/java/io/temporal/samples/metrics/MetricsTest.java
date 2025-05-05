@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.metrics;
 
 import static junit.framework.TestCase.assertEquals;

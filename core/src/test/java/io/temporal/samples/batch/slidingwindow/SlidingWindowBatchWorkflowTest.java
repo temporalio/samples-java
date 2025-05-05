@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.batch.slidingwindow;
 
 import static org.junit.Assert.assertTrue;

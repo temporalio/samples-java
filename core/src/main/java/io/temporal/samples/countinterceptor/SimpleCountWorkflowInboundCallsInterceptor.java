@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.countinterceptor;
 
 import io.temporal.common.interceptors.WorkflowInboundCallsInterceptor;

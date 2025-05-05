@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.listworkflows;
 
 import java.util.concurrent.TimeUnit;

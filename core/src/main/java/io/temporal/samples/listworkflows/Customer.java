@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.listworkflows;
 
 public class Customer {

@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.retryonsignalinterceptor;
 
 import com.google.common.base.Throwables;

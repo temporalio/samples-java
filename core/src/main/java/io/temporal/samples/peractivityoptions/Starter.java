@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.peractivityoptions;
 
 import com.google.common.collect.ImmutableMap;

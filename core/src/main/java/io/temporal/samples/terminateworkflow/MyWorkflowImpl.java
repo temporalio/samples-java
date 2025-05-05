@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.terminateworkflow;
 
 import io.temporal.workflow.Workflow;

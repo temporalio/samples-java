@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.moneytransfer;
 
 import static org.mockito.ArgumentMatchers.eq;

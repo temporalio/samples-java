@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.batch.iterator;
 
 import static io.temporal.samples.batch.iterator.IteratorBatchWorker.TASK_QUEUE;

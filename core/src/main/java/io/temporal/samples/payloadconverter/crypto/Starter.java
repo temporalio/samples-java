@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.payloadconverter.crypto;
 
 import com.codingrodent.jackson.crypto.CryptoModule;

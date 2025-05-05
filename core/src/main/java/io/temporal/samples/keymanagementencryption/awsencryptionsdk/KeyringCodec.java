@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.keymanagementencryption.awsencryptionsdk;
 
 import com.amazonaws.encryptionsdk.AwsCrypto;

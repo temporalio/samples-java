@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.polling;
 
 import static org.junit.Assert.*;

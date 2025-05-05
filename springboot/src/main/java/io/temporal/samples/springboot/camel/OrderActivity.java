@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.springboot.camel;
 
 import io.temporal.activity.ActivityInterface;

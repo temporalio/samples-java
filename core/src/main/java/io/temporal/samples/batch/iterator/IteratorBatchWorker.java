@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.batch.iterator;
 
 import io.temporal.client.WorkflowClient;

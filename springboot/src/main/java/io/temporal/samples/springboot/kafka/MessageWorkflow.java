@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.springboot.kafka;
 
 import io.temporal.workflow.SignalMethod;

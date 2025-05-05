@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.moneybatch;
 
 public class AccountImpl implements Account {

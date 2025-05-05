@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.listworkflows;
 
 import static org.junit.Assert.assertEquals;

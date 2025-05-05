@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.excludefrominterceptor.interceptor;
 
 import io.temporal.activity.ActivityExecutionContext;

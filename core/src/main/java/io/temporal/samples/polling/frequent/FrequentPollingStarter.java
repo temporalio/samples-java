@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.polling.frequent;
 
 import io.temporal.client.WorkflowClient;

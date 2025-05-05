@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.retryonsignalinterceptor;
 
 import io.temporal.workflow.WorkflowInterface;

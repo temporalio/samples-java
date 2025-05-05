@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.nexus.service;
 
 import com.fasterxml.jackson.annotation.JsonCreator;

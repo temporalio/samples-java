@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.springboot;
 
 import io.grpc.StatusRuntimeException;

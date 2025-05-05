@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.updatabletimer;
 
 public class DynamicSleepWorkflowImpl implements DynamicSleepWorkflow {

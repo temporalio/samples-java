@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.countinterceptor;
 
 import java.util.AbstractMap;

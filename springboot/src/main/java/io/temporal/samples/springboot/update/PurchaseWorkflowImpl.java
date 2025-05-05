@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.springboot.update;
 
 import io.temporal.activity.LocalActivityOptions;

@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.batch.slidingwindow;
 
 import static io.temporal.samples.batch.slidingwindow.SlidingWindowBatchWorker.TASK_QUEUE;

@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.encodefailures;
 
 import static org.junit.Assert.assertThrows;

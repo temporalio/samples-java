@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.encryptedpayloads;
 
 import io.temporal.activity.ActivityInterface;

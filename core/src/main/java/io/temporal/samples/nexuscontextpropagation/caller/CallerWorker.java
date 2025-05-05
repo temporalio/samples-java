@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.nexuscontextpropagation.caller;
 
 import io.temporal.client.WorkflowClient;

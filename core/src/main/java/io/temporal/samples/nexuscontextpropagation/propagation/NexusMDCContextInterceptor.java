@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.nexuscontextpropagation.propagation;
 
 import io.nexusrpc.OperationException;

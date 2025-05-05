@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.springboot.camel;
 
 import java.util.List;

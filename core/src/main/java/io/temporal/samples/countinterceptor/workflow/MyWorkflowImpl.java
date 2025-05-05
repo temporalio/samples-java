@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.countinterceptor.workflow;
 
 import io.temporal.workflow.ChildWorkflowOptions;

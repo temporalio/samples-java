@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.asyncuntypedchild;
 
 import static io.temporal.samples.asyncuntypedchild.Starter.WORKFLOW_ID;

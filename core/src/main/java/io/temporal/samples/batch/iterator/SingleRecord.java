@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.batch.iterator;
 
 /** Record to process. A real application would add a use case specific data. */

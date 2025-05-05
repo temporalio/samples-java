@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.keymanagementencryption.awsencryptionsdk;
 
 import io.temporal.client.WorkflowClient;

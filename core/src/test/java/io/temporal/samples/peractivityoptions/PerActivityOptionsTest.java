@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.peractivityoptions;
 
 import static org.junit.Assert.*;

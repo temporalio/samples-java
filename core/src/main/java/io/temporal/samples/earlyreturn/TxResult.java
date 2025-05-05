@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.earlyreturn;
 
 import com.fasterxml.jackson.annotation.JsonCreator;

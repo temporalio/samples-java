@@ -1,5 +1,3 @@
-
-
 package io.temporal.samples.getresultsasync;
 
 import static org.junit.Assert.assertEquals;
