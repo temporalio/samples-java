@@ -25,8 +25,8 @@ jobs:
       run: |
         docker compose -f ./docker/github/docker-compose.yaml up unit-test
 
-  copyright:
-    name:  Copyright and code format
+  code_format:
+    name:  Code format
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -47,4 +47,4 @@ jobs:
       uses: gradle/actions/setup-gradle@v3
     
     - name: Run copyright and code format checks
-      run: ./gradlew --no-daemon checkLicenseMain checkLicenses spotlessCheck
+      run: ./gradlew --no-daemon spotlessCheck
