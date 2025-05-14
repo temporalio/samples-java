@@ -17,3 +17,4 @@ target
 .project
 .settings/
 bin/
+core/.vscode/

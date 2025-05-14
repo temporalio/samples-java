@@ -14,7 +14,8 @@ public class Starter {
   static final String WORKFLOW_ID = "HelloAPIKeyWorkflow";
 
   public static void main(String[] args) throws Exception {
-    // For temporal cloud this would likely be ${namespace}.tmprl.cloud:7233
+    // For temporal cloud this would be ${cloud-region}.{cloud}.api.temporal.io:7233
+    // Example us-east-1.aws.api.temporal.io:7233
     String targetEndpoint = System.getenv("TEMPORAL_ENDPOINT");
     // Your registered namespace.
     String namespace = System.getenv("TEMPORAL_NAMESPACE");
