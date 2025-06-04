@@ -131,6 +131,8 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 
 - [**Configure WorkflowClient to use mTLS**](/core/src/main/java/io/temporal/samples/ssl): Demonstrates how to configure WorkflowClient when using mTLS.
 
+- [**Configure WorkflowClient to use API Key**](/core/src/main/java/io/temporal/samples/apikey): Demonstrates how to configure WorkflowClient when using API Keys.
+
 - [**Payload Codec**](/core/src/main/java/io/temporal/samples/encodefailures): Demonstrates how to use simple codec to encode/decode failure messages.
 
 - [**Exclude Workflow/ActivityTypes from Interceptors**](/core/src/main/java/io/temporal/samples/excludefrominterceptor): Demonstrates how to exclude certain workflow / activity types from interceptors.
