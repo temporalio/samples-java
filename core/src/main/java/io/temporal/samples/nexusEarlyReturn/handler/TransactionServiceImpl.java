@@ -19,6 +19,8 @@
 
 package io.temporal.samples.nexusEarlyReturn.handler;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import io.nexusrpc.OperationException;
 import io.nexusrpc.OperationInfo;
 import io.nexusrpc.handler.*;
@@ -33,12 +35,9 @@ import io.temporal.samples.earlyreturn.TransactionRequest;
 import io.temporal.samples.earlyreturn.TransactionWorkflow;
 import io.temporal.samples.earlyreturn.TxResult;
 import io.temporal.samples.nexusEarlyReturn.service.TransactionService;
+import java.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Base64;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 @ServiceImpl(service = TransactionService.class)
 public class TransactionServiceImpl {
