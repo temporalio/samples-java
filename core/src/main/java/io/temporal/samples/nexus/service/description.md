@@ -1,8 +1,6 @@
-Service Name:
-NexusService
-Operation Names:
-echo
-hello
+## Service: [NexusService](https://github.com/temporalio/samples-java/blob/main/core/src/main/java/io/temporal/samples/nexus/service/NexusService.java)
+ - operation: `echo`
+ - operation: `hello`
 
-Input / Output arguments are in the following repository:
-https://github.com/temporalio/samples-java/core/src/main/java/io/temporal/samples/nexus/service/NexusService.java
+See https://github.com/temporalio/samples-java/blob/main/core/src/main/java/io/temporal/samples/nexus/service/NexusService.java for Input / Output types.
+
