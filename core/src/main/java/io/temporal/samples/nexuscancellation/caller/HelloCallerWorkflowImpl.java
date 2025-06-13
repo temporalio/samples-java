@@ -22,6 +22,12 @@ public class HelloCallerWorkflowImpl implements HelloCallerWorkflow {
               .setOperationOptions(
                   NexusOperationOptions.newBuilder()
                       .setScheduleToCloseTimeout(Duration.ofSeconds(10))
+                      // Set the cancellation type to WAIT_REQUESTED. This means that the caller
+                      // will wait for the cancellation request to be received by the handler before
+                      // proceeding with the cancellation.
+                      //
+                      // By default, the caller would wait until the operation is completed.
+                      .setCancellationType(NexusOperationCancellationType.WAIT_REQUESTED)
                       .build())
               .build());
 
@@ -55,7 +61,8 @@ public class HelloCallerWorkflowImpl implements HelloCallerWorkflow {
     // Trigger cancellation of all uncompleted nexus operations invocations within the cancellation
     // scope
     scope.cancel();
-    // Optionally, wait for all nexus operations to complete
+    // Optionally, wait for all nexus operations to receive a cancellation request before
+    // proceeding.
     //
     // Note: Once the workflow completes any pending cancellation requests are dropped by the
     // server.
