@@ -20,6 +20,7 @@
 package io.temporal.samples.customannotation;
 
 import io.temporal.activity.ActivityInterface;
+import io.temporal.activity.ActivityMethod;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
@@ -70,7 +71,7 @@ public class CustomAnnotation {
    * <p>Annotating Activity Definition methods with @ActivityMethod is optional.
    *
    * @see ActivityInterface
-   * @see io.temporal.activity.ActivityMethod
+   * @see ActivityMethod
    */
   @ActivityInterface
   public interface GreetingActivities {
@@ -131,7 +132,7 @@ public class CustomAnnotation {
      * RetryOptions, our workflow is going to retry our activity execution.
      */
     @Override
-    @NextRetryDelay(failureType = "java.lang.IllegalStateException", delaySeconds = 2)
+    @BenignExceptionTypes({IllegalStateException.class})
     public synchronized String composeGreeting(String greeting, String name) {
       if (lastInvocationTime != 0) {
         long timeSinceLastInvocation = System.currentTimeMillis() - lastInvocationTime;
@@ -175,7 +176,7 @@ public class CustomAnnotation {
         WorkerFactory.newInstance(
             client,
             WorkerFactoryOptions.newBuilder()
-                .setWorkerInterceptors(new NextRetryDelayActivityAnnotationInterceptor())
+                .setWorkerInterceptors(new BenignExceptionTypesAnnotationInterceptor())
                 .build());
 
     /*

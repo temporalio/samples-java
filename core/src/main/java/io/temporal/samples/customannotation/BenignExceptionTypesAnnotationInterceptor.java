@@ -24,19 +24,20 @@ import io.temporal.common.interceptors.ActivityInboundCallsInterceptor;
 import io.temporal.common.interceptors.WorkerInterceptorBase;
 import io.temporal.common.metadata.POJOActivityImplMetadata;
 import io.temporal.common.metadata.POJOActivityMethodMetadata;
+import io.temporal.failure.ApplicationErrorCategory;
 import io.temporal.failure.ApplicationFailure;
 import io.temporal.failure.TemporalFailure;
 import java.lang.reflect.Method;
-import java.time.Duration;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 /**
- * Checks if the activity method has the @NextRetryDelay annotation. If it does, it will throw an
- * ApplicationFailure with a delay set to the value of the annotation.
+ * Checks if the activity method has the {@link BenignExceptionTypes} annotation. If it does, it
+ * will throw an ApplicationFailure with {@link ApplicationErrorCategory#BENIGN}.
  */
-public class NextRetryDelayActivityAnnotationInterceptor extends WorkerInterceptorBase {
+public class BenignExceptionTypesAnnotationInterceptor extends WorkerInterceptorBase {
 
   @Override
   public ActivityInboundCallsInterceptor interceptActivity(ActivityInboundCallsInterceptor next) {
@@ -46,7 +47,7 @@ public class NextRetryDelayActivityAnnotationInterceptor extends WorkerIntercept
   public static class ActivityInboundCallsInterceptorAnnotation
       extends io.temporal.common.interceptors.ActivityInboundCallsInterceptorBase {
     private final ActivityInboundCallsInterceptor next;
-    private Map<String, Integer> delaysPerType = new HashMap<>();
+    private Set<Class<? extends Exception>> benignExceptionTypes = new HashSet<>();
 
     public ActivityInboundCallsInterceptorAnnotation(ActivityInboundCallsInterceptor next) {
       super(next);
@@ -77,37 +78,35 @@ public class NextRetryDelayActivityAnnotationInterceptor extends WorkerIntercept
       } catch (NoSuchMethodException e) {
         throw new RuntimeException(e);
       }
-      // Get the @NextRetryDelay annotations from the implementation method
-      NextRetryDelay[] an = implementationMethod.getAnnotationsByType(NextRetryDelay.class);
-      for (NextRetryDelay a : an) {
-        delaysPerType.put(a.failureType(), a.delaySeconds());
+      // Get the @BenignExceptionTypes annotations from the implementation method
+      BenignExceptionTypes an = implementationMethod.getAnnotation(BenignExceptionTypes.class);
+      if (an != null && an.value() != null) {
+        benignExceptionTypes = new HashSet<>(Arrays.asList(an.value()));
       }
       next.init(context);
     }
 
     @Override
     public ActivityOutput execute(ActivityInput input) {
-      if (delaysPerType.size() == 0) {
+      if (benignExceptionTypes.isEmpty()) {
         return next.execute(input);
       }
       try {
         return next.execute(input);
-      } catch (ApplicationFailure ae) {
-        Integer delay = delaysPerType.get(ae.getType());
-        if (delay != null) {
-          // TODO: make sure to pass all the other parameters to the new ApplicationFailure
-          throw ApplicationFailure.newFailureWithCauseAndDelay(
-              ae.getMessage(), ae.getType(), ae.getCause(), Duration.ofSeconds(delay));
-        }
-        throw ae;
       } catch (TemporalFailure tf) {
         throw tf;
       } catch (Exception e) {
-        Integer delay = delaysPerType.get(e.getClass().getName());
-        if (delay != null) {
-          throw ApplicationFailure.newFailureWithCauseAndDelay(
-              e.getMessage(), e.getClass().getName(), e, Duration.ofSeconds(delay));
+        if (benignExceptionTypes.contains(e.getClass())) {
+          // If the exception is in the list of benign exceptions, throw an ApplicationFailure
+          // with a BENIGN category
+          throw ApplicationFailure.newBuilder()
+              .setMessage(e.getMessage())
+              .setType(e.getClass().getName())
+              .setCause(e)
+              .setCategory(ApplicationErrorCategory.BENIGN)
+              .build();
         }
+        // If the exception is not in the list of benign exceptions, rethrow it
         throw e;
       }
     }
