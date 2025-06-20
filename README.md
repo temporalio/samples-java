@@ -155,6 +155,8 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 
 - [**Getting Started**](/core/src/main/java/io/temporal/samples/nexus): Demonstrates how to get started with Temporal and Nexus.
 
+- [**Mapping Multiple Arguments**](/core/src/main/java/io/temporal/samples/nexus): Demonstrates how map a Nexus operation to a Workflow that takes multiple arguments.
+
 - [**Cancellation**](/core/src/main/java/io/temporal/samples/nexuscancellation): Demonstrates how to cancel an async Nexus operation.
 
 - [**Context/Header Propagation**](/core/src/main/java/io/temporal/samples/nexuscontextpropagation): Demonstrates how to propagate context through Nexus operation headers.
