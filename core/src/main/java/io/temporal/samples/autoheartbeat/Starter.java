@@ -91,6 +91,24 @@ public class Starter {
     } catch (Exception e) {
       System.out.println("Second run - Workflow exec exception: " + e.getClass().getName());
     }
+
+    System.out.println("\n\n**** Third Run: cause heartbeat timeout");
+    // we disable autoheartbeat via env var
+    System.setProperty("sample.disableAutoHeartbeat", "true");
+    AutoWorkflow thirdRun =
+        client.newWorkflowStub(
+            AutoWorkflow.class,
+            WorkflowOptions.newBuilder()
+                .setWorkflowId(WORKFLOW_ID)
+                .setTaskQueue(TASK_QUEUE)
+                .build());
+
+    try {
+      String thirdRunResult = thirdRun.exec("Auto heartbeating is cool");
+      System.out.println("Third run result: " + thirdRunResult);
+    } catch (Exception e) {
+      System.out.println("Third run - Workflow exec exception: " + e.getClass().getName());
+    }
   }
 
   private static void doSleeps(int seconds) {

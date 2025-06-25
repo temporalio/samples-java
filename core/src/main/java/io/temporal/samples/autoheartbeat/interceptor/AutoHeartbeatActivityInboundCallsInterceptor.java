@@ -36,10 +36,7 @@ public class AutoHeartbeatActivityInboundCallsInterceptor
   private ActivityExecutionContext activityExecutionContext;
   private Duration activityHeartbeatTimeout;
   private AutoHeartbeatUtil autoHeartbeater;
-  //  private CompletableFuture autoHeartbeatFuture;
   private ScheduledFuture scheduledFuture;
-
-  //  private ScheduledFuture scheduledFuture;
 
   public AutoHeartbeatActivityInboundCallsInterceptor(ActivityInboundCallsInterceptor next) {
     super(next);
@@ -56,7 +53,10 @@ public class AutoHeartbeatActivityInboundCallsInterceptor
   @SuppressWarnings({"FutureReturnValueIgnored", "CatchAndPrintStackTrace"})
   public ActivityOutput execute(ActivityInput input) {
     // If activity has heartbeat timeout defined we want to apply auto-heartbeter
-    if (activityHeartbeatTimeout != null && activityHeartbeatTimeout.getSeconds() > 0) {
+    // Unless we explicitly disabled autoheartbeating via system property
+    if (activityHeartbeatTimeout != null
+        && activityHeartbeatTimeout.getSeconds() > 0
+        && !Boolean.parseBoolean(System.getProperty("sample.disableAutoHeartbeat"))) {
       System.out.println(
           "Auto heartbeating applied for activity: "
               + activityExecutionContext.getInfo().getActivityType());
@@ -82,7 +82,8 @@ public class AutoHeartbeatActivityInboundCallsInterceptor
                 }
               });
       try {
-        CompletableFuture.anyOf(autoHeartbeatFuture, activityExecFuture).get();
+        return (ActivityOutput)
+            CompletableFuture.anyOf(autoHeartbeatFuture, activityExecFuture).get();
       } catch (Exception e) {
         if (e instanceof ExecutionException) {
           ExecutionException ee = (ExecutionException) e;
@@ -96,8 +97,9 @@ public class AutoHeartbeatActivityInboundCallsInterceptor
           autoHeartbeater.stop();
         }
       }
+    } else {
+      return super.execute(input);
     }
-    return super.execute(input);
   }
 
   public interface AutoHeartbeaterCancellationCallback {

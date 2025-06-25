@@ -21,8 +21,10 @@ package io.temporal.samples.autoheartbeat.workflows;
 
 import io.temporal.activity.ActivityCancellationType;
 import io.temporal.activity.ActivityOptions;
+import io.temporal.common.RetryOptions;
 import io.temporal.failure.ActivityFailure;
 import io.temporal.failure.CanceledFailure;
+import io.temporal.failure.TimeoutFailure;
 import io.temporal.samples.autoheartbeat.activities.AutoActivities;
 import io.temporal.workflow.CancellationScope;
 import io.temporal.workflow.Workflow;
@@ -40,6 +42,8 @@ public class AutoWorkflowImpl implements AutoWorkflow {
                 .setStartToCloseTimeout(Duration.ofSeconds(22))
                 .setHeartbeatTimeout(Duration.ofSeconds(8))
                 .setCancellationType(ActivityCancellationType.WAIT_CANCELLATION_COMPLETED)
+                // for sample purposes
+                .setRetryOptions(RetryOptions.newBuilder().setMaximumAttempts(3).build())
                 .build());
 
     AutoActivities activitiesTwo =
@@ -49,6 +53,8 @@ public class AutoWorkflowImpl implements AutoWorkflow {
                 .setStartToCloseTimeout(Duration.ofSeconds(20))
                 .setHeartbeatTimeout(Duration.ofSeconds(7))
                 .setCancellationType(ActivityCancellationType.WAIT_CANCELLATION_COMPLETED)
+                // for sample purposes
+                .setRetryOptions(RetryOptions.newBuilder().setMaximumAttempts(3).build())
                 .build());
 
     // Start our activity in CancellationScope so we can cancel it if needed
@@ -65,6 +71,9 @@ public class AutoWorkflowImpl implements AutoWorkflow {
       if (e.getCause() instanceof CanceledFailure) {
         // We dont want workflow to fail in we canceled our scope, just log and return
         return "Workflow result after activity cancellation";
+      } else if (e.getCause() instanceof TimeoutFailure) {
+        return "Workflow result after activity timeout of type: "
+            + ((TimeoutFailure) e.getCause()).getTimeoutType().name();
       } else {
         throw e;
       }
