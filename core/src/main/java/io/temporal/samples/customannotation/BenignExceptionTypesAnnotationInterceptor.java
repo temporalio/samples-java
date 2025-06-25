@@ -59,7 +59,6 @@ public class BenignExceptionTypesAnnotationInterceptor extends WorkerInterceptor
       List<POJOActivityMethodMetadata> activityMethods =
           POJOActivityImplMetadata.newInstance(context.getInstance().getClass())
               .getActivityMethods();
-      // TODO: handle dynamic activity types
       POJOActivityMethodMetadata currentActivityMethod =
           activityMethods.stream()
               .filter(x -> x.getActivityTypeName().equals(context.getInfo().getActivityType()))

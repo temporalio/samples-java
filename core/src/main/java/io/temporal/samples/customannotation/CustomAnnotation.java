@@ -24,7 +24,6 @@ import io.temporal.activity.ActivityMethod;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
-import io.temporal.common.RetryOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -88,29 +87,11 @@ public class CustomAnnotation {
      * are executed outside of the workflow thread on the activity worker, that can be on a
      * different host. Temporal is going to dispatch the activity results back to the workflow and
      * unblock the stub as soon as activity is completed on the activity worker.
-     *
-     * <p>In the {@link ActivityOptions} definition the "setStartToCloseTimeout" option sets the
-     * maximum time of a single Activity execution attempt. For this example it is set to 10
-     * seconds.
-     *
-     * <p>In the {@link ActivityOptions} definition the "setInitialInterval" option sets the
-     * interval of the first retry. It is set to 1 second. The "setDoNotRetry" option is a list of
-     * application failures for which retries should not be performed.
-     *
-     * <p>By default the maximum number of retry attempts is set to "unlimited" however you can
-     * change it by adding the "setMaximumAttempts" option to the retry options.
      */
     private final GreetingActivities activities =
         Workflow.newActivityStub(
             GreetingActivities.class,
-            ActivityOptions.newBuilder()
-                .setStartToCloseTimeout(Duration.ofSeconds(10))
-                .setRetryOptions(
-                    RetryOptions.newBuilder()
-                        .setInitialInterval(Duration.ofSeconds(1))
-                        .setDoNotRetry(IllegalArgumentException.class.getName())
-                        .build())
-                .build());
+            ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(10)).build());
 
     @Override
     public String getGreeting(String name) {
@@ -125,7 +106,6 @@ public class CustomAnnotation {
    */
   static class GreetingActivitiesImpl implements GreetingActivities {
     private int callCount;
-    private long lastInvocationTime;
 
     /**
      * Our activity implementation simulates a failure 3 times. Given our previously set
@@ -134,18 +114,8 @@ public class CustomAnnotation {
     @Override
     @BenignExceptionTypes({IllegalStateException.class})
     public synchronized String composeGreeting(String greeting, String name) {
-      if (lastInvocationTime != 0) {
-        long timeSinceLastInvocation = System.currentTimeMillis() - lastInvocationTime;
-        System.out.print(timeSinceLastInvocation + " milliseconds since last invocation. ");
-      }
-      lastInvocationTime = System.currentTimeMillis();
       if (++callCount < 4) {
         System.out.println("composeGreeting activity is going to fail");
-
-        /*
-         * We throw IllegalStateException here. It is not in the list of "do not retry" exceptions
-         * set in our RetryOptions, so a workflow retry is going to be issued
-         */
         throw new IllegalStateException("not yet");
       }
 
