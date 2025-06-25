@@ -9,6 +9,7 @@ import io.temporal.nexus.WorkflowHandle;
 import io.temporal.nexus.WorkflowRunOperation;
 import io.temporal.samples.nexus.service.NexusService;
 
+// @@@SNIPSTART samples-java-nexus-handler-multiargs
 // To create a service implementation, annotate the class with @ServiceImpl and provide the
 // interface that the service implements. The service implementation class should have methods that
 // return OperationHandler that correspond to the operations defined in the service interface.
@@ -58,3 +59,4 @@ public class NexusServiceImpl {
                 input.getLanguage()));
   }
 }
+// @@@SNIPEND
