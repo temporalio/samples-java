@@ -27,13 +27,11 @@ public class PacketDelivery {
   }
 
   public Promise<Void> getDelivered() {
-    System.out.println("*************** CHECKING GET DELIVERED!!! : " + delivered);
     return delivered;
   }
 
   public void processDeliveryAsync() {
     delivered.completeFrom(Async.procedure(this::processDelivery));
-    System.out.println("*************** DONE WITH PROCESS DELIVERY ASYNC");
   }
 
   public void processDelivery() {
