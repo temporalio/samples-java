@@ -83,12 +83,10 @@ public class PacketDelivery {
     try {
       cancellationScope.run();
     } catch (Exception e) {
-      System.out.println("*************** E1: " + e.getClass().getName());
       if (e instanceof ActivityFailure) {
         ActivityFailure activityFailure = (ActivityFailure) e;
         if (activityFailure.getCause() instanceof CanceledFailure) {
           // Run compensation activity and complete
-          System.out.println("*************** E11: " + e.getClass().getName());
           compensationActivities.compensateDelivery(packet);
         }
       }
