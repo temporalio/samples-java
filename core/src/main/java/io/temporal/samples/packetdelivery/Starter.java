@@ -7,6 +7,7 @@ import io.temporal.client.WorkflowStub;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import java.util.Collections;
 import java.util.List;
 
 public class Starter {
@@ -36,10 +37,13 @@ public class Starter {
     // more
     while (true) {
       sleep(3);
+      // for "fun", reverse the list we get from delivery confirmation list
       List<Packet> packets = workflow.deliveryConfirmationPackets();
       if (packets.isEmpty()) {
         break;
       }
+      // for "fun", reverse the list we get from delivery confirmation list
+      Collections.reverse(packets);
 
       for (Packet p : packets) {
         try {
