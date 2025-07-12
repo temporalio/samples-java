@@ -1,8 +1,10 @@
 package io.temporal.samples.packetdelivery;
 
+import io.temporal.workflow.QueryMethod;
 import io.temporal.workflow.SignalMethod;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
+import java.util.List;
 
 @WorkflowInterface
 public interface PacketDeliveryWorkflow {
@@ -14,4 +16,7 @@ public interface PacketDeliveryWorkflow {
 
   @SignalMethod
   void cancelDelivery(int deliveryId, String reason);
+
+  @QueryMethod
+  List<Packet> deliveryConfirmationPackets();
 }

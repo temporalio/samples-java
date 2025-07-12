@@ -8,10 +8,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
 
 public class PacketDeliveryWorkflowImpl implements PacketDeliveryWorkflow {
-
   private final Map<Integer, PacketDelivery> packetDeliveries = new HashMap<>();
+  private final Logger logger = Workflow.getLogger(this.getClass().getName());
 
   private final PacketDeliveryActivities activities =
       Workflow.newActivityStub(
@@ -47,7 +48,31 @@ public class PacketDeliveryWorkflowImpl implements PacketDeliveryWorkflow {
   @Override
   public void cancelDelivery(int deliveryId, String reason) {
     if (packetDeliveries.containsKey(deliveryId)) {
-      packetDeliveries.get(deliveryId).cancelDelivery(reason);
+      // Only makes sense to cancel if delivery is not done yet
+      if (!packetDeliveries.get(deliveryId).getDelivered().isCompleted()) {
+        logger.info("Sending cancellation for delivery : " + deliveryId + " and reason: " + reason);
+        packetDeliveries.get(deliveryId).cancelDelivery(reason);
+      }
+      logger.info(
+          "Bypassing sending cancellation for delivery : "
+              + deliveryId
+              + " and reason: "
+              + reason
+              + " because delivery already completed");
     }
+  }
+
+  @Override
+  public List<Packet> deliveryConfirmationPackets() {
+    List<Packet> confirmationPackets = new ArrayList<>();
+    packetDeliveries
+        .values()
+        .forEach(
+            p -> {
+              if (p.isNeedDeliveryConfirmation()) {
+                confirmationPackets.add(p.getPacket());
+              }
+            });
+    return confirmationPackets;
   }
 }

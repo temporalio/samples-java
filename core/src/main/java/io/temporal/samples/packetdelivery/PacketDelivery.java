@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 public class PacketDelivery {
   private Packet packet;
   private boolean deliveryConfirmation = false;
+  private boolean needDeliveryConfirmation = false;
   private CompletablePromise delivered = Workflow.newPromise();
   private CancellationScope cancellationScope;
 
@@ -61,6 +62,7 @@ public class PacketDelivery {
                         + " - "
                         + packet.getContent()
                         + " awaiting delivery confirmation");
+                needDeliveryConfirmation = true;
                 Workflow.await(() -> deliveryConfirmation);
                 logger.info(
                     "** Delivery for packet: "
@@ -75,8 +77,9 @@ public class PacketDelivery {
                         + " - "
                         + packet.getContent());
                 deliveryConfirmationResult = activities.completeDelivery(packet);
-                // Reset deliveryConfirmation
+                // Reset deliveryConfirmation and needDeliveryConfirmation
                 deliveryConfirmation = false;
+                needDeliveryConfirmation = false;
               }
             });
 
@@ -93,6 +96,7 @@ public class PacketDelivery {
       // Just for show for example that cancel could come in while we are waiting on approval signal
       // too
       else if (e instanceof CanceledFailure) {
+        needDeliveryConfirmation = false;
         // Run compensation activity and complete
         compensationActivities.compensateDelivery(packet);
       }
@@ -108,5 +112,13 @@ public class PacketDelivery {
     if (cancellationScope != null) {
       cancellationScope.cancel(reason);
     }
+  }
+
+  public boolean isNeedDeliveryConfirmation() {
+    return needDeliveryConfirmation;
+  }
+
+  public Packet getPacket() {
+    return packet;
   }
 }
