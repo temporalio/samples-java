@@ -34,6 +34,7 @@ public class PacketDeliveryWorkflowImpl implements PacketDeliveryWorkflow {
       packetsDelivered.add(delivery.getDelivered());
     }
 
+    // Wait for all packet deliveries to complete
     Promise.allOf(packetsDelivered).get();
     return "completed";
   }
