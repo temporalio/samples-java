@@ -8,3 +8,7 @@ Workflow waits until all packets have been delivered. Each packet delivery path 
 also "cancel" delivery of another item. This is done via signal and cancellation of the 
 CancellationScope. 
 
+2. Start the Sample:
+```bash
+./gradlew -q execute -PmainClass=io.temporal.samples.packetdelivery.Starter
+``

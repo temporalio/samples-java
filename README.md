@@ -108,6 +108,9 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 
 - [**Custom Annotation**](/core/src/main/java/io/temporal/samples/customannotation): Demonstrates how to create a custom annotation using an interceptor.
 
+- [**Asnyc Packet Delivery**](/core/src/main/java/io/temporal/samples/packetdelivery): Demonstrates running multiple execution paths async within single execution.
+
+
 #### API demonstrations
 
 - [**Async Untyped Child Workflow**](/core/src/main/java/io/temporal/samples/asyncuntypedchild): Demonstrates how to invoke an untyped child workflow async, that can complete after parent workflow is already completed.
