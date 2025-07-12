@@ -10,4 +10,6 @@ public interface PacketDeliveryActivities {
   void performDelivery(Packet packet);
 
   String completeDelivery(Packet packet);
+
+  String compensateDelivery(Packet packet);
 }

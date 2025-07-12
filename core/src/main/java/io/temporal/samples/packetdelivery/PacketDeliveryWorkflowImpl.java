@@ -12,12 +12,14 @@ import java.util.Map;
 public class PacketDeliveryWorkflowImpl implements PacketDeliveryWorkflow {
 
   private final Map<Integer, PacketDelivery> packetDeliveries = new HashMap<>();
-  //  private Logger logger = Workflow.getLogger(this.getClass().getName());
 
   private final PacketDeliveryActivities activities =
       Workflow.newActivityStub(
           PacketDeliveryActivities.class,
-          ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(3)).build());
+          ActivityOptions.newBuilder()
+              .setStartToCloseTimeout(Duration.ofSeconds(5))
+              .setHeartbeatTimeout(Duration.ofSeconds(2))
+              .build());
 
   @Override
   public String execute() {
@@ -39,6 +41,13 @@ public class PacketDeliveryWorkflowImpl implements PacketDeliveryWorkflow {
   public void confirmDelivery(int deliveryId) {
     if (packetDeliveries.containsKey(deliveryId)) {
       packetDeliveries.get(deliveryId).confirmDelivery();
+    }
+  }
+
+  @Override
+  public void cancelDelivery(int deliveryId, String reason) {
+    if (packetDeliveries.containsKey(deliveryId)) {
+      packetDeliveries.get(deliveryId).cancelDelivery(reason);
     }
   }
 }

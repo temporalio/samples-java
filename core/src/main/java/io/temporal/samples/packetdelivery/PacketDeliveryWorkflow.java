@@ -11,4 +11,7 @@ public interface PacketDeliveryWorkflow {
 
   @SignalMethod
   void confirmDelivery(int deliveryId);
+
+  @SignalMethod
+  void cancelDelivery(int deliveryId, String reason);
 }

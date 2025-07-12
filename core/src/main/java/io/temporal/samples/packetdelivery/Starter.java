@@ -15,7 +15,7 @@ public class Starter {
     Worker worker = factory.newWorker("packet-delivery-taskqueue");
 
     worker.registerWorkflowImplementationTypes(PacketDeliveryWorkflowImpl.class);
-    worker.registerActivitiesImplementations(new PacketDeliveryActivitiesImpl());
+    worker.registerActivitiesImplementations(new PacketDeliveryActivitiesImpl(client));
 
     factory.start();
 
