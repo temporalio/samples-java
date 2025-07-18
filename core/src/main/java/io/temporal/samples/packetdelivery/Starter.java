@@ -37,7 +37,6 @@ public class Starter {
     // more
     while (true) {
       sleep(3);
-      // for "fun", reverse the list we get from delivery confirmation list
       List<Packet> packets = workflow.deliveryConfirmationPackets();
       if (packets.isEmpty()) {
         break;
