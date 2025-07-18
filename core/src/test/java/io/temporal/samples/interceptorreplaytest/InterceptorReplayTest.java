@@ -35,7 +35,6 @@ public class InterceptorReplayTest {
           .build();
 
   @Test
-  // TODO
   public void testReplayWithInterceptors(TestWorkflowEnvironment testEnv, Worker worker) {
     // Run our test workflow. We need to set workflow id so can get history after
     testEnv.start();
