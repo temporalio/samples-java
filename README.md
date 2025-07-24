@@ -80,7 +80,7 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
     - [**HelloSignalWithTimer**](/core/src/main/java/io/temporal/samples/hello/HelloSignalWithTimer.java): Demonstrates how to use collect signals for certain amount of time and then process last one. 
     - [**HelloWorkflowTimer**](/core/src/main/java/io/temporal/samples/hello/HelloWorkflowTimer.java): Demonstrates how we can use workflow timer to restrict duration of workflow execution instead of workflow run/execution timeouts.
     - [**Auto-Heartbeating**](/core/src/main/java/io/temporal/samples/autoheartbeat/): Demonstrates use of Auto-heartbeating utility via activity interceptor. 
-    - [**HelloSignalWithStartAndWorkflowInit**](/core/src/main/java/io/temporal/samples/hello): Demonstrates how WorkflowInit can be useful with SignalWithStart to initialize workflow variables.
+    - [**HelloSignalWithStartAndWorkflowInit**](/core/src/main/java/io/temporal/samples/hello/HelloSignalWithStartAndWorkflowInit.java): Demonstrates how WorkflowInit can be useful with SignalWithStart to initialize workflow variables.
 
 #### Scenario-based samples
 
