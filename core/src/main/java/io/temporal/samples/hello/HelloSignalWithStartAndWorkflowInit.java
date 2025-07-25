@@ -190,7 +190,7 @@ public class HelloSignalWithStartAndWorkflowInit {
         client.newWorkflowStub(
             MyWorkflowNoInit.class,
             WorkflowOptions.newBuilder()
-                .setWorkflowId("with-init")
+                .setWorkflowId("without-init")
                 .setTaskQueue(TASK_QUEUE)
                 .build());
     WorkflowStub.fromTyped(noInitStub)
