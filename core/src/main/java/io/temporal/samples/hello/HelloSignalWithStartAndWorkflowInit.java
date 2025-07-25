@@ -22,7 +22,6 @@ import org.apache.commons.lang.StringUtils;
  */
 public class HelloSignalWithStartAndWorkflowInit {
   static final String TASK_QUEUE = "HelloWithInitTaskQueue";
-  static final String WORKFLOW_ID = "HelloWithInitWorkflowId";
 
   public interface MyWorkflow {
     @WorkflowMethod
