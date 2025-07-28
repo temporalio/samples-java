@@ -69,7 +69,7 @@ public class HelloSignalWithStartAndWorkflowInitTest {
       fail("Workflow execution should have failed");
     } catch (Exception e) {
       if (!(e instanceof WorkflowFailedException)) {
-        fail("Workflow execution should have failed");
+        fail("Workflow execution should have failed with WorkflowFailedException");
       }
     }
   }
