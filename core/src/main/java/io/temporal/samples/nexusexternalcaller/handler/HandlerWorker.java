@@ -1,6 +1,8 @@
-package io.temporal.samples.nexusmultipleargs.handler;
+package io.temporal.samples.nexusexternalcaller.handler;
 
 import io.temporal.client.WorkflowClient;
+import io.temporal.samples.nexus.handler.HelloHandlerWorkflowImpl;
+import io.temporal.samples.nexus.handler.NexusServiceImpl;
 import io.temporal.samples.nexus.options.ClientOptions;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
