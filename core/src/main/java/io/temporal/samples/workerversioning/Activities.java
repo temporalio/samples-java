@@ -1,5 +1,7 @@
 package io.temporal.samples.workerversioning;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityMethod;
 
@@ -13,30 +15,24 @@ public interface Activities {
   String someIncompatibleActivity(IncompatibleActivityInput input);
 
   class IncompatibleActivityInput {
-    String calledBy;
-    String moreData;
+    private final String calledBy;
+    private final String moreData;
 
-    public IncompatibleActivityInput() {}
-
-    public IncompatibleActivityInput(String calledBy, String moreData) {
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    public IncompatibleActivityInput(
+        @JsonProperty("calledBy") String calledBy, @JsonProperty("moreData") String moreData) {
       this.calledBy = calledBy;
       this.moreData = moreData;
     }
 
+    @JsonProperty("calledBy")
     public String getCalledBy() {
       return calledBy;
     }
 
+    @JsonProperty("moreData")
     public String getMoreData() {
       return moreData;
-    }
-
-    public void setCalledBy(String calledBy) {
-      this.calledBy = calledBy;
-    }
-
-    public void setMoreData(String moreData) {
-      this.moreData = moreData;
     }
   }
 }

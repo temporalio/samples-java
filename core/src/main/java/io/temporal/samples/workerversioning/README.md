@@ -9,7 +9,8 @@ The sample creates multiple worker versions (1.0, 1.1, and 2.0) within one deplo
 
 ## Steps to run this sample:
 
-1) Run a [Temporal service](https://github.com/temporalio/samples-java/tree/main/#how-to-use).
+1) Run a [Temporal service](https://github.com/temporalio/samples-java/tree/main/#how-to-use). And
+   ensure that you're using at least Server version 1.28.0 (CLI version 1.4.0).
 
 2) Start the main application (this will guide you through the sample):
     ```bash
