@@ -18,3 +18,4 @@ target
 .settings/
 bin/
 core/.vscode/
+.claude/
