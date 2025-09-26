@@ -7,7 +7,9 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
 import io.temporal.client.WorkflowUpdateStage;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.serviceclient.WorkflowServiceStubs;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +31,17 @@ public class ClusterManagerWorkflowStarter {
               + " <test continue as new>");
       System.exit(1);
     }
-    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
-    WorkflowClient client = WorkflowClient.newInstance(service);
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
+
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newServiceStubs(profile.toWorkflowServiceStubsOptions());
+    WorkflowClient client = WorkflowClient.newInstance(service, profile.toWorkflowClientOptions());
     boolean shouldTestContinueAsNew = args.length > 0 ? Boolean.parseBoolean(args[0]) : false;
     ClusterManagerWorkflow cluster =
         client.newWorkflowStub(

@@ -3,7 +3,9 @@ package io.temporal.samples.moneybatch;
 import io.temporal.client.BatchRequest;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.serviceclient.WorkflowServiceStubs;
+import java.io.IOException;
 import java.util.Random;
 import java.util.UUID;
 
@@ -16,8 +18,18 @@ public class TransferRequester {
   public static void main(String[] args) {
     String reference = UUID.randomUUID().toString();
     int amountCents = (new Random().nextInt(5) + 1) * 25;
-    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
-    WorkflowClient workflowClient = WorkflowClient.newInstance(service);
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
+
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newServiceStubs(profile.toWorkflowServiceStubsOptions());
+    WorkflowClient workflowClient =
+        WorkflowClient.newInstance(service, profile.toWorkflowClientOptions());
 
     String from = "account1";
     String to = "account2";

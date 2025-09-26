@@ -5,6 +5,7 @@ import io.temporal.client.ActivityCompletionException;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.failure.ActivityFailure;
 import io.temporal.failure.CanceledFailure;
 import io.temporal.failure.ChildWorkflowFailure;
@@ -12,6 +13,7 @@ import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.workflow.*;
+import java.io.IOException;
 import java.time.Duration;
 
 /** Sample shows how to use workflow timer instead of WorkflowOptions->Run/ExecutionTimeout */
@@ -190,10 +192,19 @@ public class HelloWorkflowTimer {
   }
 
   public static void main(String[] args) {
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
+
     // Create service stubs
-    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
-    // Crete workflow client
-    WorkflowClient client = WorkflowClient.newInstance(service);
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newServiceStubs(profile.toWorkflowServiceStubsOptions());
+    // Create workflow client
+    WorkflowClient client = WorkflowClient.newInstance(service, profile.toWorkflowClientOptions());
     // Create worker factory
     WorkerFactory factory = WorkerFactory.newInstance(client);
 

@@ -4,16 +4,27 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowNotFoundException;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 public class Starter {
   public static void main(String[] args) {
-    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
-    WorkflowClient client = WorkflowClient.newInstance(service);
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
+
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newServiceStubs(profile.toWorkflowServiceStubsOptions());
+    WorkflowClient client = WorkflowClient.newInstance(service, profile.toWorkflowClientOptions());
     WorkerFactory factory = WorkerFactory.newInstance(client);
     Worker worker = factory.newWorker("packet-delivery-taskqueue");
 

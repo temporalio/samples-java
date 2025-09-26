@@ -8,22 +8,33 @@ import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowServiceException;
 import io.temporal.common.SearchAttributeKey;
 import io.temporal.common.SearchAttributes;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.serviceclient.OperatorServiceStubs;
 import io.temporal.serviceclient.OperatorServiceStubsOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import java.io.IOException;
 import java.util.Collections;
 
 public class CustomChangeVersionStarter {
   private static SearchAttributeKey<String> CUSTOM_CHANGE_VERSION =
       SearchAttributeKey.forKeyword("CustomChangeVersion");
-  private static final WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
-  private static final WorkflowClient client = WorkflowClient.newInstance(service);
   private static final String taskQueue = "customChangeVersionTaskQueue";
   private static final String workflowId = "CustomChangeVersionWorkflow";
 
   public static void main(String[] args) {
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
+
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newServiceStubs(profile.toWorkflowServiceStubsOptions());
+    WorkflowClient client = WorkflowClient.newInstance(service, profile.toWorkflowClientOptions());
     WorkerFactory workerFactory = WorkerFactory.newInstance(client);
     Worker worker = workerFactory.newWorker(taskQueue);
 

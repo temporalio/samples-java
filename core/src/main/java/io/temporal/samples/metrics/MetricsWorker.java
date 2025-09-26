@@ -8,12 +8,14 @@ import io.micrometer.prometheus.PrometheusConfig;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import io.temporal.client.WorkflowClient;
 import io.temporal.common.reporter.MicrometerClientStatsReporter;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.samples.metrics.activities.MetricsActivitiesImpl;
 import io.temporal.samples.metrics.workflow.MetricsWorkflowImpl;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import java.io.IOException;
 
 public class MetricsWorker {
 
@@ -41,12 +43,22 @@ public class MetricsWorker {
     // Stopping the worker will stop the http server that exposes the
     // scrape endpoint.
     Runtime.getRuntime().addShutdownHook(new Thread(() -> scrapeEndpoint.stop(1)));
-    // Add metrics scope to workflow service stub options
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
+
+    // Add metrics scope to workflow service stub options, preserving env config
     WorkflowServiceStubsOptions stubOptions =
-        WorkflowServiceStubsOptions.newBuilder().setMetricsScope(scope).build();
+        WorkflowServiceStubsOptions.newBuilder(profile.toWorkflowServiceStubsOptions())
+            .setMetricsScope(scope)
+            .build();
 
     WorkflowServiceStubs service = WorkflowServiceStubs.newServiceStubs(stubOptions);
-    WorkflowClient client = WorkflowClient.newInstance(service);
+    WorkflowClient client = WorkflowClient.newInstance(service, profile.toWorkflowClientOptions());
     WorkerFactory factory = WorkerFactory.newInstance(client);
 
     Worker worker = factory.newWorker(DEFAULT_TASK_QUEUE_NAME);

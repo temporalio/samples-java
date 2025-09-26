@@ -2,6 +2,7 @@ package io.temporal.samples.hello;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -10,6 +11,7 @@ import io.temporal.workflow.Promise;
 import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
+import java.io.IOException;
 
 /**
  * Sample Temporal Workflow Definition that demonstrates the execution of a Child Workflow. Child
@@ -105,13 +107,18 @@ public class HelloChild {
    */
   public static void main(String[] args) {
 
-    // Get a Workflow service stub.
-    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
 
-    /*
-     * Get a Workflow service client which can be used to start, Signal, and Query Workflow Executions.
-     */
-    WorkflowClient client = WorkflowClient.newInstance(service);
+    // Get a Workflow service stub.
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newServiceStubs(profile.toWorkflowServiceStubsOptions());
+    WorkflowClient client = WorkflowClient.newInstance(service, profile.toWorkflowClientOptions());
 
     /*
      * Define the worker factory. It is used to create workers for a specific task queue.

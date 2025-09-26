@@ -2,7 +2,9 @@ package io.temporal.samples.earlyreturn;
 
 import io.temporal.api.enums.v1.WorkflowIdConflictPolicy;
 import io.temporal.client.*;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.serviceclient.WorkflowServiceStubs;
+import java.io.IOException;
 
 public class EarlyReturnClient {
   private static final String TASK_QUEUE = "EarlyReturnTaskQueue";
@@ -15,8 +17,17 @@ public class EarlyReturnClient {
 
   // Set up the WorkflowClient
   public static WorkflowClient setupWorkflowClient() {
-    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
-    return WorkflowClient.newInstance(service);
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
+
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newServiceStubs(profile.toWorkflowServiceStubsOptions());
+    return WorkflowClient.newInstance(service, profile.toWorkflowClientOptions());
   }
 
   // Run workflow using 'updateWithStart'

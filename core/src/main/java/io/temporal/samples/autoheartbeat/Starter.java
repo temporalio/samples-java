@@ -22,6 +22,7 @@ package io.temporal.samples.autoheartbeat;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.failure.CanceledFailure;
 import io.temporal.samples.autoheartbeat.activities.AutoActivitiesImpl;
 import io.temporal.samples.autoheartbeat.interceptor.AutoHeartbeatWorkerInterceptor;
@@ -31,14 +32,24 @@ import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.worker.WorkerFactoryOptions;
+import java.io.IOException;
 
 public class Starter {
   static final String TASK_QUEUE = "AutoheartbeatTaskQueue";
   static final String WORKFLOW_ID = "AutoHeartbeatWorkflow";
 
   public static void main(String[] args) {
-    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
-    WorkflowClient client = WorkflowClient.newInstance(service);
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
+
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newServiceStubs(profile.toWorkflowServiceStubsOptions());
+    WorkflowClient client = WorkflowClient.newInstance(service, profile.toWorkflowClientOptions());
 
     // Configure our auto heartbeat workflow interceptor which will apply
     // AutoHeartbeaterUtil to each activity workflow schedules which has a heartbeat
