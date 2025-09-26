@@ -4,6 +4,9 @@ dependencies {
     implementation "io.temporal:temporal-opentracing:$javaSDKVersion"
     testImplementation("io.temporal:temporal-testing:$javaSDKVersion")
 
+    // Environment configuration
+    implementation "io.temporal:temporal-envconfig"
+
     // Needed for SDK related functionality
     implementation(platform("com.fasterxml.jackson:jackson-bom:2.17.2"))
     implementation "com.fasterxml.jackson.core:jackson-databind"
