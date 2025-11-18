@@ -146,6 +146,7 @@ public class Starter {
           break;
         }
       } catch (Exception ignored) {
+        // Exception intentionally ignored
       }
       Thread.sleep(1000);
     }
