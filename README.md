@@ -112,6 +112,9 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 
 - [**Worker Versioning**](/core/src/main/java/io/temporal/samples/workerversioning): Demonstrates how to use worker versioning to manage workflow code changes.
 
+- [**Environment Configuration**](/core/src/main/java/io/temporal/samples/envconfig):
+Load client configuration from TOML files with programmatic overrides.
+
 #### API demonstrations
 
 - [**Async Untyped Child Workflow**](/core/src/main/java/io/temporal/samples/asyncuntypedchild): Demonstrates how to invoke an untyped child workflow async, that can complete after parent workflow is already completed.
