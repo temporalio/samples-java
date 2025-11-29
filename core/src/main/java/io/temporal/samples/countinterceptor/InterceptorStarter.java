@@ -5,6 +5,7 @@ import io.temporal.client.WorkflowClientOptions;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
 import io.temporal.common.interceptors.WorkflowClientInterceptor;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.samples.countinterceptor.activities.MyActivitiesImpl;
 import io.temporal.samples.countinterceptor.workflow.MyChildWorkflowImpl;
 import io.temporal.samples.countinterceptor.workflow.MyWorkflow;
@@ -13,6 +14,7 @@ import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.worker.WorkerFactoryOptions;
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +31,16 @@ public class InterceptorStarter {
     final ClientCounter clientCounter = new ClientCounter();
     final WorkflowClientInterceptor clientInterceptor = new SimpleClientInterceptor(clientCounter);
 
-    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
+
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newServiceStubs(profile.toWorkflowServiceStubsOptions());
     WorkflowClient client =
         WorkflowClient.newInstance(
             service, WorkflowClientOptions.newBuilder().setInterceptors(clientInterceptor).build());

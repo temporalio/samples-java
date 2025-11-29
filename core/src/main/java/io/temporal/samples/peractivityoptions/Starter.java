@@ -5,20 +5,32 @@ import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.common.RetryOptions;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.worker.WorkflowImplementationOptions;
+import java.io.IOException;
 import java.time.Duration;
 
 public class Starter {
 
   public static final String TASK_QUEUE = "perActivityTaskQueue";
-  private static final WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
-  private static final WorkflowClient client = WorkflowClient.newInstance(service);
-  private static final WorkerFactory factory = WorkerFactory.newInstance(client);
 
   public static void main(String[] args) {
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
+
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newServiceStubs(profile.toWorkflowServiceStubsOptions());
+    WorkflowClient client = WorkflowClient.newInstance(service, profile.toWorkflowClientOptions());
+    WorkerFactory factory = WorkerFactory.newInstance(client);
+
     // Create Worker
     Worker worker = factory.newWorker(TASK_QUEUE);
     // Register workflow impl and set the per-activity options

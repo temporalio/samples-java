@@ -2,15 +2,31 @@ package io.temporal.samples.polling.frequent;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.samples.polling.PollingWorkflow;
 import io.temporal.samples.polling.TestService;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import java.io.IOException;
 
 public class FrequentPollingStarter {
-  private static final WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
-  private static final WorkflowClient client = WorkflowClient.newInstance(service);
+  private static WorkflowServiceStubs service;
+  private static WorkflowClient client;
+
+  static {
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
+
+    service = WorkflowServiceStubs.newServiceStubs(profile.toWorkflowServiceStubsOptions());
+    client = WorkflowClient.newInstance(service, profile.toWorkflowClientOptions());
+  }
+
   private static final String taskQueue = "pollingSampleQueue";
   private static final String workflowId = "FrequentPollingSampleWorkflow";
 

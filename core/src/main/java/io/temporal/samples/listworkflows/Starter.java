@@ -6,9 +6,11 @@ import io.temporal.api.workflowservice.v1.ListWorkflowExecutionsRequest;
 import io.temporal.api.workflowservice.v1.ListWorkflowExecutionsResponse;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,11 +19,23 @@ import java.util.concurrent.TimeUnit;
 
 public class Starter {
   public static final String TASK_QUEUE = "customerTaskQueue";
-  private static final WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
-  private static final WorkflowClient client = WorkflowClient.newInstance(service);
-  private static final WorkerFactory factory = WorkerFactory.newInstance(client);
+  private static WorkflowServiceStubs service;
+  private static WorkflowClient client;
+  private static WorkerFactory factory;
 
   public static void main(String[] args) {
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
+
+    service = WorkflowServiceStubs.newServiceStubs(profile.toWorkflowServiceStubsOptions());
+    client = WorkflowClient.newInstance(service, profile.toWorkflowClientOptions());
+    factory = WorkerFactory.newInstance(client);
+
     // create some fake customers
     List<Customer> customers = new ArrayList<>();
     customers.add(new Customer("c1", "John", "john@john.com", "new"));

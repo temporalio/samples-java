@@ -11,6 +11,7 @@ import io.temporal.client.WorkflowFailedException;
 import io.temporal.client.WorkflowNotFoundException;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -18,6 +19,7 @@ import io.temporal.workflow.SignalMethod;
 import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
+import java.io.IOException;
 import java.io.Serializable;
 import java.time.Duration;
 import java.util.ArrayDeque;
@@ -293,14 +295,17 @@ public class HelloAccumulator {
    */
   public static void main(String[] args) throws Exception {
 
-    // Get a Workflow service stub.
-    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
 
-    /*
-     * Get a Workflow service client which can be used to start, Signal, and Query
-     * Workflow Executions.
-     */
-    WorkflowClient client = WorkflowClient.newInstance(service);
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newServiceStubs(profile.toWorkflowServiceStubsOptions());
+    WorkflowClient client = WorkflowClient.newInstance(service, profile.toWorkflowClientOptions());
     client.getWorkflowServiceStubs().healthCheck();
 
     /*

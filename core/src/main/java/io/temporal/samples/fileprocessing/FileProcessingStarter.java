@@ -4,17 +4,28 @@ import static io.temporal.samples.fileprocessing.FileProcessingWorker.TASK_QUEUE
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.serviceclient.WorkflowServiceStubs;
+import java.io.IOException;
 import java.net.URL;
 
 /** Starts a file processing sample workflow. */
 public class FileProcessingStarter {
 
   public static void main(String[] args) throws Exception {
-    // gRPC stubs wrapper that talks to the local docker instance of temporal service.
-    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
+
+    // gRPC stubs wrapper that talks to the temporal service.
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newServiceStubs(profile.toWorkflowServiceStubsOptions());
     // client that can be used to start and signal workflows
-    WorkflowClient client = WorkflowClient.newInstance(service);
+    WorkflowClient client = WorkflowClient.newInstance(service, profile.toWorkflowClientOptions());
     FileProcessingWorkflow workflow =
         client.newWorkflowStub(
             FileProcessingWorkflow.class,

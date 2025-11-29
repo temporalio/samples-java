@@ -5,10 +5,12 @@ import io.temporal.client.WorkflowClientOptions;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.common.converter.CodecDataConverter;
 import io.temporal.common.converter.DefaultDataConverter;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.samples.hello.HelloActivity;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import java.io.IOException;
 import java.util.Collections;
 import software.amazon.cryptography.materialproviders.IKeyring;
 import software.amazon.cryptography.materialproviders.MaterialProviders;
@@ -36,7 +38,16 @@ public class EncryptedPayloads {
         CreateAwsKmsMultiKeyringInput.builder().generator(generatorKey).build();
     final IKeyring kmsKeyring = materialProviders.CreateAwsKmsMultiKeyring(keyringInput);
     // gRPC stubs wrapper that talks to the local docker instance of temporal service.
-    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
+
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newServiceStubs(profile.toWorkflowServiceStubsOptions());
     // client that can be used to start and signal workflows
     WorkflowClient client =
         WorkflowClient.newInstance(

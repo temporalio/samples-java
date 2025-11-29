@@ -3,10 +3,12 @@ package io.temporal.samples.apikey;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import java.io.IOException;
 
 public class Starter {
 
@@ -14,6 +16,14 @@ public class Starter {
   static final String WORKFLOW_ID = "HelloAPIKeyWorkflow";
 
   public static void main(String[] args) throws Exception {
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
+
     // For temporal cloud this would be ${cloud-region}.{cloud}.api.temporal.io:7233
     // Example us-east-1.aws.api.temporal.io:7233
     String targetEndpoint = System.getenv("TEMPORAL_ENDPOINT");
@@ -27,10 +37,10 @@ public class Starter {
           "TEMPORAL_ENDPOINT, TEMPORAL_NAMESPACE, and TEMPORAL_API_KEY environment variables must be set");
     }
 
-    // Create API Key enabled client
+    // Create API Key enabled client with environment config as base
     WorkflowServiceStubs service =
         WorkflowServiceStubs.newServiceStubs(
-            WorkflowServiceStubsOptions.newBuilder()
+            WorkflowServiceStubsOptions.newBuilder(profile.toWorkflowServiceStubsOptions())
                 .setTarget(targetEndpoint)
                 .setEnableHttps(true)
                 .addApiKey(() -> apiKey)
@@ -38,7 +48,10 @@ public class Starter {
 
     WorkflowClient client =
         WorkflowClient.newInstance(
-            service, WorkflowClientOptions.newBuilder().setNamespace(namespace).build());
+            service,
+            WorkflowClientOptions.newBuilder(profile.toWorkflowClientOptions())
+                .setNamespace(namespace)
+                .build());
 
     WorkerFactory factory = WorkerFactory.newInstance(client);
 

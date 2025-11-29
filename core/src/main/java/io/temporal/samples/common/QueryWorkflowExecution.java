@@ -3,7 +3,9 @@ package io.temporal.samples.common;
 import io.temporal.api.common.v1.WorkflowExecution;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowStub;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.serviceclient.WorkflowServiceStubs;
+import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -27,9 +29,18 @@ public class QueryWorkflowExecution {
     String runId = args.length == 3 ? args[2] : "";
 
     // gRPC stubs wrapper that talks to the local docker instance of temporal service.
-    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
 
-    WorkflowClient client = WorkflowClient.newInstance(service);
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newServiceStubs(profile.toWorkflowServiceStubsOptions());
+
+    WorkflowClient client = WorkflowClient.newInstance(service, profile.toWorkflowClientOptions());
 
     WorkflowExecution workflowExecution =
         WorkflowExecution.newBuilder().setWorkflowId(workflowId).setRunId(runId).build();
