@@ -3,6 +3,7 @@ package io.temporal.samples.excludefrominterceptor;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.samples.excludefrominterceptor.activities.ForInterceptorActivitiesImpl;
 import io.temporal.samples.excludefrominterceptor.activities.MyActivitiesImpl;
 import io.temporal.samples.excludefrominterceptor.interceptor.MyWorkerInterceptor;
@@ -11,13 +12,23 @@ import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import io.temporal.worker.WorkerFactoryOptions;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 
 public class RunMyWorkflows {
   public static void main(String[] args) {
-    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
-    WorkflowClient client = WorkflowClient.newInstance(service);
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
+
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newServiceStubs(profile.toWorkflowServiceStubsOptions());
+    WorkflowClient client = WorkflowClient.newInstance(service, profile.toWorkflowClientOptions());
 
     WorkerFactoryOptions wfo =
         WorkerFactoryOptions.newBuilder()

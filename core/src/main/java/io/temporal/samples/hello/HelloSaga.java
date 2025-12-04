@@ -5,6 +5,7 @@ import io.temporal.activity.ActivityMethod;
 import io.temporal.activity.ActivityOptions;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -14,6 +15,7 @@ import io.temporal.workflow.Saga;
 import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
+import java.io.IOException;
 import java.time.Duration;
 
 /**
@@ -258,13 +260,18 @@ public class HelloSaga {
    */
   public static void main(String[] args) {
 
-    // Define the workflow service.
-    WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
 
-    /*
-     * Get a Workflow service client which can be used to start, Signal, and Query Workflow Executions.
-     */
-    WorkflowClient client = WorkflowClient.newInstance(service);
+    // Define the workflow service.
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newServiceStubs(profile.toWorkflowServiceStubsOptions());
+    WorkflowClient client = WorkflowClient.newInstance(service, profile.toWorkflowClientOptions());
 
     /*
      * Define the workflow factory. It is used to create workflow workers for a specific task queue.

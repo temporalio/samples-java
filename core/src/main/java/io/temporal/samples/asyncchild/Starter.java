@@ -6,20 +6,32 @@ import io.temporal.api.workflowservice.v1.DescribeWorkflowExecutionRequest;
 import io.temporal.api.workflowservice.v1.DescribeWorkflowExecutionResponse;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 public class Starter {
 
   public static final String TASK_QUEUE = "asyncChildTaskQueue";
-  private static final WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
-  private static final WorkflowClient client = WorkflowClient.newInstance(service);
-  private static final WorkerFactory factory = WorkerFactory.newInstance(client);
 
   public static void main(String[] args) {
-    createWorker();
+    // Load configuration from environment and files
+    ClientConfigProfile profile;
+    try {
+      profile = ClientConfigProfile.load();
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to load client configuration", e);
+    }
+
+    WorkflowServiceStubs service =
+        WorkflowServiceStubs.newServiceStubs(profile.toWorkflowServiceStubsOptions());
+    WorkflowClient client = WorkflowClient.newInstance(service, profile.toWorkflowClientOptions());
+    WorkerFactory factory = WorkerFactory.newInstance(client);
+
+    createWorker(factory);
 
     WorkflowOptions parentWorkflowOptions =
         WorkflowOptions.newBuilder()
@@ -33,25 +45,28 @@ public class Starter {
     WorkflowExecution childWorkflowExecution = parentWorkflowStub.executeParent();
 
     // Get the child workflow execution status (after parent completed)
-    System.out.println("Child execution status: " + getStatusAsString(childWorkflowExecution));
+    System.out.println(
+        "Child execution status: " + getStatusAsString(childWorkflowExecution, client, service));
 
     // Wait for child workflow to complete
     sleep(4);
 
     // Check the status of the child workflow again
-    System.out.println("Child execution status: " + getStatusAsString(childWorkflowExecution));
+    System.out.println(
+        "Child execution status: " + getStatusAsString(childWorkflowExecution, client, service));
 
     System.exit(0);
   }
 
-  private static void createWorker() {
+  private static void createWorker(WorkerFactory factory) {
     Worker worker = factory.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(ParentWorkflowImpl.class, ChildWorkflowImpl.class);
 
     factory.start();
   }
 
-  private static String getStatusAsString(WorkflowExecution execution) {
+  private static String getStatusAsString(
+      WorkflowExecution execution, WorkflowClient client, WorkflowServiceStubs service) {
     DescribeWorkflowExecutionRequest describeWorkflowExecutionRequest =
         DescribeWorkflowExecutionRequest.newBuilder()
             .setNamespace(client.getOptions().getNamespace())
