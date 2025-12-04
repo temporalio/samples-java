@@ -11,7 +11,7 @@ dependencies {
     implementation "io.temporal:temporal-spring-boot-starter:$javaSDKVersion"
 
     // Environment configuration
-    implementation "io.temporal:temporal-envconfig"
+    implementation "io.temporal:temporal-envconfig:$javaSDKVersion"
     implementation "org.apache.camel.springboot:camel-spring-boot-starter:$camelVersion"
     implementation "org.apache.camel.springboot:camel-servlet-starter:$camelVersion"
     runtimeOnly "io.micrometer:micrometer-registry-prometheus"
