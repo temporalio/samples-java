@@ -146,6 +146,7 @@ public class Starter {
           break;
         }
       } catch (Exception ignored) {
+        System.out.println("Worker deployment not found yet, retrying...");
       }
       Thread.sleep(1000);
     }

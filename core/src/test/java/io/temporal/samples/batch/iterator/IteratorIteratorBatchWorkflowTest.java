@@ -15,7 +15,8 @@ public class IteratorIteratorBatchWorkflowTest {
   /** The sample RecordLoaderImpl always returns the fixed number pages. */
   private static boolean[] processedRecords = new boolean[PAGE_SIZE * PAGE_COUNT];
 
-  public static class TestRecordProcessorWorkflowImpl implements RecordProcessorWorkflow {
+  public static class TestSingleListingMigrationWorkflowImpl
+      implements SingleListingMigrationWorkflow {
 
     @Override
     public void processRecord(SingleRecord r) {
@@ -27,7 +28,8 @@ public class IteratorIteratorBatchWorkflowTest {
   @Rule
   public TestWorkflowRule testWorkflowRule =
       TestWorkflowRule.newBuilder()
-          .setWorkflowTypes(IteratorBatchWorkflowImpl.class, TestRecordProcessorWorkflowImpl.class)
+          .setWorkflowTypes(
+              IteratorBatchWorkflowImpl.class, TestSingleListingMigrationWorkflowImpl.class)
           .setActivityImplementations(new RecordLoaderImpl())
           .build();
 

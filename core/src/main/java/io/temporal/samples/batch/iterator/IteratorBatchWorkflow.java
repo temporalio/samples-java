@@ -2,6 +2,7 @@ package io.temporal.samples.batch.iterator;
 
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
+import java.util.List;
 
 @WorkflowInterface
 public interface IteratorBatchWorkflow {
@@ -14,5 +15,5 @@ public interface IteratorBatchWorkflow {
    * @return total number of processed records.
    */
   @WorkflowMethod
-  int processBatch(int pageSize, int offset);
+  List<SingleResponse> processBatch(int pageSize, int offset);
 }

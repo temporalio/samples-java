@@ -21,7 +21,9 @@ public final class IteratorBatchWorker {
     Worker worker = factory.newWorker(TASK_QUEUE);
 
     worker.registerWorkflowImplementationTypes(
-        IteratorBatchWorkflowImpl.class, RecordProcessorWorkflowImpl.class);
+        IteratorBatchWorkflowImpl.class,
+        SingleListingMigrationWorkflowImpl.class,
+        ListingMigrationWorkflowImpl.class);
 
     worker.registerActivitiesImplementations(new RecordLoaderImpl());
     factory.start();

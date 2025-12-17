@@ -5,19 +5,16 @@ import static io.temporal.samples.batch.iterator.IteratorBatchWorker.TASK_QUEUE;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
-import java.util.List;
 
-/** Starts a single execution of IteratorBatchWorkflow. */
-public class IteratorBatchStarter {
+public class ListingMigrationStarter {
 
   public static void main(String[] args) {
     WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
     WorkflowClient workflowClient = WorkflowClient.newInstance(service);
     WorkflowOptions options = WorkflowOptions.newBuilder().setTaskQueue(TASK_QUEUE).build();
-    IteratorBatchWorkflow batchWorkflow =
-        workflowClient.newWorkflowStub(IteratorBatchWorkflow.class, options);
-    List<SingleResponse> responses = batchWorkflow.processBatch(100, 0);
-    System.out.println("Responses=" + responses.toString());
+    ListingMigrationWorkflow migrationWorkflow =
+        workflowClient.newWorkflowStub(ListingMigrationWorkflow.class, options);
+    migrationWorkflow.execute();
     System.exit(0);
   }
 }

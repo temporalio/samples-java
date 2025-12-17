@@ -31,19 +31,19 @@ public final class IteratorBatchWorkflowImpl implements IteratorBatchWorkflow {
       Workflow.newContinueAsNewStub(IteratorBatchWorkflow.class);
 
   @Override
-  public int processBatch(int pageSize, int offset) {
+  public List<SingleResponse> processBatch(int pageSize, int offset) {
     // Loads a page of records
     List<SingleRecord> records = recordLoader.getRecords(pageSize, offset);
     // Starts a child per record asynchrnously.
-    List<Promise<Void>> results = new ArrayList<>(records.size());
+    List<Promise<SingleResponse>> results = new ArrayList<>(records.size());
     for (SingleRecord record : records) {
       // Uses human friendly child id.
       String childId = Workflow.getInfo().getWorkflowId() + "/" + record.getId();
-      RecordProcessorWorkflow processor =
+      SingleListingMigrationWorkflow processor =
           Workflow.newChildWorkflowStub(
-              RecordProcessorWorkflow.class,
+              SingleListingMigrationWorkflow.class,
               ChildWorkflowOptions.newBuilder().setWorkflowId(childId).build());
-      Promise<Void> result = Async.procedure(processor::processRecord, record);
+      Promise<SingleResponse> result = Async.function(processor::processRecord, record);
       results.add(result);
     }
     // Waits for all children to complete.
@@ -54,7 +54,7 @@ public final class IteratorBatchWorkflowImpl implements IteratorBatchWorkflow {
 
     // No more records in the dataset. Completes the workflow.
     if (records.isEmpty()) {
-      return offset;
+      return List.of();
     }
 
     // Continues as new with the increased offset.
