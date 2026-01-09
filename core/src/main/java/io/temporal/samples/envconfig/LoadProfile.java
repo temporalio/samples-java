@@ -1,8 +1,6 @@
 package io.temporal.samples.envconfig;
 
-/**
- * @@@SNIPSTART java-env-config-profile-with-overrides
- */
+// @@@SNIPSTART java-env-config-profile-with-overrides
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
 import io.temporal.envconfig.ClientConfigProfile;
@@ -88,6 +86,4 @@ public class LoadProfile {
     }
   }
 }
-/**
- * @@@SNIPEND
- */
+// @@@SNIPEND

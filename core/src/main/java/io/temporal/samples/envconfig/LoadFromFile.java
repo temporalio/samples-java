@@ -1,8 +1,6 @@
 package io.temporal.samples.envconfig;
 
-/**
- * @@@SNIPSTART java-env-config-profile
- */
+// @@@SNIPSTART java-env-config-profile
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
 import io.temporal.envconfig.ClientConfigProfile;
@@ -80,6 +78,4 @@ public class LoadFromFile {
     }
   }
 }
-/**
- * @@@SNIPEND
- */
+// @@@SNIPEND
