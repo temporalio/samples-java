@@ -95,3 +95,8 @@ Prometheus: http://localhost:9093/
 Go to:
 Status → Targets (make sure the scrape target is UP)
 Graph tab (search for Temporal metrics and run a query)
+
+## 8) Ran the sample and view the cloud metrics 
+
+- `./gradlew -q execute -PmainClass=io.temporal.samples.temporalcloudopenmetrics.WorkerMain`
+- `./gradlew -q execute -PmainClass=io.temporal.samples.temporalcloudopenmetrics.Starter`
