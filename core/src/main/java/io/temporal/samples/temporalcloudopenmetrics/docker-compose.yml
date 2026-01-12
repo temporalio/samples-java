@@ -1,0 +1,37 @@
+services:
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - temporal_network
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:v2.37.0
+    command:
+      - --web.enable-remote-write-receiver
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - "9093:9090"   # host port changed to avoid conflicts
+    volumes:
+      - type: bind
+        source: ./prometheus/config.yml
+        target: /etc/prometheus/prometheus.yml
+      - type: bind
+        source: ./secrets/temporal_cloud_api_key
+        target: /etc/prometheus/temporal_cloud_api_key
+        read_only: true
+    networks:
+      - temporal_network
+
+networks:
+  temporal_network:
+    driver: bridge
+    name: temporal_network

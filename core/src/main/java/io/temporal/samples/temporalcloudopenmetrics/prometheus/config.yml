@@ -1,0 +1,9 @@
+scrape_configs:
+  - job_name: 'temporal-cloud-metrics'
+    metrics_path: '/v1/metrics'
+    scheme: https
+    static_configs:
+      - targets: ['metrics.temporal.io']
+    params:
+      namespaces: [ 'namespace.account-id' ]
+    bearer_token_file: /etc/prometheus/temporal_cloud_api_key
