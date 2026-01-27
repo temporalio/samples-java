@@ -5,9 +5,6 @@ import com.uber.m3.tally.RootScopeBuilder;
 import com.uber.m3.tally.Scope;
 import com.uber.m3.tally.StatsReporter;
 import com.uber.m3.util.Duration;
-import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
-import io.grpc.netty.shaded.io.netty.handler.ssl.SslContext;
-import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
 import io.micrometer.prometheus.PrometheusConfig;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
 import io.temporal.client.WorkflowClient;
@@ -15,8 +12,6 @@ import io.temporal.client.WorkflowClientOptions;
 import io.temporal.common.reporter.MicrometerClientStatsReporter;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -24,69 +19,63 @@ import java.nio.charset.StandardCharsets;
 public final class TemporalConnection {
   private TemporalConnection() {}
 
-  // Read from environment (docker-compose env_file: .env)
-  public static final String NAMESPACE = env("TEMPORAL_NAMESPACE", "<namespace>.<account-id>");
-  public static final String ADDRESS =
-      env("TEMPORAL_ADDRESS", "<namespace>.<account-id>.tmprl.cloud:7233");
-  public static final String CERT =
-      env("TEMPORAL_CERT", "path/to/client.pem");
-  public static final String KEY =
-      env("TEMPORAL_KEY", "path/to/client.key");
+  // Required: MUST be set in env. No defaults.
+  public static final String NAMESPACE = envRequired("TEMPORAL_NAMESPACE");
+  public static final String ADDRESS = envRequired("TEMPORAL_ADDRESS");
   public static final String TASK_QUEUE = env("TASK_QUEUE", "openmetrics-task-queue");
+
   private static final int METRICS_PORT = envInt("METRICS_PORT", 9464);
   private static final int METRICS_REPORT_SECONDS = envInt("METRICS_REPORT_SECONDS", 10);
 
   private static volatile WorkflowClient CLIENT;
-  private static volatile WorkflowServiceStubs SERVICE;
-
-  private static volatile boolean METRICS_STARTED = false;
-  private static volatile PrometheusMeterRegistry PROM_REGISTRY;
+  private static volatile PrometheusMeterRegistry PROM;
+  private static volatile boolean METRICS_STARTED;
 
   public static WorkflowClient client() {
     if (CLIENT != null) return CLIENT;
     synchronized (TemporalConnection.class) {
       if (CLIENT != null) return CLIENT;
 
-      SERVICE = serviceStubs();
+      String apiKey = envRequired("TEMPORAL_API_KEY");
+
+      // Validation
+      validate();
+      System.out.println("TemporalConnection: ADDRESS=" + ADDRESS);
+      System.out.println("TemporalConnection: NAMESPACE=" + NAMESPACE);
+
+      Scope scope = metricsScope();
+
+      WorkflowServiceStubs service =
+          WorkflowServiceStubs.newServiceStubs(
+              WorkflowServiceStubsOptions.newBuilder()
+                  .setTarget(ADDRESS)
+                  .setEnableHttps(true)
+                  .addApiKey(() -> apiKey)
+                  .setMetricsScope(scope)
+                  .build());
+
       CLIENT =
           WorkflowClient.newInstance(
-              SERVICE, WorkflowClientOptions.newBuilder().setNamespace(NAMESPACE).build());
+              service, WorkflowClientOptions.newBuilder().setNamespace(NAMESPACE).build());
+
       return CLIENT;
     }
   }
 
-  // create service stubs used by worker + starter
-  private static WorkflowServiceStubs serviceStubs() {
-    try (InputStream clientCert = new FileInputStream(CERT);
-        InputStream clientKey = new FileInputStream(KEY)) {
-
-      SslContext sslContext =
-          GrpcSslContexts.configure(SslContextBuilder.forClient().keyManager(clientCert, clientKey))
-              .build();
-
-      Scope metricsScope = metricsScope(); // ✅ tally scope that writes into Prometheus registry
-
-      WorkflowServiceStubsOptions options =
-          WorkflowServiceStubsOptions.newBuilder()
-              .setTarget(ADDRESS)
-              .setSslContext(sslContext)
-              .setMetricsScope(metricsScope) // ✅ Temporal SDK emits metrics here
-              .build();
-
-      return WorkflowServiceStubs.newServiceStubs(options);
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to create Temporal TLS connection", e);
+  private static void validate() {
+    if (NAMESPACE.isBlank()) {
+      throw new IllegalStateException("TEMPORAL_NAMESPACE must be set (non-blank).");
+    }
+    if (ADDRESS.isBlank()) {
+      throw new IllegalStateException("TEMPORAL_ADDRESS must be set (non-blank).");
     }
   }
 
   private static Scope metricsScope() {
     synchronized (TemporalConnection.class) {
-      if (PROM_REGISTRY == null) {
-        PROM_REGISTRY = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
-      }
+      if (PROM == null) PROM = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
 
-      StatsReporter reporter = new MicrometerClientStatsReporter(PROM_REGISTRY);
-
+      StatsReporter reporter = new MicrometerClientStatsReporter(PROM);
       Scope scope =
           new RootScopeBuilder()
               .reporter(reporter)
@@ -94,9 +83,8 @@ public final class TemporalConnection {
 
       if (!METRICS_STARTED) {
         METRICS_STARTED = true;
-        startMetricsHttpServer(PROM_REGISTRY);
+        startMetricsHttpServer(PROM);
       }
-
       return scope;
     }
   }
@@ -116,9 +104,8 @@ public final class TemporalConnection {
               os.write(body);
             }
           });
-      server.setExecutor(null);
       server.start();
-      System.out.println("Worker metrics exposed at http://0.0.0.0:" + METRICS_PORT + "/metrics");
+      System.out.println("Worker metrics at http://0.0.0.0:" + METRICS_PORT + "/metrics");
     } catch (Exception e) {
       throw new RuntimeException("Failed to start /metrics endpoint", e);
     }
@@ -126,7 +113,15 @@ public final class TemporalConnection {
 
   private static String env(String key, String def) {
     String v = System.getenv(key);
-    return (v == null || v.isBlank()) ? def : v;
+    return (v == null || v.isBlank()) ? def : v.trim();
+  }
+
+  private static String envRequired(String key) {
+    String v = System.getenv(key);
+    if (v == null || v.isBlank()) {
+      throw new IllegalStateException("Missing required env var: " + key);
+    }
+    return v.trim();
   }
 
   private static int envInt(String key, int def) {
