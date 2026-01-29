@@ -25,7 +25,7 @@ jobs:
 
     - name: Run unit tests
       run: |
-        docker compose -f ./docker/github/docker-compose.yaml up unit-test
+        docker compose -f ./docker/github/docker-compose.yaml up --exit-code-from unit-test unit-test
 
   code_format:
     name:  Code format
