@@ -8,6 +8,7 @@ import io.temporal.nexus.Nexus;
 import io.temporal.nexus.WorkflowRunOperation;
 import io.temporal.samples.nexus.handler.HelloHandlerWorkflow;
 import io.temporal.samples.nexus.service.NexusService;
+import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -52,14 +53,18 @@ public class NexusServiceImpl {
                         HelloHandlerWorkflow.class,
                         // Workflow IDs should typically be business meaningful IDs and are used to
                         // dedupe workflow starts.
-                        // For this example, we're using the request ID allocated by Temporal when
-                        // the
-                        // caller workflow schedules
-                        // the operation, this ID is guaranteed to be stable across retries of this
-                        // operation.
+                        // For this example, tie the workflow ID to the customer being greeted so
+                        // that
+                        // repeated operations for the same customer run on the same workflow.
                         //
                         // Task queue defaults to the task queue this operation is handled on.
-                        WorkflowOptions.newBuilder().setWorkflowId(details.getRequestId()).build())
+                        WorkflowOptions.newBuilder()
+                            .setWorkflowId(
+                                String.format(
+                                    "hello-%s-%s",
+                                    input.getName(),
+                                    input.getLanguage().name().toLowerCase(Locale.ROOT)))
+                            .build())
                 ::hello);
   }
 }
