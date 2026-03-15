@@ -1,0 +1,62 @@
+version: 1
+language: java
+scaffold:
+  build.gradle: |
+    plugins { id 'java' }
+    repositories { mavenCentral() }
+    java { sourceCompatibility = JavaVersion.VERSION_11 }
+    dependencies {
+        implementation "io.temporal:temporal-sdk:{{sdk_version}}"
+        implementation "io.temporal:temporal-envconfig:{{sdk_version}}"
+        implementation "ch.qos.logback:logback-classic:1.5.6"
+        implementation "commons-lang:commons-lang:2.6"
+    }
+    task execute(type: JavaExec) {
+        mainClass = findProperty("mainClass") ?: ""
+        classpath = sourceSets.main.runtimeClasspath
+    }
+root_files:
+  - gradlew
+  - gradlew.bat
+  - gradle/
+samples:
+  - path: core/src/main/java/io/temporal/samples/hello
+    dest: src/main/java/io/temporal/samples/hello
+    description: Single-file hello world samples demonstrating core SDK features
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/nexus
+    dest: src/main/java/io/temporal/samples/nexus
+    description: Nexus service definition and operation handlers
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/nexuscancellation
+    dest: src/main/java/io/temporal/samples/nexuscancellation
+    description: Cancel a Nexus operation using WaitRequested cancellation
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/nexuscontextpropagation
+    dest: src/main/java/io/temporal/samples/nexuscontextpropagation
+    description: Propagate MDC context from Workflows to Nexus operations
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/nexusmultipleargs
+    dest: src/main/java/io/temporal/samples/nexusmultipleargs
+    description: Map a Nexus operation to a workflow with multiple input arguments
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/bookingsaga
+    dest: src/main/java/io/temporal/samples/bookingsaga
+    description: Trip booking Saga pattern with compensation
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/moneytransfer
+    dest: src/main/java/io/temporal/samples/moneytransfer
+    description: Separate processes for workflows, activities, and transfer requests
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/dsl
+    dest: src/main/java/io/temporal/samples/dsl
+    description: DSL-driven workflow steps defined in JSON
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/fileprocessing
+    dest: src/main/java/io/temporal/samples/fileprocessing
+    description: Route tasks to specific Workers for host-local download/process/upload
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/encryptedpayloads
+    dest: src/main/java/io/temporal/samples/encryptedpayloads
+    description: End-to-end payload encryption
+    sdk_version: "1.32.1"
