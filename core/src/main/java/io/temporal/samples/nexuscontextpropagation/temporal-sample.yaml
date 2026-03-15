@@ -1,0 +1,2 @@
+description: Propagate MDC context from Workflows to Nexus operations
+sdk_version: "1.32.1"
