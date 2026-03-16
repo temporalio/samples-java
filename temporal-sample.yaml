@@ -43,6 +43,9 @@ samples:
     dest: src/main/java/io/temporal/samples/nexuscancellation
     description: Cancel a Nexus operation using WaitRequested cancellation
     sdk_version: "1.32.1"
+    include:
+      - path: core/src/main/java/io/temporal/samples/nexus
+        dest: src/main/java/io/temporal/samples/nexus
     commands:
       - cmd: "temporal operator namespace create --namespace my-target-namespace"
       - cmd: "temporal operator namespace create --namespace my-caller-namespace"
@@ -56,6 +59,9 @@ samples:
     dest: src/main/java/io/temporal/samples/nexuscontextpropagation
     description: Propagate MDC context from Workflows to Nexus operations
     sdk_version: "1.32.1"
+    include:
+      - path: core/src/main/java/io/temporal/samples/nexus
+        dest: src/main/java/io/temporal/samples/nexus
     commands:
       - cmd: "temporal operator namespace create --namespace my-target-namespace"
       - cmd: "temporal operator namespace create --namespace my-caller-namespace"
@@ -69,6 +75,9 @@ samples:
     dest: src/main/java/io/temporal/samples/nexusmultipleargs
     description: Map a Nexus operation to a workflow with multiple input arguments
     sdk_version: "1.32.1"
+    include:
+      - path: core/src/main/java/io/temporal/samples/nexus
+        dest: src/main/java/io/temporal/samples/nexus
     commands:
       - cmd: "temporal operator namespace create --namespace my-target-namespace"
       - cmd: "temporal operator namespace create --namespace my-caller-namespace"
