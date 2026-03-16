@@ -60,3 +60,123 @@ samples:
     dest: src/main/java/io/temporal/samples/encryptedpayloads
     description: End-to-end payload encryption
     sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/apikey
+    dest: src/main/java/io/temporal/samples/apikey
+    description: Connect to Temporal using API key authentication
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/asyncchild
+    dest: src/main/java/io/temporal/samples/asyncchild
+    description: Invoke a Child Workflow asynchronously outliving the parent
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/asyncuntypedchild
+    dest: src/main/java/io/temporal/samples/asyncuntypedchild
+    description: Invoke an untyped Child Workflow asynchronously outliving the parent
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/autoheartbeat
+    dest: src/main/java/io/temporal/samples/autoheartbeat
+    description: Auto-heartbeating interceptor for long-running activities
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/batch
+    dest: src/main/java/io/temporal/samples/batch
+    description: Batch processing patterns using sliding window, iterator, and heartbeating
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/bookingsyncsaga
+    dest: src/main/java/io/temporal/samples/bookingsyncsaga
+    description: Synchronous trip booking Saga with early client unblock via update
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/countinterceptor
+    dest: src/main/java/io/temporal/samples/countinterceptor
+    description: Worker and client interceptors that count executions, signals, and queries
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/customannotation
+    dest: src/main/java/io/temporal/samples/customannotation
+    description: Custom annotation via interceptor to mark exceptions as benign
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/customchangeversion
+    dest: src/main/java/io/temporal/samples/customchangeversion
+    description: Upsert a custom search attribute when adding workflow version changes
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/earlyreturn
+    dest: src/main/java/io/temporal/samples/earlyreturn
+    description: Early return from a workflow using Update-with-Start
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/encodefailures
+    dest: src/main/java/io/temporal/samples/encodefailures
+    description: Encode and decode failure messages using a payload codec
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/envconfig
+    dest: src/main/java/io/temporal/samples/envconfig
+    description: Configure the Temporal client from TOML configuration files
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/excludefrominterceptor
+    dest: src/main/java/io/temporal/samples/excludefrominterceptor
+    description: Exclude specific workflow and activity types from interceptors
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/getresultsasync
+    dest: src/main/java/io/temporal/samples/getresultsasync
+    description: Get workflow results asynchronously using getResultAsync
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/keymanagementencryption
+    dest: src/main/java/io/temporal/samples/keymanagementencryption
+    description: Payload encryption using the AWS Encryption SDK with KMS keyrings
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/listworkflows
+    dest: src/main/java/io/temporal/samples/listworkflows
+    description: List workflow executions using custom search attributes
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/metrics
+    dest: src/main/java/io/temporal/samples/metrics
+    description: Set up SDK metrics with a Prometheus scrape endpoint
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/moneybatch
+    dest: src/main/java/io/temporal/samples/moneybatch
+    description: Batch multiple withdrawals into a single deposit using signal-with-start
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/packetdelivery
+    dest: src/main/java/io/temporal/samples/packetdelivery
+    description: Parallel async packet deliveries with per-item cancellation support
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/payloadconverter
+    dest: src/main/java/io/temporal/samples/payloadconverter
+    description: Custom payload converters for crypto and CloudEvents serialization
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/peractivityoptions
+    dest: src/main/java/io/temporal/samples/peractivityoptions
+    description: Set per-activity-type options via WorkflowImplementationOptions
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/polling
+    dest: src/main/java/io/temporal/samples/polling
+    description: Polling patterns for frequent, infrequent, and periodic activity execution
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/retryonsignalinterceptor
+    dest: src/main/java/io/temporal/samples/retryonsignalinterceptor
+    description: Interceptor that waits for a signal to retry or fail an activity
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/safemessagepassing
+    dest: src/main/java/io/temporal/samples/safemessagepassing
+    description: Safe signal and update handling with locking and continue-as-new
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/sleepfordays
+    dest: src/main/java/io/temporal/samples/sleepfordays
+    description: Workflow that periodically sleeps for days between actions
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/ssl
+    dest: src/main/java/io/temporal/samples/ssl
+    description: Connect to Temporal using mTLS authentication
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/terminateworkflow
+    dest: src/main/java/io/temporal/samples/terminateworkflow
+    description: Terminate a workflow execution using the client API
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/tracing
+    dest: src/main/java/io/temporal/samples/tracing
+    description: Distributed tracing with OpenTracing and OpenTelemetry via Jaeger
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/updatabletimer
+    dest: src/main/java/io/temporal/samples/updatabletimer
+    description: Blocking sleep that can be updated via signal at any time
+    sdk_version: "1.32.1"
+  - path: core/src/main/java/io/temporal/samples/workerversioning
+    dest: src/main/java/io/temporal/samples/workerversioning
+    description: Worker Versioning with auto-upgrading and pinned workflow deployments
+    sdk_version: "1.32.1"
