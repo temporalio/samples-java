@@ -10,6 +10,7 @@ scaffold:
         implementation "io.temporal:temporal-envconfig:{{sdk_version}}"
         implementation "ch.qos.logback:logback-classic:1.5.6"
         implementation "commons-lang:commons-lang:2.6"
+        implementation "commons-cli:commons-cli:1.9.0"
     }
     task execute(type: JavaExec) {
         mainClass = findProperty("mainClass") ?: ""
