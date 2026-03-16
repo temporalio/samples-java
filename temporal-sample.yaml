@@ -46,7 +46,7 @@ samples:
     commands:
       - cmd: "temporal operator namespace create --namespace my-target-namespace"
       - cmd: "temporal operator namespace create --namespace my-caller-namespace"
-      - cmd: "temporal operator nexus endpoint create --name my-nexus-endpoint-name --target-namespace my-target-namespace --target-task-queue my-handler-task-queue --description-file ./src/main/java/io/temporal/samples/nexus/service/description.md"
+      - cmd: "temporal operator nexus endpoint create --name my-nexus-endpoint-name --target-namespace my-target-namespace --target-task-queue my-handler-task-queue"
       - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.nexuscancellation.handler.HandlerWorker --args=\"-target-host localhost:7233 -namespace my-target-namespace\""
       - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.nexuscancellation.caller.CallerWorker --args=\"-target-host localhost:7233 -namespace my-caller-namespace\""
         new_terminal: true
@@ -59,7 +59,7 @@ samples:
     commands:
       - cmd: "temporal operator namespace create --namespace my-target-namespace"
       - cmd: "temporal operator namespace create --namespace my-caller-namespace"
-      - cmd: "temporal operator nexus endpoint create --name my-nexus-endpoint-name --target-namespace my-target-namespace --target-task-queue my-handler-task-queue --description-file ./src/main/java/io/temporal/samples/nexus/service/description.md"
+      - cmd: "temporal operator nexus endpoint create --name my-nexus-endpoint-name --target-namespace my-target-namespace --target-task-queue my-handler-task-queue"
       - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.nexuscontextpropagation.handler.HandlerWorker --args=\"-target-host localhost:7233 -namespace my-target-namespace\""
       - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.nexuscontextpropagation.caller.CallerWorker --args=\"-target-host localhost:7233 -namespace my-caller-namespace\""
         new_terminal: true
@@ -72,7 +72,7 @@ samples:
     commands:
       - cmd: "temporal operator namespace create --namespace my-target-namespace"
       - cmd: "temporal operator namespace create --namespace my-caller-namespace"
-      - cmd: "temporal operator nexus endpoint create --name my-nexus-endpoint-name --target-namespace my-target-namespace --target-task-queue my-handler-task-queue --description-file ./src/main/java/io/temporal/samples/nexus/service/description.md"
+      - cmd: "temporal operator nexus endpoint create --name my-nexus-endpoint-name --target-namespace my-target-namespace --target-task-queue my-handler-task-queue"
       - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.nexusmultipleargs.handler.HandlerWorker --args=\"-target-host localhost:7233 -namespace my-target-namespace\""
       - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.nexusmultipleargs.caller.CallerWorker --args=\"-target-host localhost:7233 -namespace my-caller-namespace\""
         new_terminal: true
