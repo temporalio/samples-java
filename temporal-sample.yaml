@@ -110,6 +110,9 @@ samples:
     dest: src/main/java/io/temporal/samples/dsl
     description: DSL-driven workflow steps defined in JSON
     sdk_version: "1.32.1"
+    include:
+      - path: core/src/main/resources/dsl
+        dest: src/main/resources/dsl
     commands:
       - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.dsl.Starter"
   - path: core/src/main/java/io/temporal/samples/fileprocessing
