@@ -93,7 +93,9 @@ samples:
     description: Trip booking Saga pattern with compensation
     sdk_version: "1.32.1"
     commands:
-      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.bookingsaga.TripBookingSaga"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.bookingsaga.TripBookingWorker"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.bookingsaga.TripBookingClient"
+        new_terminal: true
   - path: core/src/main/java/io/temporal/samples/moneytransfer
     dest: src/main/java/io/temporal/samples/moneytransfer
     description: Separate processes for workflows, activities, and transfer requests
