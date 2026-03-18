@@ -25,10 +25,21 @@ samples:
     dest: src/main/java/io/temporal/samples/hello
     description: Single-file hello world samples demonstrating core SDK features
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloActivity"
   - path: core/src/main/java/io/temporal/samples/nexus
     dest: src/main/java/io/temporal/samples/nexus
     description: Nexus service definition and operation handlers
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "temporal operator namespace create --namespace my-target-namespace"
+      - cmd: "temporal operator namespace create --namespace my-caller-namespace"
+      - cmd: "temporal operator nexus endpoint create --name my-nexus-endpoint-name --target-namespace my-target-namespace --target-task-queue my-handler-task-queue --description-file ./src/main/java/io/temporal/samples/nexus/service/description.md"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.nexus.handler.HandlerWorker --args=\"-target-host localhost:7233 -namespace my-target-namespace\""
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.nexus.caller.CallerWorker --args=\"-target-host localhost:7233 -namespace my-caller-namespace\""
+        new_terminal: true
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.nexus.caller.CallerStarter --args=\"-target-host localhost:7233 -namespace my-caller-namespace\""
+        new_terminal: true
   - path: core/src/main/java/io/temporal/samples/nexuscancellation
     dest: src/main/java/io/temporal/samples/nexuscancellation
     description: Cancel a Nexus operation using WaitRequested cancellation
@@ -36,6 +47,15 @@ samples:
     include:
       - path: core/src/main/java/io/temporal/samples/nexus
         dest: src/main/java/io/temporal/samples/nexus
+    commands:
+      - cmd: "temporal operator namespace create --namespace my-target-namespace"
+      - cmd: "temporal operator namespace create --namespace my-caller-namespace"
+      - cmd: "temporal operator nexus endpoint create --name my-nexus-endpoint-name --target-namespace my-target-namespace --target-task-queue my-handler-task-queue"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.nexuscancellation.handler.HandlerWorker --args=\"-target-host localhost:7233 -namespace my-target-namespace\""
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.nexuscancellation.caller.CallerWorker --args=\"-target-host localhost:7233 -namespace my-caller-namespace\""
+        new_terminal: true
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.nexuscancellation.caller.CallerStarter --args=\"-target-host localhost:7233 -namespace my-caller-namespace\""
+        new_terminal: true
   - path: core/src/main/java/io/temporal/samples/nexuscontextpropagation
     dest: src/main/java/io/temporal/samples/nexuscontextpropagation
     description: Propagate MDC context from Workflows to Nexus operations
@@ -43,6 +63,15 @@ samples:
     include:
       - path: core/src/main/java/io/temporal/samples/nexus
         dest: src/main/java/io/temporal/samples/nexus
+    commands:
+      - cmd: "temporal operator namespace create --namespace my-target-namespace"
+      - cmd: "temporal operator namespace create --namespace my-caller-namespace"
+      - cmd: "temporal operator nexus endpoint create --name my-nexus-endpoint-name --target-namespace my-target-namespace --target-task-queue my-handler-task-queue"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.nexuscontextpropagation.handler.HandlerWorker --args=\"-target-host localhost:7233 -namespace my-target-namespace\""
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.nexuscontextpropagation.caller.CallerWorker --args=\"-target-host localhost:7233 -namespace my-caller-namespace\""
+        new_terminal: true
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.nexuscontextpropagation.caller.CallerStarter --args=\"-target-host localhost:7233 -namespace my-caller-namespace\""
+        new_terminal: true
   - path: core/src/main/java/io/temporal/samples/nexusmultipleargs
     dest: src/main/java/io/temporal/samples/nexusmultipleargs
     description: Map a Nexus operation to a workflow with multiple input arguments
@@ -50,14 +79,33 @@ samples:
     include:
       - path: core/src/main/java/io/temporal/samples/nexus
         dest: src/main/java/io/temporal/samples/nexus
+    commands:
+      - cmd: "temporal operator namespace create --namespace my-target-namespace"
+      - cmd: "temporal operator namespace create --namespace my-caller-namespace"
+      - cmd: "temporal operator nexus endpoint create --name my-nexus-endpoint-name --target-namespace my-target-namespace --target-task-queue my-handler-task-queue"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.nexusmultipleargs.handler.HandlerWorker --args=\"-target-host localhost:7233 -namespace my-target-namespace\""
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.nexusmultipleargs.caller.CallerWorker --args=\"-target-host localhost:7233 -namespace my-caller-namespace\""
+        new_terminal: true
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.nexusmultipleargs.caller.CallerStarter --args=\"-target-host localhost:7233 -namespace my-caller-namespace\""
+        new_terminal: true
   - path: core/src/main/java/io/temporal/samples/bookingsaga
     dest: src/main/java/io/temporal/samples/bookingsaga
     description: Trip booking Saga pattern with compensation
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.bookingsaga.TripBookingWorker"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.bookingsaga.TripBookingClient"
+        new_terminal: true
   - path: core/src/main/java/io/temporal/samples/moneytransfer
     dest: src/main/java/io/temporal/samples/moneytransfer
     description: Separate processes for workflows, activities, and transfer requests
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.moneytransfer.AccountTransferWorker"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.moneytransfer.AccountActivityWorker"
+        new_terminal: true
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.moneytransfer.TransferRequester"
+        new_terminal: true
   - path: core/src/main/java/io/temporal/samples/dsl
     dest: src/main/java/io/temporal/samples/dsl
     description: DSL-driven workflow steps defined in JSON
@@ -65,131 +113,231 @@ samples:
     include:
       - path: core/src/main/resources/dsl
         dest: src/main/resources/dsl
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.dsl.Starter"
   - path: core/src/main/java/io/temporal/samples/fileprocessing
     dest: src/main/java/io/temporal/samples/fileprocessing
     description: Route tasks to specific Workers for host-local download/process/upload
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.fileprocessing.FileProcessingWorker"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.fileprocessing.FileProcessingStarter"
+        new_terminal: true
   - path: core/src/main/java/io/temporal/samples/encryptedpayloads
     dest: src/main/java/io/temporal/samples/encryptedpayloads
     description: End-to-end payload encryption
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.encryptedpayloads.EncryptedPayloadsActivity"
   - path: core/src/main/java/io/temporal/samples/apikey
     dest: src/main/java/io/temporal/samples/apikey
     description: Connect to Temporal using API key authentication
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.apikey.ApiKeyWorker"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.apikey.Starter"
+        new_terminal: true
   - path: core/src/main/java/io/temporal/samples/asyncchild
     dest: src/main/java/io/temporal/samples/asyncchild
     description: Invoke a Child Workflow asynchronously outliving the parent
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.asyncchild.Starter"
   - path: core/src/main/java/io/temporal/samples/asyncuntypedchild
     dest: src/main/java/io/temporal/samples/asyncuntypedchild
     description: Invoke an untyped Child Workflow asynchronously outliving the parent
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.asyncuntypedchild.Starter"
   - path: core/src/main/java/io/temporal/samples/autoheartbeat
     dest: src/main/java/io/temporal/samples/autoheartbeat
     description: Auto-heartbeating interceptor for long-running activities
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.autoheartbeat.Starter"
   - path: core/src/main/java/io/temporal/samples/batch
     dest: src/main/java/io/temporal/samples/batch
     description: Batch processing patterns using sliding window, iterator, and heartbeating
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.batch.slidingwindow.SlidingWindowBatchWorker"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.batch.slidingwindow.SlidingWindowBatchStarter"
+        new_terminal: true
   - path: core/src/main/java/io/temporal/samples/bookingsyncsaga
     dest: src/main/java/io/temporal/samples/bookingsyncsaga
     description: Synchronous trip booking Saga with early client unblock via update
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.bookingsyncsaga.TripBookingWorker"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.bookingsyncsaga.TripBookingClient"
+        new_terminal: true
   - path: core/src/main/java/io/temporal/samples/countinterceptor
     dest: src/main/java/io/temporal/samples/countinterceptor
     description: Worker and client interceptors that count executions, signals, and queries
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.countinterceptor.InterceptorStarter"
   - path: core/src/main/java/io/temporal/samples/customannotation
     dest: src/main/java/io/temporal/samples/customannotation
     description: Custom annotation via interceptor to mark exceptions as benign
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.customannotation.CustomAnnotation"
   - path: core/src/main/java/io/temporal/samples/customchangeversion
     dest: src/main/java/io/temporal/samples/customchangeversion
     description: Upsert a custom search attribute when adding workflow version changes
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.customchangeversion.CustomChangeVersionStarter"
   - path: core/src/main/java/io/temporal/samples/earlyreturn
     dest: src/main/java/io/temporal/samples/earlyreturn
     description: Early return from a workflow using Update-with-Start
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.earlyreturn.EarlyReturnWorker"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.earlyreturn.EarlyReturnClient"
+        new_terminal: true
   - path: core/src/main/java/io/temporal/samples/encodefailures
     dest: src/main/java/io/temporal/samples/encodefailures
     description: Encode and decode failure messages using a payload codec
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.encodefailures.Starter"
   - path: core/src/main/java/io/temporal/samples/envconfig
     dest: src/main/java/io/temporal/samples/envconfig
     description: Configure the Temporal client from TOML configuration files
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.envconfig.LoadFromFile"
   - path: core/src/main/java/io/temporal/samples/excludefrominterceptor
     dest: src/main/java/io/temporal/samples/excludefrominterceptor
     description: Exclude specific workflow and activity types from interceptors
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.excludefrominterceptor.RunMyWorkflows"
   - path: core/src/main/java/io/temporal/samples/getresultsasync
     dest: src/main/java/io/temporal/samples/getresultsasync
     description: Get workflow results asynchronously using getResultAsync
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.getresultsasync.Worker"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.getresultsasync.Starter"
+        new_terminal: true
   - path: core/src/main/java/io/temporal/samples/keymanagementencryption
     dest: src/main/java/io/temporal/samples/keymanagementencryption
     description: Payload encryption using the AWS Encryption SDK with KMS keyrings
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.keymanagementencryption.awsencryptionsdk.EncryptedPayloads"
   - path: core/src/main/java/io/temporal/samples/listworkflows
     dest: src/main/java/io/temporal/samples/listworkflows
     description: List workflow executions using custom search attributes
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.listworkflows.Starter"
   - path: core/src/main/java/io/temporal/samples/metrics
     dest: src/main/java/io/temporal/samples/metrics
     description: Set up SDK metrics with a Prometheus scrape endpoint
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.metrics.MetricsWorker"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.metrics.MetricsStarter"
+        new_terminal: true
   - path: core/src/main/java/io/temporal/samples/moneybatch
     dest: src/main/java/io/temporal/samples/moneybatch
     description: Batch multiple withdrawals into a single deposit using signal-with-start
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.moneybatch.AccountTransferWorker"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.moneybatch.AccountActivityWorker"
+        new_terminal: true
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.moneybatch.TransferRequester"
+        new_terminal: true
   - path: core/src/main/java/io/temporal/samples/packetdelivery
     dest: src/main/java/io/temporal/samples/packetdelivery
     description: Parallel async packet deliveries with per-item cancellation support
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.packetdelivery.Starter"
   - path: core/src/main/java/io/temporal/samples/payloadconverter
     dest: src/main/java/io/temporal/samples/payloadconverter
     description: Custom payload converters for crypto and CloudEvents serialization
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.payloadconverter.crypto.Starter"
   - path: core/src/main/java/io/temporal/samples/peractivityoptions
     dest: src/main/java/io/temporal/samples/peractivityoptions
     description: Set per-activity-type options via WorkflowImplementationOptions
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.peractivityoptions.Starter"
   - path: core/src/main/java/io/temporal/samples/polling
     dest: src/main/java/io/temporal/samples/polling
     description: Polling patterns for frequent, infrequent, and periodic activity execution
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.polling.frequent.FrequentPollingStarter"
   - path: core/src/main/java/io/temporal/samples/retryonsignalinterceptor
     dest: src/main/java/io/temporal/samples/retryonsignalinterceptor
     description: Interceptor that waits for a signal to retry or fail an activity
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.retryonsignalinterceptor.MyWorkflowWorker"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.retryonsignalinterceptor.RetryRequester"
+        new_terminal: true
   - path: core/src/main/java/io/temporal/samples/safemessagepassing
     dest: src/main/java/io/temporal/samples/safemessagepassing
     description: Safe signal and update handling with locking and continue-as-new
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.safemessagepassing.ClusterManagerWorkflowWorker"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.safemessagepassing.ClusterManagerWorkflowStarter"
+        new_terminal: true
   - path: core/src/main/java/io/temporal/samples/sleepfordays
     dest: src/main/java/io/temporal/samples/sleepfordays
     description: Workflow that periodically sleeps for days between actions
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.sleepfordays.Worker"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.sleepfordays.Starter"
+        new_terminal: true
   - path: core/src/main/java/io/temporal/samples/ssl
     dest: src/main/java/io/temporal/samples/ssl
     description: Connect to Temporal using mTLS authentication
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.ssl.Starter"
   - path: core/src/main/java/io/temporal/samples/terminateworkflow
     dest: src/main/java/io/temporal/samples/terminateworkflow
     description: Terminate a workflow execution using the client API
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.terminateworkflow.Starter"
   - path: core/src/main/java/io/temporal/samples/tracing
     dest: src/main/java/io/temporal/samples/tracing
     description: Distributed tracing with OpenTracing and OpenTelemetry via Jaeger
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.tracing.TracingWorker"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.tracing.Starter"
+        new_terminal: true
   - path: core/src/main/java/io/temporal/samples/updatabletimer
     dest: src/main/java/io/temporal/samples/updatabletimer
     description: Blocking sleep that can be updated via signal at any time
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.updatabletimer.DynamicSleepWorkflowWorker"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.updatabletimer.DynamicSleepWorkflowStarter"
+        new_terminal: true
   - path: core/src/main/java/io/temporal/samples/workerversioning
     dest: src/main/java/io/temporal/samples/workerversioning
     description: Worker Versioning with auto-upgrading and pinned workflow deployments
     sdk_version: "1.32.1"
+    commands:
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.workerversioning.Starter"
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.workerversioning.WorkerV1"
+        new_terminal: true
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.workerversioning.WorkerV1_1"
+        new_terminal: true
+      - cmd: "./gradlew -q execute -PmainClass=io.temporal.samples.workerversioning.WorkerV2"
+        new_terminal: true
