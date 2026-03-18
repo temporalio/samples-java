@@ -13,16 +13,32 @@ import io.temporal.samples.nexus.service.NexusService;
 // return OperationHandler that correspond to the operations defined in the service interface.
 @ServiceImpl(service = NexusService.class)
 public class NexusServiceImpl {
+  private final EchoHandler echoHandler;
+
+  // The injected EchoHandler makes this class unit-testable.
+  // The no-arg constructor provides a default; the second allows tests to inject a mock.
+  // If you are not using the sync call or do not need to mock a handler, then you will not
+  // need this constructor pairing.
+  public NexusServiceImpl() {
+    this(new EchoHandlerImpl());
+  }
+
+  public NexusServiceImpl(EchoHandler echoHandler) {
+    this.echoHandler = echoHandler;
+  }
+
+  // The Echo Nexus Service exemplifies making a synchronous call using OperationHandler.sync.
+  // In this case, it is calling the EchoHandler class - not a workflow - and simply returning the
+  // result.
   @OperationImpl
   public OperationHandler<NexusService.EchoInput, NexusService.EchoOutput> echo() {
-    // OperationHandler.sync is a meant for exposing simple RPC handlers.
     return OperationHandler.sync(
         // The method is for making arbitrary short calls to other services or databases, or
         // perform simple computations such as this one. Users can also access a workflow client by
         // calling
         // Nexus.getOperationContext().getWorkflowClient(ctx) to make arbitrary calls such as
         // signaling, querying, or listing workflows.
-        (ctx, details, input) -> new NexusService.EchoOutput(input.getMessage()));
+        (ctx, details, input) -> echoHandler.echo(input));
   }
 
   @OperationImpl
@@ -39,10 +55,8 @@ public class NexusServiceImpl {
                     .newWorkflowStub(
                         HelloHandlerWorkflow.class,
                         // Workflow IDs should typically be business meaningful IDs and are used to
-                        // dedupe workflow starts.
-                        // For this example, we're using the request ID allocated by Temporal when
-                        // the
-                        // caller workflow schedules
+                        // dedupe workflow starts. For this example, we're using the request ID
+                        // allocated by Temporal when the caller workflow schedules
                         // the operation, this ID is guaranteed to be stable across retries of this
                         // operation.
                         //
