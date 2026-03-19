@@ -17,16 +17,16 @@ public class CallerWorkflowJunit5Test {
   public static final TestWorkflowExtension testWorkflowExtension =
       TestWorkflowExtension.newBuilder()
           // If a Nexus service is registered as part of the test as in the following line of code,
-          // the TestWorkflowExtension will, by default, automatically create a Nexus service endpoint
-          // and workflows registered as part of the TestWorkflowExtension will
+          // the TestWorkflowExtension will, by default, automatically create a Nexus service
+          // endpoint and workflows registered as part of the TestWorkflowExtension will
           // automatically inherit the endpoint if none is set.
           .setNexusServiceImplementation(new NexusServiceImpl())
           // The Echo Nexus handler service just makes a call to a class, so no extra setup is
           // needed. But the Hello Nexus service needs a worker for both the caller and handler
           // in order to run, and the Echo Nexus caller service needs a worker.
           //
-          // registerWorkflowImplementationTypes will take the classes given and create workers for them,
-          // enabling workflows to run.
+          // registerWorkflowImplementationTypes will take the classes given and create workers for
+          // them, enabling workflows to run.
           .registerWorkflowImplementationTypes(
               HelloCallerWorkflowImpl.class,
               HelloHandlerWorkflowImpl.class,
@@ -38,14 +38,16 @@ public class CallerWorkflowJunit5Test {
   // The TestWorkflowExtension extension in the Temporal testing library creates the
   // arguments to the test cases and initializes them from the extension setup call above.
   @Test
-  public void testHelloWorkflow(TestWorkflowEnvironment testEnv, Worker worker, HelloCallerWorkflow workflow) {
+  public void testHelloWorkflow(
+      TestWorkflowEnvironment testEnv, Worker worker, HelloCallerWorkflow workflow) {
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.hello("World", NexusService.Language.EN);
     assertEquals("Hello World 👋", greeting);
   }
 
   @Test
-  public void testEchoWorkflow(TestWorkflowEnvironment testEnv, Worker worker, EchoCallerWorkflow workflow) {
+  public void testEchoWorkflow(
+      TestWorkflowEnvironment testEnv, Worker worker, EchoCallerWorkflow workflow) {
     // Execute a workflow waiting for it to complete.
     String greeting = workflow.echo("Hello");
     assertEquals("Hello", greeting);
