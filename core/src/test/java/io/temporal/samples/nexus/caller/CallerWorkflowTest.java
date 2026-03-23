@@ -13,6 +13,9 @@ import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 
+// This is an example of how to unit test Nexus services in JUnit4. The handlers are not mocked,
+// but are actually called by the testing framework by the caller classes.
+
 public class CallerWorkflowTest {
 
   @Rule

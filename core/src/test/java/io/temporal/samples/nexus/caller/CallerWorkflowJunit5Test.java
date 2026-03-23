@@ -11,6 +11,9 @@ import io.temporal.worker.Worker;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+// This is an example of how to unit test Nexus services in JUnit5. The handlers are not mocked,
+// but are actually called by the testing framework by the caller classes.
+
 public class CallerWorkflowJunit5Test {
 
   @RegisterExtension
