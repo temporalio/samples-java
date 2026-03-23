@@ -6,7 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import io.temporal.client.WorkflowOptions;
-import io.temporal.samples.nexus.handler.EchoHandler;
+import io.temporal.samples.nexus.handler.EchoClient;
 import io.temporal.samples.nexus.handler.HelloHandlerWorkflow;
 import io.temporal.samples.nexus.handler.NexusServiceImpl;
 import io.temporal.samples.nexus.service.NexusService;
@@ -19,9 +19,9 @@ import org.junit.Test;
 
 public class CallerWorkflowMockTest {
 
-  // Inject a mock EchoHandler so sync Nexus operations can be stubbed per test.
+  // Inject a mock EchoClient so sync Nexus operations can be stubbed per test.
   // JUnit 4 creates a new test class instance per test method, so this mock is fresh each time.
-  private final EchoHandler mockEchoHandler = mock(EchoHandler.class);
+  private final EchoClient mockEchoClient = mock(EchoClient.class);
 
   @Rule
   public TestWorkflowRule testWorkflowRule =
@@ -30,7 +30,7 @@ public class CallerWorkflowMockTest {
           // the TestWorkflowRule will, by default, automatically create a Nexus service endpoint
           // and workflows registered as part of the TestWorkflowRule
           // will automatically inherit the endpoint if none is set.
-          .setNexusServiceImplementation(new NexusServiceImpl(mockEchoHandler))
+          .setNexusServiceImplementation(new NexusServiceImpl(mockEchoClient))
           // The Echo Nexus handler service just makes a call to a class, so no extra setup is
           // needed. But the Hello Nexus service needs a worker for both the caller and handler
           // in order to run.
@@ -73,8 +73,8 @@ public class CallerWorkflowMockTest {
   @Test
   public void testEchoWorkflow() {
     // Sync Nexus operations run inline in the handler thread — there is no backing workflow to
-    // register a factory for. Instead, stub the injected EchoHandler dependency directly.
-    when(mockEchoHandler.echo(any())).thenReturn(new NexusService.EchoOutput("mocked echo"));
+    // register a factory for. Instead, stub the injected EchoCient dependency directly.
+    when(mockEchoClient.echo(any())).thenReturn(new NexusService.EchoOutput("mocked echo"));
     testWorkflowRule.getTestEnvironment().start();
 
     EchoCallerWorkflow workflow =

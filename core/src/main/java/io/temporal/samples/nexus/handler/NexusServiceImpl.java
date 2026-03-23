@@ -13,22 +13,22 @@ import io.temporal.samples.nexus.service.NexusService;
 // return OperationHandler that correspond to the operations defined in the service interface.
 @ServiceImpl(service = NexusService.class)
 public class NexusServiceImpl {
-  private final EchoHandler echoHandler;
+  private final EchoClient echoClient;
 
-  // The injected EchoHandler makes this class unit-testable.
+  // The injected EchoClient makes this class unit-testable.
   // The no-arg constructor provides a default; the second allows tests to inject a mock.
   // If you are not using the sync call or do not need to mock a handler, then you will not
   // need this constructor pairing.
   public NexusServiceImpl() {
-    this(new EchoHandlerImpl());
+    this(new EchoClientImpl());
   }
 
-  public NexusServiceImpl(EchoHandler echoHandler) {
-    this.echoHandler = echoHandler;
+  public NexusServiceImpl(EchoClient echoClient) {
+    this.echoClient = echoClient;
   }
 
   // The Echo Nexus Service exemplifies making a synchronous call using OperationHandler.sync.
-  // In this case, it is calling the EchoHandler class - not a workflow - and simply returning the
+  // In this case, it is calling the EchoClient class - not a workflow - and simply returning the
   // result.
   @OperationImpl
   public OperationHandler<NexusService.EchoInput, NexusService.EchoOutput> echo() {
@@ -38,7 +38,7 @@ public class NexusServiceImpl {
         // calling
         // Nexus.getOperationContext().getWorkflowClient(ctx) to make arbitrary calls such as
         // signaling, querying, or listing workflows.
-        (ctx, details, input) -> echoHandler.echo(input));
+        (ctx, details, input) -> echoClient.echo(input));
   }
 
   @OperationImpl
