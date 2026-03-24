@@ -29,11 +29,13 @@ public class NexusServiceMockTest {
   @ServiceImpl(service = SampleNexusService.class)
   public class TestNexusServiceImpl {
     @OperationImpl
+    @SuppressWarnings("DirectInvocationOnMock")
     public OperationHandler<SampleNexusService.EchoInput, SampleNexusService.EchoOutput> echo() {
       return OperationHandler.sync((ctx, details, input) -> mockNexusService.echo(input));
     }
 
     @OperationImpl
+    @SuppressWarnings("DirectInvocationOnMock")
     public OperationHandler<SampleNexusService.HelloInput, SampleNexusService.HelloOutput> hello() {
       return OperationHandler.sync((ctx, details, input) -> mockNexusService.hello(input));
     }
