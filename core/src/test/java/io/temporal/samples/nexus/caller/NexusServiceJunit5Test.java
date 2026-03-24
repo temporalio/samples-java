@@ -1,12 +1,13 @@
 package io.temporal.samples.nexus.caller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import io.nexusrpc.handler.OperationHandler;
-import io.temporal.samples.nexus.handler.NexusServiceImpl;
-import io.temporal.samples.nexus.service.NexusService;
+import io.nexusrpc.handler.OperationImpl;
+import io.nexusrpc.handler.ServiceImpl;
+import io.temporal.samples.nexus.service.SampleNexusService;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.testing.TestWorkflowExtension;
 import io.temporal.worker.Worker;
@@ -14,44 +15,36 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 // This unit test example shows how to mock the Nexus service itself in JUnit4.
-// In this example since the NexusService itself is mocked, no handlers need to be set up or mocked.
-
+// This is the path to take when you don't have access to the service implementation so
+// cannot mock it. Since the SampleNexusService itself is mocked,
+// no handlers need to be set up or mocked.
 public class NexusServiceJunit5Test {
 
-  private final NexusServiceImpl mockNexusService = createMockNexusService();
+  private final SampleNexusService mockNexusService = mock(SampleNexusService.class);
 
-  // Mutable fields — set these in each test method before starting the environment
-  // to mock the return values for the Nexus service.
-  // Instance fields (not static) so each test gets its own copy; safe for parallel execution.
-  private NexusService.EchoOutput echoResult = new NexusService.EchoOutput("default");
-  private NexusService.HelloOutput helloResult = new NexusService.HelloOutput("default");
+  /**
+   * A test-only Nexus service implementation that delegates to the Mockito mock defined above. Both
+   * operations are implemented as synchronous handlers that forward calls to the mock, allowing
+   * full control over return values and verification of inputs.
+   */
+  @ServiceImpl(service = SampleNexusService.class)
+  public class TestNexusServiceImpl {
+    @OperationImpl
+    public OperationHandler<SampleNexusService.EchoInput, SampleNexusService.EchoOutput> echo() {
+      return OperationHandler.sync((ctx, details, input) -> mockNexusService.echo(input));
+    }
 
-  private NexusServiceImpl createMockNexusService() {
-    NexusServiceImpl mock = mock(NexusServiceImpl.class);
-    // Using OperationHandler.sync for both operations bypasses the need for a backing workflow,
-    // returning results inline just like a synchronous call. Mocks need to be done before the rule
-    // is defined, as creating the rule will fail if either call is still null.
-    //
-    // The following is the simplest - just mock the services to return a value. But then these
-    // values cannot change per test case, so this will not always suffice.
-    //    when(mock.echo())
-    //        .thenReturn(
-    //            OperationHandler.sync(
-    //                (ctx, details, input) -> new NexusService.EchoOutput("mocked echo")));
-    //    when(mock.hello())
-    //        .thenReturn(
-    //            OperationHandler.sync(
-    //                (ctx, details, input) -> new NexusService.HelloOutput("Hello Mock World
-    // 👋")));
-    //
-    // An alternative approach is to create the mocks but set them to return a value that is set in
-    // the unit
-    // test class above. That allows you to change the return value in each test.
-    when(mock.echo()).thenReturn(OperationHandler.sync((ctx, details, input) -> echoResult));
-    when(mock.hello()).thenReturn(OperationHandler.sync((ctx, details, input) -> helloResult));
-
-    return mock;
+    @OperationImpl
+    public OperationHandler<SampleNexusService.HelloInput, SampleNexusService.HelloOutput> hello() {
+      return OperationHandler.sync((ctx, details, input) -> mockNexusService.hello(input));
+    }
   }
+
+  // Using OperationHandler.sync for both operations bypasses the need for a backing workflow,
+  // returning results inline just like a synchronous call.
+  //
+  // Note that the Mocks need to be done before the extension
+  // is defined, as creating the rule will fail if either call is still null.
 
   @RegisterExtension
   public final TestWorkflowExtension testWorkflowExtension =
@@ -60,7 +53,7 @@ public class NexusServiceJunit5Test {
           // the TestWorkflowExtension will, by default, automatically create a Nexus service
           // endpoint and workflows registered as part of the TestWorkflowExtension will
           // automatically inherit the endpoint if none is set.
-          .setNexusServiceImplementation(mockNexusService)
+          .setNexusServiceImplementation(new TestNexusServiceImpl())
           // The Echo Nexus handler service just makes a call to a class, so no extra setup is
           // needed. But the Hello Nexus service needs a worker for both the caller and handler
           // in order to run, and the Echo Nexus caller service needs a worker.
@@ -80,20 +73,31 @@ public class NexusServiceJunit5Test {
   @Test
   public void testHelloWorkflow(
       TestWorkflowEnvironment testEnv, Worker worker, HelloCallerWorkflow workflow) {
+
     // Set the mock value to return
-    helloResult = new NexusService.HelloOutput("Hello Mock World 👋");
+    when(mockNexusService.hello(any()))
+        .thenReturn(new SampleNexusService.HelloOutput("Hello Mock World 👋"));
+
     // Execute a workflow waiting for it to complete.
-    String greeting = workflow.hello("World", NexusService.Language.EN);
+    String greeting = workflow.hello("World", SampleNexusService.Language.EN);
     assertEquals("Hello Mock World 👋", greeting);
   }
 
   @Test
   public void testEchoWorkflow(
       TestWorkflowEnvironment testEnv, Worker worker, EchoCallerWorkflow workflow) {
-    // Set the mock value to return
-    echoResult = new NexusService.EchoOutput("mocked echo");
+    when(mockNexusService.echo(any()))
+        .thenReturn(new SampleNexusService.EchoOutput("echo response"));
+
     // Execute a workflow waiting for it to complete.
-    String greeting = workflow.echo("Hello");
-    assertEquals("mocked echo", greeting);
+    String greeting = workflow.echo("echo input");
+    assertEquals("echo response", greeting);
+
+    // Verify the echo operation was called exactly once and no other operations were invoked
+    verify(mockNexusService, times(1)).echo(any());
+    // Verify the Nexus service was called with the correct input
+    verify(mockNexusService).echo(argThat(input -> "echo input".equals(input.getMessage())));
+
+    verifyNoMoreInteractions(mockNexusService);
   }
 }

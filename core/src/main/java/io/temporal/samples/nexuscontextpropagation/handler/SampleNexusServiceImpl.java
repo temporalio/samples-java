@@ -7,7 +7,7 @@ import io.temporal.client.WorkflowOptions;
 import io.temporal.nexus.Nexus;
 import io.temporal.nexus.WorkflowRunOperation;
 import io.temporal.samples.nexus.handler.HelloHandlerWorkflow;
-import io.temporal.samples.nexus.service.NexusService;
+import io.temporal.samples.nexus.service.SampleNexusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -15,12 +15,12 @@ import org.slf4j.MDC;
 // To create a service implementation, annotate the class with @ServiceImpl and provide the
 // interface that the service implements. The service implementation class should have methods that
 // return OperationHandler that correspond to the operations defined in the service interface.
-@ServiceImpl(service = NexusService.class)
-public class NexusServiceImpl {
-  private static final Logger logger = LoggerFactory.getLogger(NexusServiceImpl.class);
+@ServiceImpl(service = SampleNexusService.class)
+public class SampleNexusServiceImpl {
+  private static final Logger logger = LoggerFactory.getLogger(SampleNexusServiceImpl.class);
 
   @OperationImpl
-  public OperationHandler<NexusService.EchoInput, NexusService.EchoOutput> echo() {
+  public OperationHandler<SampleNexusService.EchoInput, SampleNexusService.EchoOutput> echo() {
     // OperationHandler.sync is a meant for exposing simple RPC handlers.
     return OperationHandler.sync(
         // The method is for making arbitrary short calls to other services or databases, or
@@ -33,12 +33,12 @@ public class NexusServiceImpl {
             logger.info(
                 "Echo called from a workflow with ID : {}", MDC.get("x-nexus-caller-workflow-id"));
           }
-          return new NexusService.EchoOutput(input.getMessage());
+          return new SampleNexusService.EchoOutput(input.getMessage());
         });
   }
 
   @OperationImpl
-  public OperationHandler<NexusService.HelloInput, NexusService.HelloOutput> hello() {
+  public OperationHandler<SampleNexusService.HelloInput, SampleNexusService.HelloOutput> hello() {
     // Use the WorkflowRunOperation.fromWorkflowMethod constructor, which is the easiest
     // way to expose a workflow as an operation. To expose a workflow with a different input
     // parameters then the operation or from an untyped stub, use the

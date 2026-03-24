@@ -1,7 +1,7 @@
 package io.temporal.samples.nexuscancellation.handler;
 
 import io.temporal.client.WorkflowClient;
-import io.temporal.samples.nexus.handler.NexusServiceImpl;
+import io.temporal.samples.nexus.handler.SampleNexusServiceImpl;
 import io.temporal.samples.nexus.options.ClientOptions;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
@@ -16,7 +16,7 @@ public class HandlerWorker {
 
     Worker worker = factory.newWorker(DEFAULT_TASK_QUEUE_NAME);
     worker.registerWorkflowImplementationTypes(HelloHandlerWorkflowImpl.class);
-    worker.registerNexusServiceImplementation(new NexusServiceImpl());
+    worker.registerNexusServiceImplementation(new SampleNexusServiceImpl());
 
     factory.start();
   }

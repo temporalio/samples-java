@@ -6,7 +6,7 @@ import io.nexusrpc.Operation;
 import io.nexusrpc.Service;
 
 @Service
-public interface NexusService {
+public interface SampleNexusService {
   enum Language {
     EN,
     FR,

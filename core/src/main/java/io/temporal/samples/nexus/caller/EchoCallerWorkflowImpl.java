@@ -1,15 +1,15 @@
 package io.temporal.samples.nexus.caller;
 
-import io.temporal.samples.nexus.service.NexusService;
+import io.temporal.samples.nexus.service.SampleNexusService;
 import io.temporal.workflow.NexusOperationOptions;
 import io.temporal.workflow.NexusServiceOptions;
 import io.temporal.workflow.Workflow;
 import java.time.Duration;
 
 public class EchoCallerWorkflowImpl implements EchoCallerWorkflow {
-  NexusService nexusService =
+  SampleNexusService sampleNexusService =
       Workflow.newNexusServiceStub(
-          NexusService.class,
+          SampleNexusService.class,
           NexusServiceOptions.newBuilder()
               .setOperationOptions(
                   NexusOperationOptions.newBuilder()
@@ -19,6 +19,6 @@ public class EchoCallerWorkflowImpl implements EchoCallerWorkflow {
 
   @Override
   public String echo(String message) {
-    return nexusService.echo(new NexusService.EchoInput(message)).getMessage();
+    return sampleNexusService.echo(new SampleNexusService.EchoInput(message)).getMessage();
   }
 }

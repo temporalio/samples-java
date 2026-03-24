@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import io.temporal.client.WorkflowOptions;
 import io.temporal.samples.nexus.handler.HelloHandlerWorkflowImpl;
-import io.temporal.samples.nexus.handler.NexusServiceImpl;
-import io.temporal.samples.nexus.service.NexusService;
+import io.temporal.samples.nexus.handler.SampleNexusServiceImpl;
+import io.temporal.samples.nexus.service.SampleNexusService;
 import io.temporal.testing.TestWorkflowRule;
 import io.temporal.worker.WorkflowImplementationOptions;
 import io.temporal.workflow.NexusServiceOptions;
@@ -25,7 +25,7 @@ public class CallerWorkflowTest {
           // the TestWorkflowRule will, by default, automatically create a Nexus service endpoint
           // and workflows registered as part of the TestWorkflowRule
           // will automatically inherit the endpoint if none is set.
-          .setNexusServiceImplementation(new NexusServiceImpl())
+          .setNexusServiceImplementation(new SampleNexusServiceImpl())
           // The Echo Nexus handler service just makes a call to a class, so no extra setup is
           // needed. But the Hello Nexus service needs a worker for both the caller and handler
           // in order to run.
@@ -49,7 +49,7 @@ public class CallerWorkflowTest {
             .newWorkflowStub(
                 HelloCallerWorkflow.class,
                 WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build());
-    String greeting = workflow.hello("World", NexusService.Language.EN);
+    String greeting = workflow.hello("World", SampleNexusService.Language.EN);
     assertEquals("Hello World 👋", greeting);
 
     testWorkflowRule.getTestEnvironment().shutdown();
@@ -72,7 +72,7 @@ public class CallerWorkflowTest {
             WorkflowImplementationOptions.newBuilder()
                 .setNexusServiceOptions(
                     Collections.singletonMap(
-                        "NexusService",
+                        "SampleNexusService",
                         NexusServiceOptions.newBuilder()
                             .setEndpoint(testWorkflowRule.getNexusEndpoint().getSpec().getName())
                             .build()))

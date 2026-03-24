@@ -8,8 +8,8 @@ import static org.mockito.Mockito.when;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.samples.nexus.handler.EchoClient;
 import io.temporal.samples.nexus.handler.HelloHandlerWorkflow;
-import io.temporal.samples.nexus.handler.NexusServiceImpl;
-import io.temporal.samples.nexus.service.NexusService;
+import io.temporal.samples.nexus.handler.SampleNexusServiceImpl;
+import io.temporal.samples.nexus.service.SampleNexusService;
 import io.temporal.testing.TestWorkflowRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class CallerWorkflowMockTest {
           // the TestWorkflowRule will, by default, automatically create a Nexus service endpoint
           // and workflows registered as part of the TestWorkflowRule
           // will automatically inherit the endpoint if none is set.
-          .setNexusServiceImplementation(new NexusServiceImpl(mockEchoClient))
+          .setNexusServiceImplementation(new SampleNexusServiceImpl(mockEchoClient))
           // The Echo Nexus handler service just makes a call to a class, so no extra setup is
           // needed. But the Hello Nexus service needs a worker for both the caller and handler
           // in order to run.
@@ -52,7 +52,8 @@ public class CallerWorkflowMockTest {
             HelloHandlerWorkflow.class,
             () -> {
               HelloHandlerWorkflow wf = mock(HelloHandlerWorkflow.class);
-              when(wf.hello(any())).thenReturn(new NexusService.HelloOutput("Hello Mock World 👋"));
+              when(wf.hello(any()))
+                  .thenReturn(new SampleNexusService.HelloOutput("Hello Mock World 👋"));
               return wf;
             });
     testWorkflowRule.getTestEnvironment().start();
@@ -64,7 +65,7 @@ public class CallerWorkflowMockTest {
             .newWorkflowStub(
                 HelloCallerWorkflow.class,
                 WorkflowOptions.newBuilder().setTaskQueue(testWorkflowRule.getTaskQueue()).build());
-    String greeting = workflow.hello("World", NexusService.Language.EN);
+    String greeting = workflow.hello("World", SampleNexusService.Language.EN);
     assertEquals("Hello Mock World 👋", greeting);
 
     testWorkflowRule.getTestEnvironment().shutdown();
@@ -74,7 +75,7 @@ public class CallerWorkflowMockTest {
   public void testEchoWorkflow() {
     // Sync Nexus operations run inline in the handler thread — there is no backing workflow to
     // register a factory for. Instead, stub the injected EchoCient dependency directly.
-    when(mockEchoClient.echo(any())).thenReturn(new NexusService.EchoOutput("mocked echo"));
+    when(mockEchoClient.echo(any())).thenReturn(new SampleNexusService.EchoOutput("mocked echo"));
     testWorkflowRule.getTestEnvironment().start();
 
     EchoCallerWorkflow workflow =

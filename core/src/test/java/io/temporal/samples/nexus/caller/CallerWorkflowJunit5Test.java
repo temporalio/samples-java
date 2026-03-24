@@ -3,8 +3,8 @@ package io.temporal.samples.nexus.caller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.temporal.samples.nexus.handler.HelloHandlerWorkflowImpl;
-import io.temporal.samples.nexus.handler.NexusServiceImpl;
-import io.temporal.samples.nexus.service.NexusService;
+import io.temporal.samples.nexus.handler.SampleNexusServiceImpl;
+import io.temporal.samples.nexus.service.SampleNexusService;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.testing.TestWorkflowExtension;
 import io.temporal.worker.Worker;
@@ -23,7 +23,7 @@ public class CallerWorkflowJunit5Test {
           // the TestWorkflowExtension will, by default, automatically create a Nexus service
           // endpoint and workflows registered as part of the TestWorkflowExtension will
           // automatically inherit the endpoint if none is set.
-          .setNexusServiceImplementation(new NexusServiceImpl())
+          .setNexusServiceImplementation(new SampleNexusServiceImpl())
           // The Echo Nexus handler service just makes a call to a class, so no extra setup is
           // needed. But the Hello Nexus service needs a worker for both the caller and handler
           // in order to run, and the Echo Nexus caller service needs a worker.
@@ -44,7 +44,7 @@ public class CallerWorkflowJunit5Test {
   public void testHelloWorkflow(
       TestWorkflowEnvironment testEnv, Worker worker, HelloCallerWorkflow workflow) {
     // Execute a workflow waiting for it to complete.
-    String greeting = workflow.hello("World", NexusService.Language.EN);
+    String greeting = workflow.hello("World", SampleNexusService.Language.EN);
     assertEquals("Hello World 👋", greeting);
   }
 
