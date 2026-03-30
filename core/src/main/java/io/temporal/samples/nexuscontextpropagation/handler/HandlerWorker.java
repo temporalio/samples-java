@@ -29,7 +29,7 @@ public class HandlerWorker {
 
     Worker worker = factory.newWorker(DEFAULT_TASK_QUEUE_NAME);
     worker.registerWorkflowImplementationTypes(HelloHandlerWorkflowImpl.class);
-    worker.registerNexusServiceImplementation(new NexusServiceImpl());
+    worker.registerNexusServiceImplementation(new SampleNexusServiceImpl());
 
     factory.start();
   }

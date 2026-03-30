@@ -1,7 +1,7 @@
 package io.temporal.samples.nexusmultipleargs.caller;
 
 import io.temporal.samples.nexus.caller.HelloCallerWorkflow;
-import io.temporal.samples.nexus.service.NexusService;
+import io.temporal.samples.nexus.service.SampleNexusService;
 import io.temporal.workflow.NexusOperationHandle;
 import io.temporal.workflow.NexusOperationOptions;
 import io.temporal.workflow.NexusServiceOptions;
@@ -9,9 +9,9 @@ import io.temporal.workflow.Workflow;
 import java.time.Duration;
 
 public class HelloCallerWorkflowImpl implements HelloCallerWorkflow {
-  NexusService nexusService =
+  SampleNexusService sampleNexusService =
       Workflow.newNexusServiceStub(
-          NexusService.class,
+          SampleNexusService.class,
           NexusServiceOptions.newBuilder()
               .setOperationOptions(
                   NexusOperationOptions.newBuilder()
@@ -20,10 +20,10 @@ public class HelloCallerWorkflowImpl implements HelloCallerWorkflow {
               .build());
 
   @Override
-  public String hello(String message, NexusService.Language language) {
-    NexusOperationHandle<NexusService.HelloOutput> handle =
+  public String hello(String message, SampleNexusService.Language language) {
+    NexusOperationHandle<SampleNexusService.HelloOutput> handle =
         Workflow.startNexusOperation(
-            nexusService::hello, new NexusService.HelloInput(message, language));
+            sampleNexusService::hello, new SampleNexusService.HelloInput(message, language));
     // Optionally wait for the operation to be started. NexusOperationExecution will contain the
     // operation token in case this operation is asynchronous.
     handle.getExecution().get();

@@ -6,27 +6,43 @@ import io.nexusrpc.handler.ServiceImpl;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.nexus.Nexus;
 import io.temporal.nexus.WorkflowRunOperation;
-import io.temporal.samples.nexus.service.NexusService;
+import io.temporal.samples.nexus.service.SampleNexusService;
 
 // To create a service implementation, annotate the class with @ServiceImpl and provide the
 // interface that the service implements. The service implementation class should have methods that
 // return OperationHandler that correspond to the operations defined in the service interface.
-@ServiceImpl(service = NexusService.class)
-public class NexusServiceImpl {
+@ServiceImpl(service = SampleNexusService.class)
+public class SampleNexusServiceImpl {
+  private final EchoClient echoClient;
+
+  // The injected EchoClient makes this class unit-testable.
+  // The no-arg constructor provides a default; the second allows tests to inject a mock.
+  // If you are not using the sync call or do not need to mock a handler, then you will not
+  // need this constructor pairing.
+  public SampleNexusServiceImpl() {
+    this(new EchoClientImpl());
+  }
+
+  public SampleNexusServiceImpl(EchoClient echoClient) {
+    this.echoClient = echoClient;
+  }
+
+  // The Echo Nexus Service exemplifies making a synchronous call using OperationHandler.sync.
+  // In this case, it is calling the EchoClient class - not a workflow - and simply returning the
+  // result.
   @OperationImpl
-  public OperationHandler<NexusService.EchoInput, NexusService.EchoOutput> echo() {
-    // OperationHandler.sync is a meant for exposing simple RPC handlers.
+  public OperationHandler<SampleNexusService.EchoInput, SampleNexusService.EchoOutput> echo() {
     return OperationHandler.sync(
         // The method is for making arbitrary short calls to other services or databases, or
         // perform simple computations such as this one. Users can also access a workflow client by
         // calling
         // Nexus.getOperationContext().getWorkflowClient(ctx) to make arbitrary calls such as
         // signaling, querying, or listing workflows.
-        (ctx, details, input) -> new NexusService.EchoOutput(input.getMessage()));
+        (ctx, details, input) -> echoClient.echo(input));
   }
 
   @OperationImpl
-  public OperationHandler<NexusService.HelloInput, NexusService.HelloOutput> hello() {
+  public OperationHandler<SampleNexusService.HelloInput, SampleNexusService.HelloOutput> hello() {
     // Use the WorkflowRunOperation.fromWorkflowMethod constructor, which is the easiest
     // way to expose a workflow as an operation. To expose a workflow with a different input
     // parameters then the operation or from an untyped stub, use the
@@ -39,10 +55,8 @@ public class NexusServiceImpl {
                     .newWorkflowStub(
                         HelloHandlerWorkflow.class,
                         // Workflow IDs should typically be business meaningful IDs and are used to
-                        // dedupe workflow starts.
-                        // For this example, we're using the request ID allocated by Temporal when
-                        // the
-                        // caller workflow schedules
+                        // dedupe workflow starts. For this example, we're using the request ID
+                        // allocated by Temporal when the caller workflow schedules
                         // the operation, this ID is guaranteed to be stable across retries of this
                         // operation.
                         //

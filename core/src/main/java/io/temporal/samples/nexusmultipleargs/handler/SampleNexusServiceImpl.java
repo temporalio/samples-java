@@ -7,15 +7,15 @@ import io.temporal.client.WorkflowOptions;
 import io.temporal.nexus.Nexus;
 import io.temporal.nexus.WorkflowHandle;
 import io.temporal.nexus.WorkflowRunOperation;
-import io.temporal.samples.nexus.service.NexusService;
+import io.temporal.samples.nexus.service.SampleNexusService;
 
 // To create a service implementation, annotate the class with @ServiceImpl and provide the
 // interface that the service implements. The service implementation class should have methods that
 // return OperationHandler that correspond to the operations defined in the service interface.
-@ServiceImpl(service = NexusService.class)
-public class NexusServiceImpl {
+@ServiceImpl(service = SampleNexusService.class)
+public class SampleNexusServiceImpl {
   @OperationImpl
-  public OperationHandler<NexusService.EchoInput, NexusService.EchoOutput> echo() {
+  public OperationHandler<SampleNexusService.EchoInput, SampleNexusService.EchoOutput> echo() {
     // OperationHandler.sync is a meant for exposing simple RPC handlers.
     return OperationHandler.sync(
         // The method is for making arbitrary short calls to other services or databases, or
@@ -23,11 +23,11 @@ public class NexusServiceImpl {
         // calling
         // Nexus.getOperationContext().getWorkflowClient(ctx) to make arbitrary calls such as
         // signaling, querying, or listing workflows.
-        (ctx, details, input) -> new NexusService.EchoOutput(input.getMessage()));
+        (ctx, details, input) -> new SampleNexusService.EchoOutput(input.getMessage()));
   }
 
   @OperationImpl
-  public OperationHandler<NexusService.HelloInput, NexusService.HelloOutput> hello() {
+  public OperationHandler<SampleNexusService.HelloInput, SampleNexusService.HelloOutput> hello() {
     // If the operation input parameters are different from the workflow input parameters,
     // use the WorkflowRunOperation.fromWorkflowHandler constructor and the appropriate constructor
     // method on WorkflowHandle to map the Nexus input to the workflow parameters.

@@ -40,6 +40,6 @@ INFO  i.t.s.n.caller.CallerStarter - Workflow result: Hello Nexus 👋
 
 And this on the handler side:
 ```
-INFO  i.t.s.n.handler.NexusServiceImpl - Echo called from a workflow with ID : 7ac97cb9-b457-4052-af94-d82478c35c5e 
+INFO  i.t.s.n.handler.SampleNexusServiceImpl - Echo called from a workflow with ID : 7ac97cb9-b457-4052-af94-d82478c35c5e 
 INFO  i.t.s.n.h.HelloHandlerWorkflowImpl - HelloHandlerWorkflow called from a workflow with ID : 9e0bc89c-5709-4742-b7c0-868464c2fccf 
 ```

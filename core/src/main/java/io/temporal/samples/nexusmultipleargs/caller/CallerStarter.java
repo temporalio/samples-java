@@ -7,7 +7,7 @@ import io.temporal.samples.nexus.caller.CallerWorker;
 import io.temporal.samples.nexus.caller.EchoCallerWorkflow;
 import io.temporal.samples.nexus.caller.HelloCallerWorkflow;
 import io.temporal.samples.nexus.options.ClientOptions;
-import io.temporal.samples.nexus.service.NexusService;
+import io.temporal.samples.nexus.service.SampleNexusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,11 +29,12 @@ public class CallerStarter {
     logger.info("Workflow result: {}", echoWorkflow.echo("Nexus Echo 👋"));
     HelloCallerWorkflow helloWorkflow =
         client.newWorkflowStub(HelloCallerWorkflow.class, workflowOptions);
-    execution = WorkflowClient.start(helloWorkflow::hello, "Nexus", NexusService.Language.EN);
+    execution = WorkflowClient.start(helloWorkflow::hello, "Nexus", SampleNexusService.Language.EN);
     logger.info(
         "Started HelloCallerWorkflow workflowId: {} runId: {}",
         execution.getWorkflowId(),
         execution.getRunId());
-    logger.info("Workflow result: {}", helloWorkflow.hello("Nexus", NexusService.Language.ES));
+    logger.info(
+        "Workflow result: {}", helloWorkflow.hello("Nexus", SampleNexusService.Language.ES));
   }
 }

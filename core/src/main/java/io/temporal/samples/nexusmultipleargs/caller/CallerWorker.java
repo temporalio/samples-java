@@ -21,7 +21,7 @@ public class CallerWorker {
         WorkflowImplementationOptions.newBuilder()
             .setNexusServiceOptions(
                 Collections.singletonMap(
-                    "NexusService",
+                    "SampleNexusService",
                     NexusServiceOptions.newBuilder().setEndpoint("my-nexus-endpoint-name").build()))
             .build(),
         EchoCallerWorkflowImpl.class,
