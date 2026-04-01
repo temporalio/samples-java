@@ -17,6 +17,7 @@ import org.junit.Test;
 // This is an example of how to unit test Nexus services in JUnit4. The handlers are mocked,
 // so that the caller classes interact with the mocks and not the handler classes themselves.
 
+// @@@SNIPSTART java-nexus-sample-junit4-mock
 public class CallerWorkflowMockTest {
 
   // Inject a mock EchoClient so sync Nexus operations can be stubbed per test.
@@ -90,3 +91,5 @@ public class CallerWorkflowMockTest {
     testWorkflowRule.getTestEnvironment().shutdown();
   }
 }
+
+// @@@SNIPEND

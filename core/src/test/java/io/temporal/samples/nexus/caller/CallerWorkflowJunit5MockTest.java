@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 // This is an example of how to unit test Nexus services in JUnit5. The handlers are mocked,
 // so that the caller classes interact with the mocks and not the handler classes themselves.
 
+// @@@SNIPSTART java-nexus-sample-junit5-mock
 public class CallerWorkflowJunit5MockTest {
 
   // Sync Nexus operations run inline in the handler thread — there is no backing workflow to
@@ -77,3 +78,5 @@ public class CallerWorkflowJunit5MockTest {
     testEnv.shutdown();
   }
 }
+
+// @@@SNIPEND

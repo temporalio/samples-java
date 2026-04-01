@@ -18,6 +18,8 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 // This is the path to take when you don't have access to the service implementation so
 // cannot mock it. Since the SampleNexusService itself is mocked,
 // no handlers need to be set up or mocked.
+
+// @@@SNIPSTART java-nexus-service-sample-junit4-mock
 public class NexusServiceJunit5Test {
 
   private final SampleNexusService mockNexusService = mock(SampleNexusService.class);
@@ -103,3 +105,5 @@ public class NexusServiceJunit5Test {
     verifyNoMoreInteractions(mockNexusService);
   }
 }
+
+// @@@SNIPEND
