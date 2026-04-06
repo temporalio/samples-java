@@ -1,0 +1,6 @@
+apply from: "$rootDir/gradle/springai.gradle"
+
+dependencies {
+    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+    implementation 'org.springframework.ai:spring-ai-rag'
+}
