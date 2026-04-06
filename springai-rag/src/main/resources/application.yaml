@@ -1,0 +1,24 @@
+spring:
+  main:
+    banner-mode: off
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4o-mini
+      embedding:
+        options:
+          model: text-embedding-3-small
+
+  temporal:
+    connection:
+      target: localhost:7233
+    workers:
+      - task-queue: rag-example-queue
+        workflow-classes:
+          - io.temporal.springai.example.rag.RagWorkflowImpl
+
+logging:
+  level:
+    io.temporal.springai: DEBUG

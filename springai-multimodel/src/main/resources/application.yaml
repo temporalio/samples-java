@@ -1,0 +1,21 @@
+spring:
+  main:
+    banner-mode: off
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+    anthropic:
+      api-key: ${ANTHROPIC_API_KEY}
+    # Note: The actual models are configured in ChatModelConfig.java
+
+  temporal:
+    connection:
+      target: localhost:7233
+    workers:
+      - task-queue: multi-model-queue
+        workflow-classes:
+          - io.temporal.springai.example.multimodel.MultiModelWorkflowImpl
+
+logging:
+  level:
+    io.temporal.springai: DEBUG
