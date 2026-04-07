@@ -29,10 +29,6 @@ dependencies {
     // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter'
 
-    // Required at runtime: the SpringAiPlugin introspects for VectorStore/MCP support
-    runtimeOnly 'org.springframework.ai:spring-ai-rag'
-    runtimeOnly 'org.springframework.ai:spring-ai-mcp'
-
     dependencies {
         errorproneJavac('com.google.errorprone:javac:9+181-r4173-1')
         errorprone('com.google.errorprone:error_prone_core:2.28.0')

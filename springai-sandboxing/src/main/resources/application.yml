@@ -16,7 +16,7 @@ spring:
     workers:
       - task-queue: spring-ai-sandboxing-example
         workflow-classes:
-          - io.temporal.springai.example.sandboxing.SandboxingWorkflowImpl
+          - io.temporal.samples.springai.sandboxing.SandboxingWorkflowImpl
 
 logging:
   level:
