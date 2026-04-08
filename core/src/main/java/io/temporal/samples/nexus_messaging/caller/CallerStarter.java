@@ -20,7 +20,7 @@ public class CallerStarter {
         client.newWorkflowStub(
             CallerWorkflow.class,
             WorkflowOptions.newBuilder()
-                .setWorkflowId("nexus-sync-operations-caller-" + UUID.randomUUID())
+                .setWorkflowId("nexus-messaging-caller-" + UUID.randomUUID())
                 .setTaskQueue(CallerWorker.TASK_QUEUE)
                 .build());
 

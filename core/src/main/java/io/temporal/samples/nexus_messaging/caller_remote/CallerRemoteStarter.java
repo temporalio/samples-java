@@ -20,7 +20,7 @@ public class CallerRemoteStarter {
         client.newWorkflowStub(
             CallerRemoteWorkflow.class,
             WorkflowOptions.newBuilder()
-                .setWorkflowId("nexus-sync-operations-remote-caller-" + UUID.randomUUID())
+                .setWorkflowId("nexus-messaging-remote-caller-" + UUID.randomUUID())
                 .setTaskQueue(CallerRemoteWorker.TASK_QUEUE)
                 .build());
 

@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 public class CallerWorker {
   private static final Logger logger = LoggerFactory.getLogger(CallerWorker.class);
 
-  public static final String NAMESPACE = "nexus-sync-operations-caller-namespace";
-  public static final String TASK_QUEUE = "nexus-sync-operations-caller-task-queue";
-  static final String NEXUS_ENDPOINT = "nexus-sync-operations-nexus-endpoint";
+  public static final String NAMESPACE = "nexus-messaging-caller-namespace";
+  public static final String TASK_QUEUE = "nexus-messaging-caller-task-queue";
+  static final String NEXUS_ENDPOINT = "nexus-messaging-nexus-endpoint";
 
   public static void main(String[] args) throws InterruptedException {
     WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
@@ -29,6 +29,7 @@ public class CallerWorker {
     worker.registerWorkflowImplementationTypes(
         WorkflowImplementationOptions.newBuilder()
             .setNexusServiceOptions(
+                // The key must match the @Service-annotated interface name.
                 Collections.singletonMap(
                     "NexusGreetingService",
                     NexusServiceOptions.newBuilder().setEndpoint(NEXUS_ENDPOINT).build()))

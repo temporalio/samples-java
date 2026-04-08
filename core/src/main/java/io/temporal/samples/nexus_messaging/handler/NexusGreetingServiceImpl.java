@@ -53,9 +53,11 @@ public class NexusGreetingServiceImpl {
         });
   }
 
-  // 👉 Backed by an update against the long-running entity workflow. Although updates can run for
-  // an arbitrarily long time, when exposed via a sync Nexus operation the update should complete
-  // quickly (sync operations must finish in under 10s).
+  // 👉 Backed by an update against the long-running entity workflow. Routes to
+  // setLanguageUsingActivity (not setLanguage) so that new languages not already in the greetings
+  // map can be fetched via an activity. Although updates can run for an arbitrarily long time, when
+  // exposed via a sync Nexus operation the update should complete quickly (sync operations must
+  // finish in under 10s).
   @OperationImpl
   public OperationHandler<NexusGreetingService.SetLanguageInput, Language> setLanguage() {
     return OperationHandler.sync(

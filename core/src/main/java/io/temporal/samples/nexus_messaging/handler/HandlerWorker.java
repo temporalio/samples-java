@@ -13,9 +13,9 @@ import org.slf4j.LoggerFactory;
 public class HandlerWorker {
   private static final Logger logger = LoggerFactory.getLogger(HandlerWorker.class);
 
-  public static final String NAMESPACE = "nexus-sync-operations-handler-namespace";
-  public static final String TASK_QUEUE = "nexus-sync-operations-handler-task-queue";
-  static final String WORKFLOW_ID = "nexus-sync-operations-greeting-workflow";
+  public static final String NAMESPACE = "nexus-messaging-handler-namespace";
+  public static final String TASK_QUEUE = "nexus-messaging-handler-task-queue";
+  static final String WORKFLOW_ID = "nexus-messaging-greeting-workflow";
 
   public static void main(String[] args) throws InterruptedException {
     WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();

@@ -22,7 +22,7 @@ public class GreetingWorkflowImpl implements GreetingWorkflow {
   private final Map<Language, String> greetings = new EnumMap<>(Language.class);
   private Language language = Language.ENGLISH;
 
-  private static final Logger logger = LoggerFactory.getLogger(HandlerWorker.class);
+  private static final Logger logger = LoggerFactory.getLogger(GreetingWorkflowImpl.class);
 
   // Used to serialize concurrent setLanguageUsingActivity calls so that only one activity runs at
   // a time per update handler execution.

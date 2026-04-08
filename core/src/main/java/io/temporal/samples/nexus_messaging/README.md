@@ -20,38 +20,41 @@ There are **two caller patterns** that share the same handler workflow (`Greetin
 
 ### Running
 
-Start a Temporal server and create namespaces/endpoint:
+Start a Temporal server:
 
 ```bash
 temporal server start-dev
+```
+Create the namespaces and Nexus endpoint:
 
-temporal operator namespace create --namespace nexus-sync-operations-handler-namespace
-temporal operator namespace create --namespace nexus-sync-operations-caller-namespace
+```bash
+temporal operator namespace create --namespace nexus-messaging-handler-namespace
+temporal operator namespace create --namespace nexus-messaging-caller-namespace
 
 temporal operator nexus endpoint create \
-  --name nexus-sync-operations-nexus-endpoint \
-  --target-namespace nexus-sync-operations-handler-namespace \
-  --target-task-queue nexus-sync-operations-handler-task-queue
+  --name nexus-messaging-nexus-endpoint \
+  --target-namespace nexus-messaging-handler-namespace \
+  --target-task-queue nexus-messaging-handler-task-queue
 ```
 
 In one terminal, start the handler worker (shared by both patterns):
 
 ```bash
-./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_sync_operations.handler.HandlerWorker
+./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_messaging.handler.HandlerWorker
 ```
 
 #### Entity pattern
 
-In a second terminal, run the caller worker:
+In the second terminal, run the caller worker:
 
 ```bash
-./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_sync_operations.caller.CallerWorker
+./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_messaging.caller.CallerWorker
 ```
 
-In a third terminal, start the caller workflow:
+In the third terminal, start the caller workflow:
 
 ```bash
-./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_sync_operations.caller.CallerStarter
+./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_messaging.caller.CallerStarter
 ```
 
 Expected output:
@@ -67,19 +70,19 @@ workflow approved
 In a second terminal, run the remote caller worker:
 
 ```bash
-./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_sync_operations.caller_remote.CallerRemoteWorker
+./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_messaging.caller_remote.CallerRemoteWorker
 ```
 
 In a third terminal, start the remote caller workflow:
 
 ```bash
-./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_sync_operations.caller_remote.CallerRemoteStarter
+./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_messaging.caller_remote.CallerRemoteStarter
 ```
 
 Expected output:
 
 ```
-started remote greeting workflow: nexus-sync-operations-remote-greeting-workflow
+started remote greeting workflow: nexus-messaging-remote-greeting-workflow
 supported languages: [CHINESE, ENGLISH]
 language changed: ENGLISH -> ARABIC
 workflow approved

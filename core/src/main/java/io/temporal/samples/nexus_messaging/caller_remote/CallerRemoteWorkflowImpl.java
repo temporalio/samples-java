@@ -17,7 +17,7 @@ public class CallerRemoteWorkflowImpl implements CallerRemoteWorkflow {
 
   private static final Logger logger = LoggerFactory.getLogger(CallerRemoteWorkflowImpl.class);
 
-  private static final String REMOTE_WORKFLOW_ID = "nexus-sync-operations-remote-greeting-workflow";
+  private static final String REMOTE_WORKFLOW_ID = "nexus-messaging-remote-greeting-workflow";
 
   NexusRemoteGreetingService greetingRemoteService =
       Workflow.newNexusServiceStub(
@@ -33,7 +33,9 @@ public class CallerRemoteWorkflowImpl implements CallerRemoteWorkflow {
   public List<String> run() {
     List<String> log = new ArrayList<>();
 
-    // Start a new GreetingWorkflow on the handler side via Nexus.
+    // 👉 Async Nexus operation — starts a workflow on the handler and returns a handle.
+    // Unlike the sync operations below (getLanguages, setLanguage, etc.), this does not block
+    // until the workflow completes. It is backed by WorkflowRunOperation on the handler side.
     NexusOperationHandle<String> handle =
         Workflow.startNexusOperation(
             greetingRemoteService::runFromRemote,
@@ -43,6 +45,8 @@ public class CallerRemoteWorkflowImpl implements CallerRemoteWorkflow {
     log.add("started remote greeting workflow: " + REMOTE_WORKFLOW_ID);
 
     // Query the remote workflow for supported languages.
+    // Output types (e.g. GetLanguagesOutput) are defined on NexusGreetingService and shared by
+    // both service interfaces.
     NexusGreetingService.GetLanguagesOutput languagesOutput =
         greetingRemoteService.getLanguages(
             new NexusRemoteGreetingService.GetLanguagesInput(false, REMOTE_WORKFLOW_ID));
@@ -52,7 +56,7 @@ public class CallerRemoteWorkflowImpl implements CallerRemoteWorkflow {
     Language previousLanguage =
         greetingRemoteService.setLanguage(
             new NexusRemoteGreetingService.SetLanguageInput(Language.ARABIC, REMOTE_WORKFLOW_ID));
-    logger.info("Language changed from {}", previousLanguage);
+    logger.info("Language changed from {} to {}", previousLanguage, Language.ARABIC);
 
     // Confirm the change by querying.
     Language currentLanguage =
