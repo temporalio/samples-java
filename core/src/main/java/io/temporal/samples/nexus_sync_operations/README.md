@@ -1,29 +1,30 @@
-This sample shows how to create a Nexus service that is backed by a long-running workflow and
-exposes operations that execute updates and queries against that workflow. The long-running
-workflow, and the updates/queries, are private implementation details of the Nexus service: the
-caller does not know how the operations are implemented.
+This sample shows how to expose a long-running workflow's queries, updates, and signals as Nexus
+operations. The caller interacts only with the Nexus service; the workflow is a private
+implementation detail.
 
-This is a Java port of the
-[nexus_sync_operations Python sample](https://github.com/temporalio/samples-python/tree/main/nexus_sync_operations).
+There are **two caller patterns** that share the same handler workflow (`GreetingWorkflow`):
 
-### Sample directory structure
+| | `caller/` (entity pattern) | `caller_remote/` (remote-start pattern) |
+|---|---|---|
+| **Who creates the workflow?** | The handler worker starts it on boot | The caller starts it via a `runFromRemote` Nexus operation |
+| **Who knows the workflow ID?** | Only the handler | The caller chooses and passes it in every operation |
+| **Nexus service** | `NexusGreetingService` — inputs carry only business data | `NexusRemoteGreetingService` — every input includes a `workflowId` |
+| **When to use** | Single shared entity; callers don't need lifecycle control | Caller needs to create and target specific workflow instances |
 
-- [`service/GreetingService.java`](./service/GreetingService.java) — shared Nexus service definition with input/output types
-- [`service/Language.java`](./service/Language.java) — shared language enum
-- [`handler/`](./handler/) — Nexus operation handlers, the long-running entity workflow they back, an activity, and a handler worker
-- [`caller/`](./caller/) — a caller workflow that executes Nexus operations, together with a worker and starter
+### Directory structure
 
-### Instructions
+- `service/` — shared Nexus service definitions (`NexusGreetingService`, `NexusRemoteGreetingService`) and `Language` enum
+- `handler/` — `GreetingWorkflow` and its implementation, `GreetingActivity`, both Nexus service impls (`NexusGreetingServiceImpl`, `NexusRemoteGreetingServiceImpl`), and the handler worker
+- `caller/` — entity-pattern caller (workflow, worker, starter)
+- `caller_remote/` — remote-start caller (workflow, worker, starter)
 
-Start a Temporal server:
+### Running
+
+Start a Temporal server and create namespaces/endpoint:
 
 ```bash
 temporal server start-dev
-```
 
-Create the caller and handler namespaces and the Nexus endpoint:
-
-```bash
 temporal operator namespace create --namespace nexus-sync-operations-handler-namespace
 temporal operator namespace create --namespace nexus-sync-operations-caller-namespace
 
@@ -33,12 +34,13 @@ temporal operator nexus endpoint create \
   --target-task-queue nexus-sync-operations-handler-task-queue
 ```
 
-In one terminal, run the handler worker (starts the long-running entity workflow and polls for
-Nexus, workflow, and activity tasks):
+In one terminal, start the handler worker (shared by both patterns):
 
 ```bash
 ./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_sync_operations.handler.HandlerWorker
 ```
+
+#### Entity pattern
 
 In a second terminal, run the caller worker:
 
@@ -52,25 +54,82 @@ In a third terminal, start the caller workflow:
 ./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_sync_operations.caller.CallerStarter
 ```
 
-You should see output like:
+Expected output:
 
 ```
 supported languages: [CHINESE, ENGLISH]
 language changed: ENGLISH -> ARABIC
+workflow approved
+```
+
+#### Remote-start pattern
+
+In a second terminal, run the remote caller worker:
+
+```bash
+./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_sync_operations.caller_remote.CallerRemoteWorker
+```
+
+In a third terminal, start the remote caller workflow:
+
+```bash
+./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_sync_operations.caller_remote.CallerRemoteStarter
+```
+
+Expected output:
+
+```
+started remote greeting workflow: nexus-sync-operations-remote-greeting-workflow
+supported languages: [CHINESE, ENGLISH]
+language changed: ENGLISH -> ARABIC
+workflow approved
+workflow result: مرحبا بالعالم
 ```
 
 ### How it works
 
-The handler starts a single long-running `GreetingWorkflow` entity workflow when the worker boots.
-This workflow holds the current language and a map of greetings, and exposes:
+#### The handler (shared by both patterns)
 
-- `getLanguages` — a `@QueryMethod` listing supported languages
-- `getLanguage` — a `@QueryMethod` returning the current language
-- `setLanguage` — an `@UpdateMethod` (sync) for switching between already-loaded languages
-- `setLanguageUsingActivity` — an `@UpdateMethod` (async) that calls an activity to fetch a
-  greeting for a new language before switching
-- `approve` — a `@SignalMethod` that allows the workflow to complete
+`GreetingWorkflow` is a long-running "entity" workflow that holds the current language and a map of
+greetings. It exposes its state through standard Temporal primitives:
 
-The three `GreetingService` Nexus operations delegate to these workflow handlers via the Temporal
-client inside each `OperationHandler.sync` implementation. The caller workflow sees only the Nexus
-operations; the entity workflow is a private implementation detail.
+- `getLanguages` / `getLanguage` — `@QueryMethod`s for reading state
+- `setLanguage` — an `@UpdateMethod` for switching between already-loaded languages
+- `setLanguageUsingActivity` — an `@UpdateMethod` that calls an activity to fetch a greeting for
+  a language not yet in the map (uses `WorkflowLock` to serialize concurrent activity calls)
+- `approve` — a `@SignalMethod` that lets the workflow complete
+
+The workflow waits until approved and all in-flight update handlers have finished, then returns the
+greeting in the current language.
+
+Both Nexus service implementations translate incoming Nexus operations into calls against
+`GreetingWorkflow` stubs — queries, updates, and signals. The caller never interacts with the
+workflow directly.
+
+#### Entity pattern (`caller/` + `NexusGreetingService`)
+
+The handler worker starts a single `GreetingWorkflow` on boot with a fixed workflow ID.
+`NexusGreetingServiceImpl` holds that workflow ID in its constructor and routes every operation to
+it. The caller's inputs contain only business data (language, name), not workflow IDs.
+
+`CallerWorkflowImpl` creates a `NexusGreetingService` stub and:
+1. Queries for supported languages (`getLanguages` — backed by a `@QueryMethod`)
+2. Changes the language to Arabic (`setLanguage` — backed by an `@UpdateMethod` that calls an activity)
+3. Confirms the change via a second query (`getLanguage`)
+4. Approves the workflow (`approve` — backed by a `@SignalMethod`)
+
+#### Remote-start pattern (`caller_remote/` + `NexusRemoteGreetingService`)
+
+No workflow is pre-started. Instead, `NexusRemoteGreetingService` adds a `runFromRemote` operation
+that starts a new `GreetingWorkflow` with a caller-chosen workflow ID using
+`WorkflowRunOperation`. Every other operation also includes the `workflowId` in its input so that
+`NexusRemoteGreetingServiceImpl` can look up the right workflow stub.
+
+`CallerRemoteWorkflowImpl` creates a `NexusRemoteGreetingService` stub and:
+1. Starts a remote `GreetingWorkflow` via `runFromRemote` and waits for it to be running
+2. Queries, updates, and approves that workflow — same operations as the entity pattern, but each
+   input carries the workflow ID
+3. Waits for the remote workflow to complete and returns its result (the greeting string)
+
+This pattern is useful when the caller needs to control the lifecycle of individual workflow
+instances rather than sharing a single entity.

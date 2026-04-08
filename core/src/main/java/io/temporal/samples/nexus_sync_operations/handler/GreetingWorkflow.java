@@ -2,8 +2,8 @@ package io.temporal.samples.nexus_sync_operations.handler;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.temporal.samples.nexus_sync_operations.service.GreetingService;
 import io.temporal.samples.nexus_sync_operations.service.Language;
+import io.temporal.samples.nexus_sync_operations.service.NexusGreetingService;
 import io.temporal.workflow.QueryMethod;
 import io.temporal.workflow.SignalMethod;
 import io.temporal.workflow.UpdateMethod;
@@ -12,9 +12,9 @@ import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 
 /**
- * A long-running "entity" workflow that backs the GreetingService Nexus operations. The workflow
- * exposes queries, an update, and a signal. These are private implementation details of the Nexus
- * service: the caller only interacts via Nexus operations.
+ * A long-running "entity" workflow that backs the NexusGreetingService Nexus operations. The
+ * workflow exposes queries, an update, and a signal. These are private implementation details of
+ * the Nexus service: the caller only interacts via Nexus operations.
  */
 @WorkflowInterface
 public interface GreetingWorkflow {
@@ -38,7 +38,8 @@ public interface GreetingWorkflow {
 
   // Returns the languages currently supported by the workflow.
   @QueryMethod
-  GreetingService.GetLanguagesOutput getLanguages(GreetingService.GetLanguagesInput input);
+  NexusGreetingService.GetLanguagesOutput getLanguages(
+      NexusGreetingService.GetLanguagesInput input);
 
   // Returns the currently active language.
   @QueryMethod
@@ -51,12 +52,12 @@ public interface GreetingWorkflow {
   // Changes the active language synchronously (only supports languages already in the greetings
   // map).
   @UpdateMethod
-  Language setLanguage(GreetingService.SetLanguageInput input);
+  Language setLanguage(NexusGreetingService.SetLanguageInput input);
 
   @UpdateValidatorMethod(updateName = "setLanguage")
-  void validateSetLanguage(GreetingService.SetLanguageInput input);
+  void validateSetLanguage(NexusGreetingService.SetLanguageInput input);
 
   // Changes the active language, calling an activity to fetch a greeting for new languages.
   @UpdateMethod
-  Language setLanguageUsingActivity(GreetingService.SetLanguageInput input);
+  Language setLanguageUsingActivity(NexusGreetingService.SetLanguageInput input);
 }

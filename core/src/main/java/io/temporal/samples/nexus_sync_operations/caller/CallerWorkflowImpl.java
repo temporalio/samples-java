@@ -1,8 +1,8 @@
 package io.temporal.samples.nexus_sync_operations.caller;
 
 import io.temporal.failure.ApplicationFailure;
-import io.temporal.samples.nexus_sync_operations.service.GreetingService;
 import io.temporal.samples.nexus_sync_operations.service.Language;
+import io.temporal.samples.nexus_sync_operations.service.NexusGreetingService;
 import io.temporal.workflow.NexusOperationOptions;
 import io.temporal.workflow.NexusServiceOptions;
 import io.temporal.workflow.Workflow;
@@ -14,9 +14,9 @@ public class CallerWorkflowImpl implements CallerWorkflow {
 
   // The endpoint is configured at the worker level in CallerWorker; only operation options are
   // set here.
-  GreetingService greetingService =
+  NexusGreetingService greetingService =
       Workflow.newNexusServiceStub(
-          GreetingService.class,
+          NexusGreetingService.class,
           NexusServiceOptions.newBuilder()
               .setOperationOptions(
                   NexusOperationOptions.newBuilder()
@@ -29,16 +29,17 @@ public class CallerWorkflowImpl implements CallerWorkflow {
     List<String> log = new ArrayList<>();
 
     // 👉 Call a Nexus operation backed by a query against the entity workflow.
-    GreetingService.GetLanguagesOutput languagesOutput =
-        greetingService.getLanguages(new GreetingService.GetLanguagesInput(false));
+    NexusGreetingService.GetLanguagesOutput languagesOutput =
+        greetingService.getLanguages(new NexusGreetingService.GetLanguagesInput(false));
     log.add("supported languages: " + languagesOutput.getLanguages());
 
     // 👉 Call a Nexus operation backed by an update against the entity workflow.
     Language previousLanguage =
-        greetingService.setLanguage(new GreetingService.SetLanguageInput(Language.ARABIC));
+        greetingService.setLanguage(new NexusGreetingService.SetLanguageInput(Language.ARABIC));
 
     // 👉 Call a Nexus operation backed by a query to confirm the language change.
-    Language currentLanguage = greetingService.getLanguage(new GreetingService.GetLanguageInput());
+    Language currentLanguage =
+        greetingService.getLanguage(new NexusGreetingService.GetLanguageInput());
     if (currentLanguage != Language.ARABIC) {
       throw ApplicationFailure.newFailure(
           "expected language ARABIC, got " + currentLanguage, "AssertionError");
@@ -47,7 +48,7 @@ public class CallerWorkflowImpl implements CallerWorkflow {
     log.add("language changed: " + previousLanguage.name() + " -> " + Language.ARABIC.name());
 
     // 👉 Call a Nexus operation backed by a signal against the entity workflow.
-    greetingService.approve(new GreetingService.ApproveInput("caller"));
+    greetingService.approve(new NexusGreetingService.ApproveInput("caller"));
     log.add("workflow approved");
 
     return log;

@@ -12,7 +12,7 @@ import java.util.List;
  * type-safe Nexus client stub; the handler implements the operations.
  */
 @Service
-public interface GreetingService {
+public interface NexusGreetingService {
 
   class GetLanguagesInput {
     private final boolean includeUnsupported;

@@ -42,7 +42,8 @@ public class HandlerWorker {
     Worker worker = factory.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     worker.registerActivitiesImplementations(new GreetingActivityImpl());
-    worker.registerNexusServiceImplementation(new GreetingServiceImpl(WORKFLOW_ID));
+    worker.registerNexusServiceImplementation(new NexusGreetingServiceImpl(WORKFLOW_ID));
+    worker.registerNexusServiceImplementation(new NexusRemoteGreetingServiceImpl());
 
     factory.start();
     logger.info("Handler worker started, ctrl+c to exit");

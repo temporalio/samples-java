@@ -2,8 +2,8 @@ package io.temporal.samples.nexus_sync_operations.handler;
 
 import io.temporal.activity.ActivityOptions;
 import io.temporal.failure.ApplicationFailure;
-import io.temporal.samples.nexus_sync_operations.service.GreetingService;
 import io.temporal.samples.nexus_sync_operations.service.Language;
+import io.temporal.samples.nexus_sync_operations.service.NexusGreetingService;
 import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowLock;
 import java.time.Duration;
@@ -46,7 +46,8 @@ public class GreetingWorkflowImpl implements GreetingWorkflow {
   }
 
   @Override
-  public GreetingService.GetLanguagesOutput getLanguages(GreetingService.GetLanguagesInput input) {
+  public NexusGreetingService.GetLanguagesOutput getLanguages(
+      NexusGreetingService.GetLanguagesInput input) {
     List<Language> result;
     if (input.isIncludeUnsupported()) {
       result = new ArrayList<>(Arrays.asList(Language.values()));
@@ -54,7 +55,7 @@ public class GreetingWorkflowImpl implements GreetingWorkflow {
       result = new ArrayList<>(greetings.keySet());
     }
     Collections.sort(result);
-    return new GreetingService.GetLanguagesOutput(result);
+    return new NexusGreetingService.GetLanguagesOutput(result);
   }
 
   @Override
@@ -69,7 +70,7 @@ public class GreetingWorkflowImpl implements GreetingWorkflow {
   }
 
   @Override
-  public Language setLanguage(GreetingService.SetLanguageInput input) {
+  public Language setLanguage(NexusGreetingService.SetLanguageInput input) {
     logger.info("setLanguage update received");
     Language previous = language;
     language = input.getLanguage();
@@ -77,7 +78,7 @@ public class GreetingWorkflowImpl implements GreetingWorkflow {
   }
 
   @Override
-  public void validateSetLanguage(GreetingService.SetLanguageInput input) {
+  public void validateSetLanguage(NexusGreetingService.SetLanguageInput input) {
     logger.info("validateSetLanguage called");
     if (!greetings.containsKey(input.getLanguage())) {
       throw new IllegalArgumentException(input.getLanguage().name() + " is not supported");
@@ -85,7 +86,7 @@ public class GreetingWorkflowImpl implements GreetingWorkflow {
   }
 
   @Override
-  public Language setLanguageUsingActivity(GreetingService.SetLanguageInput input) {
+  public Language setLanguageUsingActivity(NexusGreetingService.SetLanguageInput input) {
     if (!greetings.containsKey(input.getLanguage())) {
       // Use a lock so that if this handler is called concurrently, each call executes its activity
       // only after the previous one has completed. This ensures updates are processed in order.

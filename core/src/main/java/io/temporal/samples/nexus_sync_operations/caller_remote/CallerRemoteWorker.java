@@ -1,4 +1,4 @@
-package io.temporal.samples.nexus_sync_operations.caller;
+package io.temporal.samples.nexus_sync_operations.caller_remote;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
@@ -11,11 +11,11 @@ import java.util.Collections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CallerWorker {
-  private static final Logger logger = LoggerFactory.getLogger(CallerWorker.class);
+public class CallerRemoteWorker {
+  private static final Logger logger = LoggerFactory.getLogger(CallerRemoteWorker.class);
 
   public static final String NAMESPACE = "nexus-sync-operations-caller-namespace";
-  public static final String TASK_QUEUE = "nexus-sync-operations-caller-task-queue";
+  public static final String TASK_QUEUE = "nexus-sync-operations-caller-remote-task-queue";
   static final String NEXUS_ENDPOINT = "nexus-sync-operations-nexus-endpoint";
 
   public static void main(String[] args) throws InterruptedException {
@@ -30,13 +30,13 @@ public class CallerWorker {
         WorkflowImplementationOptions.newBuilder()
             .setNexusServiceOptions(
                 Collections.singletonMap(
-                    "NexusGreetingService",
+                    "NexusRemoteGreetingService",
                     NexusServiceOptions.newBuilder().setEndpoint(NEXUS_ENDPOINT).build()))
             .build(),
-        CallerWorkflowImpl.class);
+        CallerRemoteWorkflowImpl.class);
 
     factory.start();
-    logger.info("Caller worker started, ctrl+c to exit");
+    logger.info("Caller remote worker started, ctrl+c to exit");
     Thread.currentThread().join();
   }
 }
