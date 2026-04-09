@@ -5,7 +5,6 @@ import io.temporal.failure.ApplicationFailure;
 import io.temporal.samples.nexus_messaging.service.Language;
 import io.temporal.samples.nexus_messaging.service.NexusGreetingService;
 import io.temporal.workflow.Workflow;
-import io.temporal.workflow.WorkflowLock;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,7 +13,6 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class GreetingWorkflowImpl implements GreetingWorkflow {
 
@@ -22,11 +20,7 @@ public class GreetingWorkflowImpl implements GreetingWorkflow {
   private final Map<Language, String> greetings = new EnumMap<>(Language.class);
   private Language language = Language.ENGLISH;
 
-  private static final Logger logger = LoggerFactory.getLogger(GreetingWorkflowImpl.class);
-
-  // Used to serialize concurrent setLanguageUsingActivity calls so that only one activity runs at
-  // a time per update handler execution.
-  private final WorkflowLock lock = Workflow.newWorkflowLock();
+  private static final Logger logger = Workflow.getLogger(GreetingWorkflowImpl.class);
 
   private final GreetingActivity greetingActivity =
       Workflow.newActivityStub(
@@ -88,20 +82,14 @@ public class GreetingWorkflowImpl implements GreetingWorkflow {
   @Override
   public Language setLanguageUsingActivity(NexusGreetingService.SetLanguageInput input) {
     if (!greetings.containsKey(input.getLanguage())) {
-      // Use a lock so that if this handler is called concurrently, each call executes its activity
-      // only after the previous one has completed. This ensures updates are processed in order.
-      lock.lock();
-      try {
-        String greeting = greetingActivity.callGreetingService(input.getLanguage());
-        if (greeting == null) {
-          throw ApplicationFailure.newFailure(
-              "Greeting service does not support " + input.getLanguage().name(),
-              "UnsupportedLanguage");
-        }
-        greetings.put(input.getLanguage(), greeting);
-      } finally {
-        lock.unlock();
+
+      String greeting = greetingActivity.callGreetingService(input.getLanguage());
+      if (greeting == null) {
+        throw ApplicationFailure.newFailure(
+            "Greeting service does not support " + input.getLanguage().name(),
+            "UnsupportedLanguage");
       }
+      greetings.put(input.getLanguage(), greeting);
     }
     Language previous = language;
     language = input.getLanguage();

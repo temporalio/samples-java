@@ -1,4 +1,4 @@
-package io.temporal.samples.nexus_messaging.caller_remote;
+package io.temporal.samples.nexus_messaging.callerondemand;
 
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;

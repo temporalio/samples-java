@@ -40,7 +40,7 @@ temporal operator nexus endpoint create \
 In one terminal, start the handler worker (shared by both patterns):
 
 ```bash
-./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_messaging.handler.HandlerWorker
+./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_messaging.handler.HandlerWorker --args="-target-host localhost:7233 -namespace my-target-namespace"
 ```
 
 #### Entity pattern
@@ -48,13 +48,13 @@ In one terminal, start the handler worker (shared by both patterns):
 In the second terminal, run the caller worker:
 
 ```bash
-./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_messaging.caller.CallerWorker
+./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_messaging.caller.CallerWorker --args="-target-host localhost:7233 -namespace my-caller-namespace"
 ```
 
 In the third terminal, start the caller workflow:
 
 ```bash
-./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_messaging.caller.CallerStarter
+./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_messaging.caller.CallerStarter --args="-target-host localhost:7233 -namespace my-caller-namespace"
 ```
 
 Expected output:
@@ -70,13 +70,13 @@ workflow approved
 In a second terminal, run the remote caller worker:
 
 ```bash
-./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_messaging.caller_remote.CallerRemoteWorker
+./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_messaging.caller_remote.CallerRemoteWorker --args="-target-host localhost:7233 -namespace my-caller-namespace"
 ```
 
 In a third terminal, start the remote caller workflow:
 
 ```bash
-./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_messaging.caller_remote.CallerRemoteStarter
+./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexus_messaging.caller_remote.CallerRemoteStarter --args="-target-host localhost:7233 -namespace my-caller-namespace"
 ```
 
 Expected output:

@@ -1,0 +1,145 @@
+package io.temporal.samples.nexus_messaging.callerondemand;
+
+import io.temporal.samples.nexus_messaging.service.Language;
+import io.temporal.samples.nexus_messaging.service.NexusGreetingService;
+import io.temporal.samples.nexus_messaging.service.NexusRemoteGreetingService;
+import io.temporal.workflow.NexusOperationHandle;
+import io.temporal.workflow.NexusOperationOptions;
+import io.temporal.workflow.NexusServiceOptions;
+import io.temporal.workflow.Workflow;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import org.slf4j.Logger;
+
+public class CallerRemoteWorkflowImpl implements CallerRemoteWorkflow {
+
+  private static final Logger logger = Workflow.getLogger(CallerRemoteWorkflowImpl.class);
+
+  //  private static final String REMOTE_WORKFLOW_ID = "nexus-messaging-remote-greeting-workflow";
+  private static final String REMOTE_WORKFLOW_ONE = "UserId One";
+  private static final String REMOTE_WORKFLOW_TWO = "UserId Two";
+
+  NexusRemoteGreetingService greetingRemoteServiceOne =
+      Workflow.newNexusServiceStub(
+          NexusRemoteGreetingService.class,
+          NexusServiceOptions.newBuilder()
+              .setOperationOptions(
+                  NexusOperationOptions.newBuilder()
+                      .setScheduleToCloseTimeout(Duration.ofSeconds(10))
+                      .build())
+              .build());
+  NexusRemoteGreetingService greetingRemoteServiceTwo =
+      Workflow.newNexusServiceStub(
+          NexusRemoteGreetingService.class,
+          NexusServiceOptions.newBuilder()
+              .setOperationOptions(
+                  NexusOperationOptions.newBuilder()
+                      .setScheduleToCloseTimeout(Duration.ofSeconds(10))
+                      .build())
+              .build());
+
+  @Override
+  public List<String> run() {
+    List<String> log = new ArrayList<>();
+
+    // 👉 Async Nexus operation — starts a workflow on the handler and returns a handle.
+    // Unlike the sync operations below (getLanguages, setLanguage, etc.), this does not block
+    // until the workflow completes. It is backed by WorkflowRunOperation on the handler side.
+    NexusOperationHandle<String> handleOne =
+        Workflow.startNexusOperation(
+            greetingRemoteServiceOne::runFromRemote,
+            new NexusRemoteGreetingService.RunFromRemoteInput(REMOTE_WORKFLOW_ONE));
+    // Wait for the operation to be started (workflow is now running on the handler).
+    handleOne.getExecution().get();
+    log.add("started remote greeting workflow: " + REMOTE_WORKFLOW_ONE);
+    logger.info("started remote greeting workflow {}", REMOTE_WORKFLOW_ONE);
+
+    NexusOperationHandle<String> handleTwo =
+        Workflow.startNexusOperation(
+            greetingRemoteServiceOne::runFromRemote,
+            new NexusRemoteGreetingService.RunFromRemoteInput(REMOTE_WORKFLOW_TWO));
+    // Wait for the operation to be started (workflow is now running on the handler).
+    handleTwo.getExecution().get();
+    log.add("started remote greeting workflow: " + REMOTE_WORKFLOW_TWO);
+    logger.info("started remote greeting workflow {}", REMOTE_WORKFLOW_TWO);
+
+    // Query the remote workflow for supported languages.
+    // Output types (e.g. GetLanguagesOutput) are defined on NexusGreetingService and shared by
+    // both service interfaces.
+    NexusGreetingService.GetLanguagesOutput languagesOutput =
+        greetingRemoteServiceOne.getLanguages(
+            new NexusRemoteGreetingService.GetLanguagesInput(false, REMOTE_WORKFLOW_ONE));
+    log.add(
+        "Supported languages for " + REMOTE_WORKFLOW_ONE + ": " + languagesOutput.getLanguages());
+    logger.info(
+        "supported languages are {} for workflow {}",
+        languagesOutput.getLanguages(),
+        REMOTE_WORKFLOW_ONE);
+
+    languagesOutput =
+        greetingRemoteServiceTwo.getLanguages(
+            new NexusRemoteGreetingService.GetLanguagesInput(false, REMOTE_WORKFLOW_TWO));
+    log.add(
+        "Supported languages for " + REMOTE_WORKFLOW_TWO + ": " + languagesOutput.getLanguages());
+    logger.info(
+        "supported languages are {} for workflow {}",
+        languagesOutput.getLanguages(),
+        REMOTE_WORKFLOW_TWO);
+
+    // Update the language on the remote workflow.
+    Language previousLanguageOne =
+        greetingRemoteServiceOne.setLanguage(
+            new NexusRemoteGreetingService.SetLanguageInput(Language.ARABIC, REMOTE_WORKFLOW_ONE));
+
+    Language previousLanguageTwo =
+        greetingRemoteServiceTwo.setLanguage(
+            new NexusRemoteGreetingService.SetLanguageInput(Language.HINDI, REMOTE_WORKFLOW_TWO));
+
+    // Confirm the change by querying.
+    Language currentLanguage =
+        greetingRemoteServiceOne.getLanguage(
+            new NexusRemoteGreetingService.GetLanguageInput(REMOTE_WORKFLOW_ONE));
+    log.add(
+        REMOTE_WORKFLOW_ONE
+            + " changed language: "
+            + previousLanguageOne.name()
+            + " -> "
+            + currentLanguage.name());
+    logger.info(
+            "Language changed from {} to {} for workflow {}",
+            previousLanguageOne,
+            currentLanguage,
+            REMOTE_WORKFLOW_ONE);
+
+    currentLanguage =
+        greetingRemoteServiceTwo.getLanguage(
+            new NexusRemoteGreetingService.GetLanguageInput(REMOTE_WORKFLOW_TWO));
+    log.add(
+        REMOTE_WORKFLOW_TWO
+            + " changed language: "
+            + previousLanguageTwo.name()
+            + " -> "
+            + currentLanguage.name());
+    logger.info(
+            "Language changed from {} to {} for workflow {}",
+            previousLanguageTwo,
+            currentLanguage,
+            REMOTE_WORKFLOW_TWO);
+
+    // Approve the remote workflow so it can complete.
+    greetingRemoteServiceOne.approve(
+        new NexusRemoteGreetingService.ApproveInput("remote-caller", REMOTE_WORKFLOW_ONE));
+    greetingRemoteServiceTwo.approve(
+        new NexusRemoteGreetingService.ApproveInput("remote-caller", REMOTE_WORKFLOW_TWO));
+    log.add("Workflows approved");
+
+    // Wait for the remote workflow to finish and return its result.
+    String result = handleOne.getResult().get();
+    log.add("Workflow one result: " + result);
+
+    result = handleTwo.getResult().get();
+    log.add("Workflow two result: " + result);
+    return log;
+  }
+}
