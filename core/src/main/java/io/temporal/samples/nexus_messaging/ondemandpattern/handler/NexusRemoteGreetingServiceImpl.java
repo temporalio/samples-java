@@ -1,4 +1,4 @@
-package io.temporal.samples.nexus_messaging.handler;
+package io.temporal.samples.nexus_messaging.ondemandpattern.handler;
 
 import io.nexusrpc.handler.OperationHandler;
 import io.nexusrpc.handler.OperationImpl;
@@ -7,16 +7,14 @@ import io.temporal.client.WorkflowOptions;
 import io.temporal.nexus.Nexus;
 import io.temporal.nexus.WorkflowHandle;
 import io.temporal.nexus.WorkflowRunOperation;
-import io.temporal.samples.nexus_messaging.service.Language;
-import io.temporal.samples.nexus_messaging.service.NexusGreetingService;
-import io.temporal.samples.nexus_messaging.service.NexusRemoteGreetingService;
+import io.temporal.samples.nexus_messaging.ondemandpattern.service.Language;
+import io.temporal.samples.nexus_messaging.ondemandpattern.service.NexusRemoteGreetingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Nexus operation handler for the remote-start pattern. Unlike {@link NexusGreetingServiceImpl},
- * this implementation does not hold a fixed workflow ID. Instead, each operation receives the
- * target workflow ID in its input, and {@code runFromRemote} starts a brand-new GreetingWorkflow.
+ * Nexus operation handler for the on-demand pattern. Each operation receives the target workflow ID
+ * in its input, and {@code runFromRemote} starts a brand-new GreetingWorkflow.
  */
 @ServiceImpl(service = NexusRemoteGreetingService.class)
 public class NexusRemoteGreetingServiceImpl {
@@ -57,14 +55,14 @@ public class NexusRemoteGreetingServiceImpl {
 
   @OperationImpl
   public OperationHandler<
-          NexusRemoteGreetingService.GetLanguagesInput, NexusGreetingService.GetLanguagesOutput>
+          NexusRemoteGreetingService.GetLanguagesInput,
+          NexusRemoteGreetingService.GetLanguagesOutput>
       getLanguages() {
     return OperationHandler.sync(
         (ctx, details, input) -> {
           logger.info("Query for GetLanguages was received for workflow {}", input.getWorkflowId());
           return getWorkflowStub(input.getWorkflowId())
-              .getLanguages(
-                  new NexusGreetingService.GetLanguagesInput(input.isIncludeUnsupported()));
+              .getLanguages(new GreetingWorkflow.GetLanguagesInput(input.isIncludeUnsupported()));
         });
   }
 
@@ -84,21 +82,20 @@ public class NexusRemoteGreetingServiceImpl {
         (ctx, details, input) -> {
           logger.info("Update for SetLanguage was received for workflow {}", input.getWorkflowId());
           return getWorkflowStub(input.getWorkflowId())
-              .setLanguageUsingActivity(
-                  new NexusGreetingService.SetLanguageInput(input.getLanguage()));
+              .setLanguageUsingActivity(new GreetingWorkflow.SetLanguageInput(input.getLanguage()));
         });
   }
 
   @OperationImpl
   public OperationHandler<
-          NexusRemoteGreetingService.ApproveInput, NexusGreetingService.ApproveOutput>
+          NexusRemoteGreetingService.ApproveInput, NexusRemoteGreetingService.ApproveOutput>
       approve() {
     return OperationHandler.sync(
         (ctx, details, input) -> {
           logger.info("Signal for Approve was received for workflow {}", input.getWorkflowId());
           getWorkflowStub(input.getWorkflowId())
               .approve(new GreetingWorkflow.ApproveInput(input.getName()));
-          return new NexusGreetingService.ApproveOutput();
+          return new NexusRemoteGreetingService.ApproveOutput();
         });
   }
 }

@@ -1,9 +1,9 @@
-package io.temporal.samples.nexus_messaging.handler;
+package io.temporal.samples.nexus_messaging.ondemandpattern.handler;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.temporal.samples.nexus_messaging.service.Language;
-import io.temporal.samples.nexus_messaging.service.NexusGreetingService;
+import io.temporal.samples.nexus_messaging.ondemandpattern.service.Language;
+import io.temporal.samples.nexus_messaging.ondemandpattern.service.NexusRemoteGreetingService;
 import io.temporal.workflow.QueryMethod;
 import io.temporal.workflow.SignalMethod;
 import io.temporal.workflow.UpdateMethod;
@@ -12,7 +12,7 @@ import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 
 /**
- * A long-running "entity" workflow that backs the NexusGreetingService Nexus operations. The
+ * A long-running "entity" workflow that backs the NexusRemoteGreetingService Nexus operations. The
  * workflow exposes queries, an update, and a signal. These are private implementation details of
  * the Nexus service: the caller only interacts via Nexus operations.
  */
@@ -33,13 +33,40 @@ public interface GreetingWorkflow {
     }
   }
 
+  class GetLanguagesInput {
+    private final boolean includeUnsupported;
+
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    public GetLanguagesInput(@JsonProperty("includeUnsupported") boolean includeUnsupported) {
+      this.includeUnsupported = includeUnsupported;
+    }
+
+    @JsonProperty("includeUnsupported")
+    public boolean isIncludeUnsupported() {
+      return includeUnsupported;
+    }
+  }
+
+  class SetLanguageInput {
+    private final Language language;
+
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    public SetLanguageInput(@JsonProperty("language") Language language) {
+      this.language = language;
+    }
+
+    @JsonProperty("language")
+    public Language getLanguage() {
+      return language;
+    }
+  }
+
   @WorkflowMethod
   String run();
 
   // Returns the languages currently supported by the workflow.
   @QueryMethod
-  NexusGreetingService.GetLanguagesOutput getLanguages(
-      NexusGreetingService.GetLanguagesInput input);
+  NexusRemoteGreetingService.GetLanguagesOutput getLanguages(GetLanguagesInput input);
 
   // Returns the currently active language.
   @QueryMethod
@@ -52,12 +79,12 @@ public interface GreetingWorkflow {
   // Changes the active language synchronously (only supports languages already in the greetings
   // map).
   @UpdateMethod
-  Language setLanguage(NexusGreetingService.SetLanguageInput input);
+  Language setLanguage(SetLanguageInput input);
 
   @UpdateValidatorMethod(updateName = "setLanguage")
-  void validateSetLanguage(NexusGreetingService.SetLanguageInput input);
+  void validateSetLanguage(SetLanguageInput input);
 
   // Changes the active language, calling an activity to fetch a greeting for new languages.
   @UpdateMethod
-  Language setLanguageUsingActivity(NexusGreetingService.SetLanguageInput input);
+  Language setLanguageUsingActivity(SetLanguageInput input);
 }

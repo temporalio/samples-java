@@ -1,4 +1,4 @@
-package io.temporal.samples.nexus_messaging.callerondemand;
+package io.temporal.samples.nexus_messaging.ondemandpattern.caller;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;

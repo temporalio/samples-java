@@ -1,9 +1,8 @@
-package io.temporal.samples.nexus_messaging.caller;
+package io.temporal.samples.nexus_messaging.callerpattern.caller;
 
 import io.temporal.failure.ApplicationFailure;
-import io.temporal.samples.nexus_messaging.callerondemand.CallerRemoteWorkflowImpl;
-import io.temporal.samples.nexus_messaging.service.Language;
-import io.temporal.samples.nexus_messaging.service.NexusGreetingService;
+import io.temporal.samples.nexus_messaging.callerpattern.service.Language;
+import io.temporal.samples.nexus_messaging.callerpattern.service.NexusGreetingService;
 import io.temporal.workflow.NexusOperationOptions;
 import io.temporal.workflow.NexusServiceOptions;
 import io.temporal.workflow.Workflow;
@@ -14,7 +13,7 @@ import org.slf4j.Logger;
 
 public class CallerWorkflowImpl implements CallerWorkflow {
 
-  private static final Logger logger = Workflow.getLogger(CallerRemoteWorkflowImpl.class);
+  private static final Logger logger = Workflow.getLogger(CallerWorkflowImpl.class);
 
   // The endpoint is configured at the worker level in CallerWorker; only operation options are
   // set here.

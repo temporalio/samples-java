@@ -1,4 +1,4 @@
-package io.temporal.samples.nexus_messaging.service;
+package io.temporal.samples.nexus_messaging.callerpattern.service;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;

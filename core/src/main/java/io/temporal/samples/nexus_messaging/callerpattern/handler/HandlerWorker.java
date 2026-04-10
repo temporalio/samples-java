@@ -1,4 +1,4 @@
-package io.temporal.samples.nexus_messaging.handler;
+package io.temporal.samples.nexus_messaging.callerpattern.handler;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
@@ -43,7 +43,6 @@ public class HandlerWorker {
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     worker.registerActivitiesImplementations(new GreetingActivityImpl());
     worker.registerNexusServiceImplementation(new NexusGreetingServiceImpl(WORKFLOW_ID));
-    worker.registerNexusServiceImplementation(new NexusRemoteGreetingServiceImpl());
 
     factory.start();
     logger.info("Handler worker started, ctrl+c to exit");

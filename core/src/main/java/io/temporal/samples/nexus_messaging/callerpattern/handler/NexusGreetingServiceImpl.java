@@ -1,11 +1,11 @@
-package io.temporal.samples.nexus_messaging.handler;
+package io.temporal.samples.nexus_messaging.callerpattern.handler;
 
 import io.nexusrpc.handler.OperationHandler;
 import io.nexusrpc.handler.OperationImpl;
 import io.nexusrpc.handler.ServiceImpl;
 import io.temporal.nexus.Nexus;
-import io.temporal.samples.nexus_messaging.service.Language;
-import io.temporal.samples.nexus_messaging.service.NexusGreetingService;
+import io.temporal.samples.nexus_messaging.callerpattern.service.Language;
+import io.temporal.samples.nexus_messaging.callerpattern.service.NexusGreetingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,6 @@ public class NexusGreetingServiceImpl {
         .newWorkflowStub(GreetingWorkflow.class, workflowId);
   }
 
-  // 👉 Backed by a query against the long-running entity workflow.
   @OperationImpl
   public OperationHandler<
           NexusGreetingService.GetLanguagesInput, NexusGreetingService.GetLanguagesOutput>
@@ -43,7 +42,6 @@ public class NexusGreetingServiceImpl {
         });
   }
 
-  // 👉 Backed by a query against the long-running entity workflow.
   @OperationImpl
   public OperationHandler<NexusGreetingService.GetLanguageInput, Language> getLanguage() {
     return OperationHandler.sync(
@@ -53,11 +51,8 @@ public class NexusGreetingServiceImpl {
         });
   }
 
-  // 👉 Backed by an update against the long-running entity workflow. Routes to
-  // setLanguageUsingActivity (not setLanguage) so that new languages not already in the greetings
-  // map can be fetched via an activity. Although updates can run for an arbitrarily long time, when
-  // exposed via a sync Nexus operation the update should complete quickly (sync operations must
-  // finish in under 10s).
+  // Routes to setLanguageUsingActivity (not setLanguage) so that new languages not already in the
+  // greetings map can be fetched via an activity.
   @OperationImpl
   public OperationHandler<NexusGreetingService.SetLanguageInput, Language> setLanguage() {
     return OperationHandler.sync(
@@ -67,7 +62,6 @@ public class NexusGreetingServiceImpl {
         });
   }
 
-  // 👉 Backed by a signal against the long-running entity workflow.
   @OperationImpl
   public OperationHandler<NexusGreetingService.ApproveInput, NexusGreetingService.ApproveOutput>
       approve() {

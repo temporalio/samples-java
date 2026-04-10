@@ -1,15 +1,16 @@
-package io.temporal.samples.nexus_messaging.service;
+package io.temporal.samples.nexus_messaging.ondemandpattern.service;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.nexusrpc.Operation;
 import io.nexusrpc.Service;
+import java.util.List;
 
 /**
- * Nexus service definition for the remote-start pattern. Unlike {@link NexusGreetingService}, every
- * operation includes a {@code workflowId} so the caller controls which workflow instance is
- * targeted. This also exposes a {@code runFromRemote} operation that starts a new GreetingWorkflow.
+ * Nexus service definition for the on-demand pattern. Every operation includes a {@code workflowId}
+ * so the caller controls which workflow instance is targeted. This also exposes a {@code
+ * runFromRemote} operation that starts a new GreetingWorkflow.
  */
 @Service
 public interface NexusRemoteGreetingService {
@@ -111,6 +112,26 @@ public interface NexusRemoteGreetingService {
     }
   }
 
+  class GetLanguagesOutput {
+    private final List<Language> languages;
+
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    public GetLanguagesOutput(@JsonProperty("languages") List<Language> languages) {
+      this.languages = languages;
+    }
+
+    @JsonProperty("languages")
+    public List<Language> getLanguages() {
+      return languages;
+    }
+  }
+
+  @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
+  class ApproveOutput {
+    @JsonCreator
+    public ApproveOutput() {}
+  }
+
   // Starts a new GreetingWorkflow with the given workflow ID. This is an asynchronous Nexus
   // operation: the caller receives a handle and can wait for the workflow to complete.
   @Operation
@@ -118,7 +139,7 @@ public interface NexusRemoteGreetingService {
 
   // Returns the languages supported by the specified workflow.
   @Operation
-  NexusGreetingService.GetLanguagesOutput getLanguages(GetLanguagesInput input);
+  GetLanguagesOutput getLanguages(GetLanguagesInput input);
 
   // Returns the currently active language of the specified workflow.
   @Operation
@@ -130,5 +151,5 @@ public interface NexusRemoteGreetingService {
 
   // Approves the specified workflow, allowing it to complete.
   @Operation
-  NexusGreetingService.ApproveOutput approve(ApproveInput input);
+  ApproveOutput approve(ApproveInput input);
 }

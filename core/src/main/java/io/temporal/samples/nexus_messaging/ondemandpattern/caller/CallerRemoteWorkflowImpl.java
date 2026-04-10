@@ -1,8 +1,7 @@
-package io.temporal.samples.nexus_messaging.callerondemand;
+package io.temporal.samples.nexus_messaging.ondemandpattern.caller;
 
-import io.temporal.samples.nexus_messaging.service.Language;
-import io.temporal.samples.nexus_messaging.service.NexusGreetingService;
-import io.temporal.samples.nexus_messaging.service.NexusRemoteGreetingService;
+import io.temporal.samples.nexus_messaging.ondemandpattern.service.Language;
+import io.temporal.samples.nexus_messaging.ondemandpattern.service.NexusRemoteGreetingService;
 import io.temporal.workflow.NexusOperationHandle;
 import io.temporal.workflow.NexusOperationOptions;
 import io.temporal.workflow.NexusServiceOptions;
@@ -65,9 +64,7 @@ public class CallerRemoteWorkflowImpl implements CallerRemoteWorkflow {
     logger.info("started remote greeting workflow {}", REMOTE_WORKFLOW_TWO);
 
     // Query the remote workflow for supported languages.
-    // Output types (e.g. GetLanguagesOutput) are defined on NexusGreetingService and shared by
-    // both service interfaces.
-    NexusGreetingService.GetLanguagesOutput languagesOutput =
+    NexusRemoteGreetingService.GetLanguagesOutput languagesOutput =
         greetingRemoteServiceOne.getLanguages(
             new NexusRemoteGreetingService.GetLanguagesInput(false, REMOTE_WORKFLOW_ONE));
     log.add(
@@ -107,10 +104,10 @@ public class CallerRemoteWorkflowImpl implements CallerRemoteWorkflow {
             + " -> "
             + currentLanguage.name());
     logger.info(
-            "Language changed from {} to {} for workflow {}",
-            previousLanguageOne,
-            currentLanguage,
-            REMOTE_WORKFLOW_ONE);
+        "Language changed from {} to {} for workflow {}",
+        previousLanguageOne,
+        currentLanguage,
+        REMOTE_WORKFLOW_ONE);
 
     currentLanguage =
         greetingRemoteServiceTwo.getLanguage(
@@ -122,10 +119,10 @@ public class CallerRemoteWorkflowImpl implements CallerRemoteWorkflow {
             + " -> "
             + currentLanguage.name());
     logger.info(
-            "Language changed from {} to {} for workflow {}",
-            previousLanguageTwo,
-            currentLanguage,
-            REMOTE_WORKFLOW_TWO);
+        "Language changed from {} to {} for workflow {}",
+        previousLanguageTwo,
+        currentLanguage,
+        REMOTE_WORKFLOW_TWO);
 
     // Approve the remote workflow so it can complete.
     greetingRemoteServiceOne.approve(

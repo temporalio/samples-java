@@ -1,8 +1,8 @@
-package io.temporal.samples.nexus_messaging.handler;
+package io.temporal.samples.nexus_messaging.callerpattern.handler;
 
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityMethod;
-import io.temporal.samples.nexus_messaging.service.Language;
+import io.temporal.samples.nexus_messaging.callerpattern.service.Language;
 
 @ActivityInterface
 public interface GreetingActivity {
