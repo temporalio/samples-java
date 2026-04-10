@@ -15,7 +15,10 @@ public class CallerRemoteWorkflowImpl implements CallerRemoteWorkflow {
 
   private static final Logger logger = Workflow.getLogger(CallerRemoteWorkflowImpl.class);
 
-  //  private static final String REMOTE_WORKFLOW_ID = "nexus-messaging-remote-greeting-workflow";
+  // This is going to create two workflows and send messages to them.
+  // We need to have an ID to differentiate so that Nexus knows how to name
+  // a workflow and then how to know the correct destination workflow.
+  // So here we are just going to define two workflow IDs with different user IDs.
   private static final String REMOTE_WORKFLOW_ONE = "UserId One";
   private static final String REMOTE_WORKFLOW_TWO = "UserId Two";
 
@@ -40,9 +43,19 @@ public class CallerRemoteWorkflowImpl implements CallerRemoteWorkflow {
 
   @Override
   public List<String> run() {
+    // Messages in the log array are passed back to the caller who will then log them to report what
+    // is happening.
+    // The same message is also logged for demo purposes, so that things are visible in the caller
+    // workflow output.
     List<String> log = new ArrayList<>();
 
-    // 👉 Async Nexus operation — starts a workflow on the handler and returns a handle.
+    // Each call is performed twice in this example. This assumes there are two users we want
+    // to process. The first call starts two workflows, one for each user.
+    // Subsequent calls perform different actions between the two users.
+    // There are examples for each of the three messaging types -
+    // update, query, then signal.
+
+    // This is an Async Nexus operation — starts a workflow on the handler and returns a handle.
     // Unlike the sync operations below (getLanguages, setLanguage, etc.), this does not block
     // until the workflow completes. It is backed by WorkflowRunOperation on the handler side.
     NexusOperationHandle<String> handleOne =

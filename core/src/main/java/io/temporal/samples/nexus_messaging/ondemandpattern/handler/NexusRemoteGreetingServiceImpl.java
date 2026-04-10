@@ -30,11 +30,6 @@ public class NexusRemoteGreetingServiceImpl {
 
   // Starts a new GreetingWorkflow with the caller-specified workflow ID. This is an async
   // Nexus operation backed by WorkflowRunOperation.
-  //
-  // fromWorkflowHandle (rather than fromWorkflowMethod) is used here because the Nexus operation
-  // input (RunFromRemoteInput) differs from the workflow method parameters — run() takes no args.
-  // The input is consumed to set the workflow ID on the stub; the workflow itself is invoked
-  // with no arguments via the ::run method reference.
   @OperationImpl
   public OperationHandler<NexusRemoteGreetingService.RunFromRemoteInput, String> runFromRemote() {
     return WorkflowRunOperation.fromWorkflowHandle(

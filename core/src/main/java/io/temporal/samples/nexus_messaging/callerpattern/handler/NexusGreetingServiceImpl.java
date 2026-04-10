@@ -21,6 +21,10 @@ public class NexusGreetingServiceImpl {
 
   static final String WORKFLOW_ID_PREFIX = "GreetingWorkflow_for_";
 
+  // This example assumes you might have multiple workflows, one for each user.
+  // If you had a single workflow for all users, then you could remove the
+  // getWorkflowId method, remove the user ID from each input, and just
+  // use the single worflow ID in the getWorkflowStub method below.
   public static String getWorkflowId(String userId) {
     return WORKFLOW_ID_PREFIX + userId;
   }

@@ -4,6 +4,8 @@ The handler worker starts a single `GreetingWorkflow` with a fixed workflow ID.
 `NexusGreetingServiceImpl` holds that ID and routes every Nexus operation to it. The caller's
 inputs contain only business data — no workflow IDs.
 
+Refer to the on demand pattern examples and you will see how to expand this example to not just a single fixed workflow ID - the NexusGreetingServiceImpl simply needs to be able to map something from the inputs to a Workflow ID. For example if the workflow ID is a user ID with a prefix, then if the Nexus inputs include a User ID, then Nexus can simple prepend the same string to get the desired workflow ID.
+
 The caller workflow:
 1. Queries for supported languages (`getLanguages` — backed by a `@QueryMethod`)
 2. Changes the language to Arabic (`setLanguage` — backed by an `@UpdateMethod` that calls an activity)

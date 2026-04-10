@@ -24,9 +24,13 @@ public class HandlerWorker {
             service, WorkflowClientOptions.newBuilder().setNamespace(NAMESPACE).build());
 
     // Start the long-running entity workflow that backs the Nexus service, if not already running.
-    // The workflow ID is derived from the user ID using the same prefix as
-    // NexusGreetingServiceImpl.
+    // Create a workflow ID derived from the given user ID.
+    // This would be for a process that would create a workflow for each UserID,
+    // if you had a single long running workflow for all users then you could
+    // remove all the USER_IDs from the inputs and just make everything refer
+    // to a single workflow ID.
     String workflowId = NexusGreetingServiceImpl.getWorkflowId(USER_ID);
+
     GreetingWorkflow greetingWorkflow =
         client.newWorkflowStub(
             GreetingWorkflow.class,

@@ -1,15 +1,15 @@
 This sample shows how to expose a long-running workflow's queries, updates, and signals as Nexus
 operations. There are two self-contained examples, each in its own directory:
 
-| | `callerpattern/` | `ondemandpattern/` |
-|---|---|---|
-| **Pattern** | Signal an existing workflow | Create and run workflows on demand |
-| **Who creates the workflow?** | The handler worker starts it on boot | The caller starts it via a Nexus operation |
-| **Who knows the workflow ID?** | Only the handler | The caller chooses and passes it in every operation |
-| **Nexus service** | `NexusGreetingService` | `NexusRemoteGreetingService` |
+| | `callerpattern/` | `ondemandpattern/`                                           |
+|---|---|--------------------------------------------------------------|
+| **Pattern** | Signal an existing workflow | Create and run workflows on demand, and send signals to them |
+| **Who creates the workflow?** | The handler worker starts it on boot | The caller starts it via a Nexus operation                   |
+| **Who knows the workflow ID?** | Only the handler | The caller chooses and passes it in every operation          |
+| **Nexus service** | `NexusGreetingService` | `NexusRemoteGreetingService`                                 |
 
-Each directory is fully self-contained with its own `service/`, `handler/`, and caller code. The
-`GreetingWorkflow` and `GreetingWorkflowImpl` classes are **identical** between the two — only the
+Each directory is fully self-contained for clarity. The
+`GreetingWorkflow`, `GreetingWorkflowImpl`, `GreetingActivity` and `GreetingActivityImpl` classes are **identical** between the two — only the
 Nexus service interface and its implementation differ. This highlights that the same workflow can be
 exposed through Nexus in different ways depending on whether the caller needs lifecycle control.
 

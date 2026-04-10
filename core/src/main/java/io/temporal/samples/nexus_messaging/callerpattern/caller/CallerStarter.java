@@ -24,6 +24,8 @@ public class CallerStarter {
                 .setTaskQueue(CallerWorker.TASK_QUEUE)
                 .build());
 
+    // Launch the worker, passing in an identifier which the Nexus service will use
+    // to find the matching workflow  (See NexusGreetingServiceImpl::getWorkflowId)
     List<String> log = workflow.run("user-1");
     log.forEach(System.out::println);
   }
