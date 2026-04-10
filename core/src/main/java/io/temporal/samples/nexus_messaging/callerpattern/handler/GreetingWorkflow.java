@@ -1,7 +1,5 @@
 package io.temporal.samples.nexus_messaging.callerpattern.handler;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import io.temporal.samples.nexus_messaging.callerpattern.service.Language;
 import io.temporal.samples.nexus_messaging.callerpattern.service.NexusGreetingService;
 import io.temporal.workflow.QueryMethod;
@@ -19,20 +17,6 @@ import io.temporal.workflow.WorkflowMethod;
 @WorkflowInterface
 public interface GreetingWorkflow {
 
-  class ApproveInput {
-    private final String name;
-
-    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public ApproveInput(@JsonProperty("name") String name) {
-      this.name = name;
-    }
-
-    @JsonProperty("name")
-    public String getName() {
-      return name;
-    }
-  }
-
   @WorkflowMethod
   String run();
 
@@ -47,7 +31,7 @@ public interface GreetingWorkflow {
 
   // Approves the workflow, allowing it to complete.
   @SignalMethod
-  void approve(ApproveInput input);
+  void approve(NexusGreetingService.ApproveInput input);
 
   // Changes the active language synchronously (only supports languages already in the greetings
   // map).

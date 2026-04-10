@@ -7,5 +7,5 @@ import java.util.List;
 @WorkflowInterface
 public interface CallerWorkflow {
   @WorkflowMethod
-  List<String> run();
+  List<String> run(String userId);
 }

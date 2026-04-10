@@ -58,14 +58,18 @@ public class GreetingWorkflowImpl implements GreetingWorkflow {
   }
 
   @Override
-  public void approve(ApproveInput input) {
-    logger.info("Approval signal received");
+  public void approve(NexusGreetingService.ApproveInput input) {
+    logger.info(
+        "Approval signal received for workflow {}",
+        NexusGreetingServiceImpl.getWorkflowId(input.getUserId()));
     approvedForRelease = true;
   }
 
   @Override
   public Language setLanguage(NexusGreetingService.SetLanguageInput input) {
-    logger.info("setLanguage update received");
+    logger.info(
+        "setLanguage update received for workflow {}",
+        NexusGreetingServiceImpl.getWorkflowId(input.getUserId()));
     Language previous = language;
     language = input.getLanguage();
     return previous;
@@ -73,7 +77,9 @@ public class GreetingWorkflowImpl implements GreetingWorkflow {
 
   @Override
   public void validateSetLanguage(NexusGreetingService.SetLanguageInput input) {
-    logger.info("validateSetLanguage called");
+    logger.info(
+        "validateSetLanguage called for workflow {}",
+        NexusGreetingServiceImpl.getWorkflowId(input.getUserId()));
     if (!greetings.containsKey(input.getLanguage())) {
       throw new IllegalArgumentException(input.getLanguage().name() + " is not supported");
     }

@@ -24,7 +24,7 @@ public class CallerStarter {
                 .setTaskQueue(CallerWorker.TASK_QUEUE)
                 .build());
 
-    List<String> log = workflow.run();
+    List<String> log = workflow.run("user-1");
     log.forEach(System.out::println);
   }
 }

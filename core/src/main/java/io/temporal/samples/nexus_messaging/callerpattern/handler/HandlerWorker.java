@@ -15,7 +15,7 @@ public class HandlerWorker {
 
   public static final String NAMESPACE = "nexus-messaging-handler-namespace";
   public static final String TASK_QUEUE = "nexus-messaging-handler-task-queue";
-  static final String WORKFLOW_ID = "nexus-messaging-greeting-workflow";
+  static final String USER_ID = "user-1";
 
   public static void main(String[] args) throws InterruptedException {
     WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
@@ -24,25 +24,28 @@ public class HandlerWorker {
             service, WorkflowClientOptions.newBuilder().setNamespace(NAMESPACE).build());
 
     // Start the long-running entity workflow that backs the Nexus service, if not already running.
+    // The workflow ID is derived from the user ID using the same prefix as
+    // NexusGreetingServiceImpl.
+    String workflowId = NexusGreetingServiceImpl.getWorkflowId(USER_ID);
     GreetingWorkflow greetingWorkflow =
         client.newWorkflowStub(
             GreetingWorkflow.class,
             WorkflowOptions.newBuilder()
-                .setWorkflowId(WORKFLOW_ID)
+                .setWorkflowId(workflowId)
                 .setTaskQueue(TASK_QUEUE)
                 .build());
     try {
       WorkflowClient.start(greetingWorkflow::run);
-      logger.info("Started greeting workflow: {}", WORKFLOW_ID);
+      logger.info("Started greeting workflow: {}", workflowId);
     } catch (WorkflowExecutionAlreadyStarted e) {
-      logger.info("Greeting workflow already running: {}", WORKFLOW_ID);
+      logger.info("Greeting workflow already running: {}", workflowId);
     }
 
     WorkerFactory factory = WorkerFactory.newInstance(client);
     Worker worker = factory.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     worker.registerActivitiesImplementations(new GreetingActivityImpl());
-    worker.registerNexusServiceImplementation(new NexusGreetingServiceImpl(WORKFLOW_ID));
+    worker.registerNexusServiceImplementation(new NexusGreetingServiceImpl());
 
     factory.start();
     logger.info("Handler worker started, ctrl+c to exit");

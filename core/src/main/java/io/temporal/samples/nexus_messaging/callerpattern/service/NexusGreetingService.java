@@ -16,15 +16,24 @@ public interface NexusGreetingService {
 
   class GetLanguagesInput {
     private final boolean includeUnsupported;
+    private final String userId;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public GetLanguagesInput(@JsonProperty("includeUnsupported") boolean includeUnsupported) {
+    public GetLanguagesInput(
+        @JsonProperty("includeUnsupported") boolean includeUnsupported,
+        @JsonProperty("userId") String userId) {
       this.includeUnsupported = includeUnsupported;
+      this.userId = userId;
     }
 
     @JsonProperty("includeUnsupported")
     public boolean isIncludeUnsupported() {
       return includeUnsupported;
+    }
+
+    @JsonProperty("userId")
+    public String getUserId() {
+      return userId;
     }
   }
 
@@ -42,23 +51,38 @@ public interface NexusGreetingService {
     }
   }
 
-  @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
   class GetLanguageInput {
-    @JsonCreator
-    public GetLanguageInput() {}
+    private final String userId;
+
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    public GetLanguageInput(@JsonProperty("userId") String userId) {
+      this.userId = userId;
+    }
+
+    @JsonProperty("userId")
+    public String getUserId() {
+      return userId;
+    }
   }
 
   class ApproveInput {
     private final String name;
+    private final String userId;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public ApproveInput(@JsonProperty("name") String name) {
+    public ApproveInput(@JsonProperty("name") String name, @JsonProperty("userId") String userId) {
       this.name = name;
+      this.userId = userId;
     }
 
     @JsonProperty("name")
     public String getName() {
       return name;
+    }
+
+    @JsonProperty("userId")
+    public String getUserId() {
+      return userId;
     }
   }
 
@@ -70,15 +94,23 @@ public interface NexusGreetingService {
 
   class SetLanguageInput {
     private final Language language;
+    private final String userId;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public SetLanguageInput(@JsonProperty("language") Language language) {
+    public SetLanguageInput(
+        @JsonProperty("language") Language language, @JsonProperty("userId") String userId) {
       this.language = language;
+      this.userId = userId;
     }
 
     @JsonProperty("language")
     public Language getLanguage() {
       return language;
+    }
+
+    @JsonProperty("userId")
+    public String getUserId() {
+      return userId;
     }
   }
 

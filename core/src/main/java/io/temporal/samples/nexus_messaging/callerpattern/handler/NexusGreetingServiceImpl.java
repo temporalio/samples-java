@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Nexus operation handler implementation. Each operation is backed by the long-running
- * GreetingWorkflow entity. The operations are synchronous (sync_operation) because queries and
+ * Nexus operation handler implementation. Each operation receives a userId, which is mapped to a
+ * workflow ID using {@link #WORKFLOW_ID_PREFIX}. The operations are synchronous because queries and
  * updates against a running workflow complete quickly.
  */
 @ServiceImpl(service = NexusGreetingService.class)
@@ -19,16 +19,16 @@ public class NexusGreetingServiceImpl {
 
   private static final Logger logger = LoggerFactory.getLogger(NexusGreetingServiceImpl.class);
 
-  private final String workflowId;
+  static final String WORKFLOW_ID_PREFIX = "GreetingWorkflow_for_";
 
-  public NexusGreetingServiceImpl(String workflowId) {
-    this.workflowId = workflowId;
+  public static String getWorkflowId(String userId) {
+    return WORKFLOW_ID_PREFIX + userId;
   }
 
-  private GreetingWorkflow getWorkflowStub() {
+  private GreetingWorkflow getWorkflowStub(String userId) {
     return Nexus.getOperationContext()
         .getWorkflowClient()
-        .newWorkflowStub(GreetingWorkflow.class, workflowId);
+        .newWorkflowStub(GreetingWorkflow.class, getWorkflowId(userId));
   }
 
   @OperationImpl
@@ -37,8 +37,8 @@ public class NexusGreetingServiceImpl {
       getLanguages() {
     return OperationHandler.sync(
         (ctx, details, input) -> {
-          logger.info("Query for GetLanguages was received");
-          return getWorkflowStub().getLanguages(input);
+          logger.info("Query for GetLanguages was received for user {}", input.getUserId());
+          return getWorkflowStub(input.getUserId()).getLanguages(input);
         });
   }
 
@@ -46,8 +46,8 @@ public class NexusGreetingServiceImpl {
   public OperationHandler<NexusGreetingService.GetLanguageInput, Language> getLanguage() {
     return OperationHandler.sync(
         (ctx, details, input) -> {
-          logger.info("Query for GetLanguage was received");
-          return getWorkflowStub().getLanguage();
+          logger.info("Query for GetLanguage was received for user {}", input.getUserId());
+          return getWorkflowStub(input.getUserId()).getLanguage();
         });
   }
 
@@ -57,8 +57,8 @@ public class NexusGreetingServiceImpl {
   public OperationHandler<NexusGreetingService.SetLanguageInput, Language> setLanguage() {
     return OperationHandler.sync(
         (ctx, details, input) -> {
-          logger.info("Update for SetLanguage was received");
-          return getWorkflowStub().setLanguageUsingActivity(input);
+          logger.info("Update for SetLanguage was received for user {}", input.getUserId());
+          return getWorkflowStub(input.getUserId()).setLanguageUsingActivity(input);
         });
   }
 
@@ -67,8 +67,8 @@ public class NexusGreetingServiceImpl {
       approve() {
     return OperationHandler.sync(
         (ctx, details, input) -> {
-          logger.info("Signal for Approve was received");
-          getWorkflowStub().approve(new GreetingWorkflow.ApproveInput(input.getName()));
+          logger.info("Signal for Approve was received for user {}", input.getUserId());
+          getWorkflowStub(input.getUserId()).approve(input);
           return new NexusGreetingService.ApproveOutput();
         });
   }

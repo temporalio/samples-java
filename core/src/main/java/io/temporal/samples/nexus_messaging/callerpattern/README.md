@@ -1,6 +1,6 @@
 ## Entity pattern
 
-The handler worker starts a single `GreetingWorkflow` on boot with a fixed workflow ID.
+The handler worker starts a single `GreetingWorkflow` with a fixed workflow ID.
 `NexusGreetingServiceImpl` holds that ID and routes every Nexus operation to it. The caller's
 inputs contain only business data — no workflow IDs.
 

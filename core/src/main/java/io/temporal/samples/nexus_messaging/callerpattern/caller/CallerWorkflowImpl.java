@@ -28,22 +28,23 @@ public class CallerWorkflowImpl implements CallerWorkflow {
               .build());
 
   @Override
-  public List<String> run() {
+  public List<String> run(String userId) {
     List<String> log = new ArrayList<>();
 
     // 👉 Call a Nexus operation backed by a query against the entity workflow.
     NexusGreetingService.GetLanguagesOutput languagesOutput =
-        greetingService.getLanguages(new NexusGreetingService.GetLanguagesInput(false));
+        greetingService.getLanguages(new NexusGreetingService.GetLanguagesInput(false, userId));
     log.add("Supported languages: " + languagesOutput.getLanguages());
     logger.info("Supported languages: {}", languagesOutput.getLanguages());
 
     // 👉 Call a Nexus operation backed by an update against the entity workflow.
     Language previousLanguage =
-        greetingService.setLanguage(new NexusGreetingService.SetLanguageInput(Language.ARABIC));
+        greetingService.setLanguage(
+            new NexusGreetingService.SetLanguageInput(Language.ARABIC, userId));
 
     // 👉 Call a Nexus operation backed by a query to confirm the language change.
     Language currentLanguage =
-        greetingService.getLanguage(new NexusGreetingService.GetLanguageInput());
+        greetingService.getLanguage(new NexusGreetingService.GetLanguageInput(userId));
     if (currentLanguage != Language.ARABIC) {
       throw ApplicationFailure.newFailure(
           "Expected language ARABIC, got " + currentLanguage, "AssertionError");
@@ -53,7 +54,7 @@ public class CallerWorkflowImpl implements CallerWorkflow {
     logger.info("Language changed from {} to {}", previousLanguage, Language.ARABIC);
 
     // 👉 Call a Nexus operation backed by a signal against the entity workflow.
-    greetingService.approve(new NexusGreetingService.ApproveInput("caller"));
+    greetingService.approve(new NexusGreetingService.ApproveInput("caller", userId));
     log.add("Workflow approved");
     logger.info("Workflow approved");
 
