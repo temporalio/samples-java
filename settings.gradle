@@ -4,7 +4,6 @@ include 'springai'
 include 'springai-mcp'
 include 'springai-multimodel'
 include 'springai-rag'
-include 'springai-sandboxing'
 include 'springboot'
 include 'springboot-basic'
 
