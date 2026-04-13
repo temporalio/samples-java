@@ -22,10 +22,20 @@ public class NexusRemoteGreetingServiceImpl {
   private static final Logger logger =
       LoggerFactory.getLogger(NexusRemoteGreetingServiceImpl.class);
 
-  private GreetingWorkflow getWorkflowStub(String workflowId) {
+  static final String WORKFLOW_ID_PREFIX = "GreetingWorkflow_for_";
+
+  // This example assumes you might have multiple workflows, one for each user.
+  // If you had a single workflow for all users, then you could remove the
+  // getWorkflowId method, remove the user ID from each input, and just
+  // use the single worflow ID in the getWorkflowStub method below.
+  public static String getWorkflowId(String userId) {
+    return WORKFLOW_ID_PREFIX + userId;
+  }
+
+  private GreetingWorkflow getWorkflowStub(String userId) {
     return Nexus.getOperationContext()
         .getWorkflowClient()
-        .newWorkflowStub(GreetingWorkflow.class, workflowId);
+        .newWorkflowStub(GreetingWorkflow.class, getWorkflowId(userId));
   }
 
   // Starts a new GreetingWorkflow with the caller-specified workflow ID. This is an async
@@ -34,14 +44,14 @@ public class NexusRemoteGreetingServiceImpl {
   public OperationHandler<NexusRemoteGreetingService.RunFromRemoteInput, String> runFromRemote() {
     return WorkflowRunOperation.fromWorkflowHandle(
         (ctx, details, input) -> {
-          logger.info("RunFromRemote was received for workflow {}", input.getWorkflowId());
+          logger.info("RunFromRemote was received for userID {}", input.getUserId());
           return WorkflowHandle.fromWorkflowMethod(
               Nexus.getOperationContext()
                       .getWorkflowClient()
                       .newWorkflowStub(
                           GreetingWorkflow.class,
                           WorkflowOptions.newBuilder()
-                              .setWorkflowId(input.getWorkflowId())
+                              .setWorkflowId(getWorkflowId(input.getUserId()))
                               .setTaskQueue(HandlerWorker.TASK_QUEUE)
                               .build())
                   ::run);
@@ -55,8 +65,8 @@ public class NexusRemoteGreetingServiceImpl {
       getLanguages() {
     return OperationHandler.sync(
         (ctx, details, input) -> {
-          logger.info("Query for GetLanguages was received for workflow {}", input.getWorkflowId());
-          return getWorkflowStub(input.getWorkflowId())
+          logger.info("Query for GetLanguages was received for userId {}", input.getUserId());
+          return getWorkflowStub(input.getUserId())
               .getLanguages(new GreetingWorkflow.GetLanguagesInput(input.isIncludeUnsupported()));
         });
   }
@@ -65,8 +75,8 @@ public class NexusRemoteGreetingServiceImpl {
   public OperationHandler<NexusRemoteGreetingService.GetLanguageInput, Language> getLanguage() {
     return OperationHandler.sync(
         (ctx, details, input) -> {
-          logger.info("Query for GetLanguage was received for workflow {}", input.getWorkflowId());
-          return getWorkflowStub(input.getWorkflowId()).getLanguage();
+          logger.info("Query for GetLanguage was received for userId {}", input.getUserId());
+          return getWorkflowStub(input.getUserId()).getLanguage();
         });
   }
 
@@ -75,8 +85,8 @@ public class NexusRemoteGreetingServiceImpl {
   public OperationHandler<NexusRemoteGreetingService.SetLanguageInput, Language> setLanguage() {
     return OperationHandler.sync(
         (ctx, details, input) -> {
-          logger.info("Update for SetLanguage was received for workflow {}", input.getWorkflowId());
-          return getWorkflowStub(input.getWorkflowId())
+          logger.info("Update for SetLanguage was received for userId {}", input.getUserId());
+          return getWorkflowStub(input.getUserId())
               .setLanguageUsingActivity(new GreetingWorkflow.SetLanguageInput(input.getLanguage()));
         });
   }
@@ -87,8 +97,8 @@ public class NexusRemoteGreetingServiceImpl {
       approve() {
     return OperationHandler.sync(
         (ctx, details, input) -> {
-          logger.info("Signal for Approve was received for workflow {}", input.getWorkflowId());
-          getWorkflowStub(input.getWorkflowId())
+          logger.info("Signal for Approve was received for userId {}", input.getUserId());
+          getWorkflowStub(input.getUserId())
               .approve(new GreetingWorkflow.ApproveInput(input.getName()));
           return new NexusRemoteGreetingService.ApproveOutput();
         });

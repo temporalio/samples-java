@@ -8,37 +8,38 @@ import io.nexusrpc.Service;
 import java.util.List;
 
 /**
- * Nexus service definition for the on-demand pattern. Every operation includes a {@code workflowId}
- * so the caller controls which workflow instance is targeted. This also exposes a {@code
- * runFromRemote} operation that starts a new GreetingWorkflow.
+ * Nexus service definition for the on-demand pattern. Every operation includes a {@code userId} so
+ * the caller controls which workflow instance is targeted though that, while the Nexus service
+ * converts that UserId into a WorkflowId. This also exposes a {@code runFromRemote} operation that
+ * starts a new GreetingWorkflow.
  */
 @Service
 public interface NexusRemoteGreetingService {
 
   class RunFromRemoteInput {
-    private final String workflowId;
+    private final String userId;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public RunFromRemoteInput(@JsonProperty("workflowId") String workflowId) {
-      this.workflowId = workflowId;
+    public RunFromRemoteInput(@JsonProperty("userId") String userId) {
+      this.userId = userId;
     }
 
-    @JsonProperty("workflowId")
-    public String getWorkflowId() {
-      return workflowId;
+    @JsonProperty("userId")
+    public String getUserId() {
+      return userId;
     }
   }
 
   class GetLanguagesInput {
     private final boolean includeUnsupported;
-    private final String workflowId;
+    private final String userId;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public GetLanguagesInput(
         @JsonProperty("includeUnsupported") boolean includeUnsupported,
-        @JsonProperty("workflowId") String workflowId) {
+        @JsonProperty("userId") String userId) {
       this.includeUnsupported = includeUnsupported;
-      this.workflowId = workflowId;
+      this.userId = userId;
     }
 
     @JsonProperty("includeUnsupported")
@@ -46,37 +47,36 @@ public interface NexusRemoteGreetingService {
       return includeUnsupported;
     }
 
-    @JsonProperty("workflowId")
-    public String getWorkflowId() {
-      return workflowId;
+    @JsonProperty("userId")
+    public String getUserId() {
+      return userId;
     }
   }
 
   @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
   class GetLanguageInput {
-    private final String workflowId;
+    private final String userId;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public GetLanguageInput(@JsonProperty("workflowId") String workflowId) {
-      this.workflowId = workflowId;
+    public GetLanguageInput(@JsonProperty("userId") String userId) {
+      this.userId = userId;
     }
 
-    @JsonProperty("workflowId")
-    public String getWorkflowId() {
-      return workflowId;
+    @JsonProperty("userId")
+    public String getUserId() {
+      return userId;
     }
   }
 
   class SetLanguageInput {
     private final Language language;
-    private final String workflowId;
+    private final String userId;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public SetLanguageInput(
-        @JsonProperty("language") Language language,
-        @JsonProperty("workflowId") String workflowId) {
+        @JsonProperty("language") Language language, @JsonProperty("userId") String userId) {
       this.language = language;
-      this.workflowId = workflowId;
+      this.userId = userId;
     }
 
     @JsonProperty("language")
@@ -84,21 +84,20 @@ public interface NexusRemoteGreetingService {
       return language;
     }
 
-    @JsonProperty("workflowId")
-    public String getWorkflowId() {
-      return workflowId;
+    @JsonProperty("userId")
+    public String getUserId() {
+      return userId;
     }
   }
 
   class ApproveInput {
     private final String name;
-    private final String workflowId;
+    private final String userId;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public ApproveInput(
-        @JsonProperty("name") String name, @JsonProperty("workflowId") String workflowId) {
+    public ApproveInput(@JsonProperty("name") String name, @JsonProperty("userId") String userId) {
       this.name = name;
-      this.workflowId = workflowId;
+      this.userId = userId;
     }
 
     @JsonProperty("name")
@@ -106,9 +105,9 @@ public interface NexusRemoteGreetingService {
       return name;
     }
 
-    @JsonProperty("workflowId")
-    public String getWorkflowId() {
-      return workflowId;
+    @JsonProperty("userId")
+    public String getUserId() {
+      return userId;
     }
   }
 
@@ -132,7 +131,7 @@ public interface NexusRemoteGreetingService {
     public ApproveOutput() {}
   }
 
-  // Starts a new GreetingWorkflow with the given workflow ID. This is an asynchronous Nexus
+  // Starts a new GreetingWorkflow for the given user ID. This is an asynchronous Nexus
   // operation: the caller receives a handle and can wait for the workflow to complete.
   @Operation
   String runFromRemote(RunFromRemoteInput input);

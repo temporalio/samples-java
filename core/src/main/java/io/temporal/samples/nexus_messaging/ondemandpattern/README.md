@@ -33,6 +33,11 @@ temporal operator nexus endpoint create \
   --target-task-queue nexus-messaging-handler-task-queue
 ```
 
+This sample loads connection settings from `ClientConfigProfile`. The
+`nexus-messaging-handler` and `nexus-messaging-caller` profiles are defined in
+`core/src/main/resources/config.toml`. You can override settings with environment
+variables or by editing the TOML file (see the `envconfig` sample for details).
+
 In one terminal, start the handler worker:
 
 ```bash
