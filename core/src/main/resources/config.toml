@@ -17,6 +17,15 @@ trace-id = "dev-trace-123"
 address = "localhost:9999"
 namespace = "staging" 
 
+# Nexus messaging sample profiles
+[profile.nexus-messaging-handler]
+address = "localhost:7233"
+namespace = "nexus-messaging-handler-namespace"
+
+[profile.nexus-messaging-caller]
+address = "localhost:7233"
+namespace = "nexus-messaging-caller-namespace"
+
 # An example production profile for Temporal Cloud
 [profile.prod]
 address = "your-namespace.a1b2c.tmprl.cloud:7233"
