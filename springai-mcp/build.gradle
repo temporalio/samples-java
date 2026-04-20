@@ -1,0 +1,8 @@
+apply from: "$rootDir/gradle/springai.gradle"
+
+dependencies {
+    implementation 'org.springframework.ai:spring-ai-starter-model-openai'
+    implementation 'org.springframework.ai:spring-ai-starter-mcp-client'
+    implementation 'org.springframework.ai:spring-ai-rag'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+}

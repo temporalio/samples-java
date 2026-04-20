@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: spring-ai-temporal-example
+  main:
+    web-application-type: none
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4o-mini
+          temperature: 0.7
+  temporal:
+    connection:
+      target: localhost:7233
+    workers:
+      - task-queue: spring-ai-example
+        workflow-classes:
+          - io.temporal.samples.springai.chat.ChatWorkflowImpl
+        activity-beans:
+          - weatherActivityImpl
+
+logging:
+  level:
+    io.temporal.springai: DEBUG

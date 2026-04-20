@@ -1,0 +1,56 @@
+// Shared configuration for all Spring AI sample modules.
+// Applied via: apply from: "$rootDir/gradle/springai.gradle"
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+ext {
+    springBootVersionForSpringAi = '3.5.3'
+    springAiVersion = '1.1.0'
+    // temporal-spring-ai isn't on Maven Central yet. Build it locally from
+    // sdk-java master (`./gradlew publishToMavenLocal`) and the springai*
+    // samples will pick it up via mavenLocal(). Until release, pin this to
+    // whatever version sdk-java master is publishing (1.35.0-SNAPSHOT today).
+    springAiSdkVersion = '1.35.0-SNAPSHOT'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.boot:spring-boot-dependencies:$springBootVersionForSpringAi"
+        mavenBom "org.springframework.ai:spring-ai-bom:$springAiVersion"
+    }
+}
+
+dependencies {
+    // Temporal — pinned to springAiSdkVersion (see comment above) because
+    // temporal-spring-ai requires an SDK newer than $javaSDKVersion.
+    implementation "io.temporal:temporal-spring-boot-starter:$springAiSdkVersion"
+    implementation "io.temporal:temporal-spring-ai:$springAiSdkVersion"
+    // temporal-spring-ai declares temporal-sdk as compileOnly, so bring it in explicitly.
+    implementation "io.temporal:temporal-sdk:$springAiSdkVersion"
+
+    // Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter'
+
+    dependencies {
+        errorproneJavac('com.google.errorprone:javac:9+181-r4173-1')
+        errorprone('com.google.errorprone:error_prone_core:2.28.0')
+    }
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
+bootRun {
+    standardInput = System.in
+}
