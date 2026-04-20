@@ -103,8 +103,8 @@ public class MultiModelApplication implements CommandLineRunner {
         modelName = "default";
         message = input.substring(8).trim();
       } else {
-        // Default to openai if no prefix
-        modelName = "openai";
+        // No prefix — route to the workflow's "default" model
+        modelName = "default";
         message = input;
       }
 

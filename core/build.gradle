@@ -7,8 +7,10 @@ dependencies {
     // Environment configuration
     implementation "io.temporal:temporal-envconfig:$javaSDKVersion"
 
-    // Needed for SSL sample (AdvancedTlsX509KeyManager)
-    implementation "io.grpc:grpc-util"
+    // AdvancedTlsX509KeyManager used by the SSL sample. Pinned explicitly so this
+    // module resolves it regardless of the SDK's transitive grpc version (needed
+    // in particular when substituting the SDK via composite build).
+    implementation "io.grpc:grpc-util:1.75.0"
 
     // Needed for SDK related functionality
     implementation(platform("com.fasterxml.jackson:jackson-bom:2.17.2"))

@@ -50,14 +50,12 @@ public class Starter {
     if (refreshPeriod > 0) {
       AdvancedTlsX509KeyManager clientKeyManager = new AdvancedTlsX509KeyManager();
       // Reload credentials every minute
-      @SuppressWarnings("InlineMeInliner")
-      var unused =
-          clientKeyManager.updateIdentityCredentialsFromFile(
-              clientKeyFile,
-              clientCertFile,
-              refreshPeriod,
-              TimeUnit.MINUTES,
-              Executors.newScheduledThreadPool(1));
+      clientKeyManager.updateIdentityCredentials(
+          clientCertFile,
+          clientKeyFile,
+          refreshPeriod,
+          TimeUnit.MINUTES,
+          Executors.newScheduledThreadPool(1));
       sslContext =
           GrpcSslContexts.configure(SslContextBuilder.forClient().keyManager(clientKeyManager))
               .build();

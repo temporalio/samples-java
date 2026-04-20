@@ -108,8 +108,8 @@ public class RagApplication implements CommandLineRunner {
         continue;
       }
 
-      if (input.startsWith("ask ")) {
-        String question = input.substring(4).trim();
+      if (input.equals("ask") || input.startsWith("ask ")) {
+        String question = input.length() > 3 ? input.substring(4).trim() : "";
         if (question.isEmpty()) {
           System.out.println("Usage: ask <question>");
           continue;

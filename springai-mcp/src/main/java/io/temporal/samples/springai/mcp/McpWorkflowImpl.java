@@ -68,12 +68,12 @@ public class McpWorkflowImpl implements McpWorkflow {
         TemporalChatClient.builder(chatModel)
             .defaultSystem(
                 """
-                        You are a helpful assistant with access to file system tools.
-                        You can read files, write files, list directories, and more.
+                You are a helpful assistant with access to file system tools.
+                You can read files, write files, list directories, and more.
 
-                        When asked to perform file operations, use your tools.
-                        Always confirm what you did after completing an operation.
-                        """)
+                When asked to perform file operations, use your tools.
+                Always confirm what you did after completing an operation.
+                """)
             .defaultToolCallbacks(mcpTools)
             .defaultAdvisors(PromptChatMemoryAdvisor.builder(chatMemory).build())
             .build();
@@ -94,7 +94,7 @@ public class McpWorkflowImpl implements McpWorkflow {
 
     messageCount++;
 
-    // MessageChatMemoryAdvisor automatically handles conversation history
+    // PromptChatMemoryAdvisor automatically handles conversation history
     lastResponse = chatClient.prompt().user(message).call().content();
   }
 

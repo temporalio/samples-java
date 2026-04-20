@@ -25,7 +25,7 @@ public interface MultiModelWorkflow {
   /**
    * Sends a message to a specific model.
    *
-   * @param modelName the name of the model to use ("fast", "smart", or "default")
+   * @param modelName the name of the model to use ("openai", "anthropic", or "default")
    * @param message the user message
    */
   @SignalMethod

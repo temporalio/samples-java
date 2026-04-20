@@ -19,8 +19,8 @@ import org.springframework.ai.chat.client.ChatClient;
  * <p>This demonstrates:
  *
  * <ul>
- *   <li>Using {@link EmbeddingModelActivity} to generate embeddings
- *   <li>Using {@link VectorStoreActivity} to store and search documents
+ *   <li>Using {@link VectorStoreActivity} to store and search documents (the configured {@code
+ *       VectorStore} handles embedding internally)
  *   <li>Combining vector search with chat for RAG
  * </ul>
  *
@@ -53,13 +53,13 @@ public class RagWorkflowImpl implements RagWorkflow {
         TemporalChatClient.builder(chatModel)
             .defaultSystem(
                 """
-                        You are a helpful assistant that answers questions based on the provided context.
+                You are a helpful assistant that answers questions based on the provided context.
 
-                        When answering:
-                        - Use only the information from the context provided
-                        - If the context doesn't contain relevant information, say so
-                        - Be concise and direct
-                        """)
+                When answering:
+                - Use only the information from the context provided
+                - If the context doesn't contain relevant information, say so
+                - Be concise and direct
+                """)
             .build();
   }
 
@@ -106,13 +106,13 @@ public class RagWorkflowImpl implements RagWorkflow {
                 u ->
                     u.text(
                             """
-                        Context:
-                        {context}
+                            Context:
+                            {context}
 
-                        Question: {question}
+                            Question: {question}
 
-                        Answer based on the context above:
-                        """)
+                            Answer based on the context above:
+                            """)
                         .param("context", context)
                         .param("question", question))
             .call()

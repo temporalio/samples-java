@@ -54,9 +54,7 @@ public class MultiModelWorkflowImpl implements MultiModelWorkflow {
     chatClients.put(
         "openai",
         TemporalChatClient.builder(openAiModel)
-            .defaultSystem(
-                "You are a helpful assistant powered by OpenAI. "
-                    + "Keep answers concise. You are GPT-4o-mini.")
+            .defaultSystem("You are a helpful assistant powered by OpenAI. Keep answers concise.")
             .build());
 
     // Create a chat client using Anthropic Claude with custom timeout
@@ -71,7 +69,7 @@ public class MultiModelWorkflowImpl implements MultiModelWorkflow {
         TemporalChatClient.builder(anthropicModel)
             .defaultSystem(
                 "You are a helpful assistant powered by Anthropic. "
-                    + "You excel at careful reasoning and nuanced responses. You are Claude.")
+                    + "You excel at careful reasoning and nuanced responses.")
             .build());
   }
 
