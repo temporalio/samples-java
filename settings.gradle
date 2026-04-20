@@ -7,21 +7,3 @@ include 'springai-rag'
 include 'springboot'
 include 'springboot-basic'
 
-// Include local sdk-java build for temporal-spring-ai (until published to Maven Central).
-// temporal-spring-ai is not yet in a released SDK, so we substitute all SDK modules from the
-// local build when the sibling ../sdk-java checkout is available. Without the checkout, the
-// springai* modules will fail to resolve io.temporal:temporal-spring-ai — that's expected
-// until the artifact is published.
-if (file('../sdk-java').exists()) {
-    includeBuild('../sdk-java') {
-        dependencySubstitution {
-            substitute module('io.temporal:temporal-spring-ai') using project(':temporal-spring-ai')
-            substitute module('io.temporal:temporal-sdk') using project(':temporal-sdk')
-            substitute module('io.temporal:temporal-serviceclient') using project(':temporal-serviceclient')
-            substitute module('io.temporal:temporal-spring-boot-autoconfigure') using project(':temporal-spring-boot-autoconfigure')
-            substitute module('io.temporal:temporal-spring-boot-starter') using project(':temporal-spring-boot-starter')
-            substitute module('io.temporal:temporal-testing') using project(':temporal-testing')
-            substitute module('io.temporal:temporal-opentracing') using project(':temporal-opentracing')
-        }
-    }
-}

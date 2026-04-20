@@ -50,9 +50,9 @@ public class Starter {
     if (refreshPeriod > 0) {
       AdvancedTlsX509KeyManager clientKeyManager = new AdvancedTlsX509KeyManager();
       // Reload credentials every minute
-      clientKeyManager.updateIdentityCredentials(
-          clientCertFile,
+      clientKeyManager.updateIdentityCredentialsFromFile(
           clientKeyFile,
+          clientCertFile,
           refreshPeriod,
           TimeUnit.MINUTES,
           Executors.newScheduledThreadPool(1));
