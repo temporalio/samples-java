@@ -2,7 +2,6 @@ package io.temporal.samples.springai.chat;
 
 import io.temporal.activity.ActivityOptions;
 import io.temporal.common.RetryOptions;
-import io.temporal.springai.activity.ChatModelActivity;
 import io.temporal.springai.chat.TemporalChatClient;
 import io.temporal.springai.model.ActivityChatModel;
 import io.temporal.workflow.Workflow;
@@ -20,8 +19,8 @@ import org.springframework.ai.chat.memory.MessageWindowChatMemory;
  * <p>This demonstrates how to use the Spring AI plugin within a Temporal workflow:
  *
  * <ol>
- *   <li>Create an activity stub for {@link ChatModelActivity}
- *   <li>Wrap it in {@link ActivityChatModel} to get a standard Spring AI ChatModel
+ *   <li>Build an {@link ActivityChatModel} via its factory to get a standard Spring AI ChatModel
+ *       backed by a durable Temporal activity
  *   <li>Create activity stubs for tools (e.g., {@link WeatherActivity})
  *   <li>Create deterministic tools (e.g., {@link StringTools})
  *   <li>Create side-effect tools (e.g., {@link TimestampTools})
@@ -47,17 +46,9 @@ public class ChatWorkflowImpl implements ChatWorkflow {
 
   @WorkflowInit
   public ChatWorkflowImpl(String systemPrompt) {
-    // Create an activity stub for calling the AI model
-    ChatModelActivity chatModelActivity =
-        Workflow.newActivityStub(
-            ChatModelActivity.class,
-            ActivityOptions.newBuilder()
-                .setStartToCloseTimeout(Duration.ofMinutes(2))
-                .setRetryOptions(RetryOptions.newBuilder().setMaximumAttempts(3).build())
-                .build());
-
-    // Wrap the activity in ActivityChatModel to use with Spring AI
-    ActivityChatModel activityChatModel = new ActivityChatModel(chatModelActivity);
+    // Build an activity-backed chat model. The factory creates the activity stub
+    // internally and registers per-call Summaries on the Temporal UI.
+    ActivityChatModel activityChatModel = ActivityChatModel.forDefault();
 
     // Create an activity stub for weather tools - these execute as durable activities
     WeatherActivity weatherTool =

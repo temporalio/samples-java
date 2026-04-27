@@ -4,9 +4,10 @@ import io.temporal.springai.chat.TemporalChatClient;
 import io.temporal.springai.model.ActivityChatModel;
 import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInit;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.ai.anthropic.AnthropicChatOptions;
+import org.springframework.ai.anthropic.api.AnthropicApi;
 import org.springframework.ai.chat.client.ChatClient;
 
 /**
@@ -17,16 +18,29 @@ import org.springframework.ai.chat.client.ChatClient;
  * <ul>
  *   <li><b>openai</b> - Uses OpenAI gpt-4o-mini for quick, cost-effective responses
  *   <li><b>anthropic</b> - Uses Anthropic Claude for complex reasoning tasks
+ *   <li><b>think</b> - Uses Anthropic Claude with <i>extended thinking</i> enabled for hard
+ *       problems. This demonstrates {@code temporal-spring-ai}'s provider-specific ChatOptions
+ *       pass-through: an {@link AnthropicChatOptions} instance with a {@code thinking}
+ *       configuration is attached per call, and every field survives the round-trip across the
+ *       activity boundary.
  *   <li><b>default</b> - Uses the primary/default model (OpenAI)
  * </ul>
  *
- * <p>The workflow shows three ways to create ActivityChatModel:
+ * <p>The workflow uses two patterns for wiring activity options:
  *
- * <ol>
- *   <li>{@code ActivityChatModel.forDefault()} - Uses the default model
- *   <li>{@code ActivityChatModel.forModel("beanName")} - Uses a specific model by bean name
- *   <li>{@code ActivityChatModel.forModel("name", timeout, retries)} - Custom options
- * </ol>
+ * <ul>
+ *   <li><b>Bean-based overrides (declarative, static)</b> — {@code ChatModelConfig} declares a
+ *       {@code ChatModelActivityOptions} bean with per-model {@code ActivityOptions}. The workflow
+ *       then just calls {@link ActivityChatModel#forDefault()} / {@link
+ *       ActivityChatModel#forModel(String)}, which consult that bean automatically. That covers
+ *       static per-model config (Anthropic needs a longer timeout because reasoning models are
+ *       slow; OpenAI uses plugin defaults).
+ *   <li><b>Per-call {@code ChatClient.defaultOptions(...)} (imperative, dynamic)</b> — the {@code
+ *       think:} route builds an {@link AnthropicChatOptions} instance with {@code thinking=ENABLED}
+ *       and attaches it via {@code defaultOptions(...)}. That exercises the plugin's
+ *       provider-specific ChatOptions pass-through: every field survives the round-trip across the
+ *       activity boundary.
+ * </ul>
  */
 public class MultiModelWorkflowImpl implements MultiModelWorkflow {
 
@@ -57,19 +71,40 @@ public class MultiModelWorkflowImpl implements MultiModelWorkflow {
             .defaultSystem("You are a helpful assistant powered by OpenAI. Keep answers concise.")
             .build());
 
-    // Create a chat client using Anthropic Claude with custom timeout
-    // Complex reasoning might take longer, so we give it more time
-    ActivityChatModel anthropicModel =
-        ActivityChatModel.forModel(
-            "anthropicChatModel",
-            Duration.ofMinutes(5), // Longer timeout for complex reasoning
-            3); // 3 retry attempts
+    // Create a chat client using Anthropic Claude. The per-model ActivityOptions (longer
+    // start-to-close + schedule-to-close caps) live on the ChatModelActivityOptions bean in
+    // ChatModelConfig; forModel(name) consults that bean automatically. The workflow stays
+    // free of infrastructure wiring — ideal for static per-model config.
+    ActivityChatModel anthropicModel = ActivityChatModel.forModel("anthropicChatModel");
     chatClients.put(
         "anthropic",
         TemporalChatClient.builder(anthropicModel)
             .defaultSystem(
                 "You are a helpful assistant powered by Anthropic. "
                     + "You excel at careful reasoning and nuanced responses.")
+            .build());
+
+    // Create a chat client that turns on Anthropic's extended-thinking mode. This exercises
+    // the plugin's provider-specific ChatOptions pass-through end to end: the
+    // AnthropicChatOptions (with thinking=ENABLED + budget_tokens) is passed via
+    // .defaultOptions(...) on the ChatClient, crosses the activity boundary serialized as
+    // (class name, JSON), and is rehydrated by ChatModelActivityImpl before the prompt is
+    // sent to Claude. Required side effects for extended thinking: temperature must be 1.0
+    // and max_tokens must exceed budget_tokens.
+    AnthropicChatOptions thinkingOptions =
+        AnthropicChatOptions.builder()
+            .thinking(AnthropicApi.ThinkingType.ENABLED, 1024)
+            .temperature(1.0)
+            .maxTokens(4096)
+            .build();
+    chatClients.put(
+        "think",
+        TemporalChatClient.builder(anthropicModel)
+            .defaultSystem(
+                "You are a helpful assistant powered by Anthropic with extended thinking. "
+                    + "Use the thinking budget to reason carefully, then give a crisp answer "
+                    + "that reflects the reasoning you did.")
+            .defaultOptions(thinkingOptions)
             .build());
   }
 

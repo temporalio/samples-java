@@ -2,6 +2,8 @@ package io.temporal.samples.springai.mcp;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Scanner;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +57,13 @@ public class McpApplication {
 
   @Autowired private WorkflowClient workflowClient;
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
+    // The filesystem MCP server refuses to start if the allowed path doesn't
+    // exist, so create it up front. Must happen before SpringApplication.run —
+    // the MCP client connects during context startup.
+    String allowedPath = System.getenv().getOrDefault("MCP_ALLOWED_PATH", "/tmp/mcp-example");
+    Files.createDirectories(Path.of(allowedPath));
+
     SpringApplication.run(McpApplication.class, args);
   }
 

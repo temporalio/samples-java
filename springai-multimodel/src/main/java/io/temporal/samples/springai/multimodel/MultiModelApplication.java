@@ -22,6 +22,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * Commands:
  *   openai: &lt;message&gt;    - Send to OpenAI (gpt-4o-mini)
  *   anthropic: &lt;message&gt; - Send to Anthropic (Claude)
+ *   think: &lt;message&gt;     - Send to Anthropic with extended thinking enabled
  *   default: &lt;message&gt;   - Send to default model (OpenAI)
  *   quit                  - End the chat
  * </pre>
@@ -66,10 +67,12 @@ public class MultiModelApplication implements CommandLineRunner {
     System.out.println("\nAvailable models:");
     System.out.println("  openai:    OpenAI gpt-4o-mini");
     System.out.println("  anthropic: Anthropic Claude");
+    System.out.println("  think:     Anthropic Claude with extended thinking (per-call options)");
     System.out.println("  default:   the @Primary model (OpenAI)");
     System.out.println("\nCommands:");
     System.out.println("  openai: <message>    - Send to OpenAI");
     System.out.println("  anthropic: <message> - Send to Anthropic");
+    System.out.println("  think: <message>     - Send to Anthropic with extended thinking enabled");
     System.out.println("  default: <message>   - Send to default model");
     System.out.println("  quit                 - End the chat");
     System.out.println();
@@ -99,6 +102,9 @@ public class MultiModelApplication implements CommandLineRunner {
       } else if (input.startsWith("anthropic:")) {
         modelName = "anthropic";
         message = input.substring(10).trim();
+      } else if (input.startsWith("think:")) {
+        modelName = "think";
+        message = input.substring(6).trim();
       } else if (input.startsWith("default:")) {
         modelName = "default";
         message = input.substring(8).trim();

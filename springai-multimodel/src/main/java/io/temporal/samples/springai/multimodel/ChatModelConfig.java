@@ -1,5 +1,10 @@
 package io.temporal.samples.springai.multimodel;
 
+import io.temporal.activity.ActivityOptions;
+import io.temporal.springai.autoconfigure.ChatModelActivityOptions;
+import io.temporal.springai.model.ActivityChatModel;
+import java.time.Duration;
+import java.util.Map;
 import org.springframework.ai.anthropic.AnthropicChatModel;
 import org.springframework.ai.anthropic.AnthropicChatOptions;
 import org.springframework.ai.anthropic.api.AnthropicApi;
@@ -58,5 +63,31 @@ public class ChatModelConfig {
             .temperature(0.3) // Lower temperature for more focused reasoning
             .build();
     return AnthropicChatModel.builder().anthropicApi(api).defaultOptions(options).build();
+  }
+
+  /**
+   * Per-model {@link ActivityOptions} overrides, declared as a single Spring bean. When present,
+   * {@link ActivityChatModel#forModel(String)} and {@link ActivityChatModel#forDefault()} consult
+   * this map before falling back to the plugin's defaults — so workflows can build a
+   * fully-configured chat model with nothing more than {@code ActivityChatModel.forModel(name)}.
+   *
+   * <p>The Anthropic entry bumps the start-to-close timeout (reasoning models can take minutes) and
+   * caps the schedule-to-close so a stuck request can't keep re-attempting forever. Building on
+   * {@link ActivityChatModel#defaultActivityOptions()} preserves the plugin's
+   * non-retryable-AI-error classification without having to restate it.
+   *
+   * <p>The workflow still uses the per-call {@code ChatClient.defaultOptions(...)} path for things
+   * that change per prompt (see the {@code think:} route in {@code MultiModelWorkflowImpl} —
+   * extended thinking is enabled per call, not globally).
+   */
+  @Bean
+  public ChatModelActivityOptions chatModelActivityOptions() {
+    return new ChatModelActivityOptions(
+        Map.of(
+            "anthropicChatModel",
+            ActivityOptions.newBuilder(ActivityChatModel.defaultActivityOptions())
+                .setStartToCloseTimeout(Duration.ofMinutes(5))
+                .setScheduleToCloseTimeout(Duration.ofMinutes(15))
+                .build()));
   }
 }
