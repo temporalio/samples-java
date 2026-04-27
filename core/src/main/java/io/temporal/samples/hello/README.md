@@ -35,4 +35,5 @@ To run each hello world sample, use one of the following commands:
 ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloUpdate
 ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSignalWithTimer
 ./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloSignalWithStartAndWorkflowInit
+./gradlew -q execute -PmainClass=io.temporal.samples.hello.HelloStandaloneActivity
 ```
