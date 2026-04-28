@@ -39,6 +39,7 @@ import org.springframework.ai.tool.annotation.ToolParam;
  *         .build();
  * }</pre>
  */
+// @@@SNIPSTART samples-java-spring-ai-side-effect-tool
 @SideEffectTool
 public class TimestampTools {
 
@@ -98,3 +99,4 @@ public class TimestampTools {
     }
   }
 }
+// @@@SNIPEND

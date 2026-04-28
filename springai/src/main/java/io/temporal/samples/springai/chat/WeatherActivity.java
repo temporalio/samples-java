@@ -15,6 +15,7 @@ import org.springframework.ai.tool.annotation.ToolParam;
  * model can call these methods, and they will execute as durable Temporal activities with automatic
  * retries and timeout handling.
  */
+// @@@SNIPSTART samples-java-spring-ai-activity-tool
 @ActivityInterface
 public interface WeatherActivity {
 
@@ -47,3 +48,4 @@ public interface WeatherActivity {
       @ToolParam(description = "The name of the city") String city,
       @ToolParam(description = "Number of days to forecast (1-7)") int days);
 }
+// @@@SNIPEND

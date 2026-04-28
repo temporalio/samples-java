@@ -91,6 +91,7 @@ public class MultiModelWorkflowImpl implements MultiModelWorkflow {
     // (class name, JSON), and is rehydrated by ChatModelActivityImpl before the prompt is
     // sent to Claude. Required side effects for extended thinking: temperature must be 1.0
     // and max_tokens must exceed budget_tokens.
+    // @@@SNIPSTART samples-java-spring-ai-provider-options
     AnthropicChatOptions thinkingOptions =
         AnthropicChatOptions.builder()
             .thinking(AnthropicApi.ThinkingType.ENABLED, 1024)
@@ -106,6 +107,7 @@ public class MultiModelWorkflowImpl implements MultiModelWorkflow {
                     + "that reflects the reasoning you did.")
             .defaultOptions(thinkingOptions)
             .build());
+    // @@@SNIPEND
   }
 
   @Override

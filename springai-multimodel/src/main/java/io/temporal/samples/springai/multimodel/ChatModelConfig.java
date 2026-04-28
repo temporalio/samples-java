@@ -80,6 +80,7 @@ public class ChatModelConfig {
    * that change per prompt (see the {@code think:} route in {@code MultiModelWorkflowImpl} —
    * extended thinking is enabled per call, not globally).
    */
+  // @@@SNIPSTART samples-java-spring-ai-per-model-options
   @Bean
   public ChatModelActivityOptions chatModelActivityOptions() {
     return new ChatModelActivityOptions(
@@ -90,4 +91,5 @@ public class ChatModelConfig {
                 .setScheduleToCloseTimeout(Duration.ofMinutes(15))
                 .build()));
   }
+  // @@@SNIPEND
 }

@@ -44,6 +44,7 @@ public class ChatWorkflowImpl implements ChatWorkflow {
   private boolean ended = false;
   private int messageCount = 0;
 
+  // @@@SNIPSTART samples-java-spring-ai-chat-workflow-init
   @WorkflowInit
   public ChatWorkflowImpl(String systemPrompt) {
     // Build an activity-backed chat model. The factory creates the activity stub
@@ -85,6 +86,8 @@ public class ChatWorkflowImpl implements ChatWorkflow {
             .defaultAdvisors(PromptChatMemoryAdvisor.builder(chatMemory).build())
             .build();
   }
+
+  // @@@SNIPEND
 
   @Override
   public String run(String systemPrompt) {

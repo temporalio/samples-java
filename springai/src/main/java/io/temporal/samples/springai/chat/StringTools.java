@@ -9,6 +9,7 @@ import org.springframework.ai.tool.annotation.ToolParam;
  * <p>These tools execute directly in workflow context. Since they are pure functions (same output
  * for same input, no side effects), they are safe for Temporal replay without any wrapping.
  */
+// @@@SNIPSTART samples-java-spring-ai-plain-tool
 public class StringTools {
 
   @Tool(description = "Reverse a string, returning the characters in opposite order")
@@ -53,3 +54,4 @@ public class StringTools {
     return normalized.equals(reversed);
   }
 }
+// @@@SNIPEND
