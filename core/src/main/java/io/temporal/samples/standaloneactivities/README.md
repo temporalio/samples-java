@@ -46,7 +46,7 @@ Or use the Temporal CLI:
 
 ```bash
 ./temporal activity execute \
-  --type composeGreeting \
+  --type ComposeGreeting \
   --activity-id standalone-activity-id \
   --task-queue standalone-activity-task-queue \
   --start-to-close-timeout 10s \
@@ -66,7 +66,7 @@ Or use the Temporal CLI:
 
 ```bash
 ./temporal activity start \
-  --type composeGreeting \
+  --type ComposeGreeting \
   --activity-id standalone-activity-id \
   --task-queue standalone-activity-task-queue \
   --start-to-close-timeout 10s \
