@@ -53,9 +53,9 @@ public class SampleNexusServiceImpl {
                         HelloHandlerWorkflow.class,
                         // Workflow IDs should typically be business meaningful IDs and are used to
                         // dedupe workflow starts.
+                        //
                         // For this example, tie the workflow ID to the customer being greeted so
-                        // that
-                        // repeated operations for the same customer run on the same workflow.
+                        // that repeated operations for the same customer run on the same workflow.
                         //
                         // Task queue defaults to the task queue this operation is handled on.
                         WorkflowOptions.newBuilder()
