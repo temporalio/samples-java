@@ -1,4 +1,4 @@
-## Entity pattern
+## Caller pattern
 
 The handler worker starts a `GreetingWorkflow` for a User ID.
 `NexusGreetingServiceImpl` holds that ID and routes every Nexus operation to it. 
