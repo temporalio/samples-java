@@ -171,6 +171,9 @@ Load client configuration from TOML files with programmatic overrides.
 
 - [**Context/Header Propagation**](/core/src/main/java/io/temporal/samples/nexuscontextpropagation): Demonstrates how to propagate context through Nexus operation headers.
 
+- [**Nexus Messaging**](/core/src/main/java/io/temporal/samples/nexusmessaging): Demonstrates how send signal, update and query messages through Nexus.
+  This contains two samples, one sending messages to an existing workflow and a second that creates a workflow through Nexus
+  and sends messages to it.
 <!-- @@@SNIPEND -->
 
 ### Running SpringBoot Samples

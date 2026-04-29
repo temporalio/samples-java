@@ -1,17 +1,17 @@
 ## Entity pattern
 
-The handler worker starts a `GreetingWorkflow` for a user ID.
+The handler worker starts a `GreetingWorkflow` for a User ID.
 `NexusGreetingServiceImpl` holds that ID and routes every Nexus operation to it. 
-The caller's input does not have that workflow ID as the caller doesn't know it - but the caller sends in the User ID,
-and `NexusGreetingServiceImpl` knows how to get the desired workflow ID from that User ID (see the getWorkflowId call).
+The caller's input does not have that Workflow ID as the caller doesn't know it - but the caller sends in the User ID,
+and `NexusGreetingServiceImpl` knows how to get the desired Workflow ID from that User ID (see the getWorkflowId call).
 
-HandlerWorker is using the same getWorkflowId call to generate a workflow ID from a user ID when it launches the workflow.
+HandlerWorker is using the same getWorkflowId call to generate a Workflow ID from a User ID when it launches the Workflow.
 
-The caller workflow:
+The caller Workflow:
 1. Queries for supported languages (`getLanguages` — backed by a `@QueryMethod`)
 2. Changes the language to Arabic (`setLanguage` — backed by an `@UpdateMethod` that calls an activity)
 3. Confirms the change via a second query (`getLanguage`)
-4. Approves the workflow (`approve` — backed by a `@SignalMethod`)
+4. Approves the Workflow (`approve` — backed by a `@SignalMethod`)
 
 ### Running
 
@@ -50,7 +50,7 @@ In a second terminal, start the caller worker:
 ./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexusmessaging.callerpattern.caller.CallerWorker
 ```
 
-In a third terminal, start the caller workflow:
+In a third terminal, run the following command to start the example:
 
 ```bash
 ./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexusmessaging.callerpattern.caller.CallerStarter
