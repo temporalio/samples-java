@@ -91,7 +91,9 @@ public class ChatWorkflowImpl implements ChatWorkflow {
 
   @Override
   public String run(String systemPrompt) {
-    // Wait until the chat is ended
+    // systemPrompt is unused here on purpose — @WorkflowInit requires the constructor
+    // and the @WorkflowMethod to share a parameter list, and the constructor above
+    // already consumed it to build the chat client.
     Workflow.await(() -> ended);
     return "Chat ended after " + messageCount + " messages.";
   }

@@ -55,8 +55,8 @@
       "line": 103,
       "reviewer": "copilot-pull-request-reviewer",
       "question": "run(String systemPrompt) doesn't use its systemPrompt parameter.",
-      "status": "unaddressed",
-      "note": "It IS used — via @WorkflowInit the same argument is passed to the constructor. @WorkflowInit requires matching signatures between the constructor and @WorkflowMethod, so the parameter can't be dropped. Reply explaining this, or add a brief comment in run()."
+      "status": "addressed",
+      "note": "Added a comment in run() explaining that @WorkflowInit requires matching parameter lists between the constructor and the @WorkflowMethod, and that the constructor consumed the prompt."
     },
     {
       "file": "springai/multimodel/src/main/java/io/temporal/samples/springai/multimodel/MultiModelApplication.java",
