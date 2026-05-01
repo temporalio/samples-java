@@ -3,10 +3,11 @@
 This repository contains samples that demonstrate various capabilities of 
 Temporal using the [Java SDK](https://github.com/temporalio/sdk-java).
 
-It contains two modules:
+It contains the following modules:
 * [Core](/core): showcases many different SDK features.
 * [SpringBoot](/springboot): showcases SpringBoot autoconfig integration.
 * [SpringBoot Basic](/springboot-basic): Minimal sample showing SpringBoot autoconfig integration without any extra external dependencies.
+* [Spring AI](/springai): demonstrates the Temporal Spring AI integration — durable AI agents with chat models, tools, MCP servers, vector stores, and embeddings.
 
 ## Learn more about Temporal and Java SDK
 
@@ -16,9 +17,7 @@ It contains two modules:
 
 ## Requirements
 
-- Java 1.8+ for build and runtime of core samples
-- Java 1.8+ for build and runtime of SpringBoot samples when using SpringBoot 2
-- Java 1.17+ for build and runtime of Spring Boot samples when using SpringBoot 3
+- Java 17+ for build and runtime of all samples
 - Local Temporal Server, easiest to get started would be using [Temporal CLI](https://github.com/temporalio/cli).
 For more options see docs [here](https://docs.temporal.io/kb/all-the-ways-to-run-a-cluster).
 
@@ -213,3 +212,22 @@ To run any of the SpringBoot samples in your Temporal Cloud namespace:
        ./gradlew bootRun --args='--spring.profiles.active=tc'
 
 3. Follow the previous section from step 2
+
+### Running Spring AI Samples
+
+The Spring AI samples demonstrate the [Temporal Spring AI integration](https://github.com/temporalio/sdk-java/tree/master/temporal-spring-ai), which makes Spring AI agents durable on Temporal — model calls run as Temporal Activities recorded in Workflow history, and tools are dispatched per their type so they fit Workflow execution.
+
+Each sample is its own Spring Boot application with an interactive CLI. Run from the main repo dir:
+
+       ./gradlew :springai:basic:bootRun
+       ./gradlew :springai:mcp:bootRun
+       ./gradlew :springai:multimodel:bootRun
+       ./gradlew :springai:rag:bootRun
+
+All samples need an `OPENAI_API_KEY` environment variable; some need additional setup (see each sample's source for details).
+
+More info on each sample:
+- [**Basic**](/springai/basic): Chat workflow with three tool flavors — activity-backed (`WeatherActivity`), plain workflow tools (`StringTools`), and `@SideEffectTool` (`TimestampTools`) — plus a `PromptChatMemoryAdvisor` for conversation history.
+- [**MCP**](/springai/mcp): Connects to a Model Context Protocol server and exposes its tools to the AI through Temporal activities. Defaults to the filesystem MCP server.
+- [**Multi-Model**](/springai/multimodel): Two providers in one workflow (OpenAI and Anthropic), per-model `ActivityOptions` overrides via a Spring bean, plus a route that exercises Anthropic's extended-thinking mode through provider-specific `ChatOptions` pass-through. Requires `ANTHROPIC_API_KEY` in addition to `OPENAI_API_KEY`.
+- [**RAG**](/springai/rag): Vector store + embeddings for retrieval-augmented generation. Add documents, then ask questions; the workflow searches the vector store and grounds the answer in the retrieved context.
