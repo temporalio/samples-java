@@ -81,6 +81,7 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
     - [**HelloWorkflowTimer**](/core/src/main/java/io/temporal/samples/hello/HelloWorkflowTimer.java): Demonstrates how we can use workflow timer to restrict duration of workflow execution instead of workflow run/execution timeouts.
     - [**Auto-Heartbeating**](/core/src/main/java/io/temporal/samples/autoheartbeat/): Demonstrates use of Auto-heartbeating utility via activity interceptor. 
     - [**HelloSignalWithStartAndWorkflowInit**](/core/src/main/java/io/temporal/samples/hello/HelloSignalWithStartAndWorkflowInit.java): Demonstrates how WorkflowInit can be useful with SignalWithStart to initialize workflow variables.
+    - [**HelloStandaloneActivity**](/core/src/main/java/io/temporal/samples/hello/HelloStandaloneActivity.java): Demonstrates how to execute a Standalone Activity directly from an ActivityClient, without a Workflow.
 
 #### Scenario-based samples
 
@@ -146,6 +147,8 @@ Load client configuration from TOML files with programmatic overrides.
 - [**Payload Codec**](/core/src/main/java/io/temporal/samples/encodefailures): Demonstrates how to use simple codec to encode/decode failure messages.
 
 - [**Exclude Workflow/ActivityTypes from Interceptors**](/core/src/main/java/io/temporal/samples/excludefrominterceptor): Demonstrates how to exclude certain workflow / activity types from interceptors.
+
+- [**Standalone Activities**](/core/src/main/java/io/temporal/samples/standaloneactivities): Demonstrates how to start, execute, list, and count Standalone Activities — Activities that run independently without a Workflow, using ActivityClient.
 
 #### SDK Metrics
 
