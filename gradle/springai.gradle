@@ -1,0 +1,61 @@
+// Shared configuration for all Spring AI sample modules.
+// Applied via: apply from: "$rootDir/gradle/springai.gradle"
+//
+// Note on Spring Boot version skew: the root build.gradle pins the
+// org.springframework.boot Gradle plugin at $springBootPluginVersion (currently
+// 2.7.13) for the legacy springboot/ samples. Spring AI 1.1.0 requires Spring
+// Boot 3.5.x, which we get by importing the spring-boot-dependencies BOM at
+// $springBootVersionForSpringAi below. The plugin and the BOM are independent —
+// the plugin contributes bootJar/bootRun task wiring, the BOM dictates
+// dependency versions — so this works in practice even though the two version
+// numbers don't match. Long-term fix is to either move the plugin declaration
+// out of the root plugins block (so each module applies its own version) or
+// migrate the legacy springboot/ samples to Spring Boot 3.x; until one of those
+// happens, this skew is intentional.
+
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+ext {
+    springBootVersionForSpringAi = '3.5.3'
+    springAiVersion = '1.1.0'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.boot:spring-boot-dependencies:$springBootVersionForSpringAi"
+        mavenBom "org.springframework.ai:spring-ai-bom:$springAiVersion"
+    }
+}
+
+dependencies {
+    implementation "io.temporal:temporal-spring-boot-starter:$javaSDKVersion"
+    implementation "io.temporal:temporal-spring-ai:$javaSDKVersion"
+    // temporal-spring-ai declares temporal-sdk as compileOnly, so bring it in explicitly.
+    implementation "io.temporal:temporal-sdk:$javaSDKVersion"
+
+    // Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter'
+
+    dependencies {
+        errorproneJavac('com.google.errorprone:javac:9+181-r4173-1')
+        errorprone('com.google.errorprone:error_prone_core:2.28.0')
+    }
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
+}
+
+bootRun {
+    standardInput = System.in
+}

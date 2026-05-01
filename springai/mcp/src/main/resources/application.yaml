@@ -1,0 +1,33 @@
+spring:
+  main:
+    banner-mode: off
+    web-application-type: none
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4o-mini
+    mcp:
+      client:
+        stdio:
+          connections:
+            # Filesystem MCP server - provides read_file, write_file, list_directory tools
+            filesystem:
+              command: npx
+              args:
+                - "-y"
+                - "@modelcontextprotocol/server-filesystem"
+                - "${MCP_ALLOWED_PATH:/tmp/mcp-example}"
+
+  temporal:
+    connection:
+      target: localhost:7233
+    workers:
+      - task-queue: mcp-example-queue
+        workflow-classes:
+          - io.temporal.samples.springai.mcp.McpWorkflowImpl
+
+logging:
+  level:
+    io.temporal.springai: DEBUG
