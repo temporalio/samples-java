@@ -92,8 +92,8 @@ public class RagApplication implements CommandLineRunner {
         continue;
       }
 
-      if (input.startsWith("add ")) {
-        String rest = input.substring(4).trim();
+      if (input.equals("add") || input.startsWith("add ")) {
+        String rest = input.length() > 3 ? input.substring(4).trim() : "";
         int spaceIndex = rest.indexOf(' ');
         if (spaceIndex == -1) {
           System.out.println("Usage: add <id> <content>");
@@ -121,8 +121,8 @@ public class RagApplication implements CommandLineRunner {
         continue;
       }
 
-      if (input.startsWith("search ")) {
-        String query = input.substring(7).trim();
+      if (input.equals("search") || input.startsWith("search ")) {
+        String query = input.length() > 6 ? input.substring(7).trim() : "";
         if (query.isEmpty()) {
           System.out.println("Usage: search <query>");
           continue;
