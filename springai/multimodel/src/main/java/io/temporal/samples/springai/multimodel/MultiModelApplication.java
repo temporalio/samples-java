@@ -117,19 +117,17 @@ public class MultiModelApplication implements CommandLineRunner {
         continue;
       }
 
+      // Capture current response BEFORE sending so we can detect the change against
+      // the pre-signal baseline (not against an empty string — the workflow may already
+      // hold the previous prompt's reply).
+      String previousResponse = workflowStub.getLastResponse();
       System.out.println("[Sending to " + modelName + " model...]");
-
-      // Send the message via signal
       workflowStub.chat(modelName, message);
 
-      // Wait a moment for processing, then query for response
-      Thread.sleep(100);
-
-      // Poll for response (in production, you'd use a more sophisticated approach)
-      String lastResponse = "";
+      // Poll until the response changes from the pre-signal baseline.
       for (int i = 0; i < 300; i++) { // Wait up to 30 seconds
         String response = workflowStub.getLastResponse();
-        if (!response.isEmpty() && !response.equals(lastResponse)) {
+        if (!response.equals(previousResponse)) {
           System.out.println(
               "\n[" + modelName.toUpperCase(java.util.Locale.ROOT) + "]: " + response + "\n");
           break;
