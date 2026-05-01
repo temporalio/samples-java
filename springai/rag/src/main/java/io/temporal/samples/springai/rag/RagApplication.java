@@ -105,9 +105,11 @@ public class RagApplication implements CommandLineRunner {
         String id = rest.substring(0, spaceIndex);
         String content = rest.substring(spaceIndex + 1).trim();
 
+        // Capture current response BEFORE sending so waitForResponse can detect when it changes.
+        String previousResponse = workflowStub.getLastResponse();
         System.out.println("[Adding document...]");
         workflowStub.addDocument(id, content);
-        waitForResponse(workflowStub);
+        waitForResponse(workflowStub, previousResponse);
         continue;
       }
 
@@ -118,9 +120,10 @@ public class RagApplication implements CommandLineRunner {
           continue;
         }
 
+        String previousResponse = workflowStub.getLastResponse();
         System.out.println("[Searching and generating answer...]");
         workflowStub.ask(question);
-        waitForResponse(workflowStub);
+        waitForResponse(workflowStub, previousResponse);
         continue;
       }
 
@@ -131,9 +134,10 @@ public class RagApplication implements CommandLineRunner {
           continue;
         }
 
+        String previousResponse = workflowStub.getLastResponse();
         System.out.println("[Searching...]");
         workflowStub.search(query, 5);
-        waitForResponse(workflowStub);
+        waitForResponse(workflowStub, previousResponse);
         continue;
       }
 
@@ -143,12 +147,12 @@ public class RagApplication implements CommandLineRunner {
     }
   }
 
-  private void waitForResponse(RagWorkflow workflowStub) throws InterruptedException {
-    String lastResponse = workflowStub.getLastResponse();
+  private void waitForResponse(RagWorkflow workflowStub, String previousResponse)
+      throws InterruptedException {
     for (int i = 0; i < 600; i++) { // Wait up to 60 seconds
       Thread.sleep(100);
       String response = workflowStub.getLastResponse();
-      if (!response.equals(lastResponse)) {
+      if (!response.equals(previousResponse)) {
         System.out.println("\n" + response + "\n");
         return;
       }
