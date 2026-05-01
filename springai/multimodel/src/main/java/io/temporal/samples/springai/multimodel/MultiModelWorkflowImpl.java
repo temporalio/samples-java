@@ -53,8 +53,12 @@ public class MultiModelWorkflowImpl implements MultiModelWorkflow {
   public MultiModelWorkflowImpl() {
     chatClients = new HashMap<>();
 
-    // Create a chat client using the default model
-    // This uses the @Primary bean or the first ChatModel bean
+    // The "default" and "openai" entries below both end up calling OpenAI in this sample —
+    // ChatModelConfig declares @Primary on openAiChatModel, so ActivityChatModel.forDefault()
+    // resolves to it. They're registered as two entries on purpose: "default" demonstrates
+    // the forDefault() / @Primary-resolution path (no bean name needed in workflow code),
+    // and "openai" demonstrates the forModel(name) explicit-lookup path. In a workflow that
+    // only uses one model, you'd typically pick one of these two patterns and stop there.
     ActivityChatModel defaultModel = ActivityChatModel.forDefault();
     chatClients.put(
         "default",
@@ -62,8 +66,6 @@ public class MultiModelWorkflowImpl implements MultiModelWorkflow {
             .defaultSystem("You are a helpful assistant. You are the DEFAULT model.")
             .build());
 
-    // Create a chat client using OpenAI (gpt-4o-mini)
-    // This references the bean name defined in ChatModelConfig
     ActivityChatModel openAiModel = ActivityChatModel.forModel("openAiChatModel");
     chatClients.put(
         "openai",

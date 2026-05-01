@@ -57,6 +57,14 @@
       "question": "run(String systemPrompt) doesn't use its systemPrompt parameter.",
       "status": "unaddressed",
       "note": "It IS used — via @WorkflowInit the same argument is passed to the constructor. @WorkflowInit requires matching signatures between the constructor and @WorkflowMethod, so the parameter can't be dropped. Reply explaining this, or add a brief comment in run()."
+    },
+    {
+      "file": "springai/multimodel/src/main/java/io/temporal/samples/springai/multimodel/MultiModelApplication.java",
+      "line": 114,
+      "reviewer": "brianstrauch",
+      "question": "Why is there a model name called \"default\", but at the same time it looks like the default is hardcoded to \"openai\"?",
+      "status": "addressed",
+      "note": "Real ergonomic wart — both `default:` and `openai:` ended up calling OpenAI (forDefault() resolves @Primary, which ChatModelConfig declares on openAiChatModel). Dropped the explicit `default:` CLI prefix and routed no-prefix input there instead. Added a comment block in MultiModelWorkflowImpl explaining that the dual `default`/`openai` registration is intentional — it demonstrates both forDefault() (@Primary resolution) and forModel(name) (explicit lookup), even though both happen to hit OpenAI in this sample."
     }
   ]
 }
