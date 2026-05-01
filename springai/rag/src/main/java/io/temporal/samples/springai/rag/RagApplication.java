@@ -10,10 +10,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Example application demonstrating RAG with VectorStore and Embeddings.
+ * Example application demonstrating RAG with a Spring AI VectorStore.
  *
- * <p>This application shows how to use the plugin's VectorStoreActivity and EmbeddingModelActivity
- * to build a durable knowledge base within Temporal workflows.
+ * <p>This application shows how to use the plugin's VectorStoreActivity to build a durable
+ * knowledge base within Temporal workflows. Embeddings are produced by whichever {@code
+ * EmbeddingModel} the configured Spring AI {@code VectorStore} uses internally — this sample does
+ * not invoke {@code EmbeddingModelActivity} directly.
  *
  * <h2>Usage</h2>
  *
@@ -31,7 +33,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * <ol>
  *   <li>Start a Temporal dev server: {@code temporal server start-dev}
  *   <li>Set OPENAI_API_KEY environment variable
- *   <li>Run: {@code ./gradlew :example-rag:bootRun}
+ *   <li>Run: {@code ./gradlew :springai:rag:bootRun}
  * </ol>
  */
 @SpringBootApplication
@@ -62,8 +64,9 @@ public class RagApplication implements CommandLineRunner {
 
     System.out.println("\n=== RAG (Retrieval-Augmented Generation) Demo ===");
     System.out.println("Workflow ID: " + workflowId);
-    System.out.println("\nThis demo uses VectorStoreActivity and EmbeddingModelActivity");
-    System.out.println("to build a durable knowledge base with semantic search.");
+    System.out.println("\nThis demo uses VectorStoreActivity to build a durable knowledge");
+    System.out.println("base with semantic search (embeddings are handled by the configured");
+    System.out.println("Spring AI VectorStore).");
     System.out.println("\nCommands:");
     System.out.println("  add <id> <content>  - Add a document");
     System.out.println("  ask <question>      - Ask a question (RAG)");

@@ -33,7 +33,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *   <li>Start a Temporal dev server: {@code temporal server start-dev}
  *   <li>Set OPENAI_API_KEY environment variable
  *   <li>Set ANTHROPIC_API_KEY environment variable
- *   <li>Run: {@code ./gradlew :example-multi-model:bootRun}
+ *   <li>Run: {@code ./gradlew :springai:multimodel:bootRun}
  * </ol>
  */
 @SpringBootApplication

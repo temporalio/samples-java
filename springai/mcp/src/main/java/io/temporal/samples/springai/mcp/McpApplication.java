@@ -47,7 +47,7 @@ import org.springframework.context.event.EventListener;
  *   <li>Set OPENAI_API_KEY environment variable
  *   <li>Ensure Node.js/npx is available (for MCP server)
  *   <li>Optionally set MCP_ALLOWED_PATH (defaults to /tmp/mcp-example)
- *   <li>Run: {@code ./gradlew :example-mcp:bootRun}
+ *   <li>Run: {@code ./gradlew :springai:mcp:bootRun}
  * </ol>
  */
 @SpringBootApplication
