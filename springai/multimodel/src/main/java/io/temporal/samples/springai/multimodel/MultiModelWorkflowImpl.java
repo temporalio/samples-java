@@ -4,7 +4,7 @@ import io.temporal.springai.chat.TemporalChatClient;
 import io.temporal.springai.model.ActivityChatModel;
 import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInit;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.ai.anthropic.AnthropicChatOptions;
 import org.springframework.ai.anthropic.api.AnthropicApi;
@@ -51,7 +51,10 @@ public class MultiModelWorkflowImpl implements MultiModelWorkflow {
 
   @WorkflowInit
   public MultiModelWorkflowImpl() {
-    chatClients = new HashMap<>();
+    // LinkedHashMap (not HashMap) so the keySet() rendering in the unknown-model error
+    // path is deterministic across replays. HashMap iteration order is unspecified and
+    // can differ between JVM versions or workers.
+    chatClients = new LinkedHashMap<>();
 
     // The "default" and "openai" entries below both end up calling OpenAI in this sample —
     // ChatModelConfig declares @Primary on openAiChatModel, so ActivityChatModel.forDefault()
