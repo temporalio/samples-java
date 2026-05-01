@@ -47,8 +47,8 @@
       "line": 93,
       "reviewer": "brianstrauch",
       "question": "Another option could be to poll until it's ready?",
-      "status": "unaddressed",
-      "note": "Design question about the `initialized` flag in the chat() update. Polling would be an alternative; current approach (return an error string if called too early) is simpler. Reply with rationale or switch to Workflow.await inside the update handler."
+      "status": "addressed",
+      "note": "chat() is a @SignalMethod, so Workflow.await is allowed. Switched chat() to Workflow.await(() -> initialized) instead of returning a placeholder string. listTools() stays placeholder-based because it's a @QueryMethod and queries can't yield."
     },
     {
       "file": "springai/basic/src/main/java/io/temporal/samples/springai/chat/ChatWorkflowImpl.java",

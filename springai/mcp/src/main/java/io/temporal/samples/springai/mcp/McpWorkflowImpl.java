@@ -87,10 +87,11 @@ public class McpWorkflowImpl implements McpWorkflow {
 
   @Override
   public void chat(String message) {
-    if (!initialized) {
-      lastResponse = "Workflow is still initializing. Please wait a moment.";
-      return;
-    }
+    // The signal can land before run() has finished setting up the chat client (MCP tool
+    // discovery is an activity, so initialization yields). Block in workflow time until
+    // init completes, then process the message — the client's signal RPC has already
+    // returned, so this only delays the workflow-side handling.
+    Workflow.await(() -> initialized);
 
     messageCount++;
 
