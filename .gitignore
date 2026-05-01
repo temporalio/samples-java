@@ -9,10 +9,10 @@ target
 /core/build
 /springboot/build
 /springboot-basic/build
-/springai/build
-/springai-mcp/build
-/springai-multimodel/build
-/springai-rag/build
+/springai/basic/build
+/springai/mcp/build
+/springai/multimodel/build
+/springai/rag/build
 /out
 /core/out
 /springboot/out

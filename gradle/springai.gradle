@@ -7,10 +7,6 @@ apply plugin: 'io.spring.dependency-management'
 ext {
     springBootVersionForSpringAi = '3.5.3'
     springAiVersion = '1.1.0'
-    // temporal-spring-ai requires a Temporal Java SDK newer than the one most
-    // other samples in this repo pin (see javaSDKVersion). Bump this
-    // independently when a new temporal-spring-ai is released.
-    springAiSdkVersion = '1.35.0'
 }
 
 java {
@@ -26,12 +22,10 @@ dependencyManagement {
 }
 
 dependencies {
-    // Temporal — pinned to springAiSdkVersion (see comment above) because
-    // temporal-spring-ai requires an SDK newer than $javaSDKVersion.
-    implementation "io.temporal:temporal-spring-boot-starter:$springAiSdkVersion"
-    implementation "io.temporal:temporal-spring-ai:$springAiSdkVersion"
+    implementation "io.temporal:temporal-spring-boot-starter:$javaSDKVersion"
+    implementation "io.temporal:temporal-spring-ai:$javaSDKVersion"
     // temporal-spring-ai declares temporal-sdk as compileOnly, so bring it in explicitly.
-    implementation "io.temporal:temporal-sdk:$springAiSdkVersion"
+    implementation "io.temporal:temporal-sdk:$javaSDKVersion"
 
     // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter'

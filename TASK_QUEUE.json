@@ -13,7 +13,7 @@
         "Bump build.gradle's javaSDKVersion to whatever released version first contains temporal-spring-ai (>= 1.35.0).",
         "Delete the 'implementation temporal-sdk' line in gradle/springai.gradle if temporal-spring-ai starts depending on temporal-sdk non-compileOnly; otherwise leave it (it's harmless and explicit).",
         "Remove the 'Publish sdk-java locally' step from the PR description / sample README sections.",
-        "Re-run ./gradlew :springai:build :springai-mcp:build :springai-multimodel:build :springai-rag:build to verify."
+        "Re-run ./gradlew :springai:basic:build :springai:mcp:build :springai:multimodel:build :springai:rag:build to verify."
       ]
     },
     {
@@ -35,7 +35,7 @@
   ],
   "open_review_threads_to_resolve_or_reply": [
     {
-      "file": "springai-mcp/src/main/java/io/temporal/samples/springai/mcp/McpApplication.java",
+      "file": "springai/mcp/src/main/java/io/temporal/samples/springai/mcp/McpApplication.java",
       "line": 68,
       "reviewer": "brianstrauch",
       "question": "What's the significance of a workflow stub vs a regular workflow? Why do we always opt for a stub?",
@@ -43,7 +43,7 @@
       "note": "Reply-only — this is standard Temporal client usage. Either answer in a PR comment explaining that a stub is how clients invoke workflows remotely (the @WorkflowInterface is the contract, stub is the proxy), or add a one-line comment at the call site."
     },
     {
-      "file": "springai-mcp/src/main/java/io/temporal/samples/springai/mcp/McpWorkflowImpl.java",
+      "file": "springai/mcp/src/main/java/io/temporal/samples/springai/mcp/McpWorkflowImpl.java",
       "line": 93,
       "reviewer": "brianstrauch",
       "question": "Another option could be to poll until it's ready?",
@@ -51,7 +51,7 @@
       "note": "Design question about the `initialized` flag in the chat() update. Polling would be an alternative; current approach (return an error string if called too early) is simpler. Reply with rationale or switch to Workflow.await inside the update handler."
     },
     {
-      "file": "springai/src/main/java/io/temporal/samples/springai/chat/ChatWorkflowImpl.java",
+      "file": "springai/basic/src/main/java/io/temporal/samples/springai/chat/ChatWorkflowImpl.java",
       "line": 103,
       "reviewer": "copilot-pull-request-reviewer",
       "question": "run(String systemPrompt) doesn't use its systemPrompt parameter.",
