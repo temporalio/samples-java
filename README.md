@@ -17,7 +17,7 @@ It contains the following modules:
 
 ## Requirements
 
-- Java 17+ for build and runtime of all samples
+- Java 17+
 - Local Temporal Server, easiest to get started would be using [Temporal CLI](https://github.com/temporalio/cli).
 For more options see docs [here](https://docs.temporal.io/kb/all-the-ways-to-run-a-cluster).
 
