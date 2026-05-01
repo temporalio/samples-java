@@ -32,11 +32,6 @@ subprojects {
     }
 
     repositories {
-        // mavenLocal() is needed for the springai* samples to pick up the
-        // unreleased temporal-spring-ai SNAPSHOT built from a local sdk-java
-        // checkout (see gradle/springai.gradle). Remove once temporal-spring-ai
-        // is published to Maven Central.
-        mavenLocal()
         maven {
             url "https://oss.sonatype.org/content/repositories/snapshots/"
         }

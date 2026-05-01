@@ -7,11 +7,10 @@ apply plugin: 'io.spring.dependency-management'
 ext {
     springBootVersionForSpringAi = '3.5.3'
     springAiVersion = '1.1.0'
-    // temporal-spring-ai isn't on Maven Central yet. Build it locally from
-    // sdk-java master (`./gradlew publishToMavenLocal`) and the springai*
-    // samples will pick it up via mavenLocal(). Until release, pin this to
-    // whatever version sdk-java master is publishing (1.35.0-SNAPSHOT today).
-    springAiSdkVersion = '1.35.0-SNAPSHOT'
+    // temporal-spring-ai requires a Temporal Java SDK newer than the one most
+    // other samples in this repo pin (see javaSDKVersion). Bump this
+    // independently when a new temporal-spring-ai is released.
+    springAiSdkVersion = '1.35.0'
 }
 
 java {
