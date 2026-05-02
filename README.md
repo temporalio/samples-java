@@ -149,6 +149,8 @@ Load client configuration from TOML files with programmatic overrides.
 
 - [**Standalone Activities**](/core/src/main/java/io/temporal/samples/standaloneactivities): Demonstrates how to start, execute, list, and count Standalone Activities — Activities that run independently without a Workflow, using ActivityClient.
 
+- [**Tool Registry: Incident Triage**](/core/src/main/java/io/temporal/samples/toolregistryincidenttriage): LLM-driven incident triage activity using the `temporal-tool-registry` contrib module. Demonstrates `AgenticSession`, MCP HTTP integration, human-in-the-loop via a companion workflow, and a testable activity refactor (`buildTriageRegistry` + `TriageDeps`).
+
 #### SDK Metrics
 
 - [**Set up SDK metrics**](/core/src/main/java/io/temporal/samples/metrics): Demonstrates how to set up and scrape SDK metrics.
