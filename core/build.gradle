@@ -4,6 +4,11 @@ dependencies {
     implementation "io.temporal:temporal-opentracing:$javaSDKVersion"
     testImplementation("io.temporal:temporal-testing:$javaSDKVersion")
 
+    // Tool Registry (in-development; install via
+    // `JAVA_HOME=$JDK21 ./gradlew :temporal-tool-registry:publishToMavenLocal` from sdk-java first)
+    implementation "io.temporal:temporal-tool-registry:1.35.0-SNAPSHOT"
+    implementation "com.anthropic:anthropic-java:2.24.0"
+
     // Environment configuration
     implementation "io.temporal:temporal-envconfig:$javaSDKVersion"
 
