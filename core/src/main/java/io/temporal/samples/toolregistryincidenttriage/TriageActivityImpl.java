@@ -1,8 +1,10 @@
 package io.temporal.samples.toolregistryincidenttriage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.temporal.api.enums.v1.WorkflowIdConflictPolicy;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
+import io.temporal.client.WorkflowStub;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 import io.temporal.toolregistry.AgenticSession;
@@ -421,11 +423,21 @@ public class TriageActivityImpl implements TriageActivity {
     ApprovalWorkflow stub =
         client.newWorkflowStub(
             ApprovalWorkflow.class,
-            WorkflowOptions.newBuilder().setWorkflowId(wfId).setTaskQueue(taskQueue).build());
+            WorkflowOptions.newBuilder()
+                .setWorkflowId(wfId)
+                .setTaskQueue(taskQueue)
+                // If the activity retries while the approval workflow is still running,
+                // attach to the existing one rather than starting a new approval. The
+                // operator should not get a second prompt for the same incident.
+                .setWorkflowIdConflictPolicy(
+                    WorkflowIdConflictPolicy.WORKFLOW_ID_CONFLICT_POLICY_USE_EXISTING)
+                .build());
 
-    // signal-with-start: initial start carries the request signal.
-    var unused = WorkflowClient.execute(stub::run, key);
-    stub.approvalRequest(req);
+    // Atomic signal-with-start: send the request signal in the same call that starts
+    // the workflow. Avoids the race where a separate signal could arrive before the
+    // workflow registers its handler.
+    WorkflowStub.fromTyped(stub)
+        .signalWithStart("approval-request", new Object[] {req}, new Object[] {key});
     return stub.run(key); // already running; this returns the in-flight result
   }
 
