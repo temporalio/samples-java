@@ -1,6 +1,7 @@
 package io.temporal.samples.toolregistryincidenttriage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.temporal.activity.Activity;
 import io.temporal.api.enums.v1.WorkflowIdConflictPolicy;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
@@ -438,7 +439,24 @@ public class TriageActivityImpl implements TriageActivity {
     // workflow registers its handler.
     WorkflowStub.fromTyped(stub)
         .signalWithStart("approval-request", new Object[] {req}, new Object[] {key});
-    return stub.run(key); // already running; this returns the in-flight result
+
+    // Heartbeat every 30 seconds while waiting on the approval workflow.
+    // AgenticSession only heartbeats between LLM turns, so a multi-hour
+    // operator wait inside this handler would otherwise trigger heartbeat
+    // timeout in 120s and kill the activity.
+    java.util.concurrent.ScheduledExecutorService ticker =
+        java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
+    var unused =
+        ticker.scheduleAtFixedRate(
+            () -> Activity.getExecutionContext().heartbeat(null),
+            30,
+            30,
+            java.util.concurrent.TimeUnit.SECONDS);
+    try {
+      return stub.run(key); // already running; this returns the in-flight result
+    } finally {
+      ticker.shutdownNow();
+    }
   }
 
   static String envOr(String n, String d) {
