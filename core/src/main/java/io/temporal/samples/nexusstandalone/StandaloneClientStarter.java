@@ -41,15 +41,17 @@ public class StandaloneClientStarter {
     WorkflowServiceStubs stubs = client.getWorkflowServiceStubs();
     String namespace = client.getOptions().getNamespace();
 
-    // Typed client: dispatches operations by method reference on the service interface.
-    NexusServiceClient<GreetingNexusService> nexusClient = buildServiceClient(stubs, namespace);
-    // Untyped client, used here for Visibility queries (list/count).
-    NexusClient visibilityClient = NexusClient.newInstance(stubs, clientOptions(namespace));
+    // A single NexusClient is the entry point: it serves Visibility queries (list/count) and
+    // produces service-bound clients.
+    NexusClient nexusClient = NexusClient.newInstance(stubs, clientOptions(namespace));
+    // Typed service client: dispatches operations by method reference on the service interface.
+    NexusServiceClient<GreetingNexusService> greetingClient =
+        nexusClient.newNexusServiceClient(GreetingNexusService.class, ENDPOINT_NAME);
 
-    demonstrateExecute(nexusClient);
-    demonstrateCancel(nexusClient);
-    demonstrateTerminate(nexusClient, client);
-    demonstrateVisibility(visibilityClient);
+    demonstrateExecute(greetingClient);
+    demonstrateCancel(greetingClient);
+    demonstrateTerminate(greetingClient, client);
+    demonstrateVisibility(nexusClient);
     demonstrateClientOptionsAndInterceptors(stubs, namespace);
   }
 
@@ -172,7 +174,8 @@ public class StandaloneClientStarter {
             .build();
 
     NexusServiceClient<GreetingNexusService> interceptedClient =
-        NexusServiceClient.newInstance(GreetingNexusService.class, ENDPOINT_NAME, stubs, options);
+        NexusClient.newInstance(stubs, options)
+            .newNexusServiceClient(GreetingNexusService.class, ENDPOINT_NAME);
     GreetingOutput out =
         interceptedClient.execute(
             GreetingNexusService::greet, new GreetingInput("interceptors"), basicOptions());
@@ -180,12 +183,6 @@ public class StandaloneClientStarter {
   }
 
   // ── helpers ──────────────────────────────────────────────────────────────────────────────────
-
-  private static NexusServiceClient<GreetingNexusService> buildServiceClient(
-      WorkflowServiceStubs stubs, String namespace) {
-    return NexusServiceClient.newInstance(
-        GreetingNexusService.class, ENDPOINT_NAME, stubs, clientOptions(namespace));
-  }
 
   private static NexusClientOptions clientOptions(String namespace) {
     return NexusClientOptions.newBuilder().setNamespace(namespace).build();

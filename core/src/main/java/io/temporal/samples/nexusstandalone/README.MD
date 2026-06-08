@@ -42,11 +42,6 @@ temporal operator nexus endpoint create \
   --target-task-queue nexusstandalone-handler-task-queue
 ```
 
-Both the handler worker and the starter connect using the `default` profile in
-`core/src/main/resources/config.toml` (address `localhost:7233`, namespace `default`). Edit that
-profile, or override it with `TEMPORAL_*` environment variables, to point at a different server or a
-Temporal Cloud namespace.
-
 In one terminal, start the handler worker:
 
 ```bash
