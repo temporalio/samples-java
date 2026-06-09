@@ -41,9 +41,8 @@ public interface GreetingNexusService {
     }
   }
 
-  // An asynchronous operation backed by a workflow that blocks until it receives a salutation
-  // signal, so the operation stays running until the caller signals the backing workflow (or
-  // cancels/terminates it).
+  // An asynchronous operation backed by a workflow that blocks indefinitely, so the operation stays
+  // running until the caller cancels or terminates it.
   @Operation
   GreetingOutput startGreeting(GreetingInput input);
 

@@ -64,13 +64,13 @@ public class StandaloneClientStarter {
     // call (equivalent to start(...).getResult()). Used here on the synchronous 'greet' operation.
     GreetingOutput executed =
         nexusClient.execute(
-            GreetingNexusService::greet, new GreetingInput("execute"), basicOptions());
+            GreetingNexusService::greet, basicOptions(), new GreetingInput("execute"));
     logger.info("execute() returned: {}", executed.getMessage());
 
     // executeAsync(...) is the same but returns a CompletableFuture instead of blocking.
     CompletableFuture<GreetingOutput> future =
         nexusClient.executeAsync(
-            GreetingNexusService::greet, new GreetingInput("executeAsync"), basicOptions());
+            GreetingNexusService::greet, basicOptions(), new GreetingInput("executeAsync"));
 
     // Call get on the future to block and wait on the result:
     logger.info("executeAsync() returned: {}", future.get().getMessage());
@@ -81,13 +81,12 @@ public class StandaloneClientStarter {
   // ─────────────────────────────────────────────────────────────────────────────────────────────
   private static void demonstrateCancel(NexusServiceClient<GreetingNexusService> nexusClient)
       throws Exception {
-    // Never signaled, so the backing workflow blocks indefinitely — giving cancellation something
-    // to act on.
+    // The backing workflow blocks indefinitely — giving cancellation something to act on.
     NexusOperationHandle<GreetingOutput> handle =
         nexusClient.start(
             GreetingNexusService::startGreeting,
-            new GreetingInput("to-cancel-" + RUN_ID),
-            basicOptions());
+            basicOptions(),
+            new GreetingInput("to-cancel-" + RUN_ID));
     logger.info("Started 'to-cancel' id={}, requesting cancellation", handle.getNexusOperationId());
     handle.cancel("standalone-nexus sample: cancel demo");
     logger.info(
@@ -109,7 +108,7 @@ public class StandaloneClientStarter {
     String name = "to-terminate-" + RUN_ID;
     NexusOperationHandle<GreetingOutput> handle =
         nexusClient.start(
-            GreetingNexusService::startGreeting, new GreetingInput(name), basicOptions());
+            GreetingNexusService::startGreeting, basicOptions(), new GreetingInput(name));
     logger.info("Started 'to-terminate' id={}, terminating", handle.getNexusOperationId());
     handle.terminate("standalone-nexus sample: terminate demo");
     logger.info(
@@ -178,7 +177,7 @@ public class StandaloneClientStarter {
             .newNexusServiceClient(GreetingNexusService.class, ENDPOINT_NAME);
     GreetingOutput out =
         interceptedClient.execute(
-            GreetingNexusService::greet, new GreetingInput("interceptors"), basicOptions());
+            GreetingNexusService::greet, basicOptions(), new GreetingInput("interceptors"));
     logger.info("Result through interceptor chain: {}", out.getMessage());
   }
 
