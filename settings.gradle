@@ -1,4 +1,10 @@
 rootProject.name = 'temporal-java-samples'
+
+def localSettings = file('settings.local.gradle')
+if (localSettings.exists()) {
+    apply from: localSettings
+}
+
 include 'core'
 include 'springai:basic'
 include 'springai:mcp'
@@ -6,4 +12,4 @@ include 'springai:multimodel'
 include 'springai:rag'
 include 'springboot'
 include 'springboot-basic'
-
+include 'lambda-worker'

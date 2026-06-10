@@ -8,6 +8,7 @@ It contains the following modules:
 * [SpringBoot](/springboot): showcases SpringBoot autoconfig integration.
 * [SpringBoot Basic](/springboot-basic): Minimal sample showing SpringBoot autoconfig integration without any extra external dependencies.
 * [Spring AI](/springai): demonstrates the Temporal Spring AI integration — durable AI agents with chat models, tools, MCP servers, vector stores, and embeddings.
+* [Lambda Worker](/lambda-worker): demonstrates running a Temporal Java Worker inside AWS Lambda.
 
 ## Learn more about Temporal and Java SDK
 
@@ -114,6 +115,8 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 
 - [**Environment Configuration**](/core/src/main/java/io/temporal/samples/envconfig):
 Load client configuration from TOML files with programmatic overrides.
+
+- [**Lambda Worker**](/lambda-worker): Demonstrates running a Temporal Java Worker inside AWS Lambda with Worker Deployment Versioning.
 
 #### API demonstrations
 
