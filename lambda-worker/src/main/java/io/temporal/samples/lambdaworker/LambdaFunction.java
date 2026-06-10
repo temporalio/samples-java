@@ -1,0 +1,21 @@
+package io.temporal.samples.lambdaworker;
+
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.RequestHandler;
+import io.temporal.aws.lambda.LambdaWorker;
+import io.temporal.common.WorkerDeploymentVersion;
+
+/** AWS Lambda entry point for the Temporal worker. */
+public class LambdaFunction implements RequestHandler<Object, Void> {
+
+  private static final RequestHandler<Object, Void> WORKER =
+      LambdaWorker.run(
+          new WorkerDeploymentVersion(
+              LambdaWorkerSample.deploymentName(), LambdaWorkerSample.buildId()),
+          LambdaWorkerSample::configure);
+
+  @Override
+  public Void handleRequest(Object input, Context context) {
+    return WORKER.handleRequest(input, context);
+  }
+}
