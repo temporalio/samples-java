@@ -117,6 +117,8 @@ Load client configuration from TOML files with programmatic overrides.
 
 #### API demonstrations
 
+- [**Workflow Streams**](/core/src/main/java/io/temporal/samples/workflowstreams): Demonstrates a durable publish/subscribe log hosted inside a workflow, using the experimental `temporal-workflowstreams` module.
+
 - [**Async Untyped Child Workflow**](/core/src/main/java/io/temporal/samples/asyncuntypedchild): Demonstrates how to invoke an untyped child workflow async, that can complete after parent workflow is already completed.
 
 - [**Updatable Timer**](/core/src/main/java/io/temporal/samples/updatabletimer): Demonstrates the use of a helper class which relies on `Workflow.await` to implement a blocking sleep that can be updated at any moment.

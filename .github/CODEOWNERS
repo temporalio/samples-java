@@ -7,4 +7,6 @@
 # For each one, we add the owning team, as well as
 # @temporalio/sdk, so the SDK team can continue to
 # manage repo-wide concerns
-/springai/ @temporalio/ai-sdk @temporalio/sdk
+/springai/                                               @temporalio/sdk @temporalio/ai-sdk
+/core/src/main/java/io/temporal/samples/workflowstreams/ @temporalio/sdk @temporalio/ai-sdk
+/core/src/test/java/io/temporal/samples/workflowstreams/ @temporalio/sdk @temporalio/ai-sdk
