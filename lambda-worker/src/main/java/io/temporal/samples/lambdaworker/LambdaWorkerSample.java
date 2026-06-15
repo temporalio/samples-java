@@ -15,10 +15,10 @@ public final class LambdaWorkerSample {
   public static final String DEFAULT_DEPLOYMENT_NAME = "my-app";
   public static final String DEFAULT_BUILD_ID = "build-1";
 
-  public static void configure(LambdaWorkerOptions options) {
-    options.setTaskQueue(taskQueue());
-    options.registerWorkflowImplementationTypes(SampleWorkflowImpl.class);
-    options.registerActivitiesImplementations(new GreetingActivitiesImpl());
+  public static void configure(LambdaWorkerOptions.Builder builder) {
+    builder.setTaskQueue(taskQueue());
+    builder.registerWorkflowImplementationTypes(SampleWorkflowImpl.class);
+    builder.registerActivitiesImplementations(new GreetingActivitiesImpl());
   }
 
   public static String taskQueue() {

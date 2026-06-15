@@ -19,9 +19,10 @@ public class LambdaWorkerSampleTest {
 
   @Test
   public void configureSetsTaskQueueAndRegistrations() throws Exception {
-    LambdaWorkerOptions options = LambdaWorkerOptions.fromEnvironment(baseEnv());
+    LambdaWorkerOptions.Builder builder = LambdaWorkerOptions.newBuilderFromEnvironment(baseEnv());
 
-    LambdaWorkerSample.configure(options);
+    LambdaWorkerSample.configure(builder);
+    LambdaWorkerOptions options = builder.build();
 
     assertEquals(LambdaWorkerSample.DEFAULT_TASK_QUEUE, options.getTaskQueue());
     assertEquals(2, registrations(options).size());
@@ -38,9 +39,10 @@ public class LambdaWorkerSampleTest {
   public void configureUsesDefaultTaskQueueWhenNoProcessEnvironmentOverride() throws Exception {
     Map<String, String> env = baseEnv();
     env.put(LambdaWorkerOptions.TEMPORAL_TASK_QUEUE, "from-env");
-    LambdaWorkerOptions options = LambdaWorkerOptions.fromEnvironment(env);
+    LambdaWorkerOptions.Builder builder = LambdaWorkerOptions.newBuilderFromEnvironment(env);
 
-    LambdaWorkerSample.configure(options);
+    LambdaWorkerSample.configure(builder);
+    LambdaWorkerOptions options = builder.build();
 
     assertEquals(LambdaWorkerSample.DEFAULT_TASK_QUEUE, options.getTaskQueue());
     assertEquals(2, registrations(options).size());
