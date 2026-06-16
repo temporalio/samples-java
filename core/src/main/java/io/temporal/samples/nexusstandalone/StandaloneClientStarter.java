@@ -29,7 +29,7 @@ public class StandaloneClientStarter {
   private static final Logger logger = LoggerFactory.getLogger(StandaloneClientStarter.class);
 
   // Must match the Nexus endpoint configured on the server (see README).
-  public static final String ENDPOINT_NAME = "nexusstandalone-endpoint";
+  public static final String ENDPOINT_NAME = "nexus-standalone-operation-endpoint";
 
   // A per-run suffix appended to workflow-backed operation names so their backing workflow IDs are
   // unique on each run. Without this, re-running against the same server (no restart) would reuse
