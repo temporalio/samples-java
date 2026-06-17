@@ -16,7 +16,6 @@ import io.temporal.samples.nexusstandalone.service.GreetingNexusService.Greeting
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import java.time.Duration;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +29,6 @@ public class StandaloneClientStarter {
 
   // Must match the Nexus endpoint configured on the server (see README).
   public static final String ENDPOINT_NAME = "nexus-standalone-operation-endpoint";
-
-  // A per-run suffix appended to workflow-backed operation names so their backing workflow IDs are
-  // unique on each run. Without this, re-running against the same server (no restart) would reuse
-  // deterministic workflow IDs from the previous run and collide.
-  private static final String KNOWN_ID = UUID.randomUUID().toString().substring(0, 8);
 
   public static void main(String[] args) throws Exception {
     WorkflowClient client = ClientOptions.getWorkflowClient();
@@ -63,7 +57,9 @@ public class StandaloneClientStarter {
     // call. Used here on the synchronous 'greet' operation.
     GreetingOutput executed =
         nexusClient.execute(
-            GreetingNexusService::greet, basicOptions(), new GreetingInput("execute"));
+            GreetingNexusService::greet,
+            basicOptions("execute-nexus"),
+            new GreetingInput("execute"));
     logger.info("execute() returned: {}", executed.getMessage());
 
     // execute(...) is exactly start(...).getResult(): start(...) returns a handle immediately and
@@ -71,7 +67,9 @@ public class StandaloneClientStarter {
     // need the handle itself — e.g. its operation ID, or to cancel/terminate/describe it.
     NexusOperationHandle<GreetingOutput> handle =
         nexusClient.start(
-            GreetingNexusService::greet, basicOptions(), new GreetingInput("execute-via-handle"));
+            GreetingNexusService::greet,
+            basicOptions("execute-via-handle-nexus"),
+            new GreetingInput("execute-via-handle"));
     GreetingOutput viaHandle = handle.getResult();
     logger.info(
         "start() id={} then getResult() returned: {}",
@@ -89,8 +87,8 @@ public class StandaloneClientStarter {
     NexusOperationHandle<GreetingOutput> handle =
         nexusClient.start(
             GreetingNexusService::startGreeting,
-            basicOptions(),
-            new GreetingInput("to-cancel-" + KNOWN_ID));
+            basicOptions("start-and-cancel-nexus"),
+            new GreetingInput("start-and-cancel"));
     logger.info("Started 'to-cancel' id={}, requesting cancellation", handle.getNexusOperationId());
     handle.cancel("standalone-nexus sample: cancel demo");
     // getResult() blocks until the operation reaches a terminal state. A cancelled operation
@@ -119,10 +117,12 @@ public class StandaloneClientStarter {
   // ─────────────────────────────────────────────────────────────────────────────────────────────
   private static void demonstrateStartAndTerminate(
       NexusServiceClient<GreetingNexusService> nexusClient, WorkflowClient client) {
-    String name = "to-terminate-" + KNOWN_ID;
+    String name = "to-terminate";
     NexusOperationHandle<GreetingOutput> handle =
         nexusClient.start(
-            GreetingNexusService::startGreeting, basicOptions(), new GreetingInput(name));
+            GreetingNexusService::startGreeting,
+            basicOptions(name + "-nexus"),
+            new GreetingInput(name));
     logger.info("Started 'to-terminate' id={}, terminating", handle.getNexusOperationId());
     handle.terminate("standalone-nexus sample: terminate demo");
     // As with cancel, getResult() blocks until the operation record closes; a terminated operation
@@ -173,11 +173,11 @@ public class StandaloneClientStarter {
   }
 
   /** Builds the per-call options used to start a Nexus operation. */
-  private static StartNexusOperationOptions basicOptions() {
+  private static StartNexusOperationOptions basicOptions(String name) {
     return StartNexusOperationOptions.newBuilder()
         // Required: a namespace-unique operation ID. The SDK never generates one for you, so you
-        // must supply your own (a UUID here).
-        .setId(UUID.randomUUID().toString())
+        // must supply your own.
+        .setId(name)
         // Total time the caller is willing to wait for the operation to complete, including any
         // server-side retries. Defaults to none (bounded only by server limits) if not set.
         .setScheduleToCloseTimeout(Duration.ofMinutes(5))
