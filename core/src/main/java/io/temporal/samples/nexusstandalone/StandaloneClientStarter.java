@@ -1,22 +1,22 @@
 package io.temporal.samples.nexusstandalone;
 
-import io.temporal.api.enums.v1.NexusOperationExecutionStatus;
-import io.temporal.client.*;
-import io.temporal.common.converter.GlobalDataConverter;
-import io.temporal.common.interceptors.NexusClientCallsInterceptor;
-import io.temporal.common.interceptors.NexusClientCallsInterceptorBase;
-import io.temporal.common.interceptors.NexusClientInterceptor;
+import io.temporal.client.NexusClient;
+import io.temporal.client.NexusClientOptions;
+import io.temporal.client.NexusOperationException;
+import io.temporal.client.NexusOperationExecutionCount;
+import io.temporal.client.NexusOperationExecutionMetadata;
+import io.temporal.client.NexusOperationHandle;
+import io.temporal.client.NexusServiceClient;
+import io.temporal.client.StartNexusOperationOptions;
+import io.temporal.client.WorkflowClient;
 import io.temporal.samples.nexusstandalone.service.ClientOptions;
-import io.temporal.samples.nexusstandalone.service.GreetingIds;
 import io.temporal.samples.nexusstandalone.service.GreetingNexusService;
 import io.temporal.samples.nexusstandalone.service.GreetingNexusService.GreetingInput;
 import io.temporal.samples.nexusstandalone.service.GreetingNexusService.GreetingOutput;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 // Sample client for standalone Nexus operations — operations started and managed directly by a
 // client rather than from within a workflow. Each capability is shown in its own method, called in
 // turn from main(): executing an operation and reading its result, cancelling and terminating an
-// operation, querying operations via Visibility, and configuring client options and interceptors.
+// operation, and querying operations via Visibility.
 public class StandaloneClientStarter {
   private static final Logger logger = LoggerFactory.getLogger(StandaloneClientStarter.class);
 
@@ -34,7 +34,7 @@ public class StandaloneClientStarter {
   // A per-run suffix appended to workflow-backed operation names so their backing workflow IDs are
   // unique on each run. Without this, re-running against the same server (no restart) would reuse
   // deterministic workflow IDs from the previous run and collide.
-  private static final String RUN_ID = UUID.randomUUID().toString().substring(0, 8);
+  private static final String KNOWN_ID = UUID.randomUUID().toString().substring(0, 8);
 
   public static void main(String[] args) throws Exception {
     WorkflowClient client = ClientOptions.getWorkflowClient();
@@ -49,53 +49,67 @@ public class StandaloneClientStarter {
         nexusClient.newNexusServiceClient(GreetingNexusService.class, ENDPOINT_NAME);
 
     demonstrateExecute(greetingClient);
-    demonstrateCancel(greetingClient);
-    demonstrateTerminate(greetingClient, client);
+    demonstrateStartAndCancel(greetingClient);
+    demonstrateStartAndTerminate(greetingClient, client);
     demonstrateVisibility(nexusClient);
-    demonstrateClientOptionsAndInterceptors(stubs, namespace);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────────────────────
-  // execute() and executeAsync() — run a standalone Nexus operation and return its result.
+  // execute — run a standalone Nexus operation and return its result.
   // ─────────────────────────────────────────────────────────────────────────────────────────────
   private static void demonstrateExecute(NexusServiceClient<GreetingNexusService> nexusClient)
       throws Exception {
     // execute(...) starts the operation and blocks until it completes, returning the result in one
-    // call (equivalent to start(...).getResult()). Used here on the synchronous 'greet' operation.
+    // call. Used here on the synchronous 'greet' operation.
     GreetingOutput executed =
         nexusClient.execute(
             GreetingNexusService::greet, basicOptions(), new GreetingInput("execute"));
     logger.info("execute() returned: {}", executed.getMessage());
 
-    // executeAsync(...) is the same but returns a CompletableFuture instead of blocking.
-    CompletableFuture<GreetingOutput> future =
-        nexusClient.executeAsync(
-            GreetingNexusService::greet, basicOptions(), new GreetingInput("executeAsync"));
-
-    // Call get on the future to block and wait on the result:
-    logger.info("executeAsync() returned: {}", future.get().getMessage());
+    // execute(...) is exactly start(...).getResult(): start(...) returns a handle immediately and
+    // getResult() blocks on that handle until the operation completes. Use this form when you also
+    // need the handle itself — e.g. its operation ID, or to cancel/terminate/describe it.
+    NexusOperationHandle<GreetingOutput> handle =
+        nexusClient.start(
+            GreetingNexusService::greet, basicOptions(), new GreetingInput("execute-via-handle"));
+    GreetingOutput viaHandle = handle.getResult();
+    logger.info(
+        "start() id={} then getResult() returned: {}",
+        handle.getNexusOperationId(),
+        viaHandle.getMessage());
   }
 
   // ─────────────────────────────────────────────────────────────────────────────────────────────
+  // start - launch a Nexus operation and immediately return. Does not wait for the result.
   // cancel — cooperative for workflow-backed operations (see GreetingWorkflowImpl comment).
   // ─────────────────────────────────────────────────────────────────────────────────────────────
-  private static void demonstrateCancel(NexusServiceClient<GreetingNexusService> nexusClient)
-      throws Exception {
+  private static void demonstrateStartAndCancel(
+      NexusServiceClient<GreetingNexusService> nexusClient) throws Exception {
     // The backing workflow blocks indefinitely — giving cancellation something to act on.
     NexusOperationHandle<GreetingOutput> handle =
         nexusClient.start(
             GreetingNexusService::startGreeting,
             basicOptions(),
-            new GreetingInput("to-cancel-" + RUN_ID));
+            new GreetingInput("to-cancel-" + KNOWN_ID));
     logger.info("Started 'to-cancel' id={}, requesting cancellation", handle.getNexusOperationId());
     handle.cancel("standalone-nexus sample: cancel demo");
-    logger.info(
-        "Operation id={} final status: {}",
-        handle.getNexusOperationId(),
-        awaitTerminalStatus(handle, Duration.ofSeconds(10)));
+    // getResult() blocks until the operation reaches a terminal state. A cancelled operation
+    // reports completion by throwing NexusOperationException rather than returning a result.
+    try {
+      handle.getResult();
+      logger.warn(
+          "Operation id={} unexpectedly returned a result after cancel",
+          handle.getNexusOperationId());
+    } catch (NexusOperationException e) {
+      logger.info(
+          "Operation id={} ended as expected after cancel: {}",
+          handle.getNexusOperationId(),
+          e.getMessage());
+    }
   }
 
   // ─────────────────────────────────────────────────────────────────────────────────────────────
+  // start - launch a Nexus operation and immediately return. Does not wait for the result.
   // terminate — forcefully closes the operation record.
   //
   // KNOWN FEATURE GAP: terminating a standalone Nexus operation terminates ONLY the operation
@@ -103,16 +117,22 @@ public class StandaloneClientStarter {
   // workflow keeps running and nothing appears in its history. Until the server closes this gap,
   // terminate the backing workflow directly by its workflow ID to avoid orphaning it.
   // ─────────────────────────────────────────────────────────────────────────────────────────────
-  private static void demonstrateTerminate(
+  private static void demonstrateStartAndTerminate(
       NexusServiceClient<GreetingNexusService> nexusClient, WorkflowClient client) {
-    String name = "to-terminate-" + RUN_ID;
+    String name = "to-terminate-" + KNOWN_ID;
     NexusOperationHandle<GreetingOutput> handle =
         nexusClient.start(
             GreetingNexusService::startGreeting, basicOptions(), new GreetingInput(name));
     logger.info("Started 'to-terminate' id={}, terminating", handle.getNexusOperationId());
     handle.terminate("standalone-nexus sample: terminate demo");
-    logger.info(
-        "Final status of 'to-terminate': {}", awaitTerminalStatus(handle, Duration.ofSeconds(10)));
+    // As with cancel, getResult() blocks until the operation record closes; a terminated operation
+    // reports completion by throwing rather than returning a result.
+    try {
+      handle.getResult();
+      logger.warn("'to-terminate' unexpectedly returned a result after terminate");
+    } catch (NexusOperationException e) {
+      logger.info("'to-terminate' ended as expected after terminate: {}", e.getMessage());
+    }
     // Operation-terminate did not stop the backing workflow (see the gap note above), so terminate
     // it directly by its ID.
     terminateBackingWorkflow(client, name);
@@ -146,41 +166,6 @@ public class StandaloneClientStarter {
     }
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────────────────────
-  // Client-wide options (identity, data converter) and interceptors.
-  // ─────────────────────────────────────────────────────────────────────────────────────────────
-  private static void demonstrateClientOptionsAndInterceptors(
-      WorkflowServiceStubs stubs, String namespace) throws Exception {
-    NexusClientOptions options =
-        NexusClientOptions.newBuilder()
-            .setNamespace(namespace)
-            // identity is stamped on write requests (start/cancel/terminate) for audit trails.
-            .setIdentity("standalone-nexus-sample")
-            // the data converter (de)serializes operation inputs/results. Supply a custom one for
-            // e.g. encryption; here we use the global default explicitly.
-            // See https://docs.temporal.io/default-custom-data-converters
-            .setDataConverter(GlobalDataConverter.get())
-            // interceptors wrap every per-call operation. Registration order matters: the LAST
-            // registered interceptor is the OUTERMOST. With [first, second], a single start call
-            // enters 'second', then 'first', then the root invoker, and returns back out through
-            // 'first' then 'second' — so each interceptor logs once on the way in and once on the
-            // way out (four lines total for one operation).
-            // See https://docs.temporal.io/encyclopedia/interceptors
-            .setInterceptors(
-                Arrays.asList(
-                    new LoggingNexusClientInterceptor("first"),
-                    new LoggingNexusClientInterceptor("second")))
-            .build();
-
-    NexusServiceClient<GreetingNexusService> interceptedClient =
-        NexusClient.newInstance(stubs, options)
-            .newNexusServiceClient(GreetingNexusService.class, ENDPOINT_NAME);
-    GreetingOutput out =
-        interceptedClient.execute(
-            GreetingNexusService::greet, basicOptions(), new GreetingInput("interceptors"));
-    logger.info("Result through interceptor chain: {}", out.getMessage());
-  }
-
   // ── helpers ──────────────────────────────────────────────────────────────────────────────────
 
   private static NexusClientOptions clientOptions(String namespace) {
@@ -211,26 +196,13 @@ public class StandaloneClientStarter {
         .build();
   }
 
-  /** Polls describe() until the operation leaves the RUNNING state or the budget elapses. */
-  private static NexusOperationExecutionStatus awaitTerminalStatus(
-      NexusOperationHandle<?> handle, Duration budget) {
-    long deadlineMillis = System.currentTimeMillis() + budget.toMillis();
-    NexusOperationExecutionStatus status = handle.describe().getStatus();
-    while (status == NexusOperationExecutionStatus.NEXUS_OPERATION_EXECUTION_STATUS_RUNNING
-        && System.currentTimeMillis() < deadlineMillis) {
-      sleep(Duration.ofMillis(200));
-      status = handle.describe().getStatus();
-    }
-    return status;
-  }
-
   /**
    * Terminates the backing workflow for {@code name} directly by its workflow ID. Needed because
    * terminating a standalone Nexus operation is a known gap that does not propagate to the backing
    * workflow. Best-effort: ignores the case where the workflow is already closed.
    */
   private static void terminateBackingWorkflow(WorkflowClient client, String name) {
-    String workflowId = GreetingIds.backingWorkflowId(name);
+    String workflowId = "greeting-" + name;
     try {
       client
           .newUntypedWorkflowStub(workflowId)
@@ -239,54 +211,6 @@ public class StandaloneClientStarter {
     } catch (Exception e) {
       logger.info(
           "Backing workflow {} not terminated (already closed?): {}", workflowId, e.getMessage());
-    }
-  }
-
-  private static void sleep(Duration duration) {
-    try {
-      Thread.sleep(duration.toMillis());
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      throw new RuntimeException(e);
-    }
-  }
-
-  // ── interceptors ─────────────────────────────────────────────────────────────────────────────
-
-  /** Outer interceptor: builds the per-call interceptor that logs each start RPC. */
-  private static final class LoggingNexusClientInterceptor implements NexusClientInterceptor {
-    private final String name;
-
-    LoggingNexusClientInterceptor(String name) {
-      this.name = name;
-    }
-
-    @Override
-    public NexusClientCallsInterceptor nexusClientCallsInterceptor(
-        NexusClientCallsInterceptor next) {
-      return new LoggingNexusClientCalls(name, next);
-    }
-  }
-
-  /** Per-call interceptor that logs each start RPC as it passes through the chain. */
-  private static final class LoggingNexusClientCalls extends NexusClientCallsInterceptorBase {
-    private final String name;
-
-    LoggingNexusClientCalls(String name, NexusClientCallsInterceptor next) {
-      super(next);
-      this.name = name;
-    }
-
-    @Override
-    public StartNexusOperationExecutionOutput startNexusOperationExecution(
-        StartNexusOperationExecutionInput input) {
-      logger.info("[interceptor {}] -> startNexusOperationExecution", name);
-      // Delegate to the next interceptor in the chain — and, at the tail of the chain, the SDK's
-      // root invoker, which issues the StartNexusOperationExecution gRPC call to the Temporal
-      // service. This delegation is REQUIRED: it is what actually starts the operation. An
-      // interceptor that returns without calling super short-circuits the chain, so no operation is
-      // started.
-      return super.startNexusOperationExecution(input);
     }
   }
 }

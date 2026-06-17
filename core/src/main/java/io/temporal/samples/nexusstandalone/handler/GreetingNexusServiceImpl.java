@@ -6,12 +6,10 @@ import io.nexusrpc.handler.ServiceImpl;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.nexus.Nexus;
 import io.temporal.nexus.WorkflowRunOperation;
-import io.temporal.samples.nexusstandalone.service.GreetingIds;
 import io.temporal.samples.nexusstandalone.service.GreetingNexusService;
 
 // Implements the GreetingNexusService operations. startGreeting is backed by a workflow that blocks
-// (so it runs long enough to be described/cancelled/terminated); greet is a synchronous handler
-// that
+// (so it runs long enough to be cancelled/terminated); greet is a synchronous handler that
 // completes inline.
 @ServiceImpl(service = GreetingNexusService.class)
 public class GreetingNexusServiceImpl {
@@ -20,7 +18,7 @@ public class GreetingNexusServiceImpl {
   // workflow as a Nexus operation: starting the operation starts the workflow, and the operation
   // completes when the workflow returns. The workflow ID is derived deterministically from the
   // input name so the client can address the backing workflow directly (the sample uses this to
-  // terminate it by ID — see GreetingIds and StandaloneClientStarter.terminateBackingWorkflow).
+  // terminate it by ID — it is just the word "greeting-" plus a known string from the object).
   @OperationImpl
   public OperationHandler<GreetingNexusService.GreetingInput, GreetingNexusService.GreetingOutput>
       startGreeting() {
@@ -31,7 +29,7 @@ public class GreetingNexusServiceImpl {
                     .newWorkflowStub(
                         GreetingWorkflow.class,
                         WorkflowOptions.newBuilder()
-                            .setWorkflowId(GreetingIds.backingWorkflowId(input.getName()))
+                            .setWorkflowId("greeting-" + input.getName())
                             .build())
                 ::greet);
   }

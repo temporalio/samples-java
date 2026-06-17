@@ -1,29 +1,27 @@
 ## Standalone Nexus Operations
 
+> [!WARNING]
+> Standalone Nexus operations are experimental and may be subject to backwards-incompatible
+> changes. They require a Temporal server that implements and enables them via the dynamic configs
+> shown below.
+> 
 This sample shows how to invoke and manage **standalone Nexus operations** — Nexus operations
 started directly by a client rather than from within a caller workflow. The long-running operation
 (`startGreeting`) is backed by a `GreetingWorkflow` that blocks until it is cancelled or terminated;
 the quick operation (`greet`) is synchronous and completes immediately.
 
 `StandaloneClientStarter` runs each capability in turn:
-1. **Execute** an operation and read its result — synchronously (`execute`) and asynchronously
-   (`executeAsync`).
+1. **Execute** an operation and read its result, both directly (`execute`) and via a handle
+   (`start` then `handle.getResult`).
 2. **Cancel** a running operation (`handle.cancel`).
 3. **Terminate** a running operation (`handle.terminate`). Operation-terminate is a known gap that
    does not stop the backing workflow, so the sample also terminates the backing workflow by ID.
 4. **Visibility** — `list` operations with a status filter and `count` them (total and grouped) via
    `NexusClient`.
-5. **Client options and interceptors** — set the identity and data converter, and register two
-   logging interceptors.
-
-> [!WARNING]
-> Standalone Nexus operations are experimental and may be subject to backwards-incompatible
-> changes. They require a Temporal server that implements and enables them via the dynamic configs
-> shown below.
 
 ### Running
 
-Start a Temporal server with the standalone-Nexus dynamic configs enabled:
+Start a Temporal server (version `1.7.2-standalone-nexus-operations`) with the standalone-Nexus dynamic configs enabled:
 
 ```bash
 temporal server start-dev \
@@ -34,10 +32,8 @@ temporal server start-dev \
 Create the namespace and the Nexus endpoint:
 
 ```bash
-temporal operator namespace create --namespace default
-
 temporal operator nexus endpoint create \
-  --name nexusstandalone-endpoint \
+  --name nexus-standalone-operation-endpoint \
   --target-namespace default \
   --target-task-queue nexusstandalone-handler-task-queue
 ```
@@ -58,29 +54,19 @@ Expected output (operation IDs and Visibility counts will differ between runs):
 
 ```
 execute() returned: Hello, execute!
-executeAsync() returned: Hello, executeAsync!
-Started 'to-cancel' id=<uuid>, requesting cancellation
-Operation id=<uuid> final status: NEXUS_OPERATION_EXECUTION_STATUS_CANCELED
-Started 'to-terminate' id=<uuid>, terminating
-Final status of 'to-terminate': NEXUS_OPERATION_EXECUTION_STATUS_TERMINATED
-Terminated backing workflow greeting-to-terminate-<runId>
+start() id=73e77105-f7ec-4a1f-a24a-1f9a9cc87248 then getResult() returned: Hello, execute-via-handle!
+Started 'to-cancel' id=12b554b5-d9f8-4f4f-9314-db508fd91999, requesting cancellation
+Operation id=12b554b5-d9f8-4f4f-9314-db508fd91999 ended as expected after cancel: Nexus operation failed: operationId='12b554b5-d9f8-4f4f-9314-db508fd91999'
+Started 'to-terminate' id=b1dae9d4-2d6b-45d6-ab3b-8725cc2cf6de, terminating
+'to-terminate' ended as expected after terminate: Nexus operation failed: operationId='b1dae9d4-2d6b-45d6-ab3b-8725cc2cf6de'
+Terminated backing workflow greeting-to-terminate-ef71547a
 List filtered to Completed returned 2 operation(s)
 Total operation count: 4
 Grouped count total=4, groups:
   group values=[[Canceled]] count=1
   group values=[[Completed]] count=2
   group values=[[Terminated]] count=1
-[interceptor second] -> startNexusOperationExecution
-[interceptor first] -> startNexusOperationExecution
-[interceptor first] <- startNexusOperationExecution
-[interceptor second] <- startNexusOperationExecution
-Result through interceptor chain: Hello, interceptors!
 ```
-
-The four interceptor lines come from a single operation: `execute()` issues one
-`startNexusOperationExecution` call that passes through both interceptors. The last-registered
-interceptor is outermost, so the call flows in `second → first → root` and back out `first → second`,
-and each interceptor logs once on the way in and once on the way out.
 
 ### Cancellation vs. termination
 

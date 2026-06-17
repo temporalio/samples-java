@@ -7,9 +7,8 @@ import io.nexusrpc.Service;
 
 // Shared Nexus service definition for the standalone-Nexus sample. It declares two operations:
 //   - startGreeting: backed by a workflow that blocks (long-running), so the client can demonstrate
-//     describe/cancel/terminate against an operation that is still running.
-//   - greet: synchronous, completes immediately, so the client can demonstrate
-// execute/executeAsync.
+//     cancel/terminate against an operation that is still running.
+//   - greet: synchronous, completes immediately, so the client can demonstrate execute.
 @Service
 public interface GreetingNexusService {
 
@@ -46,8 +45,8 @@ public interface GreetingNexusService {
   @Operation
   GreetingOutput startGreeting(GreetingInput input);
 
-  // A synchronous operation that completes immediately. Used to demonstrate execute/executeAsync,
-  // which block on (or return a future for) the operation result.
+  // A synchronous operation that completes immediately. Used to demonstrate execute, which blocks
+  // on the operation result.
   @Operation
   GreetingOutput greet(GreetingInput input);
 }

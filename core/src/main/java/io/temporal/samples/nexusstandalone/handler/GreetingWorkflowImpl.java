@@ -13,8 +13,8 @@ public class GreetingWorkflowImpl implements GreetingWorkflow {
         "Greeting workflow started for {}; blocking until cancelled or terminated",
         input.getName());
     // This workflow exists only to keep the backing standalone Nexus operation in a running state
-    // long enough for the sample to demonstrate describe/cancel/terminate. It blocks forever and
-    // never completes on its own.
+    // long enough for the sample to demonstrate cancel/terminate. It blocks forever and never
+    // completes on its own.
     Workflow.await(() -> false);
 
     throw Workflow.wrap(

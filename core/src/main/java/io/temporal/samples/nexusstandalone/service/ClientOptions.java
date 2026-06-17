@@ -2,28 +2,21 @@ package io.temporal.samples.nexusstandalone.service;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.envconfig.ClientConfigProfile;
-import io.temporal.envconfig.LoadClientConfigProfileOptions;
 import io.temporal.serviceclient.WorkflowServiceStubs;
-import java.nio.file.Paths;
 
 /**
- * Builds a {@link WorkflowClient} from the {@code default} profile in {@code
- * core/src/main/resources/config.toml}. Edit that profile (or override via {@code TEMPORAL_*}
- * environment variables) to point at a different server or namespace — for example a Temporal Cloud
- * namespace with an API key.
+ * Builds a {@link WorkflowClient} from the {@code default} profile loaded by {@link
+ * ClientConfigProfile#load()}. By default this reads the TOML file at {@code TEMPORAL_CONFIG_FILE},
+ * or, if that is unset, {@code [user config dir]/temporalio/temporal.toml}. Point that profile at a
+ * different server or namespace — or override via {@code TEMPORAL_*} environment variables — to run
+ * against, for example, a Temporal Cloud namespace with an API key.
  */
 public class ClientOptions {
 
   public static WorkflowClient getWorkflowClient() {
     ClientConfigProfile profile;
     try {
-      String configFilePath =
-          Paths.get(ClientOptions.class.getResource("/config.toml").toURI()).toString();
-      profile =
-          ClientConfigProfile.load(
-              LoadClientConfigProfileOptions.newBuilder()
-                  .setConfigFilePath(configFilePath)
-                  .build());
+      profile = ClientConfigProfile.load();
     } catch (Exception e) {
       throw new RuntimeException("Failed to load client configuration", e);
     }
