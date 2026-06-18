@@ -42,37 +42,37 @@ public class StandaloneClientStarter {
     NexusServiceClient<GreetingNexusService> greetingClient =
         nexusClient.newNexusServiceClient(GreetingNexusService.class, ENDPOINT_NAME);
 
-    demonstrateExecute(greetingClient);
+    demonstrateExecuteAndGettingHandleById(nexusClient, greetingClient);
     demonstrateStartAndCancel(greetingClient);
     demonstrateStartAndTerminate(greetingClient, client);
     demonstrateVisibility(nexusClient);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────────────────────
-  // execute — run a standalone Nexus operation and return its result.
+  // execute  — run a standalone Nexus operation and return its result in one call.
+  // getHandle — reconnect to an existing operation by its ID and read its result.
   // ─────────────────────────────────────────────────────────────────────────────────────────────
-  private static void demonstrateExecute(NexusServiceClient<GreetingNexusService> nexusClient)
+  private static void demonstrateExecuteAndGettingHandleById(
+      NexusClient nexusClient, NexusServiceClient<GreetingNexusService> greetingClient)
       throws Exception {
     // execute(...) starts the operation and blocks until it completes, returning the result in one
     // call. Used here on the synchronous 'greet' operation.
+    String operationId = "execute-nexus";
     GreetingOutput executed =
-        nexusClient.execute(
-            GreetingNexusService::greet,
-            basicOptions("execute-nexus"),
-            new GreetingInput("execute"));
+        greetingClient.execute(
+            GreetingNexusService::greet, basicOptions(operationId), new GreetingInput("execute"));
     logger.info("execute() returned: {}", executed.getMessage());
 
-    // execute(...) is exactly start(...).getResult(): start(...) returns a handle immediately and
-    // getResult() blocks on that handle until the operation completes. Use this form when you also
-    // need the handle itself — e.g. its operation ID, or to cancel/terminate/describe it.
+    // Reconnect to that same operation purely by its ID — nothing below references the execute()
+    // call above. This is how a separate process (or a later run) addresses an operation it did not
+    // start: NexusClient.getHandle(operationId, runId, resultClass) returns a typed handle (pass a
+    // null runId to target the latest run). getResult() then blocks until the operation is closed;
+    // since this one already completed, it returns the stored result immediately.
     NexusOperationHandle<GreetingOutput> handle =
-        nexusClient.start(
-            GreetingNexusService::greet,
-            basicOptions("execute-via-handle-nexus"),
-            new GreetingInput("execute-via-handle"));
+        nexusClient.getHandle(operationId, null, GreetingOutput.class);
     GreetingOutput viaHandle = handle.getResult();
     logger.info(
-        "start() id={} then getResult() returned: {}",
+        "getHandle(id={}) then getResult() returned: {}",
         handle.getNexusOperationId(),
         viaHandle.getMessage());
   }
