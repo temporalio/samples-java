@@ -21,7 +21,7 @@ the quick operation (`greet`) is synchronous and completes immediately.
 
 ### Running
 
-Start a Temporal server (version `1.7.2-standalone-nexus-operations`) with the standalone-Nexus dynamic configs enabled:
+Start a Temporal server (version `1.7.3-standalone-nexus-operations`) with the standalone-Nexus dynamic configs enabled:
 
 ```bash
 temporal server start-dev \
