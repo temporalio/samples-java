@@ -11,7 +11,7 @@ import io.temporal.workflowstreams.WorkflowStreamSubscription;
 import java.util.UUID;
 
 /**
- * Scenario 3: external (non-activity) publisher. The hub workflow does no work of its own; it just
+ * Scenario 4: external (non-activity) publisher. The hub workflow does no work of its own; it just
  * hosts the stream. A separate process publishes news into it using the same client factory used to
  * subscribe, then signals the workflow to close. Here the publisher and a subscriber run as two
  * threads.

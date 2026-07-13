@@ -10,7 +10,7 @@ import io.temporal.workflowstreams.WorkflowStreamSubscription;
 import java.util.UUID;
 
 /**
- * Scenario 4: bounded log via truncation. The ticker workflow periodically truncates old entries to
+ * Scenario 5: bounded log via truncation. The ticker workflow periodically truncates old entries to
  * bound its history, trading complete history for a bounded log. A "fast" subscriber that reads
  * from the start keeps up and sees every tick. A "late" subscriber that joins after truncation and
  * resumes from a stale offset is fast-forwarded to the current base offset — it cannot see the

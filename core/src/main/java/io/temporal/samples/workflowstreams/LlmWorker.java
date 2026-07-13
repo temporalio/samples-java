@@ -7,7 +7,7 @@ import io.temporal.worker.WorkerFactory;
 /**
  * Worker for the LLM-streaming scenario. Runs separately from {@link StreamsWorker} so the OpenAI
  * dependency and the {@code OPENAI_API_KEY} requirement stay isolated to this one scenario.
- * Different task queue too — the other four scenarios won't route work to this worker.
+ * Different task queue too — the other five scenarios won't route work to this worker.
  *
  * <p>Kill this worker mid-stream while {@link Llm} is running (and restart it) to trigger a retry:
  * Temporal restarts the activity, the activity publishes a RetryEvent on its second attempt, and

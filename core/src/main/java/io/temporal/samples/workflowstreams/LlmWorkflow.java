@@ -5,7 +5,7 @@ import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 
 /**
- * Scenario 5: hosts the stream while a streaming activity owns the non-deterministic OpenAI call
+ * Scenario 6: hosts the stream while a streaming activity owns the non-deterministic OpenAI call
  * and publishes token deltas back to subscribers.
  */
 @WorkflowInterface

@@ -56,7 +56,7 @@ public final class Shared {
   // continue-as-new: thread the prior run's state back in and pass it to
   // WorkflowStream.newInstance. It is null on a fresh start.
 
-  /** Input to OrderWorkflow (scenario 1). */
+  /** Input to OrderWorkflow (scenarios 1 and 2). */
   public static class OrderInput {
     public String orderId;
     public WorkflowStreamState streamState;
@@ -68,7 +68,7 @@ public final class Shared {
     }
   }
 
-  /** Input to PipelineWorkflow (scenario 2). */
+  /** Input to PipelineWorkflow (scenario 3). */
   public static class PipelineInput {
     public String pipelineId;
     public WorkflowStreamState streamState;
@@ -80,7 +80,7 @@ public final class Shared {
     }
   }
 
-  /** Input to HubWorkflow (scenario 3). */
+  /** Input to HubWorkflow (scenario 4). */
   public static class HubInput {
     public String hubId;
     public WorkflowStreamState streamState;
@@ -93,7 +93,7 @@ public final class Shared {
   }
 
   /**
-   * Input to TickerWorkflow (scenario 4). Zero-valued fields fall back to the defaults applied in
+   * Input to TickerWorkflow (scenario 5). Zero-valued fields fall back to the defaults applied in
    * the workflow.
    */
   public static class TickerInput {
@@ -112,7 +112,7 @@ public final class Shared {
     }
   }
 
-  /** Input to LlmWorkflow (scenario 5). */
+  /** Input to LlmWorkflow (scenario 6). */
   public static class LlmInput {
     public String prompt;
     public String model;

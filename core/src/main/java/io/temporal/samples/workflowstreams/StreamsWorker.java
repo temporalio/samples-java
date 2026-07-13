@@ -4,7 +4,7 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 
-/** Worker serving scenarios 1-4. */
+/** Worker serving scenarios 1-5. */
 public class StreamsWorker {
 
   public static void main(String[] args) {

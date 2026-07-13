@@ -6,7 +6,7 @@ import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 
 /**
- * Scenario 3: does no work of its own; it exists only to host the stream for an external publisher
+ * Scenario 4: does no work of its own; it exists only to host the stream for an external publisher
  * and shuts down on a close signal.
  */
 @WorkflowInterface

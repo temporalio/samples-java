@@ -12,7 +12,7 @@ import io.temporal.workflowstreams.WorkflowStreamSubscription;
 import java.util.UUID;
 
 /**
- * Scenario 5: LLM token streaming. The workflow hosts the stream while an activity makes the
+ * Scenario 6: LLM token streaming. The workflow hosts the stream while an activity makes the
  * streaming OpenAI call and republishes each token delta. On a retry the activity emits a
  * RetryEvent and this subscriber rewinds the terminal and re-renders. Run {@link LlmWorker} with
  * {@code OPENAI_API_KEY} set before running this.

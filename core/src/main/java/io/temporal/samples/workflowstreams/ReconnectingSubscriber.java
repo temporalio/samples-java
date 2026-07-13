@@ -10,7 +10,7 @@ import io.temporal.workflowstreams.WorkflowStreamSubscription;
 import java.util.UUID;
 
 /**
- * Scenario 2: reconnecting subscriber. A subscriber reads a few events, drops its connection, then
+ * Scenario 3: reconnecting subscriber. A subscriber reads a few events, drops its connection, then
  * a brand-new client resumes from the saved offset without missing events or seeing duplicates —
  * because the events are durable in workflow history, not just held in memory.
  */

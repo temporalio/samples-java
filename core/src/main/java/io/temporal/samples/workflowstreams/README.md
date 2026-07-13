@@ -11,19 +11,12 @@ client-side batching, publisher dedup, continue-as-new survival, and truncation.
 This sample mirrors the
 [Go](https://github.com/temporalio/samples-go/tree/main/workflowstreams) and
 [Python](https://github.com/temporalio/samples-python/tree/main/workflow_streams)
-workflow streams samples. It contains five scenarios.
+workflow streams samples. It contains six scenarios.
 
-> **Note:** This sample currently depends on the unreleased
-> `temporal-workflowstreams` module and a reserved-name carve-out in the SDK
-> itself, so the repo's `javaSDKVersion` is pinned to `1.36.0-SNAPSHOT` resolved
-> from your local Maven repository. Publish the SDK locally first from a sibling
-> `../sdk-java` checkout on the `workflow-streams` branch:
->
-> ```
-> cd ../sdk-java && ./gradlew publishToMavenLocal
-> ```
->
-> Drop the `-SNAPSHOT` pin once a tagged SDK release ships.
+> **Note:** The `temporal-workflowstreams` module is merged into SDK `main` but
+> not yet in a tagged release, so the repo's `javaSDKVersion` is pinned to
+> `1.37.0-SNAPSHOT`, resolved automatically from the Maven Central snapshots
+> repository. Drop the `-SNAPSHOT` pin once a tagged SDK release ships.
 
 ### Key APIs
 
@@ -51,6 +44,20 @@ try (WorkflowStreamClient client = WorkflowStreamClient.newInstance(workflowClie
 }
 ```
 
+Non-blocking client side — subscribe with a listener instead of iterating; the
+next item is delivered only after the `CompletionStage` returned from `onNext`
+completes:
+
+```java
+WorkflowStreamSubscriptionHandle handle =
+    client
+        .topic("status")
+        .subscribe(
+            0,
+            item -> CompletableFuture.runAsync(() -> handle(item), executor));
+handle.getDoneFuture().join(); // completes when the workflow reaches a terminal state
+```
+
 Offsets are **global** across topics. To resume a subscription from where a
 previous one left off, pass `subscribe` an offset one past the last item you
 consumed:
@@ -70,7 +77,7 @@ try (WorkflowStreamClient client = WorkflowStreamClient.newInstance(workflowClie
 1) Run a [Temporal service](https://github.com/temporalio/samples-java/tree/main/#How-to-use)
    (for example, `temporal server start-dev`).
 
-2) Start the worker (serves scenarios 1–4):
+2) Start the worker (serves scenarios 1–5):
 
 ```
 ./gradlew -q execute -PmainClass=io.temporal.samples.workflowstreams.StreamsWorker
@@ -99,7 +106,37 @@ Expected output (interleaving may vary):
 workflow result: charge-order-42
 ```
 
-#### Scenario 2 — reconnecting subscriber
+#### Scenario 2 — non-blocking listener
+
+Scenario 1's subscription is an iterator that parks the calling thread between
+items. This scenario subscribes with a `WorkflowStreamListener` instead: `subscribe`
+returns a `WorkflowStreamSubscriptionHandle` immediately, items are delivered as
+callbacks, and `onNext` returns a `CompletionStage` — the next item is delivered
+only once that stage completes, giving per-subscription backpressure without a
+parked thread per subscription. Two order workflows are consumed concurrently,
+with all items rendered on one shared executor thread, while the main thread just
+waits on the handles' done futures.
+
+```
+./gradlew -q execute -PmainClass=io.temporal.samples.workflowstreams.NonBlockingSubscriber
+```
+
+Expected output (interleaving may vary):
+
+```
+[order-A] [status]   received
+[order-B] [status]   received
+[order-A] [progress] charging card...
+[order-B] [progress] card charged
+[order-A] [status]   shipped
+...
+[order-A] stream completed
+[order-B] stream completed
+[order-A] workflow result: charge-order-A
+[order-B] workflow result: charge-order-B
+```
+
+#### Scenario 3 — reconnecting subscriber
 
 A subscriber reads a few pipeline stage events, disconnects, then a brand-new
 client resumes from the saved offset without missing events or seeing duplicates.
@@ -108,7 +145,7 @@ client resumes from the saved offset without missing events or seeing duplicates
 ./gradlew -q execute -PmainClass=io.temporal.samples.workflowstreams.ReconnectingSubscriber
 ```
 
-#### Scenario 3 — external publisher
+#### Scenario 4 — external publisher
 
 The hub workflow does no work of its own; it just hosts the stream. A separate
 publisher pushes news into it (using the same client factory used to subscribe) and
@@ -118,7 +155,7 @@ then signals the workflow to close. Here a publisher and subscriber run concurre
 ./gradlew -q execute -PmainClass=io.temporal.samples.workflowstreams.ExternalPublisher
 ```
 
-#### Scenario 4 — truncating ticker
+#### Scenario 5 — truncating ticker
 
 The ticker workflow periodically truncates old entries to bound its history, trading
 complete history for a bounded log. A *fast* subscriber that reads from the start keeps
@@ -138,7 +175,7 @@ Expected output (the late subscriber's first line shows the fast-forward):
 ...
 ```
 
-#### Scenario 5 — LLM token streaming
+#### Scenario 6 — LLM token streaming
 
 The workflow hosts the stream while an activity makes a streaming OpenAI call and
 republishes each token delta. On a retry it emits a retry event and the subscriber
