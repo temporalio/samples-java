@@ -22,13 +22,13 @@ import org.slf4j.LoggerFactory;
 
 // Sample client for standalone Nexus operations — operations started and managed directly by a
 // client rather than from within a workflow. Each capability is shown in its own method, called in
-// turn from main(): executing an operation and reading its result, cancelling and terminating an
-// operation, and querying operations via Visibility.
+// turn from main(): executing an operation and reading its result, cancelling a running operation,
+// and querying operations via Visibility.
 public class StandaloneClientStarter {
   private static final Logger logger = LoggerFactory.getLogger(StandaloneClientStarter.class);
 
   // Must match the Nexus endpoint configured on the server (see README).
-  public static final String ENDPOINT_NAME = "nexus-standalone-operation-endpoint";
+  public static final String ENDPOINT_NAME = "my-nexus-endpoint";
 
   public static void main(String[] args) throws Exception {
     WorkflowClient client = ClientOptions.getWorkflowClient();
@@ -44,7 +44,6 @@ public class StandaloneClientStarter {
 
     demonstrateExecuteAndGettingHandleById(nexusClient, greetingClient);
     demonstrateStartAndCancel(greetingClient);
-    demonstrateStartAndTerminate(greetingClient, client);
     demonstrateVisibility(nexusClient);
   }
 
@@ -107,38 +106,6 @@ public class StandaloneClientStarter {
   }
 
   // ─────────────────────────────────────────────────────────────────────────────────────────────
-  // start - launch a Nexus operation and immediately return. Does not wait for the result.
-  // terminate — forcefully closes the operation record.
-  //
-  // KNOWN FEATURE GAP: terminating a standalone Nexus operation terminates ONLY the operation
-  // record — it does NOT propagate to the backing workflow (unlike cancel, which does). The backing
-  // workflow keeps running and nothing appears in its history. Until the server closes this gap,
-  // terminate the backing workflow directly by its workflow ID to avoid orphaning it.
-  // ─────────────────────────────────────────────────────────────────────────────────────────────
-  private static void demonstrateStartAndTerminate(
-      NexusServiceClient<GreetingNexusService> nexusClient, WorkflowClient client) {
-    String name = "to-terminate";
-    NexusOperationHandle<GreetingOutput> handle =
-        nexusClient.start(
-            GreetingNexusService::startGreeting,
-            basicOptions(name + "-nexus"),
-            new GreetingInput(name));
-    logger.info("Started 'to-terminate' id={}, terminating", handle.getNexusOperationId());
-    handle.terminate("standalone-nexus sample: terminate demo");
-    // As with cancel, getResult() blocks until the operation record closes; a terminated operation
-    // reports completion by throwing rather than returning a result.
-    try {
-      handle.getResult();
-      logger.warn("'to-terminate' unexpectedly returned a result after terminate");
-    } catch (NexusOperationException e) {
-      logger.info("'to-terminate' ended as expected after terminate: {}", e.getMessage());
-    }
-    // Operation-terminate did not stop the backing workflow (see the gap note above), so terminate
-    // it directly by its ID.
-    terminateBackingWorkflow(client, name);
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────────────────────────
   // Visibility — list (filtered) and count (total and grouped) standalone operations.
   // ─────────────────────────────────────────────────────────────────────────────────────────────
   private static void demonstrateVisibility(NexusClient visibilityClient) {
@@ -194,23 +161,5 @@ public class StandaloneClientStarter {
         //   .setIdConflictPolicy(...)       — behavior when the ID belongs to a currently RUNNING
         //       operation. Default: FAIL (reject with NexusOperationAlreadyStartedException).
         .build();
-  }
-
-  /**
-   * Terminates the backing workflow for {@code name} directly by its workflow ID. Needed because
-   * terminating a standalone Nexus operation is a known gap that does not propagate to the backing
-   * workflow. Best-effort: ignores the case where the workflow is already closed.
-   */
-  private static void terminateBackingWorkflow(WorkflowClient client, String name) {
-    String workflowId = "greeting-" + name;
-    try {
-      client
-          .newUntypedWorkflowStub(workflowId)
-          .terminate("standalone-nexus sample: terminate orphaned backing workflow");
-      logger.info("Terminated backing workflow {}", workflowId);
-    } catch (Exception e) {
-      logger.info(
-          "Backing workflow {} not terminated (already closed?): {}", workflowId, e.getMessage());
-    }
   }
 }
