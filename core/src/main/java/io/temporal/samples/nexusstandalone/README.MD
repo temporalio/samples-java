@@ -3,72 +3,121 @@
 > [!WARNING]
 > Standalone Nexus operations are experimental and may be subject to backwards-incompatible
 > changes. They require a Temporal server that implements and enables them via the dynamic configs
-> shown below.
-> 
+> shown below. Use the dev server build at
+> https://github.com/temporalio/cli/releases/tag/v1.7.4-standalone-nexus-operations.
+>
 This sample shows how to invoke and manage **standalone Nexus operations** — Nexus operations
 started directly by a client rather than from within a caller workflow. The long-running operation
-(`startGreeting`) is backed by a `GreetingWorkflow` that blocks until it is cancelled or terminated;
-the quick operation (`greet`) is synchronous and completes immediately.
+(`startGreeting`) is backed by a `GreetingWorkflow` that blocks until it is cancelled; the quick
+operation (`greet`) is synchronous and completes immediately.
 
 `StandaloneClientStarter` runs each capability in turn:
 1. **Execute** an operation and read its result, both directly (`execute`) and via a handle
-   (`start` then `handle.getResult`).
+   (`getHandle` then `handle.getResult`).
 2. **Cancel** a running operation (`handle.cancel`).
-3. **Terminate** a running operation (`handle.terminate`). Operation-terminate is a known gap that
-   does not stop the backing workflow, so the sample also terminates the backing workflow by ID.
-4. **Visibility** — `list` operations with a status filter and `count` them (total and grouped) via
+3. **Visibility** — `list` operations with a status filter and `count` them (total and grouped) via
    `NexusClient`.
 
-### Running
+The starter and worker connect to two different namespaces (a "caller" namespace and a "handler"
+namespace) — this mirrors how Nexus is typically used to cross namespace boundaries. The client is
+configured via the SDK's [environment configuration](https://docs.temporal.io/develop/environment-configuration)
+support (`ClientConfigProfile.load()`), which reads `TEMPORAL_NAMESPACE`, `TEMPORAL_ADDRESS`, etc.
+from the environment (and optionally a profile from `temporal.toml`).
 
-Start a Temporal server (version `1.7.3-standalone-nexus-operations`) with the standalone-Nexus dynamic configs enabled:
+### Run locally against a dev server
 
-```bash
-temporal server start-dev \
-  --dynamic-config-value nexusoperation.enableStandalone=true \
-  --dynamic-config-value history.enableChasmCallbacks=true
-```
+1. Start the [Temporal dev server build that supports standalone Nexus operations](https://docs.temporal.io/standalone-nexus-operation#temporal-cli-support) with the required namespaces pre-created:
 
-Create the namespace and the Nexus endpoint:
+   ```bash
+   ./temporal server start-dev \
+     --namespace my-caller-namespace \
+     --namespace my-handler-namespace
+   ```
 
-```bash
-temporal operator nexus endpoint create \
-  --name nexus-standalone-operation-endpoint \
-  --target-namespace default \
-  --target-task-queue nexusstandalone-handler-task-queue
-```
+2. Create a Nexus endpoint that routes to the handler namespace and the worker's task queue:
 
-In one terminal, start the handler worker:
+   ```bash
+   ./temporal operator nexus endpoint create \
+     --name my-nexus-endpoint \
+     --target-namespace my-handler-namespace \
+     --target-task-queue nexus-handler-queue
+   ```
 
-```bash
-./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexusstandalone.handler.HandlerWorker
-```
+3. In a second terminal, start the handler worker in the handler namespace:
 
-In a second terminal, run the starter:
+   ```bash
+   TEMPORAL_NAMESPACE=my-handler-namespace \
+     ./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexusstandalone.handler.HandlerWorker
+   ```
 
-```bash
-./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexusstandalone.StandaloneClientStarter
-```
+4. In a third terminal, run the starter in the caller namespace:
 
-Expected output (operation IDs and Visibility counts will differ between runs):
+   ```bash
+   TEMPORAL_NAMESPACE=my-caller-namespace \
+     ./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexusstandalone.StandaloneClientStarter
+   ```
+
+Expected output (operation IDs are fixed, but Visibility counts grow across runs):
 
 ```
 execute() returned: Hello, execute!
-start() id=73e77105-f7ec-4a1f-a24a-1f9a9cc87248 then getResult() returned: Hello, execute-via-handle!
-Started 'to-cancel' id=12b554b5-d9f8-4f4f-9314-db508fd91999, requesting cancellation
-Operation id=12b554b5-d9f8-4f4f-9314-db508fd91999 ended as expected after cancel: Nexus operation failed: operationId='12b554b5-d9f8-4f4f-9314-db508fd91999'
-Started 'to-terminate' id=b1dae9d4-2d6b-45d6-ab3b-8725cc2cf6de, terminating
-'to-terminate' ended as expected after terminate: Nexus operation failed: operationId='b1dae9d4-2d6b-45d6-ab3b-8725cc2cf6de'
-Terminated backing workflow greeting-to-terminate-ef71547a
-List filtered to Completed returned 2 operation(s)
-Total operation count: 4
-Grouped count total=4, groups:
+getHandle(id=execute-nexus) then getResult() returned: Hello, execute!
+Started 'to-cancel' id=start-and-cancel-nexus, requesting cancellation
+Operation id=start-and-cancel-nexus ended as expected after cancel: Nexus operation failed: operationId='start-and-cancel-nexus'
+List filtered to Completed returned 1 operation(s)
+Total operation count: 2
+Grouped count total=2, groups:
   group values=[[Canceled]] count=1
-  group values=[[Completed]] count=2
-  group values=[[Terminated]] count=1
+  group values=[[Completed]] count=1
 ```
 
-### Cancellation vs. termination
+### Run against Temporal Cloud
+
+1. Create two namespaces in Temporal Cloud (for example `my-caller-namespace.<account>` and
+   `my-handler-namespace.<account>`) and generate an API key (or mTLS cert) that can access both.
+
+2. Create a Nexus endpoint that targets the handler namespace and the worker's task queue. See the
+   Temporal Cloud instructions at https://docs.temporal.io/nexus/registry#create-a-nexus-endpoint.
+   Use:
+   - Endpoint name: `my-nexus-endpoint`
+   - Target namespace: `my-handler-namespace.<account>`
+   - Target task queue: `nexus-handler-queue`
+   - Allowed caller namespaces: include `my-caller-namespace.<account>` (endpoints reject callers
+     that are not on this list)
+
+3. Add two profiles to your [environment configuration file](https://docs.temporal.io/develop/environment-configuration),
+   one per namespace. Using API keys:
+
+   ```toml
+   [profile.handler]
+   address = "<region>.<cloud>.api.temporal.io:7233"
+   namespace = "my-handler-namespace.<account>"
+   api_key = "<your-api-key>"
+
+   [profile.caller]
+   address = "<region>.<cloud>.api.temporal.io:7233"
+   namespace = "my-caller-namespace.<account>"
+   api_key = "<your-api-key>"
+   ```
+
+   For mTLS instead of API keys, set `tls.client_cert_path` and `tls.client_key_path` on each profile
+   (see the [docs](https://docs.temporal.io/develop/environment-configuration) for the full schema).
+
+4. Run the worker and starter in separate terminals, selecting the appropriate profile in each:
+
+   ```bash
+   # terminal 1 (worker, handler namespace)
+   TEMPORAL_PROFILE=handler \
+     ./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexusstandalone.handler.HandlerWorker
+   ```
+
+   ```bash
+   # terminal 2 (starter, caller namespace)
+   TEMPORAL_PROFILE=caller \
+     ./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexusstandalone.StandaloneClientStarter
+   ```
+
+### Cancellation
 
 A workflow-backed Nexus operation does **not** need any explicit cancel handling to be cancellable.
 When you call `handle.cancel(...)`, the server delivers a cancellation request to the backing
@@ -78,8 +127,3 @@ operation as cancelled. Cancellation is **cooperative**, though: if the backing 
 ignored `CanceledFailure` (or did all of its waiting inside a detached cancellation scope), the
 cancel request would have no effect and the operation would run until it completes or hits its
 schedule-to-close timeout.
-
-`handle.terminate(...)` is different. It forcefully closes the **operation** record, but currently
-does **not** propagate to the backing workflow (a known gap) — the workflow keeps running and
-nothing appears in its history. Until that gap is closed, terminate the backing workflow directly by
-its workflow ID, as `StandaloneClientStarter.terminateBackingWorkflow` does.
