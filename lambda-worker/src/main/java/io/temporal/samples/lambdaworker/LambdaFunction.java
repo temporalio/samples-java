@@ -9,7 +9,7 @@ import io.temporal.common.WorkerDeploymentVersion;
 public class LambdaFunction implements RequestHandler<Object, Void> {
 
   private static final RequestHandler<Object, Void> WORKER =
-      LambdaWorker.run(
+      LambdaWorker.define(
           new WorkerDeploymentVersion(
               LambdaWorkerSample.deploymentName(), LambdaWorkerSample.buildId()),
           LambdaWorkerSample::configure);
