@@ -169,6 +169,8 @@ Load client configuration from TOML files with programmatic overrides.
 
 - [**Getting Started**](/core/src/main/java/io/temporal/samples/nexus): Demonstrates how to get started with Temporal and Nexus.
 
+- [**Standalone Nexus Operations**](/core/src/main/java/io/temporal/samples/nexusstandalone): Demonstrates how to start Standalone Nexus Operations — Nexus Operations that run independently without a Workflow.
+
 - [**Mapping Multiple Arguments**](/core/src/main/java/io/temporal/samples/nexus): Demonstrates how map a Nexus operation to a Workflow that takes multiple arguments.
 
 - [**Cancellation**](/core/src/main/java/io/temporal/samples/nexuscancellation): Demonstrates how to cancel an async Nexus operation.
