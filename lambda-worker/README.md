@@ -5,9 +5,10 @@ It registers a simple greeting Workflow and Activity, configures Worker Deployme
 Versioning, and includes helper scripts for packaging the Lambda and configuring Temporal
 Cloud invocation.
 
-For local SDK co-development, create `settings.local.gradle` in the repository root and
-add `includeBuild '../sdk-java'`. That file is ignored by Git and makes Gradle use the
-in-development `io.temporal:temporal-aws-lambda` SDK add-on before it is published.
+This sample uses the `1.37.0-SNAPSHOT` SDK artifacts for AWS Lambda worker support. For
+local SDK co-development, create `settings.local.gradle` in the repository root and add
+`includeBuild '../sdk-java'`. That file is ignored by Git and makes Gradle use the local
+SDK checkout instead of resolving snapshot artifacts.
 
 ## Prerequisites
 
