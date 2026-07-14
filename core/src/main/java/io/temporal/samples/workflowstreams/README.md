@@ -13,10 +13,8 @@ This sample mirrors the
 [Python](https://github.com/temporalio/samples-python/tree/main/workflow_streams)
 workflow streams samples. It contains six scenarios.
 
-> **Note:** The `temporal-workflowstreams` module is merged into SDK `main` but
-> not yet in a tagged release, so the repo's `javaSDKVersion` is pinned to
-> `1.37.0-SNAPSHOT`, resolved automatically from the Maven Central snapshots
-> repository. Drop the `-SNAPSHOT` pin once a tagged SDK release ships.
+> **Note:** The `temporal-workflowstreams` module is experimental and requires
+> SDK `1.37.0` or later.
 
 ### Key APIs
 

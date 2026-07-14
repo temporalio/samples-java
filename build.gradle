@@ -21,15 +21,12 @@ subprojects {
     ext {
         otelVersion = '1.30.1'
         otelVersionAlpha = "${otelVersion}-alpha"
-        javaSDKVersion = '1.37.0-SNAPSHOT'
+        javaSDKVersion = '1.37.0'
         camelVersion = '3.22.1'
         jarVersion = '1.0.0'
     }
 
     repositories {
-        maven {
-            url "https://central.sonatype.com/repository/maven-snapshots/"
-        }
         mavenCentral()
     }
 
