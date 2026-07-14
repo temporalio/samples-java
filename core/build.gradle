@@ -2,6 +2,7 @@ dependencies {
     // Temporal SDK
     implementation "io.temporal:temporal-sdk:$javaSDKVersion"
     implementation "io.temporal:temporal-opentracing:$javaSDKVersion"
+    implementation "io.temporal:temporal-workflowstreams:$javaSDKVersion"
     testImplementation("io.temporal:temporal-testing:$javaSDKVersion")
 
     // Environment configuration
@@ -27,6 +28,7 @@ dependencies {
     implementation 'io.jaegertracing:jaeger-client:1.8.1'
 
     // Used in samples
+    implementation "com.openai:openai-java:4.39.1"
     implementation group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
     implementation group: 'io.cloudevents', name: 'cloudevents-core', version: '4.0.1'
     implementation group: 'io.cloudevents', name: 'cloudevents-api', version: '4.0.1'
