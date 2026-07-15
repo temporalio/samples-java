@@ -1,21 +1,10 @@
-def lambdaWorkerJavaSDKVersion = '1.37.0-SNAPSHOT'
-
-repositories {
-    maven {
-        url "https://central.sonatype.com/repository/maven-snapshots/"
-        mavenContent {
-            snapshotsOnly()
-        }
-    }
-}
-
 dependencies {
-    implementation "io.temporal:temporal-sdk:$lambdaWorkerJavaSDKVersion"
-    implementation "io.temporal:temporal-envconfig:$lambdaWorkerJavaSDKVersion"
-    implementation "io.temporal:temporal-aws-lambda:$lambdaWorkerJavaSDKVersion"
+    implementation "io.temporal:temporal-sdk:$javaSDKVersion"
+    implementation "io.temporal:temporal-envconfig:$javaSDKVersion"
+    implementation "io.temporal:temporal-aws-lambda:$javaSDKVersion"
     implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.6'
 
-    testImplementation "io.temporal:temporal-testing:$lambdaWorkerJavaSDKVersion"
+    testImplementation "io.temporal:temporal-testing:$javaSDKVersion"
     testImplementation "junit:junit:4.13.2"
     testImplementation(platform("org.junit:junit-bom:5.10.3"))
     testRuntimeOnly "org.junit.vintage:junit-vintage-engine"
