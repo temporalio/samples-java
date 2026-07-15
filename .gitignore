@@ -5,7 +5,6 @@ target
 .DS_Store
 .idea
 .gradle
-settings.local.gradle
 **/build/
 **/out/
 .classpath
