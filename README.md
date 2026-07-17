@@ -5,6 +5,7 @@ Temporal using the [Java SDK](https://github.com/temporalio/sdk-java).
 
 It contains the following modules:
 * [Core](/core): showcases many different SDK features.
+* [Google Cloud OpenTelemetry](/gcp-opentelemetry): runs a continuously polling worker in a Cloud Run worker pool and exports metrics and traces through the Google-Built OpenTelemetry Collector.
 * [SpringBoot](/springboot): showcases SpringBoot autoconfig integration.
 * [SpringBoot Basic](/springboot-basic): Minimal sample showing SpringBoot autoconfig integration without any extra external dependencies.
 * [Spring AI](/springai): demonstrates the Temporal Spring AI integration — durable AI agents with chat models, tools, MCP servers, vector stores, and embeddings.
