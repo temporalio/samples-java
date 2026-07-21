@@ -22,7 +22,9 @@ if [[ -n "${LAMBDA_CODE_S3_BUCKET:-}" ]]; then
   aws lambda update-function-code \
     --function-name "$FUNCTION_NAME" \
     --s3-bucket "$LAMBDA_CODE_S3_BUCKET" \
-    --s3-key "$S3_KEY"
+    --s3-key "$S3_KEY" \
+    --query 'FunctionArn' \
+    --output text
   exit 0
 fi
 
@@ -32,4 +34,8 @@ if (( JAR_SIZE > MAX_DIRECT_UPLOAD_BYTES )); then
   exit 1
 fi
 
-aws lambda update-function-code --function-name "$FUNCTION_NAME" --zip-file "fileb://$JAR_FILE"
+aws lambda update-function-code \
+  --function-name "$FUNCTION_NAME" \
+  --zip-file "fileb://$JAR_FILE" \
+  --query 'FunctionArn' \
+  --output text
