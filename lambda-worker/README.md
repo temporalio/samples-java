@@ -5,6 +5,9 @@ It registers a simple greeting Workflow and Activity, configures Worker Deployme
 Versioning, and includes helper scripts for packaging the Lambda and configuring Temporal
 Cloud invocation.
 
+The deployable Worker and local Workflow starter are separate Gradle projects, so
+starter-only code and dependencies are not included in the Lambda artifact.
+
 It uses the same published Temporal Java SDK version as the other samples in this repository.
 
 ## Prerequisites
@@ -17,27 +20,19 @@ It uses the same published Temporal Java SDK version as the other samples in thi
 - A Temporal Cloud API key. This walkthrough deploys it as a Lambda environment variable
   because these are development-only secrets.
 
-## Files
+## Layout
 
-| File | Description |
-|------|-------------|
-| `src/main/java/io/temporal/samples/lambdaworker/LambdaFunction.java` | AWS Lambda handler |
-| `src/main/java/io/temporal/samples/lambdaworker/LambdaWorkerSample.java` | Shared task queue, deployment version, and worker registrations |
-| `src/main/java/io/temporal/samples/lambdaworker/SampleWorkflow*.java` | Sample Workflow interface and implementation |
-| `src/main/java/io/temporal/samples/lambdaworker/GreetingActivities*.java` | Sample Activity interface and implementation |
-| `src/main/java/io/temporal/samples/lambdaworker/Starter.java` | Local helper that starts a Workflow for the Lambda worker |
-| `temporal.toml.sample` | Temporal client connection configuration |
-| `otel-collector-config.yaml.sample` | Optional ADOT collector configuration |
-| `deploy-lambda.sh` | Builds and uploads the Lambda deployment package |
-| `mk-iam-role.sh` | Creates the role Temporal Cloud assumes to invoke Lambda |
-| `iam-role-for-temporal-lambda-invoke-test.yaml` | CloudFormation template for the invocation role |
-| `extra-setup-steps` | Optional IAM and Lambda settings for OpenTelemetry |
+- `worker/` contains the Lambda handler, Workflow, Activity, and deployable Worker project.
+- `starter/` contains the local Workflow starter project.
+- `deploy/` contains the AWS deployment scripts and CloudFormation template.
+- `temporal.template.toml` and `otel-collector-config.template.yaml` are configuration
+  templates for local and Lambda setup.
 
 ## Build
 
 ```bash
-./gradlew :lambda-worker:test
-./gradlew :lambda-worker:shadowJar
+./gradlew :lambda-worker:worker:test
+./gradlew :lambda-worker:worker:shadowJar
 ```
 
 The Lambda handler string is:
@@ -79,18 +74,20 @@ TEMPORAL_ADDRESS
 TEMPORAL_NAMESPACE
 TEMPORAL_API_KEY
 TEMPORAL_TASK_QUEUE
-TEMPORAL_WORKER_DEPLOYMENT_NAME
-TEMPORAL_WORKER_BUILD_ID
+TEMPORAL_LAMBDA_DEPLOYMENT_NAME
+TEMPORAL_LAMBDA_BUILD_ID
 ```
 
-The local starter also reads `TEMPORAL_TASK_QUEUE` and `TEMPORAL_WORKFLOW_ID_PREFIX`.
+The local starter also reads `TEMPORAL_TASK_QUEUE` and
+`TEMPORAL_LAMBDA_WORKFLOW_ID_PREFIX`.
 
-You can also use `temporal.toml.sample` as a starting point for `temporal.toml` and set
-`TEMPORAL_CONFIG_FILE=temporal.toml`.
+You can also copy `lambda-worker/temporal.template.toml` to
+`lambda-worker/temporal.toml`, fill in the connection details, and set
+`TEMPORAL_CONFIG_FILE=lambda-worker/temporal.toml`. The generated file is ignored by Git.
 
-`TEMPORAL_TASK_QUEUE`, `TEMPORAL_WORKER_DEPLOYMENT_NAME`,
-`TEMPORAL_WORKER_BUILD_ID`, and `TEMPORAL_WORKFLOW_ID_PREFIX` are optional. The values
-above are the sample defaults.
+`TEMPORAL_TASK_QUEUE`, `TEMPORAL_LAMBDA_DEPLOYMENT_NAME`,
+`TEMPORAL_LAMBDA_BUILD_ID`, and `TEMPORAL_LAMBDA_WORKFLOW_ID_PREFIX` are optional. The
+values above are the sample defaults.
 
 ## Deploy Lambda
 
@@ -135,15 +132,15 @@ for direct upload in this sample; use S3 if your local artifact grows beyond Lam
 direct upload limit.
 
 ```bash
-./gradlew :lambda-worker:shadowJar
+./gradlew :lambda-worker:worker:shadowJar
 
 aws lambda create-function \
   --function-name "$FUNCTION_NAME" \
   --runtime java17 \
   --handler io.temporal.samples.lambdaworker.LambdaFunction::handleRequest \
   --role "$EXECUTION_ROLE_ARN" \
-  --zip-file fileb://lambda-worker/build/libs/lambda-worker-1.0.0-all.jar \
-  --environment "Variables={TEMPORAL_ADDRESS=$TEMPORAL_ADDRESS,TEMPORAL_NAMESPACE=$TEMPORAL_NAMESPACE,TEMPORAL_API_KEY=$TEMPORAL_API_KEY,TEMPORAL_TASK_QUEUE=$TASK_QUEUE,TEMPORAL_WORKER_DEPLOYMENT_NAME=$DEPLOYMENT_NAME,TEMPORAL_WORKER_BUILD_ID=$BUILD_ID}" \
+  --zip-file fileb://lambda-worker/worker/build/libs/lambda-worker-1.0.0-all.jar \
+  --environment "Variables={TEMPORAL_ADDRESS=$TEMPORAL_ADDRESS,TEMPORAL_NAMESPACE=$TEMPORAL_NAMESPACE,TEMPORAL_API_KEY=$TEMPORAL_API_KEY,TEMPORAL_TASK_QUEUE=$TASK_QUEUE,TEMPORAL_LAMBDA_DEPLOYMENT_NAME=$DEPLOYMENT_NAME,TEMPORAL_LAMBDA_BUILD_ID=$BUILD_ID}" \
   --timeout 90 \
   --memory-size 1024 \
   --query 'FunctionArn' \
@@ -162,13 +159,13 @@ export FUNCTION_ARN="$(
 To update code after the function exists:
 
 ```bash
-./lambda-worker/deploy-lambda.sh "$FUNCTION_NAME"
+./lambda-worker/deploy/deploy-lambda.sh "$FUNCTION_NAME"
 ```
 
 If direct upload is too large, set `LAMBDA_CODE_S3_BUCKET` and rerun:
 
 ```bash
-LAMBDA_CODE_S3_BUCKET=<code-bucket> ./lambda-worker/deploy-lambda.sh "$FUNCTION_NAME"
+LAMBDA_CODE_S3_BUCKET=<code-bucket> ./lambda-worker/deploy/deploy-lambda.sh "$FUNCTION_NAME"
 ```
 
 ## Configure Invocation
@@ -176,9 +173,7 @@ LAMBDA_CODE_S3_BUCKET=<code-bucket> ./lambda-worker/deploy-lambda.sh "$FUNCTION_
 Create the IAM role that Temporal Cloud assumes to invoke the Lambda:
 
 ```bash
-cd lambda-worker
-./mk-iam-role.sh "$STACK_NAME" "$EXTERNAL_ID" "$FUNCTION_ARN"
-cd ..
+./lambda-worker/deploy/mk-iam-role.sh "$STACK_NAME" "$EXTERNAL_ID" "$FUNCTION_ARN"
 
 aws cloudformation wait stack-create-complete --stack-name "$STACK_NAME"
 
@@ -232,10 +227,9 @@ After the Worker Deployment Version is current, start the sample Workflow:
 
 ```bash
 export TEMPORAL_TASK_QUEUE="$TASK_QUEUE"
-export TEMPORAL_WORKFLOW_ID_PREFIX="$WORKFLOW_PREFIX"
+export TEMPORAL_LAMBDA_WORKFLOW_ID_PREFIX="$WORKFLOW_PREFIX"
 
-./gradlew -q :lambda-worker:execute \
-  -PmainClass=io.temporal.samples.lambdaworker.Starter
+./gradlew -q :lambda-worker:starter:execute
 ```
 
 The starter only creates a Workflow Execution. It does not start a local Worker. The
@@ -246,3 +240,7 @@ Lambda function.
 
 For local development of the Workflow and Activity logic, run the unit tests. They use
 `TestWorkflowRule` and do not require AWS or a running Temporal Service.
+
+```bash
+./gradlew :lambda-worker:worker:test
+```

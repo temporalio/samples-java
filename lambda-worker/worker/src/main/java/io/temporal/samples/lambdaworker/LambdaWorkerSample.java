@@ -1,32 +1,18 @@
 package io.temporal.samples.lambdaworker;
 
-import io.temporal.aws.lambda.LambdaWorkerOptions;
-
-/** Shared constants and worker registration for the Lambda Worker sample. */
+/** Shared configuration for the Lambda Worker sample. */
 public final class LambdaWorkerSample {
 
   public static final String TASK_QUEUE_ENV = "TEMPORAL_TASK_QUEUE";
-  public static final String DEPLOYMENT_NAME_ENV = "TEMPORAL_WORKER_DEPLOYMENT_NAME";
-  public static final String BUILD_ID_ENV = "TEMPORAL_WORKER_BUILD_ID";
-  public static final String WORKFLOW_ID_PREFIX_ENV = "TEMPORAL_WORKFLOW_ID_PREFIX";
+  public static final String DEPLOYMENT_NAME_ENV = "TEMPORAL_LAMBDA_DEPLOYMENT_NAME";
+  public static final String BUILD_ID_ENV = "TEMPORAL_LAMBDA_BUILD_ID";
 
   public static final String DEFAULT_TASK_QUEUE = "serverless-task-queue-java";
-  public static final String DEFAULT_WORKFLOW_ID_PREFIX = "serverless-workflow-id-java";
   public static final String DEFAULT_DEPLOYMENT_NAME = "my-app";
   public static final String DEFAULT_BUILD_ID = "build-1";
 
-  public static void configure(LambdaWorkerOptions.Builder builder) {
-    builder.setTaskQueue(taskQueue());
-    builder.registerWorkflowImplementationTypes(SampleWorkflowImpl.class);
-    builder.registerActivitiesImplementations(new GreetingActivitiesImpl());
-  }
-
   public static String taskQueue() {
     return envOrDefault(TASK_QUEUE_ENV, DEFAULT_TASK_QUEUE);
-  }
-
-  public static String workflowIdPrefix() {
-    return envOrDefault(WORKFLOW_ID_PREFIX_ENV, DEFAULT_WORKFLOW_ID_PREFIX);
   }
 
   public static String deploymentName() {

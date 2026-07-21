@@ -1,0 +1,19 @@
+dependencies {
+    implementation project(':lambda-worker:worker')
+    implementation "io.temporal:temporal-sdk:$javaSDKVersion"
+    implementation "io.temporal:temporal-envconfig:$javaSDKVersion"
+    runtimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.6'
+
+    dependencies {
+        errorproneJavac('com.google.errorprone:javac:9+181-r4173-1')
+        errorprone('com.google.errorprone:error_prone_core:2.28.0')
+    }
+}
+
+tasks.register('execute', JavaExec) {
+    mainClass = 'io.temporal.samples.lambdaworker.Starter'
+    classpath = sourceSets.main.runtimeClasspath
+    if (findProperty("args")) {
+        args findProperty("args").tokenize()
+    }
+}

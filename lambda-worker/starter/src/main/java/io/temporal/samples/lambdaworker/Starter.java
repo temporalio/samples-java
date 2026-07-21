@@ -13,6 +13,9 @@ import java.util.concurrent.TimeUnit;
 /** Local helper that starts a Workflow execution for the Lambda worker to process. */
 public class Starter {
 
+  private static final String WORKFLOW_ID_PREFIX_ENV = "TEMPORAL_LAMBDA_WORKFLOW_ID_PREFIX";
+  private static final String DEFAULT_WORKFLOW_ID_PREFIX = "serverless-workflow-id-java";
+
   public static void main(String[] args) {
     String name = args.length > 0 ? String.join(" ", args) : "Serverless Lambda Worker!";
 
@@ -27,7 +30,7 @@ public class Starter {
           client.newWorkflowStub(
               SampleWorkflow.class,
               WorkflowOptions.newBuilder()
-                  .setWorkflowId(LambdaWorkerSample.workflowIdPrefix() + "-" + UUID.randomUUID())
+                  .setWorkflowId(workflowIdPrefix() + "-" + UUID.randomUUID())
                   .setTaskQueue(LambdaWorkerSample.taskQueue())
                   .build());
 
@@ -46,5 +49,10 @@ public class Starter {
         service.awaitTermination(10, TimeUnit.SECONDS);
       }
     }
+  }
+
+  private static String workflowIdPrefix() {
+    String value = System.getenv(WORKFLOW_ID_PREFIX_ENV);
+    return value == null || value.isBlank() ? DEFAULT_WORKFLOW_ID_PREFIX : value;
   }
 }
