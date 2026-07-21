@@ -1,10 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
-ROLE_NAME="${1:?Usage: extra-setup-steps <role-name> <function-name> <region> <account-id>}"
-FUNCTION_NAME="${2:?Usage: extra-setup-steps <role-name> <function-name> <region> <account-id>}"
-REGION="${3:?Usage: extra-setup-steps <role-name> <function-name> <region> <account-id>}"
-ACCOUNT_ID="${4:?Usage: extra-setup-steps <role-name> <function-name> <region> <account-id>}"
+ROLE_NAME="${1:?Usage: enable-telemetry.sh <role-name> <function-name> <region> <account-id>}"
+FUNCTION_NAME="${2:?Usage: enable-telemetry.sh <role-name> <function-name> <region> <account-id>}"
+REGION="${3:?Usage: enable-telemetry.sh <role-name> <function-name> <region> <account-id>}"
+ACCOUNT_ID="${4:?Usage: enable-telemetry.sh <role-name> <function-name> <region> <account-id>}"
 
 aws iam put-role-policy \
   --role-name "$ROLE_NAME" \

@@ -15,14 +15,6 @@ dependencies {
     }
 }
 
-tasks.register('execute', JavaExec) {
-    mainClass = findProperty("mainClass") ?: ""
-    classpath = sourceSets.main.runtimeClasspath
-    if (findProperty("args")) {
-        args findProperty("args").tokenize()
-    }
-}
-
 tasks.register('shadowJar', Jar) {
     archiveBaseName = 'lambda-worker'
     archiveClassifier = 'all'

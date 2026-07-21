@@ -12,7 +12,11 @@ public class LambdaFunction implements RequestHandler<Object, Void> {
       LambdaWorker.define(
           new WorkerDeploymentVersion(
               LambdaWorkerSample.deploymentName(), LambdaWorkerSample.buildId()),
-          LambdaWorkerSample::configure);
+          builder -> {
+            builder.setTaskQueue(LambdaWorkerSample.taskQueue());
+            builder.registerWorkflowImplementationTypes(SampleWorkflowImpl.class);
+            builder.registerActivitiesImplementations(new GreetingActivitiesImpl());
+          });
 
   @Override
   public Void handleRequest(Object input, Context context) {

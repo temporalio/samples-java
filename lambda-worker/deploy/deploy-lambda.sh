@@ -4,10 +4,11 @@ set -euo pipefail
 FUNCTION_NAME="${1:?Usage: deploy-lambda.sh <function-name>}"
 MAX_DIRECT_UPLOAD_BYTES=50000000
 
-cd "$(dirname "$0")/.."
-./gradlew :lambda-worker:shadowJar
+REPOSITORY_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$REPOSITORY_DIR"
+./gradlew :lambda-worker:worker:shadowJar
 
-JAR_FILE="$(find lambda-worker/build/libs -name 'lambda-worker-*-all.jar' | head -n 1)"
+JAR_FILE="$(find lambda-worker/worker/build/libs -name 'lambda-worker-*-all.jar' | head -n 1)"
 
 if stat -f%z "$JAR_FILE" >/dev/null 2>&1; then
   JAR_SIZE="$(stat -f%z "$JAR_FILE")"
