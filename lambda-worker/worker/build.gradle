@@ -24,6 +24,9 @@ tasks.register('shadowJar', Jar) {
     def mergedServicesDir = layout.buildDirectory.dir('generated/mergedServices')
 
     from sourceSets.main.output
+    from(file('../otel-collector-config.template.yaml')) {
+        rename 'otel-collector-config.template.yaml', 'otel-collector-config.yaml'
+    }
     from({
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }) {

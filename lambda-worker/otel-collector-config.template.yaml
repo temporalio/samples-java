@@ -9,11 +9,11 @@ receivers:
 exporters:
   debug:
   awsxray:
-    region: us-west-2
+    region: ${env:AWS_REGION}
   awsemf:
     namespace: TemporalWorkerMetrics
-    log_group_name: /aws/lambda/<your-function-name>
-    region: us-west-2
+    log_group_name: /aws/lambda/${env:AWS_LAMBDA_FUNCTION_NAME}
+    region: ${env:AWS_REGION}
     dimension_rollup_option: NoDimensionRollup
     resource_to_telemetry_conversion:
       enabled: true
@@ -28,6 +28,6 @@ service:
       exporters: [awsemf]
   telemetry:
     logs:
-      level: debug
+      level: info
     metrics:
       address: localhost:8888

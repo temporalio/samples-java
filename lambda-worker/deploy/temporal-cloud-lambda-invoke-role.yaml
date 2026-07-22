@@ -1,3 +1,5 @@
+# This trust policy is for Temporal Cloud. Self-hosted Temporal Services must trust their
+# own AWS identity; see the self-hosted Serverless Workers setup documentation.
 AWSTemplateFormatVersion: "2010-09-09"
 Description: Creates an IAM role that Temporal Cloud can assume to invoke Lambda functions for Serverless Workers.
 
@@ -13,10 +15,6 @@ Parameters:
     Type: CommaDelimitedList
     Description: Comma-separated list of Lambda function ARNs to invoke.
 
-  RoleName:
-    Type: String
-    Default: "Temporal-Cloud-Serverless-Worker"
-
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -28,20 +26,15 @@ Metadata:
           default: "Lambda Configuration"
         Parameters:
           - LambdaFunctionARNs
-          - RoleName
     ParameterLabels:
       AssumeRoleExternalId:
         default: "External ID"
       LambdaFunctionARNs:
         default: "Lambda Function ARNs"
-      RoleName:
-        default: "IAM Role Name"
-
 Resources:
   TemporalCloudServerlessWorker:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub "${RoleName}-${AWS::StackName}"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -76,7 +69,7 @@ Resources:
               - lambda:GetFunction
             Resource: !Ref LambdaFunctionARNs
       Roles:
-        - !Sub "${RoleName}-${AWS::StackName}"
+        - !Ref TemporalCloudServerlessWorker
 
 Outputs:
   RoleARN:
@@ -87,7 +80,7 @@ Outputs:
 
   RoleName:
     Description: The name of the IAM role.
-    Value: !Ref RoleName
+    Value: !Ref TemporalCloudServerlessWorker
 
   LambdaFunctionARNs:
     Description: The Lambda function ARNs that can be invoked.
