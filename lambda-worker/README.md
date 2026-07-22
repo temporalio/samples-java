@@ -17,7 +17,7 @@ It uses the same published Temporal Java SDK version as the other samples in thi
   CloudFormation stacks
 - A Temporal Cloud namespace with Serverless Workers enabled, or a [self-hosted Temporal Service](https://docs.temporal.io/production-deployment/worker-deployments/serverless-workers/self-hosted-setup)
   configured for AWS Lambda Serverless Workers
-- A Temporal Cloud API key. This walkthrough deploys it as a Lambda environment variable
+- A Temporal Cloud API key (if using Temporal Cloud). This walkthrough deploys it as a Lambda environment variable
   because these are development-only secrets.
 
 ## Layout
