@@ -83,7 +83,7 @@ The local starter also reads `TEMPORAL_TASK_QUEUE` and
 
 You can also copy `lambda-worker/temporal.template.toml` to
 `lambda-worker/temporal.toml`, fill in the connection details, and set
-`TEMPORAL_CONFIG_FILE=lambda-worker/temporal.toml`. The generated file is ignored by Git.
+`TEMPORAL_CONFIG_FILE=lambda-worker/temporal.toml`. The `temporal.toml` file is ignored by Git.
 
 `TEMPORAL_TASK_QUEUE`, `TEMPORAL_LAMBDA_DEPLOYMENT_NAME`,
 `TEMPORAL_LAMBDA_BUILD_ID`, and `TEMPORAL_LAMBDA_WORKFLOW_ID_PREFIX` are optional. The
