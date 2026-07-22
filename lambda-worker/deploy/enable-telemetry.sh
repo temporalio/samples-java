@@ -5,6 +5,7 @@ ROLE_NAME="${1:?Usage: enable-telemetry.sh <role-name> <function-name> <region> 
 FUNCTION_NAME="${2:?Usage: enable-telemetry.sh <role-name> <function-name> <region> <account-id>}"
 REGION="${3:?Usage: enable-telemetry.sh <role-name> <function-name> <region> <account-id>}"
 ACCOUNT_ID="${4:?Usage: enable-telemetry.sh <role-name> <function-name> <region> <account-id>}"
+ADOT_COLLECTOR_LAYER_ARN="${ADOT_COLLECTOR_LAYER_ARN:-arn:aws:lambda:${REGION}:901920570463:layer:aws-otel-collector-amd64-ver-0-117-0:1}"
 
 aws iam put-role-policy \
   --role-name "$ROLE_NAME" \
@@ -28,17 +29,13 @@ aws iam put-role-policy \
           \"xray:PutTelemetryRecords\"
         ],
         \"Resource\": \"*\"
-      },
-      {
-        \"Effect\": \"Allow\",
-        \"Action\": [
-          \"cloudwatch:PutMetricData\"
-        ],
-        \"Resource\": \"*\"
       }
     ]
   }"
 
 aws lambda update-function-configuration \
   --function-name "$FUNCTION_NAME" \
-  --tracing-config Mode=Active
+  --layers "$ADOT_COLLECTOR_LAYER_ARN" \
+  --tracing-config Mode=Active \
+  --query 'FunctionArn' \
+  --output text
