@@ -8,7 +8,7 @@ jobs:
     name: "Gradle wrapper validation"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - uses: gradle/actions/wrapper-validation@ac396bf1a80af16236baf54bd7330ae21dc6ece5 # v6
 
   unittest:
@@ -17,7 +17,7 @@ jobs:
     timeout-minutes: 15
     steps:
     - name: Checkout repo
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       with:
         fetch-depth: 0
         submodules: recursive
@@ -33,7 +33,7 @@ jobs:
     timeout-minutes: 20
     steps:
     - name: Checkout repo
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       with:
         fetch-depth: 0
         submodules: recursive
