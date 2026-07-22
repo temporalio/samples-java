@@ -1,0 +1,10 @@
+[profile.default]
+address = "<your-namespace>.<account>.tmprl.cloud:7233"
+namespace = "<your-namespace>.<account>"
+
+# Set TEMPORAL_API_KEY in the environment instead of storing it in this file.
+
+# For mTLS instead of API key auth, leave TEMPORAL_API_KEY unset and uncomment:
+# [profile.default.tls]
+# client_cert_path = "client.pem"
+# client_key_path = "client.key"

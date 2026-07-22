@@ -1,0 +1,58 @@
+dependencies {
+    implementation "io.temporal:temporal-sdk:$javaSDKVersion"
+    implementation "io.temporal:temporal-envconfig:$javaSDKVersion"
+    implementation "io.temporal:temporal-aws-lambda:$javaSDKVersion"
+    implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.6'
+
+    testImplementation "io.temporal:temporal-testing:$javaSDKVersion"
+    testImplementation "junit:junit:4.13.2"
+    testImplementation(platform("org.junit:junit-bom:5.10.3"))
+    testRuntimeOnly "org.junit.vintage:junit-vintage-engine"
+
+    dependencies {
+        errorproneJavac('com.google.errorprone:javac:9+181-r4173-1')
+        errorprone('com.google.errorprone:error_prone_core:2.28.0')
+    }
+}
+
+tasks.register('shadowJar', Jar) {
+    archiveBaseName = 'lambda-worker'
+    archiveClassifier = 'all'
+    archiveVersion = jarVersion
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    dependsOn configurations.runtimeClasspath
+    def mergedServicesDir = layout.buildDirectory.dir('generated/mergedServices')
+
+    from sourceSets.main.output
+    from(file('../otel-collector-config.template.yaml')) {
+        rename 'otel-collector-config.template.yaml', 'otel-collector-config.yaml'
+    }
+    from({
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }) {
+        exclude 'META-INF/services/**'
+    }
+    from(mergedServicesDir)
+
+    doFirst {
+        File servicesOutput = mergedServicesDir.get().asFile
+        delete servicesOutput
+        File servicesDir = new File(servicesOutput, 'META-INF/services')
+        servicesDir.mkdirs()
+
+        Map<String, LinkedHashSet<String>> services = [:].withDefault { new LinkedHashSet<>() }
+        configurations.runtimeClasspath.files.findAll { it.isFile() }.each { artifact ->
+            zipTree(artifact).matching { include 'META-INF/services/*' }.files.each { serviceFile ->
+                serviceFile.eachLine('UTF-8') { line ->
+                    String service = line.trim()
+                    if (!service.isEmpty() && !service.startsWith('#')) {
+                        services[serviceFile.name].add(service)
+                    }
+                }
+            }
+        }
+        services.each { name, providers ->
+            new File(servicesDir, name).text = providers.join(System.lineSeparator()) + System.lineSeparator()
+        }
+    }
+}

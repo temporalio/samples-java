@@ -1,4 +1,5 @@
 rootProject.name = 'temporal-java-samples'
+
 include 'core'
 include 'springai:basic'
 include 'springai:mcp'
@@ -6,4 +7,5 @@ include 'springai:multimodel'
 include 'springai:rag'
 include 'springboot'
 include 'springboot-basic'
-
+include 'lambda-worker:starter'
+include 'lambda-worker:worker'
