@@ -1,0 +1,30 @@
+plugins {
+    id 'application'
+}
+
+def temporalGcpVersion = findProperty('temporalGcpVersion') ?: '1.37.0-SNAPSHOT'
+
+repositories {
+    if (findProperty('useMavenLocal') == 'true') {
+        mavenLocal()
+    }
+}
+
+dependencies {
+    implementation "io.temporal:temporal-sdk:$temporalGcpVersion"
+    implementation "io.temporal:temporal-envconfig:$temporalGcpVersion"
+    implementation "io.temporal:temporal-gcp:$temporalGcpVersion"
+
+    runtimeOnly 'ch.qos.logback:logback-classic:1.5.6'
+
+    testImplementation "io.temporal:temporal-testing:$temporalGcpVersion"
+    testImplementation 'junit:junit:4.13.2'
+    testRuntimeOnly 'org.junit.vintage:junit-vintage-engine:5.10.3'
+
+    errorproneJavac 'com.google.errorprone:javac:9+181-r4173-1'
+    errorprone 'com.google.errorprone:error_prone_core:2.28.0'
+}
+
+application {
+    mainClass = 'io.temporal.samples.gcp.GcpOpenTelemetryWorker'
+}

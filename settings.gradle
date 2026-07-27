@@ -6,4 +6,10 @@ include 'springai:multimodel'
 include 'springai:rag'
 include 'springboot'
 include 'springboot-basic'
+include 'gcp-opentelemetry'
 
+// Allows unreleased SDK modules to be tested from a local SDK checkout without changing it.
+def temporalSdkPath = gradle.startParameter.projectProperties['temporalSdkPath']
+if (temporalSdkPath) {
+    includeBuild temporalSdkPath
+}

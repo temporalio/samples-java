@@ -1,0 +1,68 @@
+apiVersion: run.googleapis.com/v1
+kind: WorkerPool
+metadata:
+  name: temporal-gcp-worker
+  labels:
+    cloud.googleapis.com/location: REGION
+  annotations:
+    run.googleapis.com/scalingMode: manual
+    run.googleapis.com/manualInstanceCount: "1"
+spec:
+  template:
+    metadata:
+      annotations:
+        # Cloud Run starts the worker only after the collector startup probe succeeds.
+        run.googleapis.com/container-dependencies: '{"worker":["collector"]}'
+        run.googleapis.com/execution-environment: gen2
+    spec:
+      containerConcurrency: 0
+      serviceAccountName: temporal-gcp-worker@PROJECT_ID.iam.gserviceaccount.com
+      containers:
+        - name: worker
+          image: REGION-docker.pkg.dev/PROJECT_ID/temporal-samples/gcp-opentelemetry:latest
+          env:
+            - name: TEMPORAL_ADDRESS
+              value: NAMESPACE_ID.tmprl.cloud:7233
+            - name: TEMPORAL_NAMESPACE
+              value: NAMESPACE_ID.ACCOUNT_ID
+            - name: TEMPORAL_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: "1"
+                  name: temporal-api-key
+            - name: TEMPORAL_TASK_QUEUE
+              value: gcp-opentelemetry
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: http://localhost:4317
+          resources:
+            limits:
+              cpu: "1"
+              memory: 512Mi
+        - name: collector
+          image: us-docker.pkg.dev/cloud-ops-agents-artifacts/google-cloud-opentelemetry-collector/otelcol-google:0.156.0
+          args:
+            - --config=env:OTELCOL_CONFIG
+          env:
+            - name: OTELCOL_CONFIG
+              valueFrom:
+                secretKeyRef:
+                  key: "1"
+                  name: temporal-gcp-otel-config
+          startupProbe:
+            httpGet:
+              path: /
+              port: 13133
+            timeoutSeconds: 5
+            periodSeconds: 10
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 13133
+            timeoutSeconds: 5
+            periodSeconds: 30
+            failureThreshold: 3
+          resources:
+            limits:
+              cpu: "1"
+              memory: 512Mi
