@@ -13,6 +13,7 @@ dependencies {
 tasks.register('execute', JavaExec) {
     mainClass = 'io.temporal.samples.lambdaworker.Starter'
     classpath = sourceSets.main.runtimeClasspath
+    workingDir project(':lambda-worker').projectDir
     if (findProperty("args")) {
         args findProperty("args").tokenize()
     }

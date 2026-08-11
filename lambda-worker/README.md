@@ -13,6 +13,8 @@ It uses the same published Temporal Java SDK version as the other samples in thi
 ## Prerequisites
 
 - Java 17+
+- The Temporal CLI
+- OpenSSL (used below to generate unique identifiers)
 - AWS CLI configured with permissions to create Lambda functions, IAM roles, and
   CloudFormation stacks
 - An AWS-hosted Temporal Cloud namespace with Serverless Workers enabled, or a
@@ -49,9 +51,11 @@ io.temporal.samples.lambdaworker.LambdaFunction::handleRequest
 ## Configure Environment
 
 Set AWS, Temporal, and sample names first. Use unique values if you share the account or
-namespace with other developers. The connection values below are for Temporal Cloud. For a
-self-hosted Service, use its frontend address, Namespace, and TLS or authentication settings;
-leave `TEMPORAL_API_KEY` unset if the Service does not require one.
+namespace with other developers. The connection values and deployment commands below target
+Temporal Cloud. For a self-hosted Service, use its frontend address and Namespace, set
+`TEMPORAL_TLS` appropriately, leave `TEMPORAL_API_KEY` unset if the Service does not require one,
+and follow the linked self-hosted setup for any additional network, TLS, or authentication
+configuration.
 
 ```bash
 export AWS_PROFILE=<aws-profile>
@@ -61,18 +65,20 @@ export AWS_ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output te
 
 export TEMPORAL_ADDRESS=<your-namespace>.<account>.tmprl.cloud:7233
 export TEMPORAL_NAMESPACE=<your-namespace>.<account>
-export TEMPORAL_API_KEY=<your-api-key>
+export TEMPORAL_API_KEY_FILE=<path-to-temporal-api-key-file>
+export TEMPORAL_API_KEY="$(tr -d '\r\n' < "$TEMPORAL_API_KEY_FILE")"
 export TEMPORAL_TLS=true
 
-export FUNCTION_NAME=my-temporal-java-worker
+export SUFFIX="$(date -u +%Y%m%d%H%M%S)-$(openssl rand -hex 3)"
+export FUNCTION_NAME="temporal-java-lambda-${SUFFIX}"
 export EXECUTION_ROLE_NAME="${FUNCTION_NAME}-exec"
-export STACK_NAME="${FUNCTION_NAME}-invoke"
-export EXTERNAL_ID="${FUNCTION_NAME}-external-id"
+export STACK_NAME="tjl-${SUFFIX}"
+export EXTERNAL_ID="$(openssl rand -hex 16)"
 
-export DEPLOYMENT_NAME=my-app
-export BUILD_ID=build-1
-export TASK_QUEUE=serverless-task-queue-java
-export WORKFLOW_PREFIX=serverless-workflow-id-java
+export DEPLOYMENT_NAME="java-lambda-${SUFFIX}"
+export BUILD_ID="build-${SUFFIX}"
+export TASK_QUEUE="java-lambda-tq-${SUFFIX}"
+export WORKFLOW_PREFIX="java-lambda-wf-${SUFFIX}"
 ```
 
 The Lambda worker reads these environment variables:
@@ -81,6 +87,7 @@ The Lambda worker reads these environment variables:
 TEMPORAL_ADDRESS
 TEMPORAL_NAMESPACE
 TEMPORAL_API_KEY
+TEMPORAL_TLS
 TEMPORAL_TASK_QUEUE
 TEMPORAL_LAMBDA_DEPLOYMENT_NAME
 TEMPORAL_LAMBDA_BUILD_ID
@@ -95,20 +102,25 @@ over OTLP. The collector exports traces to AWS X-Ray and metrics to the
 The local starter also reads `TEMPORAL_TASK_QUEUE` and
 `TEMPORAL_LAMBDA_WORKFLOW_ID_PREFIX`.
 
-You can also copy `lambda-worker/temporal.template.toml` to
+For the local starter, you can also copy `lambda-worker/temporal.template.toml` to
 `lambda-worker/temporal.toml`, fill in the connection details, and set
-`TEMPORAL_CONFIG_FILE=lambda-worker/temporal.toml`. The `temporal.toml` file is ignored by Git.
+`TEMPORAL_CONFIG_FILE=temporal.toml`. The starter task runs with `lambda-worker/` as its working
+directory, so relative TLS certificate paths in the file resolve from there. The `temporal.toml`
+file and the sample `client.pem` and `client.key` names are ignored by Git and are not packaged in
+the Lambda artifact.
 
 `TEMPORAL_TASK_QUEUE`, `TEMPORAL_LAMBDA_DEPLOYMENT_NAME`,
 `TEMPORAL_LAMBDA_BUILD_ID`, and `TEMPORAL_LAMBDA_WORKFLOW_ID_PREFIX` are optional. The
-values above are the sample defaults.
+Java code also supplies fallback values for local experimentation, but the unique values exported
+above keep concurrent deployments from interfering with one another.
 
 ## Deploy Lambda
 
 Create the Lambda execution role:
 
 ```bash
-cat > /tmp/temporal-lambda-trust-policy.json <<'JSON'
+TRUST_POLICY_FILE="$(mktemp)"
+cat > "$TRUST_POLICY_FILE" <<'JSON'
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -125,9 +137,11 @@ JSON
 
 aws iam create-role \
   --role-name "$EXECUTION_ROLE_NAME" \
-  --assume-role-policy-document file:///tmp/temporal-lambda-trust-policy.json \
+  --assume-role-policy-document "file://$TRUST_POLICY_FILE" \
   --query 'Role.Arn' \
   --output text
+
+rm -f "$TRUST_POLICY_FILE"
 
 aws iam attach-role-policy \
   --role-name "$EXECUTION_ROLE_NAME" \
@@ -148,17 +162,28 @@ direct upload limit.
 ```bash
 ./gradlew :lambda-worker:worker:shadowJar
 
-aws lambda create-function \
-  --function-name "$FUNCTION_NAME" \
-  --runtime java17 \
-  --handler io.temporal.samples.lambdaworker.LambdaFunction::handleRequest \
-  --role "$EXECUTION_ROLE_ARN" \
-  --zip-file fileb://lambda-worker/worker/build/libs/lambda-worker-1.0.0-all.jar \
-  --environment "Variables={TEMPORAL_ADDRESS=$TEMPORAL_ADDRESS,TEMPORAL_NAMESPACE=$TEMPORAL_NAMESPACE,TEMPORAL_API_KEY=$TEMPORAL_API_KEY,TEMPORAL_TASK_QUEUE=$TASK_QUEUE,TEMPORAL_LAMBDA_DEPLOYMENT_NAME=$DEPLOYMENT_NAME,TEMPORAL_LAMBDA_BUILD_ID=$BUILD_ID,OPENTELEMETRY_COLLECTOR_CONFIG_URI=/var/task/otel-collector-config.yaml}" \
-  --timeout 90 \
-  --memory-size 1024 \
-  --query 'FunctionArn' \
-  --output text
+for attempt in {1..12}; do
+  if CREATE_OUTPUT="$(aws lambda create-function \
+    --function-name "$FUNCTION_NAME" \
+    --runtime java17 \
+    --handler io.temporal.samples.lambdaworker.LambdaFunction::handleRequest \
+    --role "$EXECUTION_ROLE_ARN" \
+    --zip-file fileb://lambda-worker/worker/build/libs/lambda-worker-1.0.0-all.jar \
+    --environment "Variables={TEMPORAL_ADDRESS=$TEMPORAL_ADDRESS,TEMPORAL_NAMESPACE=$TEMPORAL_NAMESPACE,TEMPORAL_API_KEY=$TEMPORAL_API_KEY,TEMPORAL_TLS=$TEMPORAL_TLS,TEMPORAL_TASK_QUEUE=$TASK_QUEUE,TEMPORAL_LAMBDA_DEPLOYMENT_NAME=$DEPLOYMENT_NAME,TEMPORAL_LAMBDA_BUILD_ID=$BUILD_ID,OPENTELEMETRY_COLLECTOR_CONFIG_URI=/var/task/otel-collector-config.yaml}" \
+    --timeout 90 \
+    --memory-size 1024 \
+    --query 'FunctionArn' \
+    --output text 2>&1)"; then
+    printf '%s\n' "$CREATE_OUTPUT"
+    break
+  fi
+  if [[ "$CREATE_OUTPUT" != *"cannot be assumed by Lambda"* || "$attempt" -eq 12 ]]; then
+    printf '%s\n' "$CREATE_OUTPUT" >&2
+    exit 1
+  fi
+  echo "Waiting for the execution role to propagate to Lambda..." >&2
+  sleep 5
+done
 
 aws lambda wait function-active --function-name "$FUNCTION_NAME"
 
@@ -267,7 +292,7 @@ export BUILD_ID=build-2
 
 aws lambda update-function-configuration \
   --function-name "$FUNCTION_NAME" \
-  --environment "Variables={TEMPORAL_ADDRESS=$TEMPORAL_ADDRESS,TEMPORAL_NAMESPACE=$TEMPORAL_NAMESPACE,TEMPORAL_API_KEY=$TEMPORAL_API_KEY,TEMPORAL_TASK_QUEUE=$TASK_QUEUE,TEMPORAL_LAMBDA_DEPLOYMENT_NAME=$DEPLOYMENT_NAME,TEMPORAL_LAMBDA_BUILD_ID=$BUILD_ID,OPENTELEMETRY_COLLECTOR_CONFIG_URI=/var/task/otel-collector-config.yaml}" \
+  --environment "Variables={TEMPORAL_ADDRESS=$TEMPORAL_ADDRESS,TEMPORAL_NAMESPACE=$TEMPORAL_NAMESPACE,TEMPORAL_API_KEY=$TEMPORAL_API_KEY,TEMPORAL_TLS=$TEMPORAL_TLS,TEMPORAL_TASK_QUEUE=$TASK_QUEUE,TEMPORAL_LAMBDA_DEPLOYMENT_NAME=$DEPLOYMENT_NAME,TEMPORAL_LAMBDA_BUILD_ID=$BUILD_ID,OPENTELEMETRY_COLLECTOR_CONFIG_URI=/var/task/otel-collector-config.yaml}" \
   --query 'FunctionArn' \
   --output text
 
@@ -339,4 +364,39 @@ For local development of the Workflow and Activity logic, run the unit tests. Th
 
 ```bash
 ./gradlew :lambda-worker:worker:test
+```
+
+## Clean Up
+
+Reset routing before deleting the Worker Deployment Version. If you created more than one Build
+ID, repeat `delete-version` for each one before deleting the deployment.
+
+```bash
+temporal worker deployment set-current-version \
+  --deployment-name "$DEPLOYMENT_NAME" \
+  --unversioned \
+  --allow-no-pollers \
+  --yes
+
+temporal worker deployment delete-version \
+  --deployment-name "$DEPLOYMENT_NAME" \
+  --build-id "$BUILD_ID" \
+  --skip-drainage
+
+temporal worker deployment delete --name "$DEPLOYMENT_NAME"
+
+aws lambda delete-function --function-name "$FUNCTION_NAME"
+
+aws cloudformation delete-stack --stack-name "$STACK_NAME"
+aws cloudformation wait stack-delete-complete --stack-name "$STACK_NAME"
+
+aws iam delete-role-policy \
+  --role-name "$EXECUTION_ROLE_NAME" \
+  --policy-name ADOT-Telemetry-Permissions
+aws iam detach-role-policy \
+  --role-name "$EXECUTION_ROLE_NAME" \
+  --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+aws iam delete-role --role-name "$EXECUTION_ROLE_NAME"
+
+aws logs delete-log-group --log-group-name "/aws/lambda/$FUNCTION_NAME"
 ```

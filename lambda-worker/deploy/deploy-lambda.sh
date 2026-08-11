@@ -8,7 +8,13 @@ REPOSITORY_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$REPOSITORY_DIR"
 ./gradlew :lambda-worker:worker:shadowJar
 
-JAR_FILE="$(find lambda-worker/worker/build/libs -name 'lambda-worker-*-all.jar' | head -n 1)"
+JAR_FILES=(lambda-worker/worker/build/libs/lambda-worker-*-all.jar)
+if (( ${#JAR_FILES[@]} != 1 )) || [[ ! -f "${JAR_FILES[0]}" ]]; then
+  echo "Expected exactly one Lambda Worker artifact in lambda-worker/worker/build/libs." >&2
+  printf 'Found: %s\n' "${JAR_FILES[@]}" >&2
+  exit 1
+fi
+JAR_FILE="${JAR_FILES[0]}"
 
 if stat -f%z "$JAR_FILE" >/dev/null 2>&1; then
   JAR_SIZE="$(stat -f%z "$JAR_FILE")"

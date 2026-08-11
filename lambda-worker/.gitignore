@@ -1,2 +1,4 @@
 temporal.toml
 otel-collector-config.yaml
+client.pem
+client.key

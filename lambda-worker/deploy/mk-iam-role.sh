@@ -11,5 +11,5 @@ aws cloudformation create-stack \
   --template-body "file://${SCRIPT_DIR}/temporal-cloud-lambda-invoke-role.yaml" \
   --parameters \
     ParameterKey=AssumeRoleExternalId,ParameterValue="$EXTERNAL_ID" \
-    ParameterKey=LambdaFunctionARNs,ParameterValue="\"$LAMBDA_ARN_PATTERN\"" \
+    ParameterKey=LambdaFunctionARNs,ParameterValue="$LAMBDA_ARN_PATTERN" \
   --capabilities CAPABILITY_IAM

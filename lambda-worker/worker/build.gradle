@@ -23,6 +23,10 @@ tasks.register('shadowJar', Jar) {
     dependsOn configurations.runtimeClasspath
     def mergedServicesDir = layout.buildDirectory.dir('generated/mergedServices')
 
+    manifest {
+        attributes 'Multi-Release': 'true'
+    }
+
     from sourceSets.main.output
     from(file('../otel-collector-config.template.yaml')) {
         rename 'otel-collector-config.template.yaml', 'otel-collector-config.yaml'
@@ -31,6 +35,12 @@ tasks.register('shadowJar', Jar) {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }) {
         exclude 'META-INF/services/**'
+        exclude 'META-INF/INDEX.LIST'
+        exclude 'META-INF/*.SF'
+        exclude 'META-INF/*.RSA'
+        exclude 'META-INF/*.DSA'
+        exclude 'module-info.class'
+        exclude 'META-INF/versions/**/module-info.class'
     }
     from(mergedServicesDir)
 
