@@ -6,7 +6,7 @@ import io.nexusrpc.Operation;
 import io.nexusrpc.Service;
 
 // Nexus service definition shared by the caller and the handler. It declares a single operation
-// whose backing execution is a standalone Activity rather than a Workflow.
+// whose backing execution is a standalone Activity.
 @Service
 public interface GreetingNexusService {
 

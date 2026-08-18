@@ -7,9 +7,9 @@
 > https://github.com/temporalio/cli/releases/tag/v1.7.4-standalone-nexus-operations.
 
 This sample shows how to implement a Nexus operation whose backing execution is a **standalone
-Activity** rather than a Workflow. `TemporalOperationHandler` maps the Temporal execution onto the
-Nexus operation: starting the operation starts the Activity, and when the Activity finishes Temporal
-delivers its result to the Nexus caller.
+Activity**. `TemporalOperationHandler` maps the Temporal execution onto the Nexus operation:
+starting the operation starts the Activity, and when the Activity finishes Temporal delivers its
+result to the Nexus caller.
 
 ### Sample structure
 
