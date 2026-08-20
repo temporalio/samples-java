@@ -10,7 +10,7 @@ dependencies {
     }
 }
 
-tasks.register('execute', JavaExec) {
+tasks.register('startLambdaWorkflow', JavaExec) {
     mainClass = 'io.temporal.samples.lambdaworker.Starter'
     classpath = sourceSets.main.runtimeClasspath
     workingDir project(':lambda-worker').projectDir

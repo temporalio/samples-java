@@ -330,7 +330,7 @@ After the Worker Deployment Version is current, start the sample Workflow:
 export TEMPORAL_TASK_QUEUE="$TASK_QUEUE"
 export TEMPORAL_LAMBDA_WORKFLOW_ID_PREFIX="$WORKFLOW_PREFIX"
 
-./gradlew -q :lambda-worker:starter:execute
+./gradlew -q :lambda-worker:starter:startLambdaWorkflow
 ```
 
 The starter only creates a Workflow Execution. It does not start a local Worker. The
