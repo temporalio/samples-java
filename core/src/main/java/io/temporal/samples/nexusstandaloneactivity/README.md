@@ -1,9 +1,8 @@
 ## Nexus Operation Backed by a Standalone Activity
 
 > [!WARNING]
-> Standalone Nexus operations and standalone Activities are experimental and may be subject to
-> backwards-incompatible changes. They require a Temporal server that implements and enables them
-> via the dynamic configs shown below. Use the dev server build at
+> Standalone Nexus Operations are in pre-release and may be subject to backwards-incompatible changes.
+> They require a server version that supports this feature. Use the dev server build at:
 > https://github.com/temporalio/cli/releases/tag/v1.7.4-standalone-nexus-operations.
 
 This sample shows how to implement a Nexus operation whose backing execution is a **standalone
