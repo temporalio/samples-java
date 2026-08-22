@@ -1,0 +1,156 @@
+# WALKTHROUGH STEP 1 - Define the data contract.
+#
+# This file is the contract, and it is the only thing a caller and a handler share. It is written
+# before any implementation and in no particular language; step 2 generates the typed models,
+# validators, and Service definition for each language from it.
+#
+# Every Operation input and output is an object type rather than a bare value. An object can grow an
+# optional field later without breaking the wire format; a bare string cannot.
+#
+# This file lives outside generatedservice/, because nexgen clears its output directory on every run
+# - a contract kept in the output directory would be deleted the first time you regenerate.
+# @@@SNIPSTART samples-java-nexus-walkthrough-contract
+nexusrpc: "1.0.0"
+$schema: https://json-schema.org/draft/2020-12/schema
+description: Purchase approval service built by the Nexus Microservice Development Walkthrough.
+
+services:
+  ApprovalService:
+    fqn: temporal.samples.approval.v1.ApprovalService
+    description: Start a purchase approval, message it while it is pending, and learn the outcome.
+    operations:
+
+      # Answers a question without starting anything. Backed by nothing at all - see step 3.
+      checkApprovalRequired:
+        description: Report whether a purchase needs approval, before any durable work starts.
+        input: { $ref: "#/$defs/CheckApprovalRequiredInput" }
+        output: { $ref: "#/$defs/CheckApprovalRequiredOutput" }
+
+      # Backed by a Workflow. The Workflow's return value is this Operation's result - see step 4.
+      requestApproval:
+        description: Start an approval and return the decision once it is made.
+        input: { $ref: "#/$defs/RequestApprovalInput" }
+        output: { $ref: "#/$defs/RequestApprovalOutput" }
+
+      # A Signal. Fire-and-forget, so it declares no output - see step 7.
+      remindApprover:
+        description: Ask the approver again. Returns nothing.
+        input: { $ref: "#/$defs/RemindApproverInput" }
+
+      # An Update. The caller needs confirmation back, which is what makes this an Update rather
+      # than a Signal - see step 7.
+      submitDecision:
+        description: Supply the decision and confirm it was recorded.
+        input: { $ref: "#/$defs/SubmitDecisionInput" }
+        output: { $ref: "#/$defs/SubmitDecisionOutput" }
+
+      # Signal-with-Start. Its input repeats the purchase details because it may have to create the
+      # approval it is messaging - see step 8.
+      attachApprovalContext:
+        description: Attach supporting information to a purchase, whether or not its approval exists yet.
+        input: { $ref: "#/$defs/AttachApprovalContextInput" }
+
+      # Backed by a Standalone Activity - one durable step, no Workflow - see step 9.
+      notifyRequester:
+        description: Notify the requester once the decision is final.
+        input: { $ref: "#/$defs/NotifyRequesterInput" }
+        output: { $ref: "#/$defs/NotifyRequesterOutput" }
+
+# The APPROVED | DENIED value set is declared inline on each property that carries it, rather than
+# once under $defs. A named enum under $defs is rejected by the generator today, so each Operation
+# gets its own nested value class; handler/Decisions.java converts between them.
+$defs:
+
+  CheckApprovalRequiredInput:
+    type: object
+    additionalProperties: false
+    properties:
+      itemId: { description: Identifier of the purchase., type: string }
+      requester: { description: Who is asking., type: string }
+      amount: { description: Purchase amount., type: number }
+    required: [itemId, requester, amount]
+
+  CheckApprovalRequiredOutput:
+    type: object
+    additionalProperties: false
+    properties:
+      approvalRequired: { description: Whether an approval has to be started., type: boolean }
+      threshold: { description: The spend threshold that was applied., type: number }
+    required: [approvalRequired, threshold]
+
+  RequestApprovalInput:
+    type: object
+    additionalProperties: false
+    properties:
+      itemId: { type: string }
+      requester: { type: string }
+      amount: { type: number }
+    required: [itemId, requester, amount]
+
+  RequestApprovalOutput:
+    type: object
+    additionalProperties: false
+    properties:
+      decision:
+        description: The outcome of the approval.
+        type: string
+        enum: [APPROVED, DENIED]
+    required: [decision]
+
+  RemindApproverInput:
+    type: object
+    additionalProperties: false
+    properties:
+      itemId: { type: string }
+    required: [itemId]
+
+  SubmitDecisionInput:
+    type: object
+    additionalProperties: false
+    properties:
+      itemId: { type: string }
+      decision:
+        description: The decision being submitted.
+        type: string
+        enum: [APPROVED, DENIED]
+    required: [itemId, decision]
+
+  SubmitDecisionOutput:
+    type: object
+    additionalProperties: false
+    properties:
+      recorded:
+        description: The decision that was recorded.
+        type: string
+        enum: [APPROVED, DENIED]
+      remindersSent: { description: How many reminders were sent before the decision., type: integer }
+    required: [recorded, remindersSent]
+
+  AttachApprovalContextInput:
+    type: object
+    additionalProperties: false
+    properties:
+      itemId: { type: string }
+      requester: { type: string }
+      amount: { type: number }
+      note: { description: The supporting information to attach., type: string }
+    required: [itemId, requester, amount, note]
+
+  NotifyRequesterInput:
+    type: object
+    additionalProperties: false
+    properties:
+      requester: { type: string }
+      decision:
+        description: The final decision.
+        type: string
+        enum: [APPROVED, DENIED]
+    required: [requester, decision]
+
+  NotifyRequesterOutput:
+    type: object
+    additionalProperties: false
+    properties:
+      deliveredTo: { description: Where the notification was sent., type: string }
+    required: [deliveredTo]
+# @@@SNIPEND
