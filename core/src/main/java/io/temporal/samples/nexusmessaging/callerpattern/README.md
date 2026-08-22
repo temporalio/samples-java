@@ -15,19 +15,20 @@ The caller Workflow:
 
 ### Running
 
-Start a Temporal server:
+Start the [Temporal dev server build that supports standalone Nexus operations](https://docs.temporal.io/standalone-nexus-operation#temporal-cli-support)
+with the required namespaces pre-created and signal backlinks enabled:
 
 ```bash
-temporal server start-dev
+./temporal server start-dev \
+  --dynamic-config-value history.enableCHASMSignalBacklinks=true \
+  --namespace nexus-messaging-handler-namespace \
+  --namespace nexus-messaging-caller-namespace
 ```
 
-Create the namespaces and Nexus endpoint:
+Create a Nexus endpoint that routes to the handler namespace and the handler worker's task queue:
 
 ```bash
-temporal operator namespace create --namespace nexus-messaging-handler-namespace
-temporal operator namespace create --namespace nexus-messaging-caller-namespace
-
-temporal operator nexus endpoint create \
+./temporal operator nexus endpoint create \
   --name nexus-messaging-nexus-endpoint \
   --target-namespace nexus-messaging-handler-namespace \
   --target-task-queue nexus-messaging-handler-task-queue
