@@ -42,7 +42,7 @@ public interface ApprovalWorkflow {
    * result, it has to be the Operation's declared output type.
    */
   @WorkflowMethod
-  RequestApprovalOutput requestApproval(RequestApprovalInput input);
+  RequestApprovalOutput runApproval(RequestApprovalInput input);
 
   /**
    * STEP 7 - A Signal. Fire-and-forget: the caller gets no result back, which is why a Signal is
