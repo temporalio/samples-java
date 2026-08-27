@@ -109,7 +109,7 @@ public class ApprovalServiceImpl {
         (ctx, client, input) ->
             client.startWorkflow(
                 ApprovalWorkflow.class,
-                ApprovalWorkflow::requestApproval,
+                ApprovalWorkflow::runApproval,
                 input,
                 WorkflowOptions.newBuilder()
                     .setWorkflowId(ApprovalWorkflowId.forItem(input.getItemId()))
@@ -225,7 +225,7 @@ public class ApprovalServiceImpl {
           BatchRequest request = workflowClient.newSignalWithStartRequest();
           request.add(stub::attachContext, input.getNote());
           request.add(
-              stub::requestApproval,
+              stub::runApproval,
               new RequestApprovalInput(input.getItemId(), input.getRequester(), input.getAmount()));
           workflowClient.signalWithStart(request);
 
