@@ -52,7 +52,7 @@ public class ApprovalWorkflowTest {
   public void decisionSubmittedThroughUpdateBecomesTheResult() {
     ApprovalWorkflow approval = newApproval("standing-desk");
     WorkflowClient.start(
-        approval::requestApproval,
+        approval::runApproval,
         new RequestApprovalInput("standing-desk", "dana@example.com", 1250.00));
 
     SubmitDecisionOutput ack =
@@ -70,8 +70,7 @@ public class ApprovalWorkflowTest {
   public void remindersAreCountedAndReportedWithTheDecision() {
     ApprovalWorkflow approval = newApproval("monitor-arm");
     WorkflowClient.start(
-        approval::requestApproval,
-        new RequestApprovalInput("monitor-arm", "dana@example.com", 900.00));
+        approval::runApproval, new RequestApprovalInput("monitor-arm", "dana@example.com", 900.00));
 
     approval.remindApprover();
     approval.remindApprover();
@@ -90,8 +89,7 @@ public class ApprovalWorkflowTest {
   public void contextCanBeAttachedWhileTheApprovalIsPending() {
     ApprovalWorkflow approval = newApproval("laptop-dock");
     WorkflowClient.start(
-        approval::requestApproval,
-        new RequestApprovalInput("laptop-dock", "dana@example.com", 750.00));
+        approval::runApproval, new RequestApprovalInput("laptop-dock", "dana@example.com", 750.00));
 
     approval.attachContext("Approved in the Q3 ergonomics budget");
     SubmitDecisionOutput ack =
@@ -108,8 +106,7 @@ public class ApprovalWorkflowTest {
   public void aSecondDecisionIsRejected() {
     ApprovalWorkflow approval = newApproval("desk-lamp");
     WorkflowClient.start(
-        approval::requestApproval,
-        new RequestApprovalInput("desk-lamp", "dana@example.com", 600.00));
+        approval::runApproval, new RequestApprovalInput("desk-lamp", "dana@example.com", 600.00));
 
     approval.submitDecision(SubmitDecisionInput.Decision.DECISION_APPROVED);
 

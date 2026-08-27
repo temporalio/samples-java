@@ -38,7 +38,7 @@ public class ApprovalWorkflowImpl implements ApprovalWorkflow {
   private final List<String> notes = new ArrayList<>();
 
   @Override
-  public RequestApprovalOutput requestApproval(RequestApprovalInput input) {
+  public RequestApprovalOutput runApproval(RequestApprovalInput input) {
     // Placeholder. Real logic would apply policy, check limits, or call a risk service.
     activities.evaluateAutoDecision(input.getItemId(), input.getAmount());
 
