@@ -2,8 +2,8 @@ package io.temporal.samples.cloudrunworkerid;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
-import io.temporal.gcp.cloudrun.CloudRunPlugin;
 import io.temporal.gcp.cloudrun.GoogleCloudRunMetadata;
+import io.temporal.gcp.cloudrun.WorkerIdPlugin;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 import io.temporal.worker.Worker;
@@ -42,7 +42,7 @@ public final class CloudRunWorker {
         WorkflowServiceStubs.newServiceStubs(
             WorkflowServiceStubsOptions.newBuilder().setTarget(address).build());
 
-    // Register CloudRunPlugin on the client. It sets the derived worker identity on the client and,
+    // Register WorkerIdPlugin on the client. It sets the derived worker identity on the client and,
     // as it propagates to workers, enables Worker Deployment Versioning with the Cloud Run name as
     // the deployment name, the revision as the build id, and a PINNED default versioning behavior.
     // Passing the already-fetched metadata avoids a second call to the Cloud Run metadata server.
@@ -51,7 +51,7 @@ public final class CloudRunWorker {
             service,
             WorkflowClientOptions.newBuilder()
                 .setNamespace(namespace)
-                .setPlugins(new CloudRunPlugin(metadata))
+                .setPlugins(new WorkerIdPlugin(metadata))
                 .build());
 
     WorkerFactory factory = WorkerFactory.newInstance(client);
