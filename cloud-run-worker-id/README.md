@@ -1,7 +1,7 @@
 # Cloud Run Worker (Worker Identity + Deployment Versioning)
 
 This sample runs a continuously polling Temporal Java Worker in a Google Cloud Run
-**worker pool**. It registers the `CloudRunPlugin` from the `temporal-gcp-cloud-run` module on the
+**worker pool**. It registers the `WorkerIdPlugin` from the `temporal-gcp-cloud-run` module on the
 Temporal client to derive the Worker's Temporal identity and its Worker Deployment Version from
 Cloud Run instance metadata, so every Cloud Run revision registers as a distinct, `PINNED` Worker
 Deployment Version. It registers a small greeting Workflow and Activity and runs until Cloud Run
@@ -40,7 +40,7 @@ until then.
 ## Layout
 
 - `src/main/java/io/temporal/samples/cloudrunworkerid/CloudRunWorker.java` fetches the Cloud Run
-  metadata, registers `CloudRunPlugin` on the client to apply the derived identity and deployment
+  metadata, registers `WorkerIdPlugin` on the client to apply the derived identity and deployment
   version, and runs a long-lived Worker with a bounded shutdown on `SIGTERM`.
 - `GreetingWorkflow` / `GreetingWorkflowImpl` and `GreetingActivities` / `GreetingActivitiesImpl` are
   the sample Workflow and Activity. The Workflow method is annotated
@@ -58,7 +58,7 @@ Cloud Run **worker pools** set `CLOUD_RUN_WORKER_POOL` and `CLOUD_RUN_REVISION` 
   (`http://metadata.google.internal/computeMetadata/v1/instance/id`, header `Metadata-Flavor:
   Google`).
 
-`CloudRunPlugin`, registered on the client with `WorkflowClientOptions.Builder.setPlugins(...)`, then
+`WorkerIdPlugin`, registered on the client with `WorkflowClientOptions.Builder.setPlugins(...)`, then
 applies the metadata through the SDK plugin hooks and propagates from the client to its Workers:
 
 - On the client, it sets the Worker identity to `<instanceId>@<revision>` (falling back to
