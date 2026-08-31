@@ -2,12 +2,12 @@ package io.temporal.samples.cloudrunworkerid;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
+import io.temporal.gcp.cloudrun.CloudRunPlugin;
 import io.temporal.gcp.cloudrun.GoogleCloudRunMetadata;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
-import io.temporal.worker.WorkerOptions;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,19 +42,23 @@ public final class CloudRunWorker {
         WorkflowServiceStubs.newServiceStubs(
             WorkflowServiceStubsOptions.newBuilder().setTarget(address).build());
 
-    // applyTo(WorkflowClientOptions.Builder) sets the derived worker identity on the client.
+    // Register CloudRunPlugin on the client. It sets the derived worker identity on the client and,
+    // as it propagates to workers, enables Worker Deployment Versioning with the Cloud Run name as
+    // the deployment name, the revision as the build id, and a PINNED default versioning behavior.
+    // Passing the already-fetched metadata avoids a second call to the Cloud Run metadata server.
     WorkflowClient client =
         WorkflowClient.newInstance(
             service,
-            metadata.applyTo(WorkflowClientOptions.newBuilder().setNamespace(namespace)).build());
+            WorkflowClientOptions.newBuilder()
+                .setNamespace(namespace)
+                .setPlugins(new CloudRunPlugin(metadata))
+                .build());
 
     WorkerFactory factory = WorkerFactory.newInstance(client);
 
-    // applyTo(WorkerOptions.Builder) enables Worker Deployment Versioning with the Cloud Run name
-    // as the deployment name, the revision as the build id, and a PINNED default versioning
-    // behavior.
-    WorkerOptions workerOptions = metadata.applyTo(WorkerOptions.newBuilder()).build();
-    Worker worker = factory.newWorker(taskQueue, workerOptions);
+    // The plugin configures the worker's deployment version as the worker is created, so no
+    // per-worker options are needed here.
+    Worker worker = factory.newWorker(taskQueue);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
 

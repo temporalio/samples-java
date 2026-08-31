@@ -1,14 +1,15 @@
 # Cloud Run Worker (Worker Identity + Deployment Versioning)
 
 This sample runs a continuously polling Temporal Java Worker in a Google Cloud Run
-**worker pool**. It uses the `temporal-gcp-cloud-run` helper to derive the Worker's Temporal
-identity and its Worker Deployment Version from Cloud Run instance metadata, so every Cloud Run
-revision registers as a distinct, `PINNED` Worker Deployment Version. It registers a small greeting
-Workflow and Activity and runs until Cloud Run stops the instance.
+**worker pool**. It registers the `CloudRunPlugin` from the `temporal-gcp-cloud-run` module on the
+Temporal client to derive the Worker's Temporal identity and its Worker Deployment Version from
+Cloud Run instance metadata, so every Cloud Run revision registers as a distinct, `PINNED` Worker
+Deployment Version. It registers a small greeting Workflow and Activity and runs until Cloud Run
+stops the instance.
 
 Cloud Run runs a long-lived container rather than a per-request handler, so there is no function to
-wrap: the Worker fetches the metadata once at startup and applies it to the client and worker option
-builders.
+wrap: registering the plugin on the client fetches the metadata once at startup and applies the
+derived identity and deployment version to the client and its Workers.
 
 > Experimental: Google Cloud Run support is experimental and may change without notice.
 
@@ -39,8 +40,8 @@ until then.
 ## Layout
 
 - `src/main/java/io/temporal/samples/cloudrunworkerid/CloudRunWorker.java` fetches the Cloud Run
-  metadata, applies the derived identity and deployment version, and runs a long-lived Worker with a
-  bounded shutdown on `SIGTERM`.
+  metadata, registers `CloudRunPlugin` on the client to apply the derived identity and deployment
+  version, and runs a long-lived Worker with a bounded shutdown on `SIGTERM`.
 - `GreetingWorkflow` / `GreetingWorkflowImpl` and `GreetingActivities` / `GreetingActivitiesImpl` are
   the sample Workflow and Activity. The Workflow method is annotated
   `@WorkflowVersioningBehavior(PINNED)` to match the Worker's PINNED default.
@@ -57,13 +58,14 @@ Cloud Run **worker pools** set `CLOUD_RUN_WORKER_POOL` and `CLOUD_RUN_REVISION` 
   (`http://metadata.google.internal/computeMetadata/v1/instance/id`, header `Metadata-Flavor:
   Google`).
 
-The Worker then applies the metadata:
+`CloudRunPlugin`, registered on the client with `WorkflowClientOptions.Builder.setPlugins(...)`, then
+applies the metadata through the SDK plugin hooks and propagates from the client to its Workers:
 
-- `applyTo(WorkflowClientOptions.Builder)` sets the Worker identity to `<instanceId>@<revision>`
-  (falling back to `<instanceId>@<name>` and then `<instanceId>`).
-- `applyTo(WorkerOptions.Builder)` enables Worker Deployment Versioning with the deployment name as
-  the deployment, the revision as the build id, and a `PINNED` default versioning behavior, so
-  in-flight Workflows stay on the revision that started them.
+- On the client, it sets the Worker identity to `<instanceId>@<revision>` (falling back to
+  `<instanceId>@<name>` and then `<instanceId>`), unless an identity is already set.
+- On each Worker, it enables Worker Deployment Versioning with the deployment name as the deployment,
+  the revision as the build id, and a `PINNED` default versioning behavior, so in-flight Workflows
+  stay on the revision that started them.
 
 The Worker reads its connection settings from the environment:
 
