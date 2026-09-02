@@ -54,16 +54,28 @@ public class CallerRemoteWorkflowImpl implements CallerRemoteWorkflow {
     // There are examples for each of the three messaging types -
     // update, query, then signal.
 
-    // This is an Async Nexus operation — starts a workflow on the handler and returns a handle.
-    // Unlike the sync operations below (getLanguages, setLanguage, etc.), this does not block
-    // until the workflow completes. It is backed by WorkflowRunOperation on the handler side.
+    // Attach information before the Workflow exists. Because attachApprovalContext is backed by
+    // Signal-with-Start on the handler, this call creates the Workflow and delivers the note to it.
+    greetingRemoteServiceOne.attachApprovalContext(
+        new NexusRemoteGreetingService.AttachApprovalContextInput(
+            "queued for localization review by the nightly batch", REMOTE_WORKFLOW_ONE));
+    log.add("Attached approval context before the workflow existed: " + REMOTE_WORKFLOW_ONE);
+    logger.info("attached approval context for {}, creating the workflow", REMOTE_WORKFLOW_ONE);
+
+    // This is an Async Nexus Operation — starts a Workflow on the handler and returns a handle.
+    // Unlike the sync Operations below (getLanguages, approve, etc.), this does not block until the
+    // Workflow completes. It is backed by TemporalNexusClient.startWorkflow on the handler side.
+    //
+    // The Workflow for this user is already running due to the call above. The handler sets the
+    // conflict policy to USE_EXISTING, so this call attaches the Operation's completion callback
+    // to the running execution.
     NexusOperationHandle<String> handleOne =
         Workflow.startNexusOperation(
             greetingRemoteServiceOne::runFromRemote,
             new NexusRemoteGreetingService.RunFromRemoteInput(REMOTE_WORKFLOW_ONE));
     // Wait for the operation to be started (workflow is now running on the handler).
     handleOne.getExecution().get();
-    log.add("started remote greeting workflow: " + REMOTE_WORKFLOW_ONE);
+    log.add("Started remote greeting workflow: " + REMOTE_WORKFLOW_ONE);
     logger.info("started remote greeting workflow {}", REMOTE_WORKFLOW_ONE);
 
     NexusOperationHandle<String> handleTwo =
@@ -72,8 +84,17 @@ public class CallerRemoteWorkflowImpl implements CallerRemoteWorkflow {
             new NexusRemoteGreetingService.RunFromRemoteInput(REMOTE_WORKFLOW_TWO));
     // Wait for the operation to be started (workflow is now running on the handler).
     handleTwo.getExecution().get();
-    log.add("started remote greeting workflow: " + REMOTE_WORKFLOW_TWO);
+    log.add("Started remote greeting workflow: " + REMOTE_WORKFLOW_TWO);
     logger.info("started remote greeting workflow {}", REMOTE_WORKFLOW_TWO);
+
+    // This user's Workflow was created by runFromRemote just above, so here signalWithStart skips
+    // the start and only delivers the Signal.
+    greetingRemoteServiceTwo.attachApprovalContext(
+        new NexusRemoteGreetingService.AttachApprovalContextInput(
+            "translation approved by the localization team", REMOTE_WORKFLOW_TWO));
+    log.add("Attached approval context to the running workflow: " + REMOTE_WORKFLOW_TWO);
+    logger.info(
+        "attached approval context for {}, messaging the existing workflow", REMOTE_WORKFLOW_TWO);
 
     // Query the remote workflow for supported languages.
     NexusRemoteGreetingService.GetLanguagesOutput languagesOutput =

@@ -111,6 +111,28 @@ public interface NexusRemoteGreetingService {
     }
   }
 
+  class AttachApprovalContextInput {
+    private final String note;
+    private final String userId;
+
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    public AttachApprovalContextInput(
+        @JsonProperty("note") String note, @JsonProperty("userId") String userId) {
+      this.note = note;
+      this.userId = userId;
+    }
+
+    @JsonProperty("note")
+    public String getNote() {
+      return note;
+    }
+
+    @JsonProperty("userId")
+    public String getUserId() {
+      return userId;
+    }
+  }
+
   class GetLanguagesOutput {
     private final List<Language> languages;
 
@@ -151,4 +173,11 @@ public interface NexusRemoteGreetingService {
   // Approves the specified workflow, allowing it to complete.
   @Operation
   ApproveOutput approve(ApproveInput input);
+
+  // Attaches supporting information for the eventual approval. Unlike every Operation above, this
+  // one does not require the Workflow to already exist: the handler delivers it with
+  // Signal-with-Start, so the same call either messages a running GreetingWorkflow or creates one.
+  // That makes it safe to call before or after runFromRemote.
+  @Operation
+  void attachApprovalContext(AttachApprovalContextInput input);
 }

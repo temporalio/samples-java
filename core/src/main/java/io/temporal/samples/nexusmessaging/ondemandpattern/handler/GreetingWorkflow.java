@@ -19,6 +19,10 @@ import io.temporal.workflow.WorkflowMethod;
 @WorkflowInterface
 public interface GreetingWorkflow {
 
+  // The wire name of the setLanguageUsingActivity Update, needed by the Nexus handler when it
+  // starts the Update through TemporalNexusClient.
+  String SET_LANGUAGE_USING_ACTIVITY_UPDATE = "setLanguageUsingActivity";
+
   class ApproveInput {
     private final String name;
 
@@ -30,6 +34,20 @@ public interface GreetingWorkflow {
     @JsonProperty("name")
     public String getName() {
       return name;
+    }
+  }
+
+  class AttachApprovalContextInput {
+    private final String note;
+
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    public AttachApprovalContextInput(@JsonProperty("note") String note) {
+      this.note = note;
+    }
+
+    @JsonProperty("note")
+    public String getNote() {
+      return note;
     }
   }
 
@@ -75,6 +93,11 @@ public interface GreetingWorkflow {
   // Approves the workflow, allowing it to complete.
   @SignalMethod
   void approve(ApproveInput input);
+
+  // Attaches supporting information for the eventual approval. Delivered with Signal-with-Start,
+  // so this may be the message that creates the Workflow.
+  @SignalMethod
+  void attachApprovalContext(AttachApprovalContextInput input);
 
   // Changes the active language synchronously (only supports languages already in the greetings
   // map).

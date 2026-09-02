@@ -3,7 +3,11 @@ package io.temporal.samples.nexusmessaging.callerpattern.handler;
 import io.nexusrpc.handler.OperationHandler;
 import io.nexusrpc.handler.OperationImpl;
 import io.nexusrpc.handler.ServiceImpl;
-import io.temporal.nexus.Nexus;
+import io.temporal.client.UpdateOptions;
+import io.temporal.client.WorkflowUpdateStage;
+import io.temporal.nexus.TemporalNexusClient;
+import io.temporal.nexus.TemporalOperationHandler;
+import io.temporal.nexus.TemporalOperationResult;
 import io.temporal.samples.nexusmessaging.callerpattern.service.Language;
 import io.temporal.samples.nexusmessaging.callerpattern.service.NexusGreetingService;
 import org.slf4j.Logger;
@@ -29,8 +33,8 @@ public class NexusGreetingServiceImpl {
     return WORKFLOW_ID_PREFIX + userId;
   }
 
-  private GreetingWorkflow getWorkflowStub(String userId) {
-    return Nexus.getOperationContext()
+  private GreetingWorkflow getWorkflowStub(TemporalNexusClient client, String userId) {
+    return client
         .getWorkflowClient()
         .newWorkflowStub(GreetingWorkflow.class, getWorkflowId(userId));
   }
@@ -39,19 +43,21 @@ public class NexusGreetingServiceImpl {
   public OperationHandler<
           NexusGreetingService.GetLanguagesInput, NexusGreetingService.GetLanguagesOutput>
       getLanguages() {
-    return OperationHandler.sync(
-        (ctx, details, input) -> {
+    return TemporalOperationHandler.create(
+        (ctx, client, input) -> {
           logger.info("Query for GetLanguages was received for user {}", input.getUserId());
-          return getWorkflowStub(input.getUserId()).getLanguages(input);
+          return TemporalOperationResult.sync(
+              getWorkflowStub(client, input.getUserId()).getLanguages(input));
         });
   }
 
   @OperationImpl
   public OperationHandler<NexusGreetingService.GetLanguageInput, Language> getLanguage() {
-    return OperationHandler.sync(
-        (ctx, details, input) -> {
+    return TemporalOperationHandler.create(
+        (ctx, client, input) -> {
           logger.info("Query for GetLanguage was received for user {}", input.getUserId());
-          return getWorkflowStub(input.getUserId()).getLanguage();
+          return TemporalOperationResult.sync(
+              getWorkflowStub(client, input.getUserId()).getLanguage());
         });
   }
 
@@ -59,21 +65,35 @@ public class NexusGreetingServiceImpl {
   // greetings map can be fetched via an activity.
   @OperationImpl
   public OperationHandler<NexusGreetingService.SetLanguageInput, Language> setLanguage() {
-    return OperationHandler.sync(
-        (ctx, details, input) -> {
+    return TemporalOperationHandler.create(
+        (ctx, client, input) -> {
           logger.info("Update for SetLanguage was received for user {}", input.getUserId());
-          return getWorkflowStub(input.getUserId()).setLanguageUsingActivity(input);
+          return client.startWorkflowUpdate(
+              GreetingWorkflow.class,
+              getWorkflowId(input.getUserId()),
+              GreetingWorkflow::setLanguageUsingActivity,
+              input,
+              UpdateOptions.<Language>newBuilder()
+                  .setResultClass(Language.class)
+                  // The Update to invoke has to be named explicitly; the method reference above
+                  // supplies the argument and result types but not the wire name.
+                  .setUpdateName(GreetingWorkflow.SET_LANGUAGE_USING_ACTIVITY_UPDATE)
+                  // An Update-backed Operation must wait for the ACCEPTED stage. Any other stage
+                  // is rejected with "nexus op workflow updates only support
+                  // WorkflowUpdateStageAccepted for async updates".
+                  .setWaitForStage(WorkflowUpdateStage.ACCEPTED)
+                  .build());
         });
   }
 
   @OperationImpl
   public OperationHandler<NexusGreetingService.ApproveInput, NexusGreetingService.ApproveOutput>
       approve() {
-    return OperationHandler.sync(
-        (ctx, details, input) -> {
+    return TemporalOperationHandler.create(
+        (ctx, client, input) -> {
           logger.info("Signal for Approve was received for user {}", input.getUserId());
-          getWorkflowStub(input.getUserId()).approve(input);
-          return new NexusGreetingService.ApproveOutput();
+          getWorkflowStub(client, input.getUserId()).approve(input);
+          return TemporalOperationResult.sync(new NexusGreetingService.ApproveOutput());
         });
   }
 }
