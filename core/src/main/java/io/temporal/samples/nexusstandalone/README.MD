@@ -30,6 +30,7 @@ from the environment (and optionally a profile from `temporal.toml`).
 
    ```bash
    ./temporal server start-dev \
+     --dynamic-config-value nexusoperation.enableStandalone=true \
      --namespace my-caller-namespace \
      --namespace my-handler-namespace
    ```
