@@ -2,6 +2,14 @@
 
 * @tsurdilo @temporalio/sdk @antmendoza
 
+# SDK & Nexus teams share ownership of these files
+/README.md @temporalio/sdk @temporalio/nexus
+/build.gradle @temporalio/sdk @temporalio/nexus
+
+# The Nexus team owns any folder whose name starts with "nexus"
+/core/src/main/java/io/temporal/samples/nexus*/ @temporalio/nexus
+/core/src/test/java/io/temporal/samples/nexus*/ @temporalio/nexus
+
 # Below are owners for samples for modules
 # that are owned by teams other than the SDK team.
 # For each one, we add the owning team, as well as
