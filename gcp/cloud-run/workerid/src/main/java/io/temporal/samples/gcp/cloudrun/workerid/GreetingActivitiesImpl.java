@@ -1,4 +1,4 @@
-package io.temporal.samples.cloudrunworkerid;
+package io.temporal.samples.gcp.cloudrun.workerid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

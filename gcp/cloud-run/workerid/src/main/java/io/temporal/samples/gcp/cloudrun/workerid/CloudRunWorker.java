@@ -1,9 +1,9 @@
-package io.temporal.samples.cloudrunworkerid;
+package io.temporal.samples.gcp.cloudrun.workerid;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
-import io.temporal.gcp.cloudrun.GoogleCloudRunMetadata;
-import io.temporal.gcp.cloudrun.WorkerIdPlugin;
+import io.temporal.gcp.cloudrun.workerid.GoogleCloudRunMetadata;
+import io.temporal.gcp.cloudrun.workerid.WorkerIdPlugin;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 import io.temporal.worker.Worker;
@@ -37,14 +37,13 @@ public final class CloudRunWorker {
     String taskQueue = envOrDefault(TASK_QUEUE_ENV, DEFAULT_TASK_QUEUE);
 
     // Plaintext connection to the Temporal Service. Configure TLS or an API key here for a secured
-    // deployment such as Temporal Cloud.
+    // Service such as Temporal Cloud.
     WorkflowServiceStubs service =
         WorkflowServiceStubs.newServiceStubs(
             WorkflowServiceStubsOptions.newBuilder().setTarget(address).build());
 
-    // Register WorkerIdPlugin on the client. It sets the derived worker identity on the client and,
-    // as it propagates to workers, enables Worker Deployment Versioning with the Cloud Run name as
-    // the deployment name, the revision as the build id, and a PINNED default versioning behavior.
+    // Register WorkerIdPlugin on the client. It sets the derived worker identity
+    // ({instanceId}@{revision}) on the client, and workers created from the client inherit it.
     // Passing the already-fetched metadata avoids a second call to the Cloud Run metadata server.
     WorkflowClient client =
         WorkflowClient.newInstance(
@@ -56,8 +55,6 @@ public final class CloudRunWorker {
 
     WorkerFactory factory = WorkerFactory.newInstance(client);
 
-    // The plugin configures the worker's deployment version as the worker is created, so no
-    // per-worker options are needed here.
     Worker worker = factory.newWorker(taskQueue);
     worker.registerWorkflowImplementationTypes(GreetingWorkflowImpl.class);
     worker.registerActivitiesImplementations(new GreetingActivitiesImpl());
@@ -67,10 +64,8 @@ public final class CloudRunWorker {
 
     factory.start();
     logger.info(
-        "Temporal worker started (identity={}, deployment={}, buildId={}, taskQueue={})",
+        "Temporal worker started (identity={}, taskQueue={})",
         metadata.workerIdentity(),
-        metadata.getName(),
-        metadata.getRevision(),
         taskQueue);
 
     // Cloud Run worker pools are continuous workloads, so keep the process alive until SIGTERM.
