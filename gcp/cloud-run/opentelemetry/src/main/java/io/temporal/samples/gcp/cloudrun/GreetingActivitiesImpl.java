@@ -1,4 +1,4 @@
-package io.temporal.samples.cloudrun;
+package io.temporal.samples.gcp.cloudrun;
 
 public final class GreetingActivitiesImpl implements GreetingActivities {
   @Override

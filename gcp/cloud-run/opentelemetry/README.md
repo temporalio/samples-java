@@ -40,8 +40,8 @@ so an older checkout fails instead of silently testing a different cadence:
 ```bash
 ./gradlew \
   -PtemporalSdkPath=/path/to/sdk-java \
-  :cloud-run-worker:test \
-  :cloud-run-worker:installDist
+  :gcp:cloud-run:opentelemetry:test \
+  :gcp:cloud-run:opentelemetry:installDist
 ```
 
 Once `temporal-gcp-cloud-run` is released, bump `javaSDKVersion` in the samples root `build.gradle`
@@ -50,7 +50,7 @@ composite substitution.
 
 ## Files
 
-- `src/main/java/io/temporal/samples/cloudrun/CloudRunWorker.java` creates the plugin, client,
+- `src/main/java/io/temporal/samples/gcp/cloudrun/CloudRunWorker.java` creates the plugin, client,
   and long-lived worker and performs a bounded shutdown on `SIGTERM`.
 - `collector-config.yaml` adapts Google's Cloud Run collector configuration for cumulative
   Prometheus metrics and batched traces.
@@ -161,7 +161,7 @@ The commands below assume an existing Temporal Cloud namespace and API key.
      gcloud secrets create temporal-api-key --data-file=- --project="$PROJECT_ID"
 
    gcloud secrets create temporal-collector-config \
-     --data-file=cloud-run-worker/collector-config.yaml \
+     --data-file=gcp/cloud-run/opentelemetry/collector-config.yaml \
      --project="$PROJECT_ID"
    ```
 
@@ -184,7 +184,7 @@ The commands below assume an existing Temporal Cloud namespace and API key.
    gcloud auth configure-docker "${REGION}-docker.pkg.dev"
 
    docker build \
-     -f cloud-run-worker/Dockerfile \
+     -f gcp/cloud-run/opentelemetry/Dockerfile \
      -t "$IMAGE" \
      .
    docker push "$IMAGE"
@@ -200,11 +200,11 @@ The commands below assume an existing Temporal Cloud namespace and API key.
 4. Deploy the worker pool:
 
    ```bash
-   gcloud run worker-pools replace cloud-run-worker/worker-pool.yaml \
+   gcloud run worker-pools replace gcp/cloud-run/opentelemetry/worker-pool.yaml \
      --dry-run \
      --project="$PROJECT_ID"
 
-   gcloud run worker-pools replace cloud-run-worker/worker-pool.yaml \
+   gcloud run worker-pools replace gcp/cloud-run/opentelemetry/worker-pool.yaml \
      --project="$PROJECT_ID"
    ```
 

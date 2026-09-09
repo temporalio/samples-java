@@ -9,7 +9,7 @@ It contains the following modules:
 * [SpringBoot Basic](/springboot-basic): Minimal sample showing SpringBoot autoconfig integration without any extra external dependencies.
 * [Spring AI](/springai): demonstrates the Temporal Spring AI integration — durable AI agents with chat models, tools, MCP servers, vector stores, and embeddings.
 * [Lambda Worker](/lambda-worker): demonstrates running a Temporal Java Worker inside AWS Lambda.
-* [Cloud Run Worker](/cloud-run-worker): demonstrates running a Temporal Java Worker in a Google Cloud Run worker pool, exporting SDK metrics and traces through an OpenTelemetry collector sidecar.
+* [Cloud Run Worker (OpenTelemetry)](/gcp/cloud-run/opentelemetry): demonstrates running a Temporal Java Worker in a Google Cloud Run worker pool, exporting SDK metrics and traces through an OpenTelemetry collector sidecar.
 
 ## Learn more about Temporal and Java SDK
 

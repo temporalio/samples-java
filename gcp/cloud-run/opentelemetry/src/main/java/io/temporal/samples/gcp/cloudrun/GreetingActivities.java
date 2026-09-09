@@ -1,4 +1,4 @@
-package io.temporal.samples.cloudrun;
+package io.temporal.samples.gcp.cloudrun;
 
 import io.temporal.activity.ActivityInterface;
 
