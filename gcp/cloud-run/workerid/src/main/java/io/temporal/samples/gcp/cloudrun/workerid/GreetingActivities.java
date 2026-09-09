@@ -1,4 +1,4 @@
-package io.temporal.samples.cloudrunworkerid;
+package io.temporal.samples.gcp.cloudrun.workerid;
 
 import io.temporal.activity.ActivityInterface;
 import io.temporal.activity.ActivityMethod;

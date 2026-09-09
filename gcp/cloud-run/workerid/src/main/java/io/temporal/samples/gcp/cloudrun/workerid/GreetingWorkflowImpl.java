@@ -1,18 +1,10 @@
-package io.temporal.samples.cloudrunworkerid;
+package io.temporal.samples.gcp.cloudrun.workerid;
 
 import io.temporal.activity.ActivityOptions;
-import io.temporal.common.VersioningBehavior;
 import io.temporal.workflow.Workflow;
-import io.temporal.workflow.WorkflowVersioningBehavior;
 import java.time.Duration;
 
-/**
- * Greeting workflow implementation.
- *
- * <p>The method is annotated {@link VersioningBehavior#PINNED}, matching the PINNED default that
- * {@link io.temporal.gcp.cloudrun.GoogleCloudRunMetadata} applies to the worker, so executions stay
- * on the Cloud Run revision that started them.
- */
+/** Greeting workflow implementation. */
 public final class GreetingWorkflowImpl implements GreetingWorkflow {
 
   private final GreetingActivities activities =
@@ -21,7 +13,6 @@ public final class GreetingWorkflowImpl implements GreetingWorkflow {
           ActivityOptions.newBuilder().setStartToCloseTimeout(Duration.ofSeconds(10)).build());
 
   @Override
-  @WorkflowVersioningBehavior(VersioningBehavior.PINNED)
   public String getGreeting(String name) {
     return activities.composeGreeting(name);
   }

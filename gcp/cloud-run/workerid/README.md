@@ -1,50 +1,49 @@
-# Cloud Run Worker (Worker Identity + Deployment Versioning)
+# Temporal Cloud Run worker-identity worker
 
-This sample runs a continuously polling Temporal Java Worker in a Google Cloud Run
-**worker pool**. It registers the `WorkerIdPlugin` from the `temporal-gcp-cloud-run` module on the
-Temporal client to derive the Worker's Temporal identity and its Worker Deployment Version from
-Cloud Run instance metadata, so every Cloud Run revision registers as a distinct, `PINNED` Worker
-Deployment Version. It registers a small greeting Workflow and Activity and runs until Cloud Run
-stops the instance.
+This sample runs a continuously polling Temporal Java Worker in a Google Cloud Run **worker pool**.
+It registers the `WorkerIdPlugin` from the `temporal-gcp-cloud-run-worker-id` module on the Temporal
+client so the Worker's Temporal identity is derived from Cloud Run instance metadata as
+`{instanceId}@{revision}`. It registers a small greeting Workflow and Activity and runs until Cloud
+Run stops the instance. Identity only: the plugin sets the worker identity and nothing else.
 
 Cloud Run runs a long-lived container rather than a per-request handler, so there is no function to
 wrap: registering the plugin on the client fetches the metadata once at startup and applies the
-derived identity and deployment version to the client and its Workers.
+derived identity to the client and the Workers created from it.
 
 > Experimental: Google Cloud Run support is experimental and may change without notice.
 
 ## Unreleased SDK dependency
 
-This sample depends on `io.temporal:temporal-gcp-cloud-run`, which is **not yet released** to Maven
-Central. Until it ships, the samples build wires the module from a local Temporal Java SDK checkout
-through a Gradle composite build (`includeBuild`), configured in the samples root `settings.gradle`.
+This sample depends on `io.temporal:temporal-gcp-cloud-run-worker-id`, which is **not yet released**
+to Maven Central. Until it ships, the samples build wires the module from a local Temporal Java SDK
+checkout through a Gradle composite build (`includeBuild`), configured in the samples root
+`settings.gradle`.
 
 - It defaults to a sibling `../sdk-java-2` checkout on the `cloud-run-worker-id` branch.
 - Override the location with `-PtemporalSdkPath=/path/to/sdk-java`.
 - When that checkout is absent, the composite build is skipped and only this module is affected; the
   other samples still build.
 
-Once `temporal-gcp-cloud-run` is released, remove the composite-build block from `settings.gradle`
-and bump `javaSDKVersion` in the samples root `build.gradle` to the released version; the standard
-Maven Central build then works without the local checkout. This sample's pull request stays a draft
-until then.
+Once `temporal-gcp-cloud-run-worker-id` is released, remove the composite-build block from
+`settings.gradle` and bump `javaSDKVersion` in the samples root `build.gradle` to the released
+version; the standard Maven Central build then works without the local checkout. This sample's pull
+request stays a draft until then.
 
 ## Prerequisites
 
 - Java 17+
-- The Temporal CLI (to create the Worker Deployment Version and start Workflows)
+- The Temporal CLI (to start Workflows)
 - The Google Cloud CLI (`gcloud`) with a project that has Cloud Run enabled
 - A Temporal Service reachable from Cloud Run. A plaintext connection is used by default; configure
   TLS or an API key in `CloudRunWorker.java` for a secured Service such as Temporal Cloud.
 
-## Layout
+## Files
 
-- `src/main/java/io/temporal/samples/cloudrunworkerid/CloudRunWorker.java` fetches the Cloud Run
-  metadata, registers `WorkerIdPlugin` on the client to apply the derived identity and deployment
-  version, and runs a long-lived Worker with a bounded shutdown on `SIGTERM`.
+- `src/main/java/io/temporal/samples/gcp/cloudrun/workerid/CloudRunWorker.java` fetches the Cloud
+  Run metadata, registers `WorkerIdPlugin` on the client to apply the derived identity, and runs a
+  long-lived Worker with a bounded shutdown on `SIGTERM`.
 - `GreetingWorkflow` / `GreetingWorkflowImpl` and `GreetingActivities` / `GreetingActivitiesImpl` are
-  the sample Workflow and Activity. The Workflow method is annotated
-  `@WorkflowVersioningBehavior(PINNED)` to match the Worker's PINNED default.
+  the sample Workflow and Activity.
 - `Dockerfile` packages the Gradle application as the Worker container.
 
 ## How it works
@@ -52,20 +51,16 @@ until then.
 Cloud Run **worker pools** set `CLOUD_RUN_WORKER_POOL` and `CLOUD_RUN_REVISION` on every instance
 (Cloud Run **services** set `K_SERVICE` and `K_REVISION`). `GoogleCloudRunMetadata.fetch()` resolves:
 
-- **deployment name**: the first non-empty of `CLOUD_RUN_WORKER_POOL` then `K_SERVICE`.
+- **name**: the first non-empty of `CLOUD_RUN_WORKER_POOL` then `K_SERVICE`.
 - **revision**: the first non-empty of `CLOUD_RUN_REVISION` then `K_REVISION`.
 - **instance id**: a single HTTP `GET` to the Cloud Run metadata server
   (`http://metadata.google.internal/computeMetadata/v1/instance/id`, header `Metadata-Flavor:
   Google`).
 
 `WorkerIdPlugin`, registered on the client with `WorkflowClientOptions.Builder.setPlugins(...)`, then
-applies the metadata through the SDK plugin hooks and propagates from the client to its Workers:
-
-- On the client, it sets the Worker identity to `<instanceId>@<revision>` (falling back to
-  `<instanceId>@<name>` and then `<instanceId>`), unless an identity is already set.
-- On each Worker, it enables Worker Deployment Versioning with the deployment name as the deployment,
-  the revision as the build id, and a `PINNED` default versioning behavior, so in-flight Workflows
-  stay on the revision that started them.
+sets the Worker identity to `{instanceId}@{revision}` (falling back to `{instanceId}@{name}` and then
+`{instanceId}`) unless an identity is already set. Workers created from the client inherit that
+identity; the plugin sets nothing else on them.
 
 The Worker reads its connection settings from the environment:
 
@@ -83,13 +78,13 @@ manually.
 The unit test uses `TestWorkflowRule` and needs neither Cloud Run nor a running Temporal Service:
 
 ```bash
-./gradlew :cloud-run-worker-id:test
+./gradlew :gcp:cloud-run:workerid:test
 ```
 
 Build the runnable application (from a local SDK checkout, per the note above):
 
 ```bash
-./gradlew -PtemporalSdkPath=/path/to/sdk-java :cloud-run-worker-id:installDist
+./gradlew -PtemporalSdkPath=/path/to/sdk-java :gcp:cloud-run:workerid:installDist
 ```
 
 ## Deploy to a Cloud Run worker pool
@@ -110,9 +105,9 @@ gcloud run worker-pools deploy cloud-run-worker-id \
 ```
 
 `--source .` builds the container from the included `Dockerfile`. Because the image build resolves
-the unreleased `temporal-gcp-cloud-run` module, a remote source build succeeds only once that module
-is released (or published to your Maven Local and made available to the build). Until then, build the
-image locally against your SDK checkout and deploy it with `--image` instead:
+the unreleased `temporal-gcp-cloud-run-worker-id` module, a remote source build succeeds only once
+that module is released (or published to your Maven Local and made available to the build). Until
+then, build the image locally against your SDK checkout and deploy it with `--image` instead:
 
 ```bash
 gcloud run worker-pools deploy cloud-run-worker-id \
@@ -121,27 +116,23 @@ gcloud run worker-pools deploy cloud-run-worker-id \
   --set-env-vars "TEMPORAL_ADDRESS=$TEMPORAL_ADDRESS,TEMPORAL_NAMESPACE=$TEMPORAL_NAMESPACE,TEMPORAL_TASK_QUEUE=$TEMPORAL_TASK_QUEUE"
 ```
 
-Each Cloud Run deployment creates a new revision, which the Worker reports as a new build id under
-the same deployment name.
+Each Cloud Run revision starts a fresh instance whose Worker reports a distinct identity, which the
+Worker logs at startup.
 
-## Create the Worker Deployment Version and start a Workflow
+## Start a Workflow
 
-After the Worker is polling, register and route the Worker Deployment Version, then start the sample
-Workflow. Use the deployment name (the worker pool name, `cloud-run-worker-id`) and the build id
-(the Cloud Run revision) that the Worker logs at startup:
+After the Worker is polling, start the sample Workflow on the same Task Queue:
 
 ```bash
-temporal worker deployment set-current-version \
-  --deployment-name cloud-run-worker-id \
-  --build-id <cloud-run-revision> \
-  --yes
-
 temporal workflow start \
   --task-queue cloud-run-worker-id \
   --type GreetingWorkflow \
   --workflow-id cloud-run-greeting \
   --input '"Cloud Run"'
 ```
+
+The Worker's identity appears on its Task Queue pollers (for example in `temporal task-queue
+describe`) and on the events it records.
 
 ## Shutdown
 
@@ -152,14 +143,8 @@ handle cancellation so they can stop within the platform's shutdown window.
 
 ## Clean up
 
-Reset routing before deleting the Worker Deployment Version, then delete the worker pool:
+Delete the worker pool when you are done:
 
 ```bash
-temporal worker deployment set-current-version \
-  --deployment-name cloud-run-worker-id \
-  --unversioned \
-  --allow-no-pollers \
-  --yes
-
 gcloud run worker-pools delete cloud-run-worker-id --region "$REGION"
 ```

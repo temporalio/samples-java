@@ -1,4 +1,4 @@
-package io.temporal.samples.cloudrunworkerid;
+package io.temporal.samples.gcp.cloudrun.workerid;
 
 import static org.junit.Assert.assertEquals;
 
