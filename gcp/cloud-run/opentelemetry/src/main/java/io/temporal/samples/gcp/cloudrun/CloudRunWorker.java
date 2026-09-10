@@ -18,6 +18,7 @@ public final class CloudRunWorker {
   private CloudRunWorker() {}
 
   public static void main(String[] args) throws IOException {
+    // @@@SNIPSTART java-cloud-run-otel-worker
     ClientConfigProfile profile = ClientConfigProfile.load();
     CloudRunOpenTelemetryPlugin telemetryPlugin = CloudRunOpenTelemetryPlugin.newBuilder().build();
 
@@ -26,6 +27,7 @@ public final class CloudRunWorker {
             .setPlugins(telemetryPlugin)
             .build();
     WorkflowServiceStubs service = WorkflowServiceStubs.newServiceStubs(serviceOptions);
+    // @@@SNIPEND
     WorkflowClient client = WorkflowClient.newInstance(service, profile.toWorkflowClientOptions());
     WorkerFactory factory = WorkerFactory.newInstance(client);
 
