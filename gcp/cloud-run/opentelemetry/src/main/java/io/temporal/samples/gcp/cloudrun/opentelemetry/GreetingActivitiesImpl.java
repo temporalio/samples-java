@@ -1,4 +1,4 @@
-package io.temporal.samples.gcp.cloudrun;
+package io.temporal.samples.gcp.cloudrun.opentelemetry;
 
 public final class GreetingActivitiesImpl implements GreetingActivities {
   @Override

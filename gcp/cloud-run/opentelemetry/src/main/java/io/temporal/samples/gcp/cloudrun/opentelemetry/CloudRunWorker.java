@@ -1,8 +1,8 @@
-package io.temporal.samples.gcp.cloudrun;
+package io.temporal.samples.gcp.cloudrun.opentelemetry;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.envconfig.ClientConfigProfile;
-import io.temporal.gcp.cloudrun.CloudRunOpenTelemetryPlugin;
+import io.temporal.gcp.cloudrun.opentelemetry.CloudRunOpenTelemetryPlugin;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 import io.temporal.worker.Worker;

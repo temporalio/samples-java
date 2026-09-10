@@ -1,8 +1,8 @@
-package io.temporal.samples.gcp.cloudrun;
+package io.temporal.samples.gcp.cloudrun.opentelemetry;
 
 import static org.junit.Assert.assertEquals;
 
-import io.temporal.gcp.cloudrun.CloudRunOpenTelemetryPlugin;
+import io.temporal.gcp.cloudrun.opentelemetry.CloudRunOpenTelemetryPlugin;
 import java.time.Duration;
 import org.junit.Test;
 
