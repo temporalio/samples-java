@@ -30,6 +30,7 @@ public final class CloudRunWorker {
     // Read Cloud Run instance metadata once during startup. This performs a single HTTP request to
     // the Cloud Run metadata server and throws IllegalStateException when it is unreachable, which
     // usually means the process is not running on Google Cloud Run.
+    // @@@SNIPSTART java-cloud-run-worker-id
     GoogleCloudRunMetadata metadata = GoogleCloudRunMetadata.fetch();
 
     String address = envOrDefault(ADDRESS_ENV, DEFAULT_ADDRESS);
@@ -52,6 +53,7 @@ public final class CloudRunWorker {
                 .setNamespace(namespace)
                 .setPlugins(new WorkerIdPlugin(metadata))
                 .build());
+    // @@@SNIPEND
 
     WorkerFactory factory = WorkerFactory.newInstance(client);
 
