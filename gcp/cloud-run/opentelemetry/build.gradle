@@ -3,7 +3,7 @@ apply plugin: 'application'
 dependencies {
     implementation "io.temporal:temporal-sdk:$javaSDKVersion"
     implementation "io.temporal:temporal-envconfig:$javaSDKVersion"
-    implementation "io.temporal:temporal-gcp-cloud-run:$javaSDKVersion"
+    implementation "io.temporal:temporal-gcp-cloud-run-opentelemetry:$javaSDKVersion"
     runtimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.6'
 
     testImplementation "io.temporal:temporal-testing:$javaSDKVersion"
@@ -18,7 +18,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'io.temporal.samples.gcp.cloudrun.CloudRunWorker'
+    mainClass = 'io.temporal.samples.gcp.cloudrun.opentelemetry.CloudRunWorker'
     // Keep a stable launcher/installDist name independent of the nested Gradle
     // project name (:gcp:cloud-run:opentelemetry), which the Dockerfile relies on.
     applicationName = 'cloud-run-worker'

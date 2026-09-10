@@ -1,4 +1,4 @@
-package io.temporal.samples.gcp.cloudrun;
+package io.temporal.samples.gcp.cloudrun.opentelemetry;
 
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
