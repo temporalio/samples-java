@@ -16,7 +16,7 @@ The sample has these separate programs:
 
 ## Prerequisites
 
-- Temporal CLI v1.9.0 or later. See setup guide: https://docs.temporal.io/cli/setup-cli
+- Temporal CLI v1.9.1 or later. See setup guide: https://docs.temporal.io/cli/setup-cli
 
 ## Start the Temporal development server
 
