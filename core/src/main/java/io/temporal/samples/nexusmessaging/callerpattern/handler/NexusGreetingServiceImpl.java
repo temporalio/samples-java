@@ -1,13 +1,13 @@
 package io.temporal.samples.nexusmessaging.callerpattern.handler;
 
-import io.nexusrpc.handler.OperationHandler;
-import io.nexusrpc.handler.OperationImpl;
+import io.nexusrpc.OperationException;
 import io.nexusrpc.handler.ServiceImpl;
 import io.temporal.client.UpdateOptions;
 import io.temporal.client.WorkflowUpdateStage;
 import io.temporal.nexus.TemporalNexusClient;
-import io.temporal.nexus.TemporalOperationHandler;
+import io.temporal.nexus.TemporalOperation;
 import io.temporal.nexus.TemporalOperationResult;
+import io.temporal.nexus.TemporalOperationStartContext;
 import io.temporal.samples.nexusmessaging.callerpattern.service.Language;
 import io.temporal.samples.nexusmessaging.callerpattern.service.NexusGreetingService;
 import org.slf4j.Logger;
@@ -39,61 +39,58 @@ public class NexusGreetingServiceImpl {
         .newWorkflowStub(GreetingWorkflow.class, getWorkflowId(userId));
   }
 
-  @OperationImpl
-  public OperationHandler<
-          NexusGreetingService.GetLanguagesInput, NexusGreetingService.GetLanguagesOutput>
-      getLanguages() {
-    return TemporalOperationHandler.create(
-        (ctx, client, input) -> {
-          logger.info("Query for GetLanguages was received for user {}", input.getUserId());
-          return TemporalOperationResult.sync(
-              getWorkflowStub(client, input.getUserId()).getLanguages(input));
-        });
+  @TemporalOperation
+  public TemporalOperationResult<NexusGreetingService.GetLanguagesOutput> getLanguages(
+      TemporalOperationStartContext ctx,
+      TemporalNexusClient client,
+      NexusGreetingService.GetLanguagesInput input) {
+    logger.info("Query for GetLanguages was received for user {}", input.getUserId());
+    return TemporalOperationResult.sync(
+        getWorkflowStub(client, input.getUserId()).getLanguages(input));
   }
 
-  @OperationImpl
-  public OperationHandler<NexusGreetingService.GetLanguageInput, Language> getLanguage() {
-    return TemporalOperationHandler.create(
-        (ctx, client, input) -> {
-          logger.info("Query for GetLanguage was received for user {}", input.getUserId());
-          return TemporalOperationResult.sync(
-              getWorkflowStub(client, input.getUserId()).getLanguage());
-        });
+  @TemporalOperation
+  public TemporalOperationResult<Language> getLanguage(
+      TemporalOperationStartContext ctx,
+      TemporalNexusClient client,
+      NexusGreetingService.GetLanguageInput input) {
+    logger.info("Query for GetLanguage was received for user {}", input.getUserId());
+    return TemporalOperationResult.sync(getWorkflowStub(client, input.getUserId()).getLanguage());
   }
 
   // Routes to setLanguageUsingActivity (not setLanguage) so that new languages not already in the
   // greetings map can be fetched via an activity.
-  @OperationImpl
-  public OperationHandler<NexusGreetingService.SetLanguageInput, Language> setLanguage() {
-    return TemporalOperationHandler.create(
-        (ctx, client, input) -> {
-          logger.info("Update for SetLanguage was received for user {}", input.getUserId());
-          return client.startWorkflowUpdate(
-              GreetingWorkflow.class,
-              getWorkflowId(input.getUserId()),
-              GreetingWorkflow::setLanguageUsingActivity,
-              input,
-              UpdateOptions.<Language>newBuilder()
-                  .setResultClass(Language.class)
-                  // The Update to invoke has to be named explicitly; the method reference above
-                  // supplies the argument and result types but not the wire name.
-                  .setUpdateName(GreetingWorkflow.SET_LANGUAGE_USING_ACTIVITY_UPDATE)
-                  // An Update-backed Operation must wait for the ACCEPTED stage. Any other stage
-                  // is rejected with "nexus op workflow updates only support
-                  // WorkflowUpdateStageAccepted for async updates".
-                  .setWaitForStage(WorkflowUpdateStage.ACCEPTED)
-                  .build());
-        });
+  @TemporalOperation
+  public TemporalOperationResult<Language> setLanguage(
+      TemporalOperationStartContext ctx,
+      TemporalNexusClient client,
+      NexusGreetingService.SetLanguageInput input)
+      throws OperationException {
+    logger.info("Update for SetLanguage was received for user {}", input.getUserId());
+    return client.startWorkflowUpdate(
+        GreetingWorkflow.class,
+        getWorkflowId(input.getUserId()),
+        GreetingWorkflow::setLanguageUsingActivity,
+        input,
+        UpdateOptions.<Language>newBuilder()
+            .setResultClass(Language.class)
+            // The Update to invoke has to be named explicitly; the method reference above
+            // supplies the argument and result types but not the wire name.
+            .setUpdateName(GreetingWorkflow.SET_LANGUAGE_USING_ACTIVITY_UPDATE)
+            // An Update-backed Operation must wait for the ACCEPTED stage. Any other stage
+            // is rejected with "nexus op workflow updates only support
+            // WorkflowUpdateStageAccepted for async updates".
+            .setWaitForStage(WorkflowUpdateStage.ACCEPTED)
+            .build());
   }
 
-  @OperationImpl
-  public OperationHandler<NexusGreetingService.ApproveInput, NexusGreetingService.ApproveOutput>
-      approve() {
-    return TemporalOperationHandler.create(
-        (ctx, client, input) -> {
-          logger.info("Signal for Approve was received for user {}", input.getUserId());
-          getWorkflowStub(client, input.getUserId()).approve(input);
-          return TemporalOperationResult.sync(new NexusGreetingService.ApproveOutput());
-        });
+  @TemporalOperation
+  public TemporalOperationResult<NexusGreetingService.ApproveOutput> approve(
+      TemporalOperationStartContext ctx,
+      TemporalNexusClient client,
+      NexusGreetingService.ApproveInput input) {
+    logger.info("Signal for Approve was received for user {}", input.getUserId());
+    getWorkflowStub(client, input.getUserId()).approve(input);
+    return TemporalOperationResult.sync(new NexusGreetingService.ApproveOutput());
   }
 }

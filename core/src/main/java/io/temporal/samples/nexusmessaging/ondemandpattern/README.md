@@ -8,7 +8,7 @@ instance to target.
 The caller Workflow:
 1. Attaches approval context for the first user via `attachApprovalContext`, before anything has
    started that user's Workflow
-2. Starts two remote `GreetingWorkflow` instances via `runFromRemote` (backed by a Workflow started
+2. Starts or attaches to two remote `GreetingWorkflow` instances via `runFromRemote` (backed by a Workflow started
    through `TemporalNexusClient.startWorkflow`)
 3. Attaches approval context for the second user, whose Workflow now already exists
 4. Queries each for supported languages
