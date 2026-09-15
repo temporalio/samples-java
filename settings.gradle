@@ -9,3 +9,12 @@ include 'springboot'
 include 'springboot-basic'
 include 'lambda-worker:starter'
 include 'lambda-worker:worker'
+include 'gcp:cloud-run:opentelemetry'
+
+// The gcp:cloud-run:opentelemetry sample depends on io.temporal:temporal-gcp-cloud-run-opentelemetry, which is not yet
+// released. Pass -PtemporalSdkPath=/path/to/sdk-java to resolve it (and the other temporal-*
+// modules) against a local SDK checkout through Gradle composite-build dependency substitution.
+def temporalSdkPath = gradle.startParameter.projectProperties['temporalSdkPath']
+if (temporalSdkPath) {
+    includeBuild temporalSdkPath
+}
