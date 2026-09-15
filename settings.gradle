@@ -9,3 +9,20 @@ include 'springboot'
 include 'springboot-basic'
 include 'lambda-worker:starter'
 include 'lambda-worker:worker'
+include 'gcp:cloud-run:workerid'
+
+// TEMPORARY (draft): the gcp:cloud-run:workerid sample depends on
+// io.temporal:temporal-gcp-cloud-run-worker-id (and the worker-identity APIs it builds on), which
+// are not yet released to Maven Central. Until they ship, wire the sample against a local Temporal
+// Java SDK checkout with a Gradle composite build so it can compile and run. Defaults to a sibling
+// ../sdk-java-2 checkout on the cloud-run-worker-id branch; override the location with
+// -PtemporalSdkPath=/path/to/sdk-java. When the checkout is absent (for example on CI building the
+// other samples) the composite build is skipped and only the gcp:cloud-run:workerid module is
+// affected. Remove this block and bump javaSDKVersion in build.gradle once
+// temporal-gcp-cloud-run-worker-id is released.
+def temporalSdkPath = gradle.startParameter.projectProperties['temporalSdkPath'] ?: '../sdk-java-2'
+def temporalSdkFile = new File(temporalSdkPath)
+def temporalSdkDir = temporalSdkFile.isAbsolute() ? temporalSdkFile : new File(settingsDir, temporalSdkPath)
+if (temporalSdkDir.isDirectory()) {
+    includeBuild temporalSdkPath
+}
