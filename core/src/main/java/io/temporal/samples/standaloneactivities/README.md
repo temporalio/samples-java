@@ -16,14 +16,12 @@ The sample has these separate programs:
 
 ## Prerequisites
 
-- Temporal dev server with Standalone Activity support. See the
-  [Java SDK Standalone Activities guide](https://docs.temporal.io/develop/java/activities/standalone-activities#get-started)
-  for download instructions.
+- Temporal CLI v1.9.1 or later. See setup guide: https://docs.temporal.io/cli/setup-cli
 
 ## Start the Temporal development server
 
 ```bash
-./temporal server start-dev
+temporal server start-dev
 ```
 
 ## Run the Worker
@@ -45,7 +43,7 @@ In another terminal, execute an activity and wait for its result:
 Or use the Temporal CLI:
 
 ```bash
-./temporal activity execute \
+temporal activity execute \
   --type ComposeGreeting \
   --activity-id standalone-activity-id \
   --task-queue standalone-activity-task-queue \
@@ -65,7 +63,7 @@ Start an activity and retrieve its result separately:
 Or use the Temporal CLI:
 
 ```bash
-./temporal activity start \
+temporal activity start \
   --type ComposeGreeting \
   --activity-id standalone-activity-id \
   --task-queue standalone-activity-task-queue \
@@ -85,7 +83,7 @@ List activity executions on the task queue:
 Or use the Temporal CLI:
 
 ```bash
-./temporal activity list
+temporal activity list
 ```
 
 ## Count Standalone Activities
@@ -99,5 +97,5 @@ Count activity executions on the task queue:
 Or use the Temporal CLI:
 
 ```bash
-./temporal activity count
+temporal activity count
 ```
