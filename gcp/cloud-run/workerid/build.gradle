@@ -2,7 +2,7 @@ apply plugin: 'application'
 
 dependencies {
     implementation "io.temporal:temporal-sdk:$javaSDKVersion"
-    implementation "io.temporal:temporal-gcp-cloud-run-worker-id:$javaSDKVersion"
+    implementation "io.temporal:temporal-gcp-cloud-run-id:$javaSDKVersion"
     runtimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.6'
 
     testImplementation "io.temporal:temporal-testing:$javaSDKVersion"
@@ -18,7 +18,6 @@ dependencies {
 
 application {
     mainClass = 'io.temporal.samples.gcp.cloudrun.workerid.CloudRunWorker'
-    // Keep a stable launcher/installDist name independent of the nested Gradle
-    // project name (:gcp:cloud-run:workerid), which the Dockerfile relies on.
+    // Stable launcher name the Dockerfile relies on, independent of the Gradle project path.
     applicationName = 'cloud-run-worker-id'
 }

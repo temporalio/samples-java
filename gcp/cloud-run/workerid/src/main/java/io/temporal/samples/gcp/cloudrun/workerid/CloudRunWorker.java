@@ -2,8 +2,8 @@ package io.temporal.samples.gcp.cloudrun.workerid;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
-import io.temporal.gcp.cloudrun.workerid.GoogleCloudRunMetadata;
-import io.temporal.gcp.cloudrun.workerid.WorkerIdPlugin;
+import io.temporal.gcp.cloudrun.id.CloudRunIdPlugin;
+import io.temporal.gcp.cloudrun.id.GoogleCloudRunMetadata;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.serviceclient.WorkflowServiceStubsOptions;
 import io.temporal.worker.Worker;
@@ -27,30 +27,22 @@ public final class CloudRunWorker {
   private CloudRunWorker() {}
 
   public static void main(String[] args) {
-    // Read Cloud Run instance metadata once during startup. This performs a single HTTP request to
-    // the Cloud Run metadata server and throws IllegalStateException when it is unreachable, which
-    // usually means the process is not running on Google Cloud Run.
-    GoogleCloudRunMetadata metadata = GoogleCloudRunMetadata.fetch();
-
     String address = envOrDefault(ADDRESS_ENV, DEFAULT_ADDRESS);
     String namespace = envOrDefault(NAMESPACE_ENV, DEFAULT_NAMESPACE);
     String taskQueue = envOrDefault(TASK_QUEUE_ENV, DEFAULT_TASK_QUEUE);
 
-    // Plaintext connection to the Temporal Service. Configure TLS or an API key here for a secured
-    // Service such as Temporal Cloud.
+    // Plaintext connection; add TLS or an API key here for Temporal Cloud.
     WorkflowServiceStubs service =
         WorkflowServiceStubs.newServiceStubs(
             WorkflowServiceStubsOptions.newBuilder().setTarget(address).build());
 
-    // Register WorkerIdPlugin on the client. It sets the derived worker identity
-    // ({instanceId}@{revision}) on the client, and workers created from the client inherit it.
-    // Passing the already-fetched metadata avoids a second call to the Cloud Run metadata server.
+    // CloudRunIdPlugin sets the client identity to {instanceId}@{revision} from metadata.
     WorkflowClient client =
         WorkflowClient.newInstance(
             service,
             WorkflowClientOptions.newBuilder()
                 .setNamespace(namespace)
-                .setPlugins(new WorkerIdPlugin(metadata))
+                .setPlugins(new CloudRunIdPlugin())
                 .build());
 
     WorkerFactory factory = WorkerFactory.newInstance(client);
@@ -65,7 +57,7 @@ public final class CloudRunWorker {
     factory.start();
     logger.info(
         "Temporal worker started (identity={}, taskQueue={})",
-        metadata.workerIdentity(),
+        GoogleCloudRunMetadata.fetch().identity(),
         taskQueue);
 
     // Cloud Run worker pools are continuous workloads, so keep the process alive until SIGTERM.
@@ -73,8 +65,7 @@ public final class CloudRunWorker {
   }
 
   private static void shutdown(WorkerFactory factory, WorkflowServiceStubs service) {
-    // Cloud Run sends SIGTERM and allows a short grace period before SIGKILL. Stop polling, drain
-    // in-flight tasks, then close the service connection.
+    // Cloud Run sends SIGTERM before SIGKILL; stop polling, drain in-flight tasks, then close.
     factory.shutdown();
     factory.awaitTermination(6, TimeUnit.SECONDS);
     if (!factory.isTerminated()) {

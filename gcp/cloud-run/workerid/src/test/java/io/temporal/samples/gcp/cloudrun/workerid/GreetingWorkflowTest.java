@@ -7,9 +7,7 @@ import io.temporal.testing.TestWorkflowRule;
 import org.junit.Rule;
 import org.junit.Test;
 
-/** Unit test for the sample Workflow and Activity. */
 public class GreetingWorkflowTest {
-
   @Rule
   public TestWorkflowRule testWorkflowRule =
       TestWorkflowRule.newBuilder()
