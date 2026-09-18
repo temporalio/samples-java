@@ -1,4 +1,4 @@
-package io.temporal.samples.gcp.cloudrun.workerid;
+package io.temporal.samples.gcp.cloudrun.id;
 
 import io.temporal.activity.ActivityOptions;
 import io.temporal.workflow.Workflow;

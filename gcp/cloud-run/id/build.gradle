@@ -17,7 +17,7 @@ dependencies {
 }
 
 application {
-    mainClass = 'io.temporal.samples.gcp.cloudrun.workerid.CloudRunWorker'
+    mainClass = 'io.temporal.samples.gcp.cloudrun.id.CloudRunWorker'
     // Stable launcher name the Dockerfile relies on, independent of the Gradle project path.
-    applicationName = 'cloud-run-worker-id'
+    applicationName = 'cloud-run-id'
 }

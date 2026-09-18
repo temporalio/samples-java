@@ -9,7 +9,7 @@ include 'springboot'
 include 'springboot-basic'
 include 'lambda-worker:starter'
 include 'lambda-worker:worker'
-include 'gcp:cloud-run:workerid'
+include 'gcp:cloud-run:id'
 
 // The gcp:cloud-run samples use unreleased temporal-gcp-cloud-run-* modules; resolve them from a local SDK checkout (default ../sdk-java, override with -PtemporalSdkPath) via composite build.
 def temporalSdkPath = gradle.startParameter.projectProperties['temporalSdkPath'] ?: '../sdk-java'

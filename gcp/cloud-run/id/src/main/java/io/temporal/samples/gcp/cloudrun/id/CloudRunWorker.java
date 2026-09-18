@@ -1,4 +1,4 @@
-package io.temporal.samples.gcp.cloudrun.workerid;
+package io.temporal.samples.gcp.cloudrun.id;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** A continuously polling Temporal Worker for a Google Cloud Run worker pool. */
+/** A Temporal Worker for a Google Cloud Run worker pool. */
 public final class CloudRunWorker {
   private static final Logger logger = LoggerFactory.getLogger(CloudRunWorker.class);
 
@@ -22,7 +22,7 @@ public final class CloudRunWorker {
 
   static final String DEFAULT_ADDRESS = "127.0.0.1:7233";
   static final String DEFAULT_NAMESPACE = "default";
-  static final String DEFAULT_TASK_QUEUE = "cloud-run-worker-id";
+  static final String DEFAULT_TASK_QUEUE = "cloud-run-id";
 
   private CloudRunWorker() {}
 
@@ -60,7 +60,7 @@ public final class CloudRunWorker {
         GoogleCloudRunMetadata.fetch().identity(),
         taskQueue);
 
-    // Cloud Run worker pools are continuous workloads, so keep the process alive until SIGTERM.
+    // Keep the process alive until Cloud Run sends SIGTERM.
     factory.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
   }
 
