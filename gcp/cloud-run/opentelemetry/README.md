@@ -1,10 +1,9 @@
 # Temporal Cloud Run OpenTelemetry worker
 
-A continuously polling Temporal worker running in a Google Cloud Run **worker pool** that exports
+A Temporal Worker running in a Google Cloud Run **worker pool** that exports
 Temporal SDK metrics and traces through a
 [Google-Built OpenTelemetry Collector](https://cloud.google.com/stackdriver/docs/instrumentation/opentelemetry-collector-cloud-run)
-sidecar. Worker pools keep CPU allocated for continuous background polling, unlike request-driven
-Cloud Run services.
+sidecar. Worker pools keep CPU allocated, unlike request-driven Cloud Run services.
 
 `CloudRunOpenTelemetryPlugin` from `io.temporal:temporal-gcp-cloud-run-opentelemetry` configures the
 SDK metrics scope, tracing interceptors, OTLP exporters (default `http://localhost:4317`), and
@@ -24,7 +23,7 @@ until the module ships; then drop the composite block and bump `javaSDKVersion`.
 
 ## Files
 
-- `.../cloudrun/opentelemetry/CloudRunWorker.java` — plugin, client, long-lived worker, bounded `SIGTERM` shutdown.
+- `.../cloudrun/opentelemetry/CloudRunWorker.java` — plugin, client, Temporal Worker, bounded `SIGTERM` shutdown.
 - `collector-config.yaml` — collector for cumulative Prometheus metrics and batched traces.
 - `worker-pool.yaml` — worker and collector containers sharing localhost, config from Secret Manager.
 - `Dockerfile` — packages the Gradle application as the worker container.

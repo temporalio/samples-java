@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-/** A continuously polling Temporal worker for a Cloud Run worker pool. */
+/** A Temporal Worker for a Cloud Run worker pool. */
 public final class CloudRunWorker {
   public static final String DEFAULT_TASK_QUEUE = "cloud-run-worker";
 
@@ -46,7 +46,7 @@ public final class CloudRunWorker {
         "Temporal worker started: taskQueue=%s, otelEndpoint=%s, serviceName=%s%n",
         taskQueue, telemetryPlugin.getEndpoint(), telemetryPlugin.getServiceName());
 
-    // Cloud Run worker pools are continuous workloads. Keep the process alive until SIGTERM.
+    // Keep the process alive until Cloud Run sends SIGTERM.
     factory.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
   }
 
