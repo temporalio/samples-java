@@ -59,8 +59,7 @@ public final class CloudRunWorker {
       WorkerFactory factory,
       WorkflowServiceStubs service,
       CloudRunOpenTelemetryPlugin telemetryPlugin) {
-    // Cloud Run allows 10 seconds between SIGTERM and SIGKILL. Flush only after the asynchronous
-    // worker shutdown so telemetry produced by finishing tasks is included.
+    // Flush after worker shutdown to capture finishing tasks; Cloud Run allows 10s.
     factory.shutdown();
     factory.awaitTermination(6, TimeUnit.SECONDS);
     if (!factory.isTerminated()) {

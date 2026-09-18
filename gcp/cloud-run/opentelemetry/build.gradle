@@ -19,7 +19,6 @@ dependencies {
 
 application {
     mainClass = 'io.temporal.samples.gcp.cloudrun.opentelemetry.CloudRunWorker'
-    // Keep a stable launcher/installDist name independent of the nested Gradle
-    // project name (:gcp:cloud-run:opentelemetry), which the Dockerfile relies on.
+    // Stable launcher name the Dockerfile relies on, independent of the Gradle project path.
     applicationName = 'cloud-run-worker'
 }
