@@ -17,8 +17,9 @@ public class CallerStarter {
             CallerWorkflow.class,
             WorkflowOptions.newBuilder().setTaskQueue(SampleConfig.CALLER_TASK_QUEUE).build());
 
-    EndpointResults results = workflow.callBoth("Hello from Nexus");
-    System.out.println("HMAC endpoint result: " + results.hmacResult());
-    System.out.println("zlib endpoint result: " + results.zlibResult());
+    EndpointResults results = workflow.echoThroughBothEndpoints("Hello from Nexus");
+    System.out.println(
+        "Compressed and encrypted endpoint result: " + results.compressedEncryptedResult());
+    System.out.println("Encrypted endpoint result: " + results.encryptedResult());
   }
 }

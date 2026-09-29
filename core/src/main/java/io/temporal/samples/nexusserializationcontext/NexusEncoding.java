@@ -1,8 +1,7 @@
 package io.temporal.samples.nexusserializationcontext;
 
 enum NexusEncoding {
-  NONE(""),
-  HMAC("binary/nexus-hmac"),
+  AES_GCM("binary/nexus-aes-gcm"),
   ZLIB("binary/nexus-zlib");
 
   private final String encodingName;

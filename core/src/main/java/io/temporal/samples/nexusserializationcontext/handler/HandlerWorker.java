@@ -15,11 +15,8 @@ public class HandlerWorker {
             WorkflowClientOptions.newBuilder().setDataConverter(SampleConfig.dataConverter()));
     WorkerFactory factory = WorkerFactory.newInstance(client);
 
-    Worker hmacWorker = factory.newWorker(SampleConfig.HMAC_HANDLER_TASK_QUEUE);
-    hmacWorker.registerNexusServiceImplementation(new EchoServiceImpl());
-
-    Worker zlibWorker = factory.newWorker(SampleConfig.ZLIB_HANDLER_TASK_QUEUE);
-    zlibWorker.registerNexusServiceImplementation(new EchoServiceImpl());
+    Worker worker = factory.newWorker(SampleConfig.HANDLER_TASK_QUEUE);
+    worker.registerNexusServiceImplementation(new EchoServiceImpl());
 
     factory.start();
   }

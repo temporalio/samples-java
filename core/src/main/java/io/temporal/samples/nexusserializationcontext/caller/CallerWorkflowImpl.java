@@ -10,16 +10,17 @@ import java.time.Duration;
 
 public class CallerWorkflowImpl implements CallerWorkflow {
   @Override
-  public EndpointResults callBoth(String message) {
-    EchoService hmacService = serviceFor(SampleConfig.HMAC_ENDPOINT);
-    EchoService zlibService = serviceFor(SampleConfig.ZLIB_ENDPOINT);
+  public EndpointResults echoThroughBothEndpoints(String message) {
+    EchoService compressedEncryptedService = serviceFor(SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT);
+    EchoService encryptedService = serviceFor(SampleConfig.ENCRYPTED_ENDPOINT);
 
     // Start both before awaiting either result. Each result must keep its own endpoint context.
-    NexusOperationHandle<String> hmacOperation =
-        Workflow.startNexusOperation(hmacService::echo, message);
-    NexusOperationHandle<String> zlibOperation =
-        Workflow.startNexusOperation(zlibService::echo, message);
-    return new EndpointResults(hmacOperation.getResult().get(), zlibOperation.getResult().get());
+    NexusOperationHandle<String> compressedEncryptedOperation =
+        Workflow.startNexusOperation(compressedEncryptedService::echo, message);
+    NexusOperationHandle<String> encryptedOperation =
+        Workflow.startNexusOperation(encryptedService::echo, message);
+    return new EndpointResults(
+        compressedEncryptedOperation.getResult().get(), encryptedOperation.getResult().get());
   }
 
   private static EchoService serviceFor(String endpoint) {

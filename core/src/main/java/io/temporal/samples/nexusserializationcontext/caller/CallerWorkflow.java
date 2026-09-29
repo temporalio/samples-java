@@ -6,5 +6,5 @@ import io.temporal.workflow.WorkflowMethod;
 @WorkflowInterface
 public interface CallerWorkflow {
   @WorkflowMethod
-  EndpointResults callBoth(String message);
+  EndpointResults echoThroughBothEndpoints(String message);
 }
