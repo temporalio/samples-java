@@ -17,10 +17,6 @@ import io.temporal.workflow.WorkflowMethod;
 @WorkflowInterface
 public interface GreetingWorkflow {
 
-  // The wire name of the setLanguageUsingActivity Update, needed by the Nexus handler when it
-  // starts the Update through TemporalNexusClient.
-  String SET_LANGUAGE_USING_ACTIVITY_UPDATE = "setLanguageUsingActivity";
-
   @WorkflowMethod
   String run();
 
