@@ -16,7 +16,7 @@ import java.util.zip.InflaterInputStream;
 import javax.annotation.Nonnull;
 
 /** Compresses Nexus payloads with zlib. */
-final class ZlibCodec implements PayloadCodec {
+public final class ZlibCodec implements PayloadCodec {
   @Override
   @Nonnull
   public List<Payload> encode(@Nonnull List<Payload> payloads) {

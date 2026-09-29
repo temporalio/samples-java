@@ -17,7 +17,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 
 /** Encrypts Nexus payloads with the key assigned to an endpoint. */
-final class AesGcmCodec implements PayloadCodec {
+public final class AesGcmCodec implements PayloadCodec {
   static final String KEY_ID_METADATA_KEY = "encryption-key-id";
 
   private static final String CIPHER = "AES/GCM/NoPadding";
@@ -28,7 +28,7 @@ final class AesGcmCodec implements PayloadCodec {
   private final String keyId;
   private final SecretKey key;
 
-  AesGcmCodec(String keyId, SecretKey key) {
+  public AesGcmCodec(String keyId, SecretKey key) {
     this.keyId = keyId;
     this.key = key;
   }
