@@ -16,16 +16,13 @@ from it.
 
 > Google Cloud Run support is experimental and may change without notice.
 
-## Unreleased SDK dependency
+## Build
 
-`temporal-gcp-cloud-run-id` and `temporal-gcp-cloud-run-opentelemetry` are not yet released.
-`settings.gradle` resolves them (and the other `io.temporal:*` modules) from a local SDK checkout via
-a Gradle composite build, defaulting to `../sdk-java` and overridable with `-PtemporalSdkPath`. CI
-has no checkout, so its build stays red until the modules ship; then drop the composite block and
-bump `javaSDKVersion`.
+`temporal-gcp-cloud-run-id` and `temporal-gcp-cloud-run-opentelemetry` are published on Maven
+Central, so the sample resolves them like any other dependency.
 
 ```bash
-./gradlew -PtemporalSdkPath=/path/to/sdk-java :gcp:cloud-run:build
+./gradlew :gcp:cloud-run:build
 ```
 
 ## Files

@@ -1,10 +1,13 @@
 apply plugin: 'application'
 
 dependencies {
-    implementation "io.temporal:temporal-sdk:$javaSDKVersion"
-    implementation "io.temporal:temporal-envconfig:$javaSDKVersion"
-    implementation "io.temporal:temporal-gcp-cloud-run-opentelemetry:$javaSDKVersion"
-    implementation "io.temporal:temporal-gcp-cloud-run-id:$javaSDKVersion"
+    // The GCP Cloud Run modules first shipped in 1.40.0; pin the io.temporal deps to that
+    // released version here rather than bumping the repo-wide javaSDKVersion. The explicit
+    // temporal-sdk dep is required because temporal-gcp-cloud-run-id declares it as compileOnly.
+    implementation "io.temporal:temporal-sdk:1.40.0"
+    implementation "io.temporal:temporal-envconfig:1.40.0"
+    implementation "io.temporal:temporal-gcp-cloud-run-opentelemetry:1.40.0"
+    implementation "io.temporal:temporal-gcp-cloud-run-id:1.40.0"
     runtimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.6'
 
     testImplementation "io.temporal:temporal-testing:$javaSDKVersion"
