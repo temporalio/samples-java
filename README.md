@@ -185,6 +185,9 @@ Load client configuration from TOML files with programmatic overrides.
 - [**Nexus Messaging**](/core/src/main/java/io/temporal/samples/nexusmessaging): Demonstrates how to send signal, update and query messages through Nexus.
   This contains two samples, one sending messages to an existing workflow and a second that creates a workflow through Nexus
   and sends messages to it.
+
+- [**Nexus Messaging V2**](/core/src/main/java/io/temporal/samples/nexusmessagingv2): Demonstrates how to send signal, update and query messages through Nexus.
+  This version contains additional pre-release features.
 <!-- @@@SNIPEND -->
 
 ### Running SpringBoot Samples
