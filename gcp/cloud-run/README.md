@@ -18,8 +18,7 @@ from it.
 
 ## Build
 
-`temporal-gcp-cloud-run-id` and `temporal-gcp-cloud-run-opentelemetry` are published on Maven
-Central, so the sample resolves them like any other dependency.
+`temporal-gcp-cloud-run-id` and `temporal-gcp-cloud-run-opentelemetry` are published on Maven Central.
 
 ```bash
 ./gradlew :gcp:cloud-run:build
