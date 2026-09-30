@@ -15,6 +15,7 @@ import io.temporal.envconfig.ClientConfigProfile;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import io.temporal.workflow.Promise;
 import io.temporal.workflow.SignalMethod;
 import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInterface;
@@ -198,8 +199,10 @@ public class HelloAccumulator {
       // - if exit signal is received, process any remaining signals and exit
       do {
 
-        boolean timedout =
-            !Workflow.await(MAX_AWAIT_TIME, () -> !unprocessedGreetings.isEmpty() || exitRequested);
+        Promise<Void> timer = Workflow.newTimer(MAX_AWAIT_TIME);
+        Workflow.await(
+            () -> timer.isCompleted() || !unprocessedGreetings.isEmpty() || exitRequested);
+        boolean timedout = timer.isCompleted() && unprocessedGreetings.isEmpty() && !exitRequested;
 
         while (!unprocessedGreetings.isEmpty()) {
           processGreeting(unprocessedGreetings.removeFirst());
