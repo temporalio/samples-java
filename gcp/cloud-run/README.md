@@ -44,8 +44,14 @@ Run from the repository root, with a Temporal Cloud namespace and API key.
      --data-file=gcp/cloud-run/collector-config.yaml --project="$PROJECT_ID"
    ```
 
-2. Build and push the image (tag `REGION-docker.pkg.dev/PROJECT_ID/temporal-samples/cloud-run-worker:latest`)
-   with `docker build -f gcp/cloud-run/Dockerfile .`.
+2. Create the Artifact Registry repo, then build and push the image:
+
+   ```bash
+   gcloud artifacts repositories create temporal-samples --repository-format=docker \
+     --location="$REGION" --project="$PROJECT_ID"
+   IMAGE="$REGION-docker.pkg.dev/$PROJECT_ID/temporal-samples/cloud-run-worker:latest"
+   docker build -f gcp/cloud-run/Dockerfile -t "$IMAGE" . && docker push "$IMAGE"
+   ```
 
 3. Replace the placeholders in `worker-pool.yaml`, then deploy:
 
@@ -57,9 +63,11 @@ The service account needs `roles/monitoring.metricWriter`, `roles/telemetry.trac
 `roles/secretmanager.secretAccessor`. Start a workflow on task queue `cloud-run-worker`:
 
 ```bash
-temporal workflow start --type GreetingWorkflow --task-queue cloud-run-worker \
+temporal workflow execute --type GreetingWorkflow --task-queue cloud-run-worker \
   --workflow-id cloud-run-greeting --input '"Google Cloud"'
 ```
+
+It prints `Hello Google Cloud!`, confirming the deployed worker ran the task.
 
 The collector does **not** batch cumulative metrics: a shutdown flush batched with a recent periodic
 export would collide on the same Prometheus series and be rejected as `Duplicate TimeSeries`.
