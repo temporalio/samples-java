@@ -1,6 +1,7 @@
 package io.temporal.samples.nexusserializationcontext.codec;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -10,10 +11,10 @@ import io.temporal.common.converter.DataConverter;
 import io.temporal.common.converter.EncodingKeys;
 import io.temporal.payload.codec.PayloadCodecException;
 import io.temporal.payload.context.NexusSerializationContext;
-import io.temporal.payload.context.SerializationContext;
 import io.temporal.payload.context.WorkflowSerializationContext;
 import io.temporal.samples.nexusserializationcontext.SampleConfig;
 import io.temporal.samples.nexusserializationcontext.caller.CallerWorker;
+import io.temporal.samples.nexusserializationcontext.caller.EndpointResults;
 import io.temporal.samples.nexusserializationcontext.handler.AsyncHandlerWorker;
 import io.temporal.samples.nexusserializationcontext.handler.CompressedEncryptedHandlerWorker;
 import io.temporal.samples.nexusserializationcontext.handler.EncryptedHandlerWorker;
@@ -113,16 +114,31 @@ class NexusCodecTest {
   }
 
   @Test
-  void leavesNonNexusPayloadsUnchanged() {
+  void encryptsCallerWorkflowInputAndResultWithKeyE() {
     DataConverter converter =
-        CallerWorker.dataConverter().withContext(new SerializationContext() {});
+        CallerWorker.dataConverter()
+            .withContext(
+                new WorkflowSerializationContext("nexus-serialization-caller", "caller-id"));
+    EndpointResults results = new EndpointResults("reply A", "reply B", "reply C", "reply D");
 
-    Payload payload = converter.toPayload("hello").orElseThrow();
+    Payload input = converter.toPayload("Hello from Nexus").orElseThrow();
+    Payload result = converter.toPayload(results).orElseThrow();
 
     assertEquals(
-        "json/plain",
-        payload.getMetadataOrThrow(EncodingKeys.METADATA_ENCODING_KEY).toStringUtf8());
-    assertEquals("hello", converter.fromPayload(payload, String.class, String.class));
+        NexusEncoding.AES_GCM.encodingName(),
+        input.getMetadataOrThrow(EncodingKeys.METADATA_ENCODING_KEY).toStringUtf8());
+    assertEquals(
+        SampleConfig.KEY_E_ID,
+        input.getMetadataOrThrow(AesGcmCodec.KEY_ID_METADATA_KEY).toStringUtf8());
+    assertEquals(
+        SampleConfig.KEY_E_ID,
+        result.getMetadataOrThrow(AesGcmCodec.KEY_ID_METADATA_KEY).toStringUtf8());
+    assertFalse(input.getMetadataMap().containsKey(SampleConfig.ENDPOINT_METADATA_KEY));
+    assertFalse(input.getData().toStringUtf8().contains("Hello from Nexus"));
+    assertFalse(result.getData().toStringUtf8().contains("reply A"));
+    assertEquals("Hello from Nexus", converter.fromPayload(input, String.class, String.class));
+    assertEquals(
+        results, converter.fromPayload(result, EndpointResults.class, EndpointResults.class));
   }
 
   @Test

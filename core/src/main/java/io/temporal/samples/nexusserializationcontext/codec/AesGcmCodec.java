@@ -21,7 +21,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 import org.apache.commons.lang.StringUtils;
 
-/** Encrypts Nexus payloads with the key assigned to an endpoint. */
+/** Encrypts payloads with a configured key and includes endpoint metadata when available. */
 public final class AesGcmCodec implements PayloadCodec {
   static final String KEY_ID_METADATA_KEY = "encryption-key-id";
 
@@ -88,7 +88,7 @@ public final class AesGcmCodec implements PayloadCodec {
               .getMetadataOrDefault(EncodingKeys.METADATA_ENCODING_KEY, ByteString.EMPTY)
               .toStringUtf8();
       if (!NexusEncoding.AES_GCM.encodingName().equals(encoding)) {
-        throw new PayloadCodecException("Expected a Nexus AES-GCM payload");
+        throw new PayloadCodecException("Expected an AES-GCM payload");
       }
       String payloadKeyId =
           payload.getMetadataOrDefault(KEY_ID_METADATA_KEY, ByteString.EMPTY).toStringUtf8();
@@ -122,7 +122,7 @@ public final class AesGcmCodec implements PayloadCodec {
 
   private byte[] decrypt(byte[] encrypted) {
     if (encrypted.length < NONCE_LENGTH + TAG_LENGTH_BITS / Byte.SIZE) {
-      throw new PayloadCodecException("Nexus AES-GCM payload is too short");
+      throw new PayloadCodecException("AES-GCM payload is too short");
     }
     ByteBuffer buffer = ByteBuffer.wrap(encrypted);
     byte[] nonce = new byte[NONCE_LENGTH];

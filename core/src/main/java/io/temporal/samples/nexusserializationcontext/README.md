@@ -4,21 +4,24 @@ This sample calls two synchronous and two asynchronous Nexus operations through
 four endpoints. The synchronous endpoints have separate handler workers. The two
 asynchronous endpoints share a handler namespace, task queue, and worker. The caller's
 `NexusCodec` uses `NexusSerializationContext` to select the `PayloadCodec`
-registered for each endpoint:
+registered for each endpoint. The sample uses these keys:
 
-- The first synchronous endpoint compresses with zlib, then encrypts with AES-GCM using Key A.
-- The second synchronous endpoint encrypts with AES-GCM using Key B.
-- One asynchronous endpoint encrypts with AES-GCM using Key C.
-- The other asynchronous endpoint compresses with zlib, then encrypts with AES-GCM using Key D.
+- Key A: compresses with zlib, then encrypts the first synchronous endpoint's payloads.
+- Key B: encrypts the second synchronous endpoint's payloads.
+- Key C: encrypts one asynchronous endpoint's payloads.
+- Key D: compresses with zlib, then encrypts the other asynchronous endpoint's payloads.
+- Key E: encrypts the caller workflow's input and final result.
 
-The caller configures all four codecs. The synchronous handler workers each use a fixed
-key. The shared asynchronous worker has both Keys C and D and selects a codec by endpoint.
+The caller configures all four endpoint codecs and a separate codec for its own
+workflow input and result. The synchronous handler workers each use a fixed key. The
+shared asynchronous worker has both Keys C and D and selects a codec by endpoint.
 
 The caller schedules all four operations before waiting for their results, so each
 result must be decoded using the context of its own endpoint. The caller's
-`NexusCodec` leaves non-Nexus payloads unchanged.
+`NexusCodec` uses Key E for its own workflow payloads, which have no Nexus endpoint.
 
-The outer encrypted payload stores the endpoint name in `nexus-endpoint-name` metadata,
+For the four Nexus endpoints, the outer encrypted payload stores the endpoint name in
+`nexus-endpoint-name` metadata,
 alongside `binary/nexus-aes-gcm` and a sample key ID (`key-a`, `key-b`, `key-c`, or `key-d`). A Codec
 Server can use the endpoint name to select the matching key and decompression
 chain without SDK context.
@@ -33,6 +36,9 @@ nexus-endpoint-name: nexus-serialization-compressed-encrypted
 
 The asynchronous results have `encryption-key-id: key-c` or `key-d` and their respective
 endpoint names in the outer payload metadata.
+The caller workflow's input and final result use `encryption-key-id: key-e`; they do not
+have endpoint metadata. The starter uses the same converter as the caller worker, so it
+can decode the final result before printing it.
 
 `NexusSerializationContext` works end to end for synchronous Nexus operations.
 For an asynchronous operation, the handler's final result is serialized as a workflow

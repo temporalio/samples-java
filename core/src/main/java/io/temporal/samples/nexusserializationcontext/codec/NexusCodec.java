@@ -10,36 +10,39 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 /**
- * Selects a codec when the SDK provides {@link NexusSerializationContext}. The caller uses this for
- * both synchronous and asynchronous Nexus requests and results. Non-Nexus workflow payloads pass
- * through unchanged.
+ * Selects an endpoint codec for synchronous and asynchronous Nexus payloads. The caller's own
+ * workflow payloads use a separate codec.
  */
 public final class NexusCodec implements PayloadCodec {
   private final Map<String, PayloadCodec> codecsByEndpoint;
+  // The caller workflow has no Nexus endpoint, so Key E encrypts its input and final result.
+  private final PayloadCodec workflowCodec;
 
-  public NexusCodec(Map<String, PayloadCodec> codecsByEndpoint) {
+  public NexusCodec(Map<String, PayloadCodec> codecsByEndpoint, PayloadCodec workflowCodec) {
     this.codecsByEndpoint = Map.copyOf(codecsByEndpoint);
+    this.workflowCodec = workflowCodec;
   }
 
   @Override
   @Nonnull
   public PayloadCodec withContext(@Nonnull SerializationContext context) {
-    if (!(context instanceof NexusSerializationContext)) {
-      return this;
+    if (context instanceof NexusSerializationContext nexusContext) {
+      return codecFor(nexusContext.getEndpoint()).withContext(context);
     }
-    return codecFor(((NexusSerializationContext) context).getEndpoint()).withContext(context);
+    // Caller Workflow input and result have no Nexus endpoint; use the caller's Key E codec.
+    return workflowCodec.withContext(context);
   }
 
   @Override
   @Nonnull
   public List<Payload> encode(@Nonnull List<Payload> payloads) {
-    return payloads;
+    return workflowCodec.encode(payloads);
   }
 
   @Override
   @Nonnull
   public List<Payload> decode(@Nonnull List<Payload> payloads) {
-    return payloads;
+    return workflowCodec.decode(payloads);
   }
 
   private PayloadCodec codecFor(String endpoint) {
