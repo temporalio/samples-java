@@ -1,4 +1,4 @@
-package io.temporal.samples.nexusserializationcontext;
+package io.temporal.samples.nexusserializationcontext.codec;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;

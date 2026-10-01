@@ -16,9 +16,14 @@ public class CallerStarter {
             CallerWorkflow.class,
             WorkflowOptions.newBuilder().setTaskQueue(CallerWorker.TASK_QUEUE).build());
 
-    EndpointResults results = workflow.echoThroughBothEndpoints("Hello from Nexus");
+    EndpointResults results = workflow.echoThroughEndpoints("Hello from Nexus");
     System.out.println(
-        "Compressed and encrypted endpoint result: " + results.compressedEncryptedResult());
-    System.out.println("Encrypted endpoint result: " + results.encryptedResult());
+        "Compressed and encrypted endpoint sync result: "
+            + results.compressedEncryptedSyncResult());
+    System.out.println("Encrypted endpoint sync result: " + results.encryptedSyncResult());
+    System.out.println("Async encrypted endpoint result: " + results.asyncEncryptedResult());
+    System.out.println(
+        "Async compressed and encrypted endpoint result: "
+            + results.asyncCompressedEncryptedResult());
   }
 }

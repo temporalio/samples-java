@@ -1,3 +1,7 @@
 package io.temporal.samples.nexusserializationcontext.caller;
 
-public record EndpointResults(String compressedEncryptedResult, String encryptedResult) {}
+public record EndpointResults(
+    String compressedEncryptedSyncResult,
+    String encryptedSyncResult,
+    String asyncEncryptedResult,
+    String asyncCompressedEncryptedResult) {}

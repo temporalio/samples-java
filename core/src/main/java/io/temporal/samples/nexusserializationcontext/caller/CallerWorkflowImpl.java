@@ -10,17 +10,27 @@ import java.time.Duration;
 
 public class CallerWorkflowImpl implements CallerWorkflow {
   @Override
-  public EndpointResults echoThroughBothEndpoints(String message) {
+  public EndpointResults echoThroughEndpoints(String message) {
     EchoService compressedEncryptedService = serviceFor(SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT);
     EchoService encryptedService = serviceFor(SampleConfig.ENCRYPTED_ENDPOINT);
+    EchoService asyncEncryptedService = serviceFor(SampleConfig.ASYNC_ENCRYPTED_ENDPOINT);
+    EchoService asyncCompressedEncryptedService =
+        serviceFor(SampleConfig.ASYNC_COMPRESSED_ENCRYPTED_ENDPOINT);
 
-    // Start both before awaiting either result. Each result must keep its own endpoint context.
-    NexusOperationHandle<String> compressedEncryptedOperation =
+    // Start all operations before awaiting results. Each result keeps its endpoint context.
+    NexusOperationHandle<String> compressedEncryptedSync =
         Workflow.startNexusOperation(compressedEncryptedService::echo, message);
-    NexusOperationHandle<String> encryptedOperation =
+    NexusOperationHandle<String> encryptedSync =
         Workflow.startNexusOperation(encryptedService::echo, message);
+    NexusOperationHandle<String> asyncEncrypted =
+        Workflow.startNexusOperation(asyncEncryptedService::echoAsync, message);
+    NexusOperationHandle<String> asyncCompressedEncrypted =
+        Workflow.startNexusOperation(asyncCompressedEncryptedService::echoAsync, message);
     return new EndpointResults(
-        compressedEncryptedOperation.getResult().get(), encryptedOperation.getResult().get());
+        compressedEncryptedSync.getResult().get(),
+        encryptedSync.getResult().get(),
+        asyncEncrypted.getResult().get(),
+        asyncCompressedEncrypted.getResult().get());
   }
 
   private static EchoService serviceFor(String endpoint) {

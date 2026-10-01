@@ -7,7 +7,11 @@ import io.nexusrpc.Service;
 public interface EchoService {
   String SERVICE_NAME = "EchoService";
   String ECHO_OPERATION_NAME = "echo";
+  String ECHO_ASYNC_OPERATION_NAME = "echoAsync";
 
   @Operation(name = ECHO_OPERATION_NAME)
   String echo(String message);
+
+  @Operation(name = ECHO_ASYNC_OPERATION_NAME)
+  String echoAsync(String message);
 }

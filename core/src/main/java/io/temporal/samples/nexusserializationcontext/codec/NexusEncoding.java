@@ -1,4 +1,4 @@
-package io.temporal.samples.nexusserializationcontext;
+package io.temporal.samples.nexusserializationcontext.codec;
 
 enum NexusEncoding {
   AES_GCM("binary/nexus-aes-gcm"),

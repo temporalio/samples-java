@@ -1,22 +1,25 @@
 # Nexus serialization context
 
-This sample calls the same synchronous Nexus operation through two endpoints.
-Each endpoint routes to its own handler namespace and worker. The caller's
+This sample calls two synchronous and two asynchronous Nexus operations through
+four endpoints. The synchronous endpoints have separate handler workers. The two
+asynchronous endpoints share a handler namespace, task queue, and worker. The caller's
 `NexusCodec` uses `NexusSerializationContext` to select the `PayloadCodec`
 registered for each endpoint:
 
-- One endpoint compresses with zlib, then encrypts with AES-GCM using Key A.
-- The other endpoint encrypts with AES-GCM using Key B.
+- The first synchronous endpoint compresses with zlib, then encrypts with AES-GCM using Key A.
+- The second synchronous endpoint encrypts with AES-GCM using Key B.
+- One asynchronous endpoint encrypts with AES-GCM using Key C.
+- The other asynchronous endpoint compresses with zlib, then encrypts with AES-GCM using Key D.
 
-The caller configures both codecs. Each handler worker uses its own codec and key
-without selecting by endpoint.
+The caller configures all four codecs. The synchronous handler workers each use a fixed
+key. The shared asynchronous worker has both Keys C and D and selects a codec by endpoint.
 
-The caller schedules both operations before waiting for their results, so each
+The caller schedules all four operations before waiting for their results, so each
 result must be decoded using the context of its own endpoint. The caller's
 `NexusCodec` leaves non-Nexus payloads unchanged.
 
-The outer encrypted payload stores the endpoint name in `nexus-endpoint` metadata,
-alongside `binary/nexus-aes-gcm` and a sample key ID (`key-a` or `key-b`). A Codec
+The outer encrypted payload stores the endpoint name in `nexus-endpoint-name` metadata,
+alongside `binary/nexus-aes-gcm` and a sample key ID (`key-a`, `key-b`, `key-c`, or `key-d`). A Codec
 Server can use the endpoint name to select the matching key and decompression
 chain without SDK context.
 
@@ -25,17 +28,33 @@ For the compressed endpoint, the outer payload's decoded metadata looks like:
 ```text
 encoding: binary/nexus-aes-gcm
 encryption-key-id: key-a
-nexus-endpoint: nexus-serialization-compressed-encrypted
+nexus-endpoint-name: nexus-serialization-compressed-encrypted
 ```
 
+The asynchronous results have `encryption-key-id: key-c` or `key-d` and their respective
+endpoint names in the outer payload metadata.
+
 `NexusSerializationContext` works end to end for synchronous Nexus operations.
-The final result of an asynchronous operation does not receive `NexusSerializationContext`.
+For an asynchronous operation, the handler's final result is serialized as a workflow
+result and does not receive `NexusSerializationContext`. This sample's
+`NexusEndpointInterceptor` captures the endpoint when the handler starts the backing
+workflow. `NexusEndpointContextPropagator` saves it in the workflow headers and restores
+it on the workflow thread. The shared worker's `PropagatedEndpointCodec` uses the endpoint
+to choose Key C or the Key D compression and encryption chain when encoding the workflow
+result. Its `AesGcmCodec` also includes the endpoint name in the encrypted result metadata.
+The caller uses `NexusSerializationContext` to decode each asynchronous result.
+
+This workaround covers asynchronous operations backed by workflows. If the propagated
+endpoint is missing, the shared worker's codec rejects the payload instead of leaving
+it unencrypted. The shared service implementation exposes both operations on every
+worker, although the caller invokes `echoAsync` only through the two async endpoints.
 
 The hard-coded keys are only for this local example. For production encryption,
 use a secure key store, as in the
 [AWS Encryption SDK sample](../keymanagementencryption/awsencryptionsdk/README.md).
 
-Requires Java SDK 1.40.0 or later and a Temporal server with Nexus enabled.
+Requires Java SDK 1.40.0 or later and Temporal Server 1.30.0 or later with Nexus enabled
+so the handler can read the endpoint name.
 
 ## Run locally
 
@@ -51,6 +70,7 @@ In another terminal, create the namespaces and endpoints:
 temporal operator namespace create --namespace nexus-serialization-caller
 temporal operator namespace create --namespace nexus-serialization-key-a-handler
 temporal operator namespace create --namespace nexus-serialization-key-b-handler
+temporal operator namespace create --namespace nexus-serialization-async-handler
 temporal operator nexus endpoint create \
   --name nexus-serialization-compressed-encrypted \
   --target-namespace nexus-serialization-key-a-handler \
@@ -59,6 +79,14 @@ temporal operator nexus endpoint create \
   --name nexus-serialization-encrypted \
   --target-namespace nexus-serialization-key-b-handler \
   --target-task-queue nexus-serialization-key-b-handler
+temporal operator nexus endpoint create \
+  --name nexus-serialization-async-encrypted \
+  --target-namespace nexus-serialization-async-handler \
+  --target-task-queue nexus-serialization-async-handler
+temporal operator nexus endpoint create \
+  --name nexus-serialization-async-compressed-encrypted \
+  --target-namespace nexus-serialization-async-handler \
+  --target-task-queue nexus-serialization-async-handler
 ```
 
 Run each of the following in its own terminal from the repository root:
@@ -74,6 +102,11 @@ Run each of the following in its own terminal from the repository root:
 ```
 
 ```bash
+./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexusserializationcontext.handler.AsyncHandlerWorker \
+  --args="-namespace nexus-serialization-async-handler"
+```
+
+```bash
 ./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexusserializationcontext.caller.CallerWorker \
   --args="-namespace nexus-serialization-caller"
 ```
@@ -86,6 +119,8 @@ Run each of the following in its own terminal from the repository root:
 The starter will print:
 
 ```text
-Compressed and encrypted endpoint result: Hello from Nexus
-Encrypted endpoint result: Hello from Nexus
+Compressed and encrypted endpoint sync result: Hello from Nexus
+Encrypted endpoint sync result: Hello from Nexus
+Async encrypted endpoint result: Hello from Nexus
+Async compressed and encrypted endpoint result: Hello from Nexus
 ```

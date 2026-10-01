@@ -1,4 +1,4 @@
-package io.temporal.samples.nexusserializationcontext;
+package io.temporal.samples.nexusserializationcontext.codec;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -8,6 +8,8 @@ import io.temporal.payload.codec.PayloadCodec;
 import io.temporal.payload.codec.PayloadCodecException;
 import io.temporal.payload.context.NexusSerializationContext;
 import io.temporal.payload.context.SerializationContext;
+import io.temporal.samples.nexusserializationcontext.SampleConfig;
+import io.temporal.samples.nexusserializationcontext.propagation.NexusEndpointContextPropagator;
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
@@ -56,6 +58,8 @@ public final class AesGcmCodec implements PayloadCodec {
   @Override
   @Nonnull
   public List<Payload> encode(@Nonnull List<Payload> payloads) {
+    String endpointName =
+        StringUtils.defaultIfBlank(endpoint, NexusEndpointContextPropagator.currentEndpoint());
     List<Payload> encoded = new ArrayList<>(payloads.size());
     for (Payload payload : payloads) {
       Payload.Builder encrypted =
@@ -65,9 +69,9 @@ public final class AesGcmCodec implements PayloadCodec {
                   ByteString.copyFromUtf8(NexusEncoding.AES_GCM.encodingName()))
               .putMetadata(KEY_ID_METADATA_KEY, ByteString.copyFromUtf8(keyId))
               .setData(ByteString.copyFrom(encrypt(payload.toByteArray())));
-      if (StringUtils.isNotBlank(endpoint)) {
+      if (StringUtils.isNotBlank(endpointName)) {
         encrypted.putMetadata(
-            SampleConfig.ENDPOINT_METADATA_KEY, ByteString.copyFromUtf8(endpoint));
+            SampleConfig.ENDPOINT_METADATA_KEY, ByteString.copyFromUtf8(endpointName));
       }
       encoded.add(encrypted.build());
     }

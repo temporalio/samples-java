@@ -8,10 +8,10 @@ import io.temporal.common.converter.DefaultDataConverter;
 import io.temporal.payload.codec.ChainCodec;
 import io.temporal.payload.codec.PayloadCodec;
 import io.temporal.samples.nexus.options.ClientOptions;
-import io.temporal.samples.nexusserializationcontext.AesGcmCodec;
-import io.temporal.samples.nexusserializationcontext.NexusCodec;
 import io.temporal.samples.nexusserializationcontext.SampleConfig;
-import io.temporal.samples.nexusserializationcontext.ZlibCodec;
+import io.temporal.samples.nexusserializationcontext.codec.AesGcmCodec;
+import io.temporal.samples.nexusserializationcontext.codec.NexusCodec;
+import io.temporal.samples.nexusserializationcontext.codec.ZlibCodec;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import java.nio.charset.StandardCharsets;
@@ -38,10 +38,17 @@ public class CallerWorker {
         new SecretKeySpec(SampleConfig.KEY_A_VALUE.getBytes(StandardCharsets.UTF_8), "AES");
     SecretKey keyB =
         new SecretKeySpec(SampleConfig.KEY_B_VALUE.getBytes(StandardCharsets.UTF_8), "AES");
+    SecretKey keyC =
+        new SecretKeySpec(SampleConfig.KEY_C_VALUE.getBytes(StandardCharsets.UTF_8), "AES");
+    SecretKey keyD =
+        new SecretKeySpec(SampleConfig.KEY_D_VALUE.getBytes(StandardCharsets.UTF_8), "AES");
     // ChainCodec encodes last to first: compress, then encrypt.
     PayloadCodec compressedEncrypted =
         new ChainCodec(List.of(new AesGcmCodec(SampleConfig.KEY_A_ID, keyA), new ZlibCodec()));
     PayloadCodec encrypted = new AesGcmCodec(SampleConfig.KEY_B_ID, keyB);
+    PayloadCodec asyncEncrypted = new AesGcmCodec(SampleConfig.KEY_C_ID, keyC);
+    PayloadCodec asyncCompressedEncrypted =
+        new ChainCodec(List.of(new AesGcmCodec(SampleConfig.KEY_D_ID, keyD), new ZlibCodec()));
     return new CodecDataConverter(
         DefaultDataConverter.newDefaultInstance(),
         List.of(
@@ -50,6 +57,10 @@ public class CallerWorker {
                     SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT,
                     compressedEncrypted,
                     SampleConfig.ENCRYPTED_ENDPOINT,
-                    encrypted))));
+                    encrypted,
+                    SampleConfig.ASYNC_ENCRYPTED_ENDPOINT,
+                    asyncEncrypted,
+                    SampleConfig.ASYNC_COMPRESSED_ENCRYPTED_ENDPOINT,
+                    asyncCompressedEncrypted))));
   }
 }
