@@ -38,6 +38,12 @@ class NexusCodecTest {
     assertEquals(
         SampleConfig.KEY_B_ID,
         keyBPayload.getMetadataOrThrow(AesGcmCodec.KEY_ID_METADATA_KEY).toStringUtf8());
+    assertEquals(
+        SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT,
+        keyAPayload.getMetadataOrThrow(SampleConfig.ENDPOINT_METADATA_KEY).toStringUtf8());
+    assertEquals(
+        SampleConfig.ENCRYPTED_ENDPOINT,
+        keyBPayload.getMetadataOrThrow(SampleConfig.ENDPOINT_METADATA_KEY).toStringUtf8());
     assertEquals("hello", keyAConverter.fromPayload(keyAPayload, String.class, String.class));
     assertEquals("hello", keyBConverter.fromPayload(keyBPayload, String.class, String.class));
     assertThrows(
@@ -104,6 +110,23 @@ class NexusCodecTest {
     Payload resultB = handlerB.toPayload("reply").orElseThrow();
     assertEquals("reply", callerA.fromPayload(resultA, String.class, String.class));
     assertEquals("reply", callerB.fromPayload(resultB, String.class, String.class));
+
+    Payload contextualResultA =
+        handlerA
+            .withContext(contextFor(SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT))
+            .toPayload("reply")
+            .orElseThrow();
+    Payload contextualResultB =
+        handlerB
+            .withContext(contextFor(SampleConfig.ENCRYPTED_ENDPOINT))
+            .toPayload("reply")
+            .orElseThrow();
+    assertEquals(
+        SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT,
+        contextualResultA.getMetadataOrThrow(SampleConfig.ENDPOINT_METADATA_KEY).toStringUtf8());
+    assertEquals(
+        SampleConfig.ENCRYPTED_ENDPOINT,
+        contextualResultB.getMetadataOrThrow(SampleConfig.ENDPOINT_METADATA_KEY).toStringUtf8());
 
     assertThrows(
         PayloadCodecException.class,

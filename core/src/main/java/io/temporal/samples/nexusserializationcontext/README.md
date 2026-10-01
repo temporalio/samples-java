@@ -15,8 +15,18 @@ The caller schedules both operations before waiting for their results, so each
 result must be decoded using the context of its own endpoint. The caller's
 `NexusCodec` leaves non-Nexus payloads unchanged.
 
-The encrypted payload metadata includes `binary/nexus-aes-gcm` and a sample key ID
-(`key-a` or `key-b`), so you can see which key the endpoint selected.
+The outer encrypted payload stores the endpoint name in `nexus-endpoint` metadata,
+alongside `binary/nexus-aes-gcm` and a sample key ID (`key-a` or `key-b`). A Codec
+Server can use the endpoint name to select the matching key and decompression
+chain without SDK context.
+
+For the compressed endpoint, the outer payload's decoded metadata looks like:
+
+```text
+encoding: binary/nexus-aes-gcm
+encryption-key-id: key-a
+nexus-endpoint: nexus-serialization-compressed-encrypted
+```
 
 `NexusSerializationContext` works end to end for synchronous Nexus operations.
 The final result of an asynchronous operation does not receive `NexusSerializationContext`.
@@ -73,7 +83,7 @@ Run each of the following in its own terminal from the repository root:
   --args="-namespace nexus-serialization-caller"
 ```
 
-The starter prints:
+The starter will print:
 
 ```text
 Compressed and encrypted endpoint result: Hello from Nexus

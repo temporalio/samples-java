@@ -6,6 +6,8 @@ import io.temporal.api.common.v1.Payload;
 import io.temporal.common.converter.EncodingKeys;
 import io.temporal.payload.codec.PayloadCodec;
 import io.temporal.payload.codec.PayloadCodecException;
+import io.temporal.payload.context.NexusSerializationContext;
+import io.temporal.payload.context.SerializationContext;
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
@@ -15,6 +17,7 @@ import javax.annotation.Nonnull;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
+import org.apache.commons.lang.StringUtils;
 
 /** Encrypts Nexus payloads with the key assigned to an endpoint. */
 public final class AesGcmCodec implements PayloadCodec {
@@ -27,10 +30,27 @@ public final class AesGcmCodec implements PayloadCodec {
 
   private final String keyId;
   private final SecretKey key;
+  private final String endpoint;
 
   public AesGcmCodec(String keyId, SecretKey key) {
     this.keyId = keyId;
     this.key = key;
+    this.endpoint = null;
+  }
+
+  private AesGcmCodec(String keyId, SecretKey key, String endpoint) {
+    this.keyId = keyId;
+    this.key = key;
+    this.endpoint = endpoint;
+  }
+
+  @Override
+  @Nonnull
+  public PayloadCodec withContext(@Nonnull SerializationContext context) {
+    if (context instanceof NexusSerializationContext nexusSerializationContext) {
+      return new AesGcmCodec(keyId, key, nexusSerializationContext.getEndpoint());
+    }
+    return this;
   }
 
   @Override
@@ -38,14 +58,18 @@ public final class AesGcmCodec implements PayloadCodec {
   public List<Payload> encode(@Nonnull List<Payload> payloads) {
     List<Payload> encoded = new ArrayList<>(payloads.size());
     for (Payload payload : payloads) {
-      encoded.add(
+      Payload.Builder encrypted =
           Payload.newBuilder()
               .putMetadata(
                   EncodingKeys.METADATA_ENCODING_KEY,
                   ByteString.copyFromUtf8(NexusEncoding.AES_GCM.encodingName()))
               .putMetadata(KEY_ID_METADATA_KEY, ByteString.copyFromUtf8(keyId))
-              .setData(ByteString.copyFrom(encrypt(payload.toByteArray())))
-              .build());
+              .setData(ByteString.copyFrom(encrypt(payload.toByteArray())));
+      if (StringUtils.isNotBlank(endpoint)) {
+        encrypted.putMetadata(
+            SampleConfig.ENDPOINT_METADATA_KEY, ByteString.copyFromUtf8(endpoint));
+      }
+      encoded.add(encrypted.build());
     }
     return encoded;
   }
