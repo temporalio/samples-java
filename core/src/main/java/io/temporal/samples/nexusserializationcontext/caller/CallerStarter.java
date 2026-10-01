@@ -21,9 +21,9 @@ public class CallerStarter {
         "Compressed and encrypted endpoint sync result: "
             + results.compressedEncryptedSyncResult());
     System.out.println("Encrypted endpoint sync result: " + results.encryptedSyncResult());
-    System.out.println("Async encrypted endpoint result: " + results.asyncEncryptedResult());
     System.out.println(
-        "Async compressed and encrypted endpoint result: "
-            + results.asyncCompressedEncryptedResult());
+        "Compressed and encrypted endpoint async result: "
+            + results.compressedEncryptedAsyncResult());
+    System.out.println("Encrypted endpoint async result: " + results.encryptedAsyncResult());
   }
 }

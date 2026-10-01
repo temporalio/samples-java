@@ -40,17 +40,10 @@ public class CallerWorker {
         new SecretKeySpec(SampleConfig.KEY_B_VALUE.getBytes(StandardCharsets.UTF_8), "AES");
     SecretKey keyC =
         new SecretKeySpec(SampleConfig.KEY_C_VALUE.getBytes(StandardCharsets.UTF_8), "AES");
-    SecretKey keyD =
-        new SecretKeySpec(SampleConfig.KEY_D_VALUE.getBytes(StandardCharsets.UTF_8), "AES");
-    SecretKey keyE =
-        new SecretKeySpec(SampleConfig.KEY_E_VALUE.getBytes(StandardCharsets.UTF_8), "AES");
     // ChainCodec encodes last to first: compress, then encrypt.
     PayloadCodec compressedEncrypted =
         new ChainCodec(List.of(new AesGcmCodec(SampleConfig.KEY_A_ID, keyA), new ZlibCodec()));
     PayloadCodec encrypted = new AesGcmCodec(SampleConfig.KEY_B_ID, keyB);
-    PayloadCodec asyncEncrypted = new AesGcmCodec(SampleConfig.KEY_C_ID, keyC);
-    PayloadCodec asyncCompressedEncrypted =
-        new ChainCodec(List.of(new AesGcmCodec(SampleConfig.KEY_D_ID, keyD), new ZlibCodec()));
     return new CodecDataConverter(
         DefaultDataConverter.newDefaultInstance(),
         List.of(
@@ -59,11 +52,7 @@ public class CallerWorker {
                     SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT,
                     compressedEncrypted,
                     SampleConfig.ENCRYPTED_ENDPOINT,
-                    encrypted,
-                    SampleConfig.ASYNC_ENCRYPTED_ENDPOINT,
-                    asyncEncrypted,
-                    SampleConfig.ASYNC_COMPRESSED_ENCRYPTED_ENDPOINT,
-                    asyncCompressedEncrypted),
-                new AesGcmCodec(SampleConfig.KEY_E_ID, keyE))));
+                    encrypted),
+                new AesGcmCodec(SampleConfig.KEY_C_ID, keyC))));
   }
 }

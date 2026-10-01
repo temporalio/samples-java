@@ -15,7 +15,7 @@ import javax.annotation.Nonnull;
  */
 public final class NexusCodec implements PayloadCodec {
   private final Map<String, PayloadCodec> codecsByEndpoint;
-  // The caller workflow has no Nexus endpoint, so Key E encrypts its input and final result.
+  // The caller workflow has no Nexus endpoint, so Key C encrypts its input and final result.
   private final PayloadCodec workflowCodec;
 
   public NexusCodec(Map<String, PayloadCodec> codecsByEndpoint, PayloadCodec workflowCodec) {
@@ -29,7 +29,7 @@ public final class NexusCodec implements PayloadCodec {
     if (context instanceof NexusSerializationContext nexusContext) {
       return codecFor(nexusContext.getEndpoint()).withContext(context);
     }
-    // Caller Workflow input and result have no Nexus endpoint; use the caller's Key E codec.
+    // Caller workflow input and result have no Nexus endpoint; use the caller's Key C codec.
     return workflowCodec.withContext(context);
   }
 

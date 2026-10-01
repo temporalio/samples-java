@@ -6,15 +6,10 @@ import io.nexusrpc.handler.ServiceImpl;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.nexus.Nexus;
 import io.temporal.nexus.WorkflowRunOperation;
-import io.temporal.samples.nexusserializationcontext.service.EchoService;
+import io.temporal.samples.nexusserializationcontext.service.AsyncEchoService;
 
-@ServiceImpl(service = EchoService.class)
-public class EchoServiceImpl {
-  @OperationImpl
-  public OperationHandler<String, String> echo() {
-    return OperationHandler.sync((ctx, details, message) -> message);
-  }
-
+@ServiceImpl(service = AsyncEchoService.class)
+public class AsyncEchoServiceImpl {
   @OperationImpl
   public OperationHandler<String, String> echoAsync() {
     return WorkflowRunOperation.fromWorkflowMethod(

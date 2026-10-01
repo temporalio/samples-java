@@ -15,106 +15,72 @@ import io.temporal.payload.context.WorkflowSerializationContext;
 import io.temporal.samples.nexusserializationcontext.SampleConfig;
 import io.temporal.samples.nexusserializationcontext.caller.CallerWorker;
 import io.temporal.samples.nexusserializationcontext.caller.EndpointResults;
-import io.temporal.samples.nexusserializationcontext.handler.AsyncHandlerWorker;
 import io.temporal.samples.nexusserializationcontext.handler.CompressedEncryptedHandlerWorker;
 import io.temporal.samples.nexusserializationcontext.handler.EncryptedHandlerWorker;
 import io.temporal.samples.nexusserializationcontext.propagation.NexusEndpointContextPropagator;
-import io.temporal.samples.nexusserializationcontext.service.EchoService;
+import io.temporal.samples.nexusserializationcontext.service.AsyncEchoService;
+import io.temporal.samples.nexusserializationcontext.service.SyncEchoService;
 import org.junit.jupiter.api.Test;
 
 class NexusCodecTest {
   @Test
-  void encryptsWithTheKeyForEachEndpoint() {
-    DataConverter keyAConverter = converterFor(SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT);
-    DataConverter keyBConverter = converterFor(SampleConfig.ENCRYPTED_ENDPOINT);
-    DataConverter keyCConverter = converterFor(SampleConfig.ASYNC_ENCRYPTED_ENDPOINT);
-    DataConverter keyDConverter = converterFor(SampleConfig.ASYNC_COMPRESSED_ENCRYPTED_ENDPOINT);
+  void encryptsSyncAndAsyncOperationsWithTheKeyForTheirEndpoint() {
+    DataConverter syncA = converterFor(SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT);
+    DataConverter asyncA = converterFor(SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT, true);
+    DataConverter syncB = converterFor(SampleConfig.ENCRYPTED_ENDPOINT);
+    DataConverter asyncB = converterFor(SampleConfig.ENCRYPTED_ENDPOINT, true);
 
-    Payload keyAPayload = keyAConverter.toPayload("hello").orElseThrow();
-    Payload keyBPayload = keyBConverter.toPayload("hello").orElseThrow();
-    Payload keyCPayload = keyCConverter.toPayload("hello").orElseThrow();
-    Payload keyDPayload = keyDConverter.toPayload("hello").orElseThrow();
+    Payload syncAPayload = syncA.toPayload("hello").orElseThrow();
+    Payload asyncAPayload = asyncA.toPayload("hello").orElseThrow();
+    Payload syncBPayload = syncB.toPayload("hello").orElseThrow();
+    Payload asyncBPayload = asyncB.toPayload("hello").orElseThrow();
 
-    assertEquals(
-        NexusEncoding.AES_GCM.encodingName(),
-        keyAPayload.getMetadataOrThrow(EncodingKeys.METADATA_ENCODING_KEY).toStringUtf8());
-    assertEquals(
-        NexusEncoding.AES_GCM.encodingName(),
-        keyBPayload.getMetadataOrThrow(EncodingKeys.METADATA_ENCODING_KEY).toStringUtf8());
-    assertEquals(
-        NexusEncoding.AES_GCM.encodingName(),
-        keyCPayload.getMetadataOrThrow(EncodingKeys.METADATA_ENCODING_KEY).toStringUtf8());
-    assertEquals(
-        NexusEncoding.AES_GCM.encodingName(),
-        keyDPayload.getMetadataOrThrow(EncodingKeys.METADATA_ENCODING_KEY).toStringUtf8());
-    assertEquals(
-        SampleConfig.KEY_A_ID,
-        keyAPayload.getMetadataOrThrow(AesGcmCodec.KEY_ID_METADATA_KEY).toStringUtf8());
-    assertEquals(
-        SampleConfig.KEY_B_ID,
-        keyBPayload.getMetadataOrThrow(AesGcmCodec.KEY_ID_METADATA_KEY).toStringUtf8());
-    assertEquals(
-        SampleConfig.KEY_C_ID,
-        keyCPayload.getMetadataOrThrow(AesGcmCodec.KEY_ID_METADATA_KEY).toStringUtf8());
-    assertEquals(
-        SampleConfig.KEY_D_ID,
-        keyDPayload.getMetadataOrThrow(AesGcmCodec.KEY_ID_METADATA_KEY).toStringUtf8());
-    assertEquals(
-        SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT,
-        keyAPayload.getMetadataOrThrow(SampleConfig.ENDPOINT_METADATA_KEY).toStringUtf8());
-    assertEquals(
-        SampleConfig.ENCRYPTED_ENDPOINT,
-        keyBPayload.getMetadataOrThrow(SampleConfig.ENDPOINT_METADATA_KEY).toStringUtf8());
-    assertEquals(
-        SampleConfig.ASYNC_ENCRYPTED_ENDPOINT,
-        keyCPayload.getMetadataOrThrow(SampleConfig.ENDPOINT_METADATA_KEY).toStringUtf8());
-    assertEquals(
-        SampleConfig.ASYNC_COMPRESSED_ENCRYPTED_ENDPOINT,
-        keyDPayload.getMetadataOrThrow(SampleConfig.ENDPOINT_METADATA_KEY).toStringUtf8());
-    assertEquals("hello", keyAConverter.fromPayload(keyAPayload, String.class, String.class));
-    assertEquals("hello", keyBConverter.fromPayload(keyBPayload, String.class, String.class));
-    assertEquals("hello", keyCConverter.fromPayload(keyCPayload, String.class, String.class));
-    assertEquals("hello", keyDConverter.fromPayload(keyDPayload, String.class, String.class));
+    assertEncryptedFor(
+        syncAPayload, SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT, SampleConfig.KEY_A_ID);
+    assertEncryptedFor(
+        asyncAPayload, SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT, SampleConfig.KEY_A_ID);
+    assertEncryptedFor(syncBPayload, SampleConfig.ENCRYPTED_ENDPOINT, SampleConfig.KEY_B_ID);
+    assertEncryptedFor(asyncBPayload, SampleConfig.ENCRYPTED_ENDPOINT, SampleConfig.KEY_B_ID);
+    assertEquals("hello", syncA.fromPayload(syncAPayload, String.class, String.class));
+    assertEquals("hello", asyncA.fromPayload(asyncAPayload, String.class, String.class));
+    assertEquals("hello", syncB.fromPayload(syncBPayload, String.class, String.class));
+    assertEquals("hello", asyncB.fromPayload(asyncBPayload, String.class, String.class));
     assertThrows(
         PayloadCodecException.class,
-        () -> keyAConverter.fromPayload(keyBPayload, String.class, String.class));
+        () -> syncA.fromPayload(syncBPayload, String.class, String.class));
     assertThrows(
         PayloadCodecException.class,
-        () -> keyBConverter.fromPayload(keyCPayload, String.class, String.class));
-    assertThrows(
-        PayloadCodecException.class,
-        () -> keyCConverter.fromPayload(keyDPayload, String.class, String.class));
+        () -> asyncB.fromPayload(asyncAPayload, String.class, String.class));
     Payload keyAPayloadMarkedAsB =
-        keyAPayload.toBuilder()
+        syncAPayload.toBuilder()
             .putMetadata(
                 AesGcmCodec.KEY_ID_METADATA_KEY, ByteString.copyFromUtf8(SampleConfig.KEY_B_ID))
             .build();
     assertThrows(
         PayloadCodecException.class,
-        () -> keyBConverter.fromPayload(keyAPayloadMarkedAsB, String.class, String.class));
+        () -> syncB.fromPayload(keyAPayloadMarkedAsB, String.class, String.class));
   }
 
   @Test
-  void compressesBeforeEncryptingForTheFirstEndpoint() {
+  void compressesBeforeEncryptingForBothOperationsOnTheCompressedEndpoint() {
     String message = "repeat me ".repeat(100);
-    Payload compressed =
+    Payload syncCompressed =
         converterFor(SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT).toPayload(message).orElseThrow();
-    Payload encryptedOnly =
+    Payload syncEncryptedOnly =
         converterFor(SampleConfig.ENCRYPTED_ENDPOINT).toPayload(message).orElseThrow();
-
-    assertTrue(compressed.getData().size() < encryptedOnly.getData().size());
-
     Payload asyncCompressed =
-        converterFor(SampleConfig.ASYNC_COMPRESSED_ENCRYPTED_ENDPOINT)
+        converterFor(SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT, true)
             .toPayload(message)
             .orElseThrow();
     Payload asyncEncrypted =
-        converterFor(SampleConfig.ASYNC_ENCRYPTED_ENDPOINT).toPayload(message).orElseThrow();
+        converterFor(SampleConfig.ENCRYPTED_ENDPOINT, true).toPayload(message).orElseThrow();
+
+    assertTrue(syncCompressed.getData().size() < syncEncryptedOnly.getData().size());
     assertTrue(asyncCompressed.getData().size() < asyncEncrypted.getData().size());
   }
 
   @Test
-  void encryptsCallerWorkflowInputAndResultWithKeyE() {
+  void encryptsCallerWorkflowInputAndResultWithKeyC() {
     DataConverter converter =
         CallerWorker.dataConverter()
             .withContext(
@@ -128,10 +94,10 @@ class NexusCodecTest {
         NexusEncoding.AES_GCM.encodingName(),
         input.getMetadataOrThrow(EncodingKeys.METADATA_ENCODING_KEY).toStringUtf8());
     assertEquals(
-        SampleConfig.KEY_E_ID,
+        SampleConfig.KEY_C_ID,
         input.getMetadataOrThrow(AesGcmCodec.KEY_ID_METADATA_KEY).toStringUtf8());
     assertEquals(
-        SampleConfig.KEY_E_ID,
+        SampleConfig.KEY_C_ID,
         result.getMetadataOrThrow(AesGcmCodec.KEY_ID_METADATA_KEY).toStringUtf8());
     assertFalse(input.getMetadataMap().containsKey(SampleConfig.ENDPOINT_METADATA_KEY));
     assertFalse(input.getData().toStringUtf8().contains("Hello from Nexus"));
@@ -147,7 +113,7 @@ class NexusCodecTest {
         CallerWorker.dataConverter()
             .withContext(
                 new NexusSerializationContext(
-                    "unknown", EchoService.SERVICE_NAME, EchoService.ECHO_OPERATION_NAME));
+                    "unknown", SyncEchoService.SERVICE_NAME, SyncEchoService.ECHO_OPERATION_NAME));
 
     assertThrows(PayloadCodecException.class, () -> converter.toPayload("hello"));
   }
@@ -195,47 +161,49 @@ class NexusCodecTest {
   }
 
   @Test
-  void sharedAsyncHandlerDecodesRequestsUsingNexusContext() {
-    DataConverter handlerC =
-        AsyncHandlerWorker.dataConverter()
-            .withContext(contextFor(SampleConfig.ASYNC_ENCRYPTED_ENDPOINT));
-    DataConverter handlerD =
-        AsyncHandlerWorker.dataConverter()
-            .withContext(contextFor(SampleConfig.ASYNC_COMPRESSED_ENCRYPTED_ENDPOINT));
-    Payload requestC =
-        converterFor(SampleConfig.ASYNC_ENCRYPTED_ENDPOINT).toPayload("hello").orElseThrow();
-    Payload requestD =
-        converterFor(SampleConfig.ASYNC_COMPRESSED_ENCRYPTED_ENDPOINT)
+  void handlersDecodeAsyncRequestsWithTheirEndpointKey() {
+    DataConverter handlerA =
+        CompressedEncryptedHandlerWorker.dataConverter()
+            .withContext(contextFor(SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT, true));
+    DataConverter handlerB =
+        EncryptedHandlerWorker.dataConverter()
+            .withContext(contextFor(SampleConfig.ENCRYPTED_ENDPOINT, true));
+    Payload requestA =
+        converterFor(SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT, true)
             .toPayload("hello")
             .orElseThrow();
+    Payload requestB =
+        converterFor(SampleConfig.ENCRYPTED_ENDPOINT, true).toPayload("hello").orElseThrow();
 
-    assertEquals("hello", handlerC.fromPayload(requestC, String.class, String.class));
-    assertEquals("hello", handlerD.fromPayload(requestD, String.class, String.class));
+    assertEquals("hello", handlerA.fromPayload(requestA, String.class, String.class));
+    assertEquals("hello", handlerB.fromPayload(requestB, String.class, String.class));
     assertThrows(
         PayloadCodecException.class,
-        () -> handlerC.fromPayload(requestD, String.class, String.class));
+        () -> handlerA.fromPayload(requestB, String.class, String.class));
   }
 
   @Test
-  void propagatedEndpointSelectsAsyncWorkflowResultCodec() {
+  void propagatedEndpointAppearsOnEncryptedAsyncWorkflowResult() {
     NexusEndpointContextPropagator propagator = new NexusEndpointContextPropagator();
     try {
       propagator.setCurrentContext(null);
-      DataConverter handler =
-          AsyncHandlerWorker.dataConverter()
-              .withContext(new WorkflowSerializationContext("handler-namespace", "echo-workflow"));
-      assertThrows(PayloadCodecException.class, () -> handler.toPayload("reply"));
+      DataConverter handlerA =
+          CompressedEncryptedHandlerWorker.dataConverter()
+              .withContext(new WorkflowSerializationContext("handler-a", "echo-workflow"));
+      DataConverter handlerB =
+          EncryptedHandlerWorker.dataConverter()
+              .withContext(new WorkflowSerializationContext("handler-b", "echo-workflow"));
 
-      Payload resultC =
-          asyncResultFor(
-              propagator, handler, SampleConfig.ASYNC_ENCRYPTED_ENDPOINT, SampleConfig.KEY_C_ID);
-      Payload resultD =
+      Payload resultA =
           asyncResultFor(
               propagator,
-              handler,
-              SampleConfig.ASYNC_COMPRESSED_ENCRYPTED_ENDPOINT,
-              SampleConfig.KEY_D_ID);
-      assertTrue(resultD.getData().size() < resultC.getData().size());
+              handlerA,
+              SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT,
+              SampleConfig.KEY_A_ID);
+      Payload resultB =
+          asyncResultFor(
+              propagator, handlerB, SampleConfig.ENCRYPTED_ENDPOINT, SampleConfig.KEY_B_ID);
+      assertTrue(resultA.getData().size() < resultB.getData().size());
     } finally {
       propagator.setCurrentContext(null);
     }
@@ -256,7 +224,8 @@ class NexusCodecTest {
     assertEquals(
         endpoint, result.getMetadataOrThrow(SampleConfig.ENDPOINT_METADATA_KEY).toStringUtf8());
     assertEquals(keyId, result.getMetadataOrThrow(AesGcmCodec.KEY_ID_METADATA_KEY).toStringUtf8());
-    assertEquals(message, converterFor(endpoint).fromPayload(result, String.class, String.class));
+    assertEquals(
+        message, converterFor(endpoint, true).fromPayload(result, String.class, String.class));
     assertEquals(message, handler.fromPayload(result, String.class, String.class));
     propagator.setCurrentContext(null);
     return result;
@@ -266,12 +235,29 @@ class NexusCodecTest {
     return CallerWorker.dataConverter().withContext(contextFor(endpoint));
   }
 
+  private static DataConverter converterFor(String endpoint, boolean async) {
+    return CallerWorker.dataConverter().withContext(contextFor(endpoint, async));
+  }
+
   private static NexusSerializationContext contextFor(String endpoint) {
-    String operation =
-        SampleConfig.ASYNC_ENCRYPTED_ENDPOINT.equals(endpoint)
-                || SampleConfig.ASYNC_COMPRESSED_ENCRYPTED_ENDPOINT.equals(endpoint)
-            ? EchoService.ECHO_ASYNC_OPERATION_NAME
-            : EchoService.ECHO_OPERATION_NAME;
-    return new NexusSerializationContext(endpoint, EchoService.SERVICE_NAME, operation);
+    return contextFor(endpoint, false);
+  }
+
+  private static NexusSerializationContext contextFor(String endpoint, boolean async) {
+    if (async) {
+      return new NexusSerializationContext(
+          endpoint, AsyncEchoService.SERVICE_NAME, AsyncEchoService.ECHO_ASYNC_OPERATION_NAME);
+    }
+    return new NexusSerializationContext(
+        endpoint, SyncEchoService.SERVICE_NAME, SyncEchoService.ECHO_OPERATION_NAME);
+  }
+
+  private static void assertEncryptedFor(Payload payload, String endpoint, String keyId) {
+    assertEquals(
+        NexusEncoding.AES_GCM.encodingName(),
+        payload.getMetadataOrThrow(EncodingKeys.METADATA_ENCODING_KEY).toStringUtf8());
+    assertEquals(keyId, payload.getMetadataOrThrow(AesGcmCodec.KEY_ID_METADATA_KEY).toStringUtf8());
+    assertEquals(
+        endpoint, payload.getMetadataOrThrow(SampleConfig.ENDPOINT_METADATA_KEY).toStringUtf8());
   }
 }

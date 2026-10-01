@@ -38,7 +38,8 @@ public class CompressedEncryptedHandlerWorker {
                 .build());
     Worker worker = factory.newWorker(TASK_QUEUE);
     worker.registerWorkflowImplementationTypes(EchoWorkflowImpl.class);
-    worker.registerNexusServiceImplementation(new EchoServiceImpl());
+    worker.registerNexusServiceImplementation(new SyncEchoServiceImpl());
+    worker.registerNexusServiceImplementation(new AsyncEchoServiceImpl());
     factory.start();
   }
 
