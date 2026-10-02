@@ -91,6 +91,8 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 
 - [**Synchronous Booking SAGA**](/core/src/main/java/io/temporal/samples/bookingsyncsaga): Demonstrates low latency SAGA with potentially long compensations.
 
+- [**Resilient Fan-Out**](/core/src/main/java/io/temporal/samples/resilientfanout): Demonstrates a heterogeneous fan-out (a critical branch plus best-effort branches) with partial-failure tolerance: awaiting each Child Workflow independently instead of failing fast on the first one, cancelling still-running best-effort children when the critical branch fails, and reconciling the failure with independent, isolated notifications using SAGA's parallel compensation.
+
 - [**Money Transfer**](/core/src/main/java/io/temporal/samples/moneytransfer): Demonstrates the use of a dedicated Activity Worker.
 
 - [**Money Batch**](/core/src/main/java/io/temporal/samples/moneybatch): Demonstrates a situation where a single deposit should be initiated for multiple withdrawals. For example, a seller might want to be paid once per fixed number of transactions. This sample can be easily extended to perform a payment based on more complex criteria, such as at a specific time or an accumulated amount. The sample also demonstrates how to Signal the Workflow when it executes (*Signal with start*). If the Workflow is already executing, it just receives the Signal. If it is not executing, then the Workflow executes first, and then the Signal is delivered to it. *Signal with start* is a "lazy" way to execute Workflows when Signaling them.
