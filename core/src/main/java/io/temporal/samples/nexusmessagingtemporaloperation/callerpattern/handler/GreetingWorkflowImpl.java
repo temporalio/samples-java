@@ -1,9 +1,9 @@
-package io.temporal.samples.nexusmessaging.ondemandpattern.handler;
+package io.temporal.samples.nexusmessagingtemporaloperation.callerpattern.handler;
 
 import io.temporal.activity.ActivityOptions;
 import io.temporal.failure.ApplicationFailure;
-import io.temporal.samples.nexusmessaging.ondemandpattern.service.Language;
-import io.temporal.samples.nexusmessaging.ondemandpattern.service.NexusRemoteGreetingService;
+import io.temporal.samples.nexusmessagingtemporaloperation.callerpattern.service.Language;
+import io.temporal.samples.nexusmessagingtemporaloperation.callerpattern.service.NexusGreetingService;
 import io.temporal.workflow.Workflow;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -16,10 +16,11 @@ import org.slf4j.Logger;
 
 public class GreetingWorkflowImpl implements GreetingWorkflow {
 
-  private static final Logger logger = Workflow.getLogger(GreetingWorkflowImpl.class);
   private boolean approvedForRelease = false;
   private final Map<Language, String> greetings = new EnumMap<>(Language.class);
   private Language language = Language.ENGLISH;
+
+  private static final Logger logger = Workflow.getLogger(GreetingWorkflowImpl.class);
 
   private final GreetingActivity greetingActivity =
       Workflow.newActivityStub(
@@ -39,8 +40,8 @@ public class GreetingWorkflowImpl implements GreetingWorkflow {
   }
 
   @Override
-  public NexusRemoteGreetingService.GetLanguagesOutput getLanguages(
-      GreetingWorkflow.GetLanguagesInput input) {
+  public NexusGreetingService.GetLanguagesOutput getLanguages(
+      NexusGreetingService.GetLanguagesInput input) {
     List<Language> result;
     if (input.isIncludeUnsupported()) {
       result = new ArrayList<>(Arrays.asList(Language.values()));
@@ -48,7 +49,7 @@ public class GreetingWorkflowImpl implements GreetingWorkflow {
       result = new ArrayList<>(greetings.keySet());
     }
     Collections.sort(result);
-    return new NexusRemoteGreetingService.GetLanguagesOutput(result);
+    return new NexusGreetingService.GetLanguagesOutput(result);
   }
 
   @Override
@@ -57,29 +58,35 @@ public class GreetingWorkflowImpl implements GreetingWorkflow {
   }
 
   @Override
-  public void approve(ApproveInput input) {
-    logger.info("Approval signal received");
+  public void approve(NexusGreetingService.ApproveInput input) {
+    logger.info(
+        "Approval signal received for workflow {}",
+        NexusGreetingServiceImpl.getWorkflowId(input.getUserId()));
     approvedForRelease = true;
   }
 
   @Override
-  public Language setLanguage(GreetingWorkflow.SetLanguageInput input) {
-    logger.info("setLanguage update received");
+  public Language setLanguage(NexusGreetingService.SetLanguageInput input) {
+    logger.info(
+        "setLanguage update received for workflow {}",
+        NexusGreetingServiceImpl.getWorkflowId(input.getUserId()));
     Language previous = language;
     language = input.getLanguage();
     return previous;
   }
 
   @Override
-  public void validateSetLanguage(GreetingWorkflow.SetLanguageInput input) {
-    logger.info("validateSetLanguage called");
+  public void validateSetLanguage(NexusGreetingService.SetLanguageInput input) {
+    logger.info(
+        "validateSetLanguage called for workflow {}",
+        NexusGreetingServiceImpl.getWorkflowId(input.getUserId()));
     if (!greetings.containsKey(input.getLanguage())) {
       throw new IllegalArgumentException(input.getLanguage().name() + " is not supported");
     }
   }
 
   @Override
-  public Language setLanguageUsingActivity(GreetingWorkflow.SetLanguageInput input) {
+  public Language setLanguageUsingActivity(NexusGreetingService.SetLanguageInput input) {
     if (!greetings.containsKey(input.getLanguage())) {
       String greeting = greetingActivity.callGreetingService(input.getLanguage());
       if (greeting == null) {

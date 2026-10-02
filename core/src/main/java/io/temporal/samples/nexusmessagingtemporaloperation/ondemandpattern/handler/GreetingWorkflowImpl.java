@@ -1,9 +1,9 @@
-package io.temporal.samples.nexusmessaging.ondemandpattern.handler;
+package io.temporal.samples.nexusmessagingtemporaloperation.ondemandpattern.handler;
 
 import io.temporal.activity.ActivityOptions;
 import io.temporal.failure.ApplicationFailure;
-import io.temporal.samples.nexusmessaging.ondemandpattern.service.Language;
-import io.temporal.samples.nexusmessaging.ondemandpattern.service.NexusRemoteGreetingService;
+import io.temporal.samples.nexusmessagingtemporaloperation.ondemandpattern.service.Language;
+import io.temporal.samples.nexusmessagingtemporaloperation.ondemandpattern.service.NexusRemoteGreetingService;
 import io.temporal.workflow.Workflow;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -20,6 +20,7 @@ public class GreetingWorkflowImpl implements GreetingWorkflow {
   private boolean approvedForRelease = false;
   private final Map<Language, String> greetings = new EnumMap<>(Language.class);
   private Language language = Language.ENGLISH;
+  private String approvalContext = null;
 
   private final GreetingActivity greetingActivity =
       Workflow.newActivityStub(
@@ -58,8 +59,14 @@ public class GreetingWorkflowImpl implements GreetingWorkflow {
 
   @Override
   public void approve(ApproveInput input) {
-    logger.info("Approval signal received");
+    logger.info("Approval signal received (context: {})", approvalContext);
     approvedForRelease = true;
+  }
+
+  @Override
+  public void attachApprovalContext(GreetingWorkflow.AttachApprovalContextInput input) {
+    logger.info("attachApprovalContext signal received: {}", input.getNote());
+    approvalContext = input.getNote();
   }
 
   @Override
