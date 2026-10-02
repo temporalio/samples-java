@@ -1,0 +1,19 @@
+scrape_configs:
+  - job_name: 'temporal-cloud-metrics'
+    scrape_interval: 60s
+    scrape_timeout: 50s
+    metrics_path: '/v1/metrics'
+    scheme: https
+    static_configs:
+      - targets: ['metrics.temporal.io']
+    params:
+      namespaces: [ 'deepika-test-namespace.a2dd6' ]
+    bearer_token_file: /etc/prometheus/temporal_cloud_api_key
+
+  - job_name: 'temporal-java-worker'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+      - targets: [ 'host.docker.internal:9464' ]
