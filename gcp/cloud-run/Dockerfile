@@ -3,7 +3,6 @@ FROM eclipse-temurin:17-jdk-jammy AS build
 WORKDIR /workspace
 COPY . .
 
-# The temporal-gcp-cloud-run-* modules are unreleased; the composite build resolves them from a local SDK checkout (see README).
 RUN ./gradlew --no-daemon :gcp:cloud-run:installDist
 
 FROM eclipse-temurin:17-jre-jammy

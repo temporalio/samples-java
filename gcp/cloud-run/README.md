@@ -35,7 +35,7 @@ from it.
 
 Run from the repository root, with a Temporal Cloud namespace and API key.
 
-1. Store the API key and collector config in Secret Manager:
+1. Store the API key and collector config in Secret Manager (one-time setup):
 
    ```bash
    printf '%s' "$TEMPORAL_API_KEY" | \
@@ -44,7 +44,7 @@ Run from the repository root, with a Temporal Cloud namespace and API key.
      --data-file=gcp/cloud-run/collector-config.yaml --project="$PROJECT_ID"
    ```
 
-2. Create the Artifact Registry repo, then build and push the image:
+2. Create the Artifact Registry repo (one-time setup), then build and push the image:
 
    ```bash
    gcloud artifacts repositories create temporal-samples --repository-format=docker \
