@@ -7,13 +7,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Starts the caller Workflow twice, to show both branches of the flow.
- *
- * <p>The first purchase is under the spend threshold, so checkApprovalRequired answers "no" and the
- * caller stops there without creating anything durable. The second is over the threshold and runs
- * the full approval.
- */
+/** Starts the caller Workflow, which runs the full approval flow. */
 public class CallerStarter {
 
   private static final Logger logger = LoggerFactory.getLogger(CallerStarter.class);
@@ -25,26 +19,16 @@ public class CallerStarter {
     WorkflowOptions options =
         WorkflowOptions.newBuilder().setTaskQueue(CallerWorker.DEFAULT_TASK_QUEUE_NAME).build();
 
-    // A small purchase. checkApprovalRequired returns false and nothing durable is created.
-    ApprovalCallerWorkflow small = client.newWorkflowStub(ApprovalCallerWorkflow.class, options);
-    String smallResult =
-        small.runApprovalFlow(
-            "laptop-charger-" + UUID.randomUUID(),
-            "dana@example.com",
-            49.99,
-            "Replacement charger");
-    logger.info("Small purchase result: {}", smallResult);
-
-    // A large purchase. Runs the whole flow: context attached first, approval requested, approver
-    // reminded, decision submitted, decision awaited, requester notified.
-    ApprovalCallerWorkflow large = client.newWorkflowStub(ApprovalCallerWorkflow.class, options);
-    String largeResult =
-        large.runApprovalFlow(
+    // Runs the whole flow: context attached first, approval requested, approver reminded, decision
+    // submitted, decision awaited, requester notified.
+    ApprovalCallerWorkflow workflow = client.newWorkflowStub(ApprovalCallerWorkflow.class, options);
+    String result =
+        workflow.runApprovalFlow(
             "standing-desk-" + UUID.randomUUID(),
             "dana@example.com",
             1250.00,
             "Approved in the Q3 ergonomics budget");
-    logger.info("Large purchase result: {}", largeResult);
+    logger.info("Purchase result: {}", result);
   }
   // @@@SNIPEND
 }

@@ -7,10 +7,6 @@ import io.nexusrpc.Service;
 /** Start a purchase approval, message it while it is pending, and learn the outcome. */
 @Service(name = "temporal.samples.approval.v1.ApprovalService")
 public interface ApprovalService {
-  /** Report whether a purchase needs approval, before any durable work starts. */
-  @Operation(name = "CheckApprovalRequired")
-  CheckApprovalRequiredOutput checkApprovalRequired(CheckApprovalRequiredInput input);
-
   /** Start an approval and return the decision once it is made. */
   @Operation(name = "RequestApproval")
   RequestApprovalOutput requestApproval(RequestApprovalInput input);

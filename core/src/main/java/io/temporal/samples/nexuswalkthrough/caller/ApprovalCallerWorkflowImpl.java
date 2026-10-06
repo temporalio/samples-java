@@ -2,8 +2,6 @@ package io.temporal.samples.nexuswalkthrough.caller;
 
 import io.temporal.samples.nexuswalkthrough.generatedservice.ApprovalService;
 import io.temporal.samples.nexuswalkthrough.generatedservice.AttachApprovalContextInput;
-import io.temporal.samples.nexuswalkthrough.generatedservice.CheckApprovalRequiredInput;
-import io.temporal.samples.nexuswalkthrough.generatedservice.CheckApprovalRequiredOutput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.NotifyRequesterInput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.NotifyRequesterOutput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.RemindApproverInput;
@@ -23,7 +21,7 @@ import org.slf4j.Logger;
  *
  * <p>The caller knows two things: the Endpoint name and the contract. It does not know which
  * Namespace the handler runs in, which Task Queue its Worker polls, or that requestApproval is
- * backed by a Workflow while checkApprovalRequired is backed by nothing at all.
+ * backed by a Workflow while notifyRequester is backed by a single Activity.
  *
  * <p>That is the property worth pausing on: the handler team can change what backs an Operation,
  * move the handler to another Namespace, or rewrite it in another language, and this caller keeps
@@ -52,24 +50,6 @@ public class ApprovalCallerWorkflowImpl implements ApprovalCallerWorkflow {
 
   @Override
   public String runApprovalFlow(String itemId, String requester, double amount, String note) {
-
-    // -------------------------------------------------------------------------------------------
-    // STEP 6 - A synchronous Operation. It returns during the call because nothing durable backs
-    // it: no callback, no Operation token, nothing to await. A caller can use it to skip the rest
-    // of this Service entirely.
-    // -------------------------------------------------------------------------------------------
-    CheckApprovalRequiredOutput check =
-        approvalService.checkApprovalRequired(
-            new CheckApprovalRequiredInput(itemId, requester, amount));
-
-    logger.info(
-        "checkApprovalRequired -> required={} threshold={}",
-        check.getApprovalRequired(),
-        check.getThreshold());
-
-    if (!check.getApprovalRequired()) {
-      return "NO_APPROVAL_REQUIRED";
-    }
 
     // -------------------------------------------------------------------------------------------
     // STEP 8 - Attach information before the approval exists.
