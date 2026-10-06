@@ -1,6 +1,7 @@
 This sample shows how to expose a long-running Workflow's queries, updates, and signals as Nexus operations. This
 version uses the experimental `@TemporalOperation` annotation to declare Temporal-backed Nexus operations as ordinary
-methods on `@ServiceImpl` classes instead of `@OperationImpl` factories that return `TemporalOperationHandler.create(...)`.
+methods on `@ServiceImpl` classes instead of `@OperationImpl` factories that return `OperationHandler.sync(...)` and
+`WorkflowRunOperation.fromWorkflowHandle(...)`.
 
 There are two self-contained examples, each in its own directory:
 
