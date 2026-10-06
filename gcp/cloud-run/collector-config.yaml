@@ -17,7 +17,7 @@ processors:
     check_interval: 1s
     limit_percentage: 65
     spike_limit_percentage: 20
-  resourcedetection:
+  resource_detection:
     detectors: [gcp]
     timeout: 10s
   # Avoid collisions with labels that Google Managed Service for Prometheus adds.
@@ -47,7 +47,7 @@ processors:
 exporters:
   googlemanagedprometheus:
   # Google Cloud's supported OTLP path for traces is the Telemetry API.
-  otlp:
+  otlp_grpc:
     endpoint: telemetry.googleapis.com:443
     compression: none
     balancer_name: pick_first
@@ -68,12 +68,12 @@ service:
   pipelines:
     metrics/otlp:
       receivers: [otlp]
-      processors: [memory_limiter, resourcedetection, transform/collision]
+      processors: [memory_limiter, resource_detection, transform/collision]
       exporters: [googlemanagedprometheus]
     traces:
       receivers: [otlp]
-      processors: [memory_limiter, resourcedetection, transform/set_project_id, batch/traces]
-      exporters: [otlp]
+      processors: [memory_limiter, resource_detection, transform/set_project_id, batch/traces]
+      exporters: [otlp_grpc]
   # Feed collector self-metrics back through the metrics pipeline.
   telemetry:
     metrics:

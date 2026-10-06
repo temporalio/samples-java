@@ -60,11 +60,15 @@ Run from the repository root, with a Temporal Cloud namespace and API key.
    ```
 
 The service account needs `roles/monitoring.metricWriter`, `roles/telemetry.tracesWriter`, and
-`roles/secretmanager.secretAccessor`. Start a workflow on task queue `cloud-run-worker`:
+`roles/secretmanager.secretAccessor`. Set `TEMPORAL_ADDRESS`, `TEMPORAL_NAMESPACE`, and
+`TEMPORAL_API_KEY` to your Temporal Cloud values, then start a workflow on task queue
+`cloud-run-worker`:
 
 ```bash
 temporal workflow execute --type GreetingWorkflow --task-queue cloud-run-worker \
-  --workflow-id cloud-run-greeting --input '"Google Cloud"'
+  --workflow-id cloud-run-greeting --input '"Google Cloud"' \
+  --address "$TEMPORAL_ADDRESS" --namespace "$TEMPORAL_NAMESPACE" \
+  --api-key "$TEMPORAL_API_KEY" --tls
 ```
 
 It prints `Hello Google Cloud!`, confirming the deployed worker ran the task.

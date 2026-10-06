@@ -22,9 +22,9 @@ spec:
           image: REGION-docker.pkg.dev/PROJECT_ID/temporal-samples/cloud-run-worker:latest
           env:
             - name: TEMPORAL_ADDRESS
-              value: NAMESPACE_ID.tmprl.cloud:7233
+              value: NAMESPACE.tmprl.cloud:7233
             - name: TEMPORAL_NAMESPACE
-              value: NAMESPACE_ID.ACCOUNT_ID
+              value: NAMESPACE
             - name: TEMPORAL_API_KEY
               valueFrom:
                 secretKeyRef:
