@@ -13,8 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Nexus operation handler for the on-demand pattern. Each operation receives the target workflow ID
- * in its input, and {@code runFromRemote} starts a brand-new GreetingWorkflow.
+ * Nexus operation handler for the on-demand pattern. Each operation receives a userId, which is
+ * mapped to a workflow ID using {@link #WORKFLOW_ID_PREFIX}, and {@code runFromRemote} starts a
+ * brand-new GreetingWorkflow.
  */
 @ServiceImpl(service = NexusRemoteGreetingService.class)
 public class NexusRemoteGreetingServiceImpl {
@@ -38,8 +39,8 @@ public class NexusRemoteGreetingServiceImpl {
         .newWorkflowStub(GreetingWorkflow.class, getWorkflowId(userId));
   }
 
-  // Starts a new GreetingWorkflow with the caller-specified workflow ID. This is an async
-  // Nexus operation backed by WorkflowRunOperation.
+  // Starts a new GreetingWorkflow, using a workflow ID derived from the caller-supplied userId.
+  // This is an async Nexus operation backed by WorkflowRunOperation.
   @OperationImpl
   public OperationHandler<NexusRemoteGreetingService.RunFromRemoteInput, String> runFromRemote() {
     return WorkflowRunOperation.fromWorkflowHandle(
