@@ -15,8 +15,6 @@ import io.temporal.nexus.TemporalOperationHandler;
 import io.temporal.nexus.TemporalOperationResult;
 import io.temporal.samples.nexuswalkthrough.generatedservice.ApprovalService;
 import io.temporal.samples.nexuswalkthrough.generatedservice.AttachApprovalContextInput;
-import io.temporal.samples.nexuswalkthrough.generatedservice.CheckApprovalRequiredInput;
-import io.temporal.samples.nexuswalkthrough.generatedservice.CheckApprovalRequiredOutput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.NotifyRequesterInput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.NotifyRequesterOutput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.RemindApproverInput;
@@ -34,7 +32,6 @@ import java.time.Duration;
  * the walkthrough introduces them:
  *
  * <ul>
- *   <li>STEP 3 - checkApprovalRequired, a synchronous Operation with no backing Execution
  *   <li>STEP 4 - requestApproval, backed by a Workflow
  *   <li>STEP 7 - remindApprover, a Signal delivered as sync messaging
  *   <li>STEP 7 - submitDecision, backed by a Workflow Update
@@ -42,44 +39,11 @@ import java.time.Duration;
  *   <li>STEP 9 - notifyRequester, backed by a Standalone Activity
  * </ul>
  *
- * <p>Every one of them uses {@link TemporalOperationHandler}, including the simplest. Starting with
- * it means an Operation can later gain a message or change its backing without changing shape.
+ * <p>Every one of them uses {@link TemporalOperationHandler}, so an Operation can later gain a
+ * message or change its backing without changing shape.
  */
 @ServiceImpl(service = ApprovalService.class)
 public class ApprovalServiceImpl {
-
-  /** The spend threshold applied by checkApprovalRequired. Below this, no approval is needed. */
-  private static final double APPROVAL_THRESHOLD = 500.00;
-
-  // ===============================================================================================
-  // STEP 3 - An Operation with no backing Execution.
-  //
-  // The handler computes an answer and returns it. Nothing durable is created: no Workflow, no
-  // Activity, nothing to cancel, nothing in Event History. The Operation completes during the
-  // handler call and the caller gets the answer in the response.
-  //
-  // This fits work that cannot meaningfully fail and returns immediately. Compare it against
-  // notifyRequester at the bottom of this file: both are "one small thing", and they get opposite
-  // answers. Sending a notification can fail and you want that retried with a record of each
-  // attempt, so it needs an Activity. Comparing an amount to a threshold cannot fail in any way
-  // worth retrying, so an Activity Execution would be pure overhead.
-  //
-  // Note this still runs inside the Nexus handler call, so it is bounded by the handler deadline
-  // of under 10 seconds. That is plenty for a threshold comparison and would not be for anything
-  // that talks to a slow dependency.
-  // ===============================================================================================
-  // @@@SNIPSTART samples-java-nexus-walkthrough-check-approval-required
-  @OperationImpl
-  public OperationHandler<CheckApprovalRequiredInput, CheckApprovalRequiredOutput>
-      checkApprovalRequired() {
-    return TemporalOperationHandler.create(
-        (ctx, client, input) ->
-            TemporalOperationResult.sync(
-                new CheckApprovalRequiredOutput(
-                    input.getAmount() >= APPROVAL_THRESHOLD, APPROVAL_THRESHOLD)));
-  }
-
-  // @@@SNIPEND
 
   // ===============================================================================================
   // STEP 4 - A Workflow-backed Operation, with the STEP 8 conflict policy applied.
@@ -254,9 +218,6 @@ public class ApprovalServiceImpl {
   // there is no parent Workflow to scope it. The Task Queue set below does not have to be the
   // Endpoint's target Task Queue - notifications could run on their own Worker fleet - but this
   // sample keeps them on one Worker for simplicity.
-  //
-  // Note the contrast with checkApprovalRequired at the top of this file. Both are one small thing.
-  // This one touches the outside world and can fail, so it needs an Activity rather than nothing.
   // ===============================================================================================
   // @@@SNIPSTART samples-java-nexus-walkthrough-notify-requester
   @OperationImpl

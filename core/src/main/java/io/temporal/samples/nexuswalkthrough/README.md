@@ -19,7 +19,6 @@ Each of those needs a different Nexus capability, which is what makes it a usefu
 
 | Operation | Backing | Walkthrough step |
 |---|---|---|
-| `checkApprovalRequired` | None - completes during the handler call | Step 3 |
 | `requestApproval` | Workflow | Step 4 |
 | `remindApprover` | Signal, sent as sync messaging | Step 7 |
 | `submitDecision` | Workflow Update | Step 7 |
@@ -34,7 +33,7 @@ Read it in this order: the contract first, then what implements it, then what ca
 
 | File | What it does |
 |---|---|
-| [`approval.nexusrpc.yaml`](./approval.nexusrpc.yaml) | **The contract** (step 1). Six Operations and their types, in a language-neutral schema. The only thing the caller and handler share. |
+| [`approval.nexusrpc.yaml`](./approval.nexusrpc.yaml) | **The contract** (step 1). Five Operations and their types, in a language-neutral schema. The only thing the caller and handler share. |
 | [generatedservice/](./generatedservice) | **Every file here is generated** from the contract (step 2). See below. |
 
 **Everything in [generatedservice](./generatedservice) is generated** - the Service interface, every
@@ -58,7 +57,7 @@ convenience for reading this sample next to the walkthrough, not a rule to copy.
 
 | File | What it does |
 |---|---|
-| [`handler/ApprovalServiceImpl.java`](./handler/ApprovalServiceImpl.java) | **The centerpiece.** All six Operations, in the order the walkthrough introduces them, each commented with the step it comes from and why it is backed the way it is. |
+| [`handler/ApprovalServiceImpl.java`](./handler/ApprovalServiceImpl.java) | **The centerpiece.** All five Operations, in the order the walkthrough introduces them, each commented with the step it comes from and why it is backed the way it is. |
 | [`handler/ApprovalWorkflow.java`](./handler/ApprovalWorkflow.java) | The approval Workflow interface: the Workflow method, two Signal handlers, one Update handler (steps 4 and 7). |
 | [`handler/ApprovalWorkflowImpl.java`](./handler/ApprovalWorkflowImpl.java) | Runs two placeholder Activities, blocks until a decision arrives, returns it. The blocking is why this is a Workflow. |
 | [`handler/ApprovalWorkflowId.java`](./handler/ApprovalWorkflowId.java) | Derives the Workflow Id from the item id (step 3). One place, because two Operations have to agree on which Execution they mean. |
@@ -71,10 +70,10 @@ convenience for reading this sample next to the walkthrough, not a rule to copy.
 
 | File | What it does |
 |---|---|
-| [`caller/ApprovalCallerWorkflowImpl.java`](./caller/ApprovalCallerWorkflowImpl.java) | Calls all six Operations end to end (steps 6, 8, 10). Knows only the Endpoint name and the contract. |
+| [`caller/ApprovalCallerWorkflowImpl.java`](./caller/ApprovalCallerWorkflowImpl.java) | Calls all five Operations end to end (steps 6, 8, 10). Knows only the Endpoint name and the contract. |
 | [`caller/ApprovalCallerWorkflow.java`](./caller/ApprovalCallerWorkflow.java) | The caller Workflow interface. |
 | [`caller/CallerWorker.java`](./caller/CallerWorker.java) | The caller Worker. The one place the Endpoint name is bound to the Service. |
-| [`caller/CallerStarter.java`](./caller/CallerStarter.java) | Starts the caller Workflow twice: one purchase under the spend threshold, one over it. |
+| [`caller/CallerStarter.java`](./caller/CallerStarter.java) | Starts the caller Workflow once to run the full approval flow. |
 
 ### Supporting
 
@@ -109,7 +108,7 @@ temporal server start-dev --dynamic-config-value 'activity.enableCallbacks=true'
 
 `activity.enableCallbacks` allows attaching completion callbacks to standalone Activity Executions.
 The `notifyRequester` Operation is backed by a Standalone Activity, so without this setting it fails
-with `completion callbacks are not enabled for this namespace`. The other five Operations are
+with `completion callbacks are not enabled for this namespace`. The other four Operations are
 unaffected.
 
 No callback address allowlist is needed. The Nexus completion callback uses the `temporal://system`
@@ -166,17 +165,12 @@ you stop it with Ctrl-C, so Gradle keeps reporting the task as executing.
 ### Output
 
 ```
-INFO  i.t.s.n.caller.CallerStarter - Small purchase result: NO_APPROVAL_REQUIRED
-INFO  i.t.s.n.caller.CallerStarter - Large purchase result: APPROVED
+INFO  i.t.s.n.caller.CallerStarter - Purchase result: APPROVED
 ```
 
-The starter exits once both runs finish. The two Workers keep running until you stop them.
+The starter exits once the run finishes. The two Workers keep running until you stop them.
 
-The starter runs the flow twice. The first purchase is under the spend threshold, so
-`checkApprovalRequired` answers "no" and nothing durable is created. The second is over the
-threshold and runs the whole flow.
-
-The handler Worker shows the second run in order:
+The handler Worker shows the run in order:
 
 ```
 INFO  ApprovalWorkflowImpl   - Context attached: Approved in the Q3 ergonomics budget
