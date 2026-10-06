@@ -1,0 +1,24 @@
+apply plugin: 'application'
+
+dependencies {
+    implementation "io.temporal:temporal-sdk:$javaSDKVersion"
+    implementation "io.temporal:temporal-envconfig:$javaSDKVersion"
+    implementation "io.temporal:temporal-gcp-cloud-run-opentelemetry:$javaSDKVersion"
+    runtimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.6'
+
+    testImplementation "io.temporal:temporal-testing:$javaSDKVersion"
+    testImplementation "junit:junit:4.13.2"
+    testImplementation(platform("org.junit:junit-bom:5.10.3"))
+    testRuntimeOnly "org.junit.vintage:junit-vintage-engine"
+
+    dependencies {
+        errorproneJavac('com.google.errorprone:javac:9+181-r4173-1')
+        errorprone('com.google.errorprone:error_prone_core:2.28.0')
+    }
+}
+
+application {
+    mainClass = 'io.temporal.samples.gcp.cloudrun.opentelemetry.CloudRunWorker'
+    // Stable launcher name the Dockerfile relies on, independent of the Gradle project path.
+    applicationName = 'cloud-run-worker'
+}
