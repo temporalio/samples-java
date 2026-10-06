@@ -1,20 +1,19 @@
-# Primary owners
-
+# These owners will be the default owners for everything in the repo.
+# Later matches override earlier entries.
 * @tsurdilo @temporalio/sdk @antmendoza
 
-# SDK & Nexus teams share ownership of these files
-/README.md @temporalio/sdk @temporalio/nexus
-/build.gradle @temporalio/sdk @temporalio/nexus
+# IMPORTANT: Make sure to add `@temporalio/sdk` on every override below.
+# This is required so that SDK team can do repo-wide maintenance tasks.
 
-# The Nexus team owns any folder whose name starts with "nexus"
-/core/src/main/java/io/temporal/samples/nexus*/ @temporalio/nexus
-/core/src/test/java/io/temporal/samples/nexus*/ @temporalio/nexus
+/README.md @temporalio/sdk @temporalio/nexus @temporalio/ai-sdk
+/build.gradle @temporalio/sdk @temporalio/nexus @temporalio/ai-sdk
 
 # Below are owners for samples for modules
 # that are owned by teams other than the SDK team.
-# For each one, we add the owning team, as well as
-# @temporalio/sdk, so the SDK team can continue to
-# manage repo-wide concerns
+
+/core/src/main/java/io/temporal/samples/nexus*/ @temporalio/sdk @temporalio/nexus
+/core/src/test/java/io/temporal/samples/nexus*/ @temporalio/sdk @temporalio/nexus
+
 /springai/                                               @temporalio/sdk @temporalio/ai-sdk
 /core/src/main/java/io/temporal/samples/workflowstreams/ @temporalio/sdk @temporalio/ai-sdk
 /core/src/test/java/io/temporal/samples/workflowstreams/ @temporalio/sdk @temporalio/ai-sdk
