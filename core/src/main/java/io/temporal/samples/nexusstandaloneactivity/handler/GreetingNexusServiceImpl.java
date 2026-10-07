@@ -4,7 +4,6 @@ import io.nexusrpc.handler.OperationHandler;
 import io.nexusrpc.handler.OperationImpl;
 import io.nexusrpc.handler.ServiceImpl;
 import io.temporal.client.StartActivityOptions;
-import io.temporal.nexus.Nexus;
 import io.temporal.nexus.TemporalOperationHandler;
 import io.temporal.samples.nexusstandaloneactivity.service.GreetingNexusService;
 import java.time.Duration;
@@ -30,9 +29,6 @@ public class GreetingNexusServiceImpl {
                     // Use a business identifier from the operation input so callers can identify
                     // the same Activity independently of any individual Nexus request.
                     .setId(getActivityId(input))
-                    // The task queue is required. This sample runs the Activity on the same queue
-                    // as the Nexus Worker that is handling this operation.
-                    .setTaskQueue(Nexus.getOperationContext().getInfo().getTaskQueue())
                     .setStartToCloseTimeout(Duration.ofSeconds(10))
                     .build()));
   }
