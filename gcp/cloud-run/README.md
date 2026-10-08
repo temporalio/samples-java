@@ -50,7 +50,7 @@ Run from the repository root, with a Temporal Cloud namespace and API key.
    gcloud artifacts repositories create temporal-samples --repository-format=docker \
      --location="$REGION" --project="$PROJECT_ID"
    IMAGE="$REGION-docker.pkg.dev/$PROJECT_ID/temporal-samples/cloud-run-worker:latest"
-   docker build -f gcp/cloud-run/Dockerfile -t "$IMAGE" . && docker push "$IMAGE"
+   docker build --platform linux/amd64 -f gcp/cloud-run/Dockerfile -t "$IMAGE" . && docker push "$IMAGE"
    ```
 
 3. Replace the placeholders in `worker-pool.yaml`, then deploy:
