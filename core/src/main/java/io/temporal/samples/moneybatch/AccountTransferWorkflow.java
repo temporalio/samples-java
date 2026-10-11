@@ -9,7 +9,7 @@ import io.temporal.workflow.WorkflowMethod;
 public interface AccountTransferWorkflow {
 
   @WorkflowMethod
-  void deposit(String toAccountId, int batchSize);
+  void deposit(String toAccountId, int batchSize, BatchState state);
 
   @SignalMethod
   void withdraw(String fromAccountId, String referenceId, int amountCents);
