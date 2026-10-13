@@ -2,6 +2,8 @@ package io.temporal.samples.nexuswalkthrough.caller;
 
 import io.temporal.samples.nexuswalkthrough.generatedservice.ApprovalService;
 import io.temporal.samples.nexuswalkthrough.generatedservice.AttachApprovalContextInput;
+import io.temporal.samples.nexuswalkthrough.generatedservice.GetApprovalStatusInput;
+import io.temporal.samples.nexuswalkthrough.generatedservice.GetApprovalStatusOutput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.NotifyRequesterInput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.NotifyRequesterOutput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.RemindApproverInput;
@@ -87,6 +89,19 @@ public class ApprovalCallerWorkflowImpl implements ApprovalCallerWorkflow {
     // -------------------------------------------------------------------------------------------
     approvalService.remindApprover(new RemindApproverInput(itemId));
     logger.info("remindApprover -> approver nudged");
+
+    // -------------------------------------------------------------------------------------------
+    // STEP 8 - Check progress. A Query, so the caller gets the approval's state back without
+    // changing it. This is a one-off read, not a loop: the decision arrives as the result of
+    // requestApproval below.
+    // -------------------------------------------------------------------------------------------
+    GetApprovalStatusOutput status =
+        approvalService.getApprovalStatus(new GetApprovalStatusInput(itemId));
+    logger.info(
+        "getApprovalStatus -> pending={}, {} reminder(s), {} note(s)",
+        status.getPending(),
+        status.getRemindersSent(),
+        status.getNotesAttached());
 
     // -------------------------------------------------------------------------------------------
     // STEP 8 - Submit the decision. An Update, so the caller gets confirmation back.

@@ -15,6 +15,8 @@ import io.temporal.nexus.TemporalOperationHandler;
 import io.temporal.nexus.TemporalOperationResult;
 import io.temporal.samples.nexuswalkthrough.generatedservice.ApprovalService;
 import io.temporal.samples.nexuswalkthrough.generatedservice.AttachApprovalContextInput;
+import io.temporal.samples.nexuswalkthrough.generatedservice.GetApprovalStatusInput;
+import io.temporal.samples.nexuswalkthrough.generatedservice.GetApprovalStatusOutput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.NotifyRequesterInput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.NotifyRequesterOutput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.RemindApproverInput;
@@ -34,6 +36,7 @@ import java.time.Duration;
  * <ul>
  *   <li>STEP 4 - requestApproval, backed by a Workflow
  *   <li>STEP 7 - remindApprover, a Signal delivered as sync messaging
+ *   <li>STEP 7 - getApprovalStatus, a Query that returns a synchronous result
  *   <li>STEP 7 - submitDecision, backed by a Workflow Update
  *   <li>STEP 8 - attachApprovalContext, Signal-with-Start
  *   <li>STEP 9 - notifyRequester, backed by a Standalone Activity
@@ -112,6 +115,36 @@ public class ApprovalServiceImpl {
               .remindApprover();
           return TemporalOperationResult.sync(null);
         });
+  }
+
+  // @@@SNIPEND
+
+  // ===============================================================================================
+  // STEP 7 - A Query, answered synchronously.
+  //
+  // Send the Query through the client, then return its answer as a synchronous result. Like the
+  // Signal above, the Operation completes during the handler call. Unlike the Signal, it returns
+  // something: the approval's in-flight progress.
+  //
+  // It reports progress, not the outcome. The decision is the result of requestApproval, pushed to
+  // the caller when the approval Workflow returns, so nothing should call this in a loop waiting
+  // for pending to turn false.
+  //
+  // A Query is answered by a Worker, so it fails if no Worker is polling the approval's Task Queue.
+  // Unlike a Signal it still works after the approval completes, until the Retention Period
+  // expires and the Workflow's history is gone.
+  // ===============================================================================================
+  // @@@SNIPSTART samples-java-nexus-walkthrough-get-approval-status
+  @OperationImpl
+  public OperationHandler<GetApprovalStatusInput, GetApprovalStatusOutput> getApprovalStatus() {
+    return TemporalOperationHandler.create(
+        (ctx, client, input) ->
+            TemporalOperationResult.sync(
+                client
+                    .getWorkflowClient()
+                    .newWorkflowStub(
+                        ApprovalWorkflow.class, ApprovalWorkflowId.forItem(input.getItemId()))
+                    .getApprovalStatus()));
   }
 
   // @@@SNIPEND

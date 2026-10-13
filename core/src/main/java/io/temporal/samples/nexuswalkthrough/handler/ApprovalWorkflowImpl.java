@@ -1,6 +1,7 @@
 package io.temporal.samples.nexuswalkthrough.handler;
 
 import io.temporal.activity.ActivityOptions;
+import io.temporal.samples.nexuswalkthrough.generatedservice.GetApprovalStatusOutput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.RequestApprovalInput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.RequestApprovalOutput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.SubmitDecisionInput;
@@ -75,6 +76,15 @@ public class ApprovalWorkflowImpl implements ApprovalWorkflow {
   public void attachContext(String note) {
     notes.add(note);
     logger.info("Context attached: {}", note);
+  }
+
+  // STEP 7 - Query handler. Returns what is already in memory and changes nothing. Once the
+  // decision
+  // is recorded, pending is false, but the decision itself is not here: it is requestApproval's
+  // result.
+  @Override
+  public GetApprovalStatusOutput getApprovalStatus() {
+    return new GetApprovalStatusOutput(decision == null, remindersSent, notes.size());
   }
 
   // STEP 7 - The Update's validator. Runs before the handler and can reject the request without

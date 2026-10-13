@@ -31,6 +31,13 @@ services:
         description: Ask the approver again. Returns nothing.
         input: { $ref: "#/$defs/RemindApproverInput" }
 
+      # A Query. Reads in-flight progress without changing it. It does not return the decision;
+      # requestApproval does - see step 7.
+      getApprovalStatus:
+        description: Report the progress of an approval without changing it.
+        input: { $ref: "#/$defs/GetApprovalStatusInput" }
+        output: { $ref: "#/$defs/GetApprovalStatusOutput" }
+
       # An Update. The caller needs confirmation back, which is what makes this an Update rather
       # than a Signal - see step 7.
       submitDecision:
@@ -80,6 +87,22 @@ $defs:
     properties:
       itemId: { type: string }
     required: [itemId]
+
+  GetApprovalStatusInput:
+    type: object
+    additionalProperties: false
+    properties:
+      itemId: { type: string }
+    required: [itemId]
+
+  GetApprovalStatusOutput:
+    type: object
+    additionalProperties: false
+    properties:
+      pending: { description: True until a decision is recorded., type: boolean }
+      remindersSent: { description: How many reminders have been sent so far., type: integer }
+      notesAttached: { description: How many notes have been attached so far., type: integer }
+    required: [pending, remindersSent, notesAttached]
 
   SubmitDecisionInput:
     type: object
