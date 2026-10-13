@@ -1,9 +1,11 @@
 package io.temporal.samples.nexuswalkthrough.handler;
 
+import io.temporal.samples.nexuswalkthrough.generatedservice.GetApprovalStatusOutput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.RequestApprovalInput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.RequestApprovalOutput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.SubmitDecisionInput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.SubmitDecisionOutput;
+import io.temporal.workflow.QueryMethod;
 import io.temporal.workflow.SignalMethod;
 import io.temporal.workflow.UpdateMethod;
 import io.temporal.workflow.UpdateValidatorMethod;
@@ -57,6 +59,16 @@ public interface ApprovalWorkflow {
    */
   @SignalMethod
   void attachContext(String note);
+
+  /**
+   * STEP 7 - A Query. Reads in-flight progress without changing it. A Query handler must not block
+   * and must not change Workflow state; it returns only what is already in memory.
+   *
+   * <p>It reports whether a decision is still pending, not what the decision was. The decision is
+   * the result of requestApproval, delivered to the caller without anyone asking.
+   */
+  @QueryMethod
+  GetApprovalStatusOutput getApprovalStatus();
 
   /**
    * STEP 7 - An Update. The caller needs a result back - confirmation that the decision was

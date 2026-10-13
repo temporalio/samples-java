@@ -19,8 +19,8 @@ public class CallerStarter {
     WorkflowOptions options =
         WorkflowOptions.newBuilder().setTaskQueue(CallerWorker.DEFAULT_TASK_QUEUE_NAME).build();
 
-    // Runs the whole flow: context attached first, approval requested, approver reminded, decision
-    // submitted, decision awaited, requester notified.
+    // Runs the whole flow: context attached first, approval requested, approver reminded, progress
+    // checked, decision submitted, decision awaited, requester notified.
     ApprovalCallerWorkflow workflow = client.newWorkflowStub(ApprovalCallerWorkflow.class, options);
     String result =
         workflow.runApprovalFlow(

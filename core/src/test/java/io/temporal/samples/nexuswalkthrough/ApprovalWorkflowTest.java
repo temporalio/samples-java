@@ -1,6 +1,7 @@
 package io.temporal.samples.nexuswalkthrough;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
@@ -8,6 +9,7 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowStub;
 import io.temporal.client.WorkflowUpdateException;
+import io.temporal.samples.nexuswalkthrough.generatedservice.GetApprovalStatusOutput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.RequestApprovalInput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.RequestApprovalOutput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.SubmitDecisionInput;
@@ -25,7 +27,8 @@ import org.junit.Test;
  *
  * <p>The Workflow is an ordinary Temporal Workflow with nothing Nexus-specific in it, which is what
  * makes it testable on its own. These tests cover the behavior the walkthrough relies on: the
- * Workflow blocks until a decision arrives, counts reminders, and refuses a second decision.
+ * Workflow blocks until a decision arrives, counts reminders, reports progress through a Query, and
+ * refuses a second decision.
  */
 public class ApprovalWorkflowTest {
 
@@ -79,6 +82,32 @@ public class ApprovalWorkflowTest {
         approval.submitDecision(SubmitDecisionInput.Decision.DECISION_DENIED);
     assertEquals("DENIED", ack.getRecorded().getValue());
     assertEquals(2, ack.getRemindersSent());
+  }
+
+  /**
+   * The Query reports in-flight progress while the approval is pending, and still answers after it
+   * completes. It never carries the decision itself; that is the Workflow's result.
+   */
+  @Test
+  public void statusQueryReportsProgressWithoutTheDecision() {
+    ApprovalWorkflow approval = newApproval("footrest");
+    WorkflowClient.start(
+        approval::runApproval, new RequestApprovalInput("footrest", "dana@example.com", 120.00));
+
+    approval.remindApprover();
+    approval.attachContext("Recommended by occupational health");
+
+    GetApprovalStatusOutput pending = approval.getApprovalStatus();
+    assertTrue(pending.getPending());
+    assertEquals(1, pending.getRemindersSent());
+    assertEquals(1, pending.getNotesAttached());
+
+    approval.submitDecision(SubmitDecisionInput.Decision.DECISION_APPROVED);
+    WorkflowStub.fromTyped(approval).getResult(RequestApprovalOutput.class);
+
+    GetApprovalStatusOutput decided = approval.getApprovalStatus();
+    assertFalse(decided.getPending());
+    assertEquals(1, decided.getRemindersSent());
   }
 
   /**

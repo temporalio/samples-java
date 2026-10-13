@@ -15,6 +15,10 @@ public interface ApprovalService {
   @Operation(name = "RemindApprover")
   void remindApprover(RemindApproverInput input);
 
+  /** Report the progress of an approval without changing it. */
+  @Operation(name = "GetApprovalStatus")
+  GetApprovalStatusOutput getApprovalStatus(GetApprovalStatusInput input);
+
   /** Supply the decision and confirm it was recorded. */
   @Operation(name = "SubmitDecision")
   SubmitDecisionOutput submitDecision(SubmitDecisionInput input);
