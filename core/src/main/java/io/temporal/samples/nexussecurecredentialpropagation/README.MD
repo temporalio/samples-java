@@ -60,6 +60,28 @@ Payloads stay symmetric because both ends of a payload hop must read them. The c
 serialization context (Nexus endpoint/service/operation, or Workflow namespace/ID), and never falls back to weaker
 associated data.
 
+### Public keys are public
+
+The HPKE public keys do not need to be kept secret. A public key lets its holder seal a credential header, but not
+open one, and not move an existing header to another context or other arguments: that binding is authenticated by
+HPKE and can only be produced from the plaintext. So the only header a public-key holder can create carries a JWT
+they already possess, and they act as themselves. The handler validates that JWT and authorizes the principal against
+the input no matter who sealed the header, and the Temporal access layer still decides who may start Workflows or
+call the endpoint.
+
+What a public key does not give the handler is **sender authentication**: it cannot tell a header created by a
+legitimate caller Worker from one created by anyone else holding a valid token. Keeping the public key private adds
+some defence in depth (for example against a leaked token being injected through Temporal by a party that is already
+an allowed caller), but it is not the right control. To accept only headers created by legitimate caller Workers,
+sign them:
+
+- The caller Worker signs `frame(context, headerCiphertext)` with a Tink `PublicKeySign` key held only by caller
+  Workers, and sends the signature alongside the header.
+- The handler verifies it with the corresponding `PublicKeyVerify` key before opening the header.
+
+The secret is then the signing key. Tink's `HybridEncrypt` uses HPKE's base mode and does not expose its authenticated
+mode, so a separate signature is the practical way to add this. The sample does not implement it.
+
 ### Wire formats
 
 ```
@@ -108,7 +130,14 @@ validates the JWT (signature, algorithm, issuer, audience, type, `exp`, `nbf`), 
 
 The args digest proves only that the caller Worker produced the input. Signals, updates, and activity results can
 steer a caller Workflow into choosing different inputs. The intent bounds that: the Workflow carries it unchanged and
-cannot alter it. Authorizing the steering messages themselves needs a separate mechanism, such as:
+cannot alter it.
+
+The intent protects a user from having their own Workflow steered; it does not constrain a user acting with their
+own token. Anyone holding a valid token and a public key can seal any intent they like, so the intent is never a
+substitute for server-side authorization. `TransferIntentPolicy` checks scope, subject, and tenant independently of
+the intent for this reason.
+
+Authorizing the steering messages themselves needs a separate mechanism, such as:
 
 - **identity-provider-issued intent**, for example RFC 9396 `authorization_details` or transaction tokens, which also
   survive a caller Worker compromise (recommended for production);
