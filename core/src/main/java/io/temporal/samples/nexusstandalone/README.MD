@@ -1,9 +1,9 @@
 ## Standalone Nexus Operations
 
-> [!WARNING]
-> Standalone Nexus operations are experimental and may be subject to backwards-incompatible
-> changes. They require a Temporal server that implements and enables them via the dynamic configs
-> shown below. Use the dev server build at
+> [!NOTE]
+> Standalone Nexus Operations are in [Public Preview](https://docs.temporal.io/evaluate/development-production-features/release-stages#public-preview).
+> We aim to preserve backward compatibility and avoid breaking changes.
+> They require a Temporal server that supports this feature. Use the dev server build at
 > https://github.com/temporalio/cli/releases/tag/v1.7.4-standalone-nexus-operations.
 >
 This sample shows how to invoke and manage **standalone Nexus operations** — Nexus operations
