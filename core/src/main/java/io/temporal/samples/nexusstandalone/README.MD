@@ -3,9 +3,7 @@
 > [!NOTE]
 > ✨ **Standalone Nexus Operations are now in [Public Preview](https://docs.temporal.io/evaluate/development-production-features/release-stages#public-preview).**
 > We aim to preserve backward compatibility and avoid breaking changes.
-> They require a Temporal server that supports this feature. For a local dev server, use
-> [Temporal CLI v1.9.1 or later](https://github.com/temporalio/cli/releases/tag/v1.9.1) and enable SANO as shown below.
->
+
 This sample shows how to invoke and manage **standalone Nexus operations** — Nexus operations
 started directly by a client rather than from within a caller workflow. The long-running operation
 (`startGreeting`) is backed by a `GreetingWorkflow` that blocks until it is cancelled; the quick
@@ -25,6 +23,10 @@ support (`ClientConfigProfile.load()`), which reads `TEMPORAL_NAMESPACE`, `TEMPO
 from the environment (and optionally a profile from `temporal.toml`).
 
 ### Run locally against a dev server
+
+> [!NOTE]
+> Standalone Nexus Operations require a server that supports this feature. For a local dev server, use
+> [Temporal CLI v1.9.1 or later](https://github.com/temporalio/cli/releases/tag/v1.9.1) and enable SANO as shown below.
 
 1. Start a [Temporal dev server](https://docs.temporal.io/cli/setup-cli) with SANO enabled and the required namespaces pre-created:
 
