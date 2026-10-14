@@ -1,4 +1,4 @@
-## Standalone Nexus Operations
+# Standalone Nexus Operations
 
 > [!NOTE]
 > ✨ **Standalone Nexus Operations are now in [Public Preview](https://docs.temporal.io/evaluate/development-production-features/release-stages#public-preview).**
