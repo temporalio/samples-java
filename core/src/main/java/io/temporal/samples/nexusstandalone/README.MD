@@ -3,8 +3,8 @@
 > [!NOTE]
 > Standalone Nexus Operations are in [Public Preview](https://docs.temporal.io/evaluate/development-production-features/release-stages#public-preview).
 > We aim to preserve backward compatibility and avoid breaking changes.
-> They require a Temporal server that supports this feature. Use the dev server build at
-> https://github.com/temporalio/cli/releases/tag/v1.7.4-standalone-nexus-operations.
+> They require a Temporal server that supports this feature. For a local dev server, use
+> [Temporal CLI v1.9.1 or later](https://github.com/temporalio/cli/releases/tag/v1.9.1) and enable SANO as shown below.
 >
 This sample shows how to invoke and manage **standalone Nexus operations** — Nexus operations
 started directly by a client rather than from within a caller workflow. The long-running operation
@@ -26,10 +26,11 @@ from the environment (and optionally a profile from `temporal.toml`).
 
 ### Run locally against a dev server
 
-1. Start the [Temporal dev server build that supports standalone Nexus operations](https://docs.temporal.io/standalone-nexus-operation#temporal-cli-support) with the required namespaces pre-created:
+1. Start a [Temporal dev server](https://docs.temporal.io/cli/setup-cli) with SANO enabled and the required namespaces pre-created:
 
    ```bash
-   ./temporal server start-dev \
+   temporal server start-dev \
+     --dynamic-config-value "nexusoperation.enableStandalone=true" \
      --namespace my-caller-namespace \
      --namespace my-handler-namespace
    ```
