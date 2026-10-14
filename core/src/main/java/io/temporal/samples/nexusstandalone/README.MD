@@ -1,7 +1,7 @@
 ## Standalone Nexus Operations
 
 > [!NOTE]
-> Standalone Nexus Operations are in [Public Preview](https://docs.temporal.io/evaluate/development-production-features/release-stages#public-preview).
+> ✨ **Standalone Nexus Operations are now in [Public Preview](https://docs.temporal.io/evaluate/development-production-features/release-stages#public-preview).**
 > We aim to preserve backward compatibility and avoid breaking changes.
 > They require a Temporal server that supports this feature. For a local dev server, use
 > [Temporal CLI v1.9.1 or later](https://github.com/temporalio/cli/releases/tag/v1.9.1) and enable SANO as shown below.
