@@ -49,6 +49,7 @@ import io.temporal.samples.nexussecurecredentialpropagation.handler.JwtVerifier;
 import io.temporal.samples.nexussecurecredentialpropagation.handler.TransferIntentPolicy;
 import io.temporal.samples.nexussecurecredentialpropagation.handler.TransferNexusServiceImpl;
 import io.temporal.samples.nexussecurecredentialpropagation.service.TransferService;
+import io.temporal.samples.nexussecurecredentialpropagation.tools.VerifyCredentialBinding;
 import io.temporal.testing.TestEnvironmentOptions;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
@@ -303,6 +304,56 @@ public class SecureCredentialPropagationTest {
             WorkflowFailedException.class,
             () -> client.newUntypedWorkflowStub(backingId).getResult(Object.class));
     assertTrue(failure.getCause() instanceof io.temporal.failure.CanceledFailure);
+  }
+
+  // ---------------------------------------------------------------------------------------------
+  // Verifier tool.
+
+  @Test
+  public void verifierConfirmsBindingInRealHistory() {
+    TransferService.TransferInput input = transferInput("p-verify");
+    runTransfer("caller-verify", input, credentialFor(input));
+
+    List<VerifyCredentialBinding.Result> results =
+        verifier().verify(NAMESPACE, "caller-verify", events("caller-verify"));
+    assertEquals(2, results.size());
+    assertEquals("WorkflowExecutionStarted", results.get(0).getEventType());
+    assertEquals("NexusOperationScheduled", results.get(1).getEventType());
+    assertTrue(results.stream().allMatch(VerifyCredentialBinding.Result::passed));
+  }
+
+  @Test
+  public void verifierConfirmsContinueAsNewBinding() {
+    credentialSurvivesContinueAsNewToAnotherTypeAndRetry();
+    List<VerifyCredentialBinding.Result> results =
+        verifier().verify(NAMESPACE, "caller-can", events("caller-can"));
+    assertEquals(2, results.size());
+    assertTrue(results.stream().allMatch(VerifyCredentialBinding.Result::passed));
+  }
+
+  @Test
+  public void verifierDetectsSubstitutedArguments() {
+    TransferService.TransferInput input = transferInput("p-verify-tamper");
+    runTransfer("caller-verify-tamper", input, credentialFor(input));
+
+    List<HistoryEvent> history = new ArrayList<>(events("caller-verify-tamper"));
+    HistoryEvent started = history.get(0);
+    WorkflowExecutionStartedEventAttributes attributes =
+        started.getWorkflowExecutionStartedEventAttributes().toBuilder()
+            .setInput(Payloads.newBuilder().addPayloads(reencrypt("caller-verify-tamper", "x")))
+            .build();
+    history.set(
+        0, started.toBuilder().setWorkflowExecutionStartedEventAttributes(attributes).build());
+
+    List<VerifyCredentialBinding.Result> results =
+        verifier().verify(NAMESPACE, "caller-verify-tamper", history);
+    assertFalse(results.get(0).passed());
+    assertTrue(results.get(1).passed());
+  }
+
+  private VerifyCredentialBinding verifier() {
+    return new VerifyCredentialBinding(
+        keys.workflowCredentialDecrypt(), keys.nexusCredentialDecrypt());
   }
 
   // ---------------------------------------------------------------------------------------------

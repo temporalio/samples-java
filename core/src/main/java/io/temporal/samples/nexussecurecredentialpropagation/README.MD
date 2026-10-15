@@ -223,3 +223,22 @@ Then, in separate terminal windows:
 The starter logs `Transfer payment-1001 SETTLED for alice`. Inspect the caller Workflow's history
 (`temporal workflow show -w transfer-payment-1001 -n my-caller-namespace --output json`): the start header and the
 Nexus header contain only ciphertext.
+
+### Verify the binding
+
+The args digest is not a field in the header; it is authenticated associated data that the receiver recomputes. To
+check the binding in a real history, run the verifier against the caller namespace:
+
+```
+./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexussecurecredentialpropagation.tools.VerifyCredentialBinding \
+    --args="-target-host localhost:7233 -namespace my-caller-namespace"
+```
+
+For each `WorkflowExecutionStarted` and `NexusOperationScheduled` event that carries a credential header, it
+recomputes the args digest from the event's input ciphertexts (or uses `firstExecutionRunId` for continue-as-new
+headers), opens the header with that context, confirms that the same context with one bit changed is rejected, and
+confirms the digest does not appear in the header bytes. It exits non-zero if any check fails. Set
+`-Dnexus.secure.credential.workflowId=...` (for example via `JAVA_TOOL_OPTIONS`) to check another Workflow.
+
+The verifier needs the receivers' private keys, so treat it as an operator tool. It prints only each credential's
+subject and issuer, never the token.
