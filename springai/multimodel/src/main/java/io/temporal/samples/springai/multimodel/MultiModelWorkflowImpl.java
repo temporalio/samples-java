@@ -7,7 +7,6 @@ import io.temporal.workflow.WorkflowInit;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.ai.anthropic.AnthropicChatOptions;
-import org.springframework.ai.anthropic.api.AnthropicApi;
 import org.springframework.ai.chat.client.ChatClient;
 
 /**
@@ -19,7 +18,7 @@ import org.springframework.ai.chat.client.ChatClient;
  *   <li><b>openai</b> - Uses OpenAI gpt-4o-mini for quick, cost-effective responses
  *   <li><b>anthropic</b> - Uses Anthropic Claude for complex reasoning tasks
  *   <li><b>think</b> - Uses Anthropic Claude with <i>extended thinking</i> enabled for hard
- *       problems. This demonstrates {@code temporal-spring-ai}'s provider-specific ChatOptions
+ *       problems. This demonstrates {@code io.temporal:spring-ai}'s provider-specific ChatOptions
  *       pass-through: an {@link AnthropicChatOptions} instance with a {@code thinking}
  *       configuration is attached per call, and every field survives the round-trip across the
  *       activity boundary.
@@ -97,12 +96,8 @@ public class MultiModelWorkflowImpl implements MultiModelWorkflow {
     // sent to Claude. Required side effects for extended thinking: temperature must be 1.0
     // and max_tokens must exceed budget_tokens.
     // @@@SNIPSTART samples-java-spring-ai-provider-options
-    AnthropicChatOptions thinkingOptions =
-        AnthropicChatOptions.builder()
-            .thinking(AnthropicApi.ThinkingType.ENABLED, 1024)
-            .temperature(1.0)
-            .maxTokens(4096)
-            .build();
+    AnthropicChatOptions.Builder thinkingOptions =
+        AnthropicChatOptions.builder().thinkingEnabled(1024).temperature(1.0).maxTokens(4096);
     chatClients.put(
         "think",
         TemporalChatClient.builder(anthropicModel)
