@@ -232,7 +232,7 @@ To run any of the SpringBoot samples in your Temporal Cloud namespace:
 
 The Spring AI samples demonstrate the [Temporal Spring AI integration](https://github.com/temporalio/ai-integrations/tree/main/java/spring-ai), which makes Spring AI agents durable on Temporal — model calls run as Temporal Activities recorded in Workflow history, and tools are dispatched per their type so they fit Workflow execution.
 
-These samples use the Public Preview `io.temporal:spring-ai:0.1.0` package with Spring AI 2.0.1, Spring Boot 4.0.8, and Temporal Java SDK 1.40.0. Java 17 or later is required. Spring AI 1 / Spring Boot 3 applications should remain on `io.temporal:temporal-spring-ai:1.40.x`. Spring AI 1 Workflow histories cannot replay on the new integration; complete existing executions or use separate Worker deployments when upgrading.
+These samples use the Public Preview `io.temporal:spring-ai:0.1.1` package with Spring AI 2.0.1, Spring Boot 4.0.8, and Temporal Java SDK 1.40.0. Java 17 or later is required. Spring AI 1 / Spring Boot 3 applications should remain on `io.temporal:temporal-spring-ai:1.40.x`. Spring AI 1 Workflow histories cannot replay on the new integration; complete existing executions or use separate Worker deployments when upgrading.
 
 Each sample is its own Spring Boot application with an interactive CLI. Run from the main repo dir:
 

@@ -19,7 +19,7 @@ apply plugin: 'io.spring.dependency-management'
 ext {
     springBootVersionForSpringAi = '4.0.8'
     springAiVersion = '2.0.1'
-    temporalSpringAiVersion = '0.1.0'
+    temporalSpringAiVersion = '0.1.1'
 }
 
 java {
