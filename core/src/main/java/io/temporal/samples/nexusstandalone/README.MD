@@ -1,11 +1,9 @@
-## Standalone Nexus Operations
+# Standalone Nexus Operations
 
-> [!WARNING]
-> Standalone Nexus operations are experimental and may be subject to backwards-incompatible
-> changes. They require a Temporal server that implements and enables them via the dynamic configs
-> shown below. Use the dev server build at
-> https://github.com/temporalio/cli/releases/tag/v1.7.4-standalone-nexus-operations.
->
+> [!NOTE]
+> ✨ **Standalone Nexus Operations are now in [Public Preview](https://docs.temporal.io/evaluate/development-production-features/release-stages#public-preview).**
+> We aim to preserve backward compatibility and avoid breaking changes.
+
 This sample shows how to invoke and manage **standalone Nexus operations** — Nexus operations
 started directly by a client rather than from within a caller workflow. The long-running operation
 (`startGreeting`) is backed by a `GreetingWorkflow` that blocks until it is cancelled; the quick
@@ -26,10 +24,14 @@ from the environment (and optionally a profile from `temporal.toml`).
 
 ### Run locally against a dev server
 
-1. Start the [Temporal dev server build that supports standalone Nexus operations](https://docs.temporal.io/standalone-nexus-operation#temporal-cli-support) with the required namespaces pre-created:
+> [!NOTE]
+> Standalone Nexus Operations require a server that supports this feature. For local development, use a Temporal CLI
+> release that enables SANO in its dev server.
+
+1. Start a [Temporal dev server](https://docs.temporal.io/cli/setup-cli) with the required namespaces pre-created:
 
    ```bash
-   ./temporal server start-dev \
+   temporal server start-dev \
      --namespace my-caller-namespace \
      --namespace my-handler-namespace
    ```
@@ -37,7 +39,7 @@ from the environment (and optionally a profile from `temporal.toml`).
 2. Create a Nexus endpoint that routes to the handler namespace and the worker's task queue:
 
    ```bash
-   ./temporal operator nexus endpoint create \
+   temporal operator nexus endpoint create \
      --name my-nexus-endpoint \
      --target-namespace my-handler-namespace \
      --target-task-queue nexus-handler-queue
