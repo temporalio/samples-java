@@ -7,11 +7,9 @@ import java.time.Duration;
 import java.util.Map;
 import org.springframework.ai.anthropic.AnthropicChatModel;
 import org.springframework.ai.anthropic.AnthropicChatOptions;
-import org.springframework.ai.anthropic.api.AnthropicApi;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
-import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,22 +45,27 @@ public class ChatModelConfig {
   @Bean
   @Primary
   public ChatModel openAiChatModel() {
-    OpenAiApi api = OpenAiApi.builder().apiKey(openAiApiKey).build();
     OpenAiChatOptions options =
-        OpenAiChatOptions.builder().model("gpt-4o-mini").temperature(0.7).build();
-    return OpenAiChatModel.builder().openAiApi(api).defaultOptions(options).build();
+        OpenAiChatOptions.builder()
+            .apiKey(openAiApiKey)
+            .maxRetries(0) // Temporal Activities own retries.
+            .model("gpt-4o-mini")
+            .temperature(0.7)
+            .build();
+    return OpenAiChatModel.builder().options(options).build();
   }
 
   /** Anthropic model using Claude for complex reasoning tasks. */
   @Bean
   public ChatModel anthropicChatModel() {
-    AnthropicApi api = AnthropicApi.builder().apiKey(anthropicApiKey).build();
     AnthropicChatOptions options =
         AnthropicChatOptions.builder()
+            .apiKey(anthropicApiKey)
+            .maxRetries(0)
             .model("claude-sonnet-4-20250514")
             .temperature(0.3) // Lower temperature for more focused reasoning
             .build();
-    return AnthropicChatModel.builder().anthropicApi(api).defaultOptions(options).build();
+    return AnthropicChatModel.builder().options(options).build();
   }
 
   /**

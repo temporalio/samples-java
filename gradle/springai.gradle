@@ -3,8 +3,8 @@
 //
 // Note on Spring Boot version skew: the root build.gradle pins the
 // org.springframework.boot Gradle plugin at $springBootPluginVersion (currently
-// 2.7.13) for the legacy springboot/ samples. Spring AI 1.1.0 requires Spring
-// Boot 3.5.x, which we get by importing the spring-boot-dependencies BOM at
+// 2.7.13) for the legacy springboot/ samples. Spring AI 2 requires Spring
+// Boot 4, which we get by importing the spring-boot-dependencies BOM at
 // $springBootVersionForSpringAi below. The plugin and the BOM are independent —
 // the plugin contributes bootJar/bootRun task wiring, the BOM dictates
 // dependency versions — so this works in practice even though the two version
@@ -17,8 +17,9 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 ext {
-    springBootVersionForSpringAi = '3.5.3'
-    springAiVersion = '1.1.0'
+    springBootVersionForSpringAi = '4.0.8'
+    springAiVersion = '2.0.1'
+    temporalSpringAiVersion = '0.1.1'
 }
 
 java {
@@ -35,12 +36,16 @@ dependencyManagement {
 
 dependencies {
     implementation "io.temporal:temporal-spring-boot-starter:$javaSDKVersion"
-    implementation "io.temporal:temporal-spring-ai:$javaSDKVersion"
-    // temporal-spring-ai declares temporal-sdk as compileOnly, so bring it in explicitly.
+    implementation "io.temporal:spring-ai:$temporalSpringAiVersion"
+    // spring-ai declares temporal-sdk as compileOnly, so bring it in explicitly.
     implementation "io.temporal:temporal-sdk:$javaSDKVersion"
 
     // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter'
+
+    testImplementation "io.temporal:temporal-testing:$javaSDKVersion"
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     dependencies {
         errorproneJavac('com.google.errorprone:javac:9+181-r4173-1')
