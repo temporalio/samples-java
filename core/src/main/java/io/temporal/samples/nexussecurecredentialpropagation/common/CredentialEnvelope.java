@@ -1,11 +1,9 @@
 package io.temporal.samples.nexussecurecredentialpropagation.common;
 
 import java.security.GeneralSecurityException;
-import java.util.Objects;
 
 /**
- * The plaintext sealed into every credential header: the end user's compact JWT and the intent the
- * client sealed alongside it.
+ * The plaintext sealed into every credential header: the end user's compact JWT.
  *
  * <p>Workflow code treats this as opaque. {@link #toString()} never reveals its contents.
  */
@@ -15,28 +13,20 @@ public final class CredentialEnvelope {
   static final int MAX_JWT_LENGTH = 8 * 1024;
 
   private final String compactJwt;
-  private final CredentialIntent intent;
 
-  public CredentialEnvelope(String compactJwt, CredentialIntent intent) {
+  public CredentialEnvelope(String compactJwt) {
     if (compactJwt.isEmpty() || compactJwt.length() > MAX_JWT_LENGTH) {
       throw new IllegalArgumentException("Invalid JWT length");
     }
     this.compactJwt = compactJwt;
-    this.intent = Objects.requireNonNull(intent);
   }
 
   public String getCompactJwt() {
     return compactJwt;
   }
 
-  public CredentialIntent getIntent() {
-    return intent;
-  }
-
   public byte[] toBytes() {
-    Frame frame = Frame.of(LABEL).add(VERSION).add(compactJwt);
-    intent.writeTo(frame);
-    return frame.toByteArray();
+    return Frame.of(LABEL).add(VERSION).add(compactJwt).toByteArray();
   }
 
   public static CredentialEnvelope fromBytes(byte[] bytes) throws GeneralSecurityException {
@@ -47,9 +37,8 @@ public final class CredentialEnvelope {
     if (jwt.isEmpty()) {
       throw new GeneralSecurityException("Empty JWT");
     }
-    CredentialIntent intent = CredentialIntent.readFrom(reader);
     reader.expectEnd();
-    return new CredentialEnvelope(jwt, intent);
+    return new CredentialEnvelope(jwt);
   }
 
   @Override

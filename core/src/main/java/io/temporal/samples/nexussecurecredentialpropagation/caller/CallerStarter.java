@@ -5,15 +5,11 @@ import io.temporal.client.WorkflowClientOptions;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.samples.nexus.options.ClientOptions;
 import io.temporal.samples.nexussecurecredentialpropagation.common.CredentialEnvelope;
-import io.temporal.samples.nexussecurecredentialpropagation.common.CredentialIntent;
 import io.temporal.samples.nexussecurecredentialpropagation.common.DemoIdentityProvider;
 import io.temporal.samples.nexussecurecredentialpropagation.common.SampleConfig;
 import io.temporal.samples.nexussecurecredentialpropagation.common.SampleKeysets;
 import io.temporal.samples.nexussecurecredentialpropagation.service.TransferService;
 import java.time.Duration;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,20 +44,6 @@ public class CallerStarter {
         new DemoIdentityProvider(keys.demoIdentityProviderSigner())
             .issue("alice", "acme", TransferService.REQUIRED_SCOPE, Duration.ofMinutes(5));
 
-    // The intent is what the user approved. The handler rejects any input outside it.
-    Map<String, String> constraints = new HashMap<>();
-    constraints.put(TransferService.CONSTRAINT_PAYMENT_ID, input.getPaymentId());
-    constraints.put(TransferService.CONSTRAINT_BENEFICIARY, input.getBeneficiary());
-    constraints.put(TransferService.CONSTRAINT_MAX_AMOUNT_CENTS, "5000");
-    CredentialIntent intent =
-        new CredentialIntent(
-            Collections.singletonList(
-                new CredentialIntent.RouteGrant(
-                    SampleConfig.ENDPOINT,
-                    TransferService.NAME,
-                    TransferService.TRANSFER,
-                    constraints)));
-
     TransferWorkflow workflow =
         client.newWorkflowStub(
             TransferWorkflow.class,
@@ -70,7 +52,7 @@ public class CallerStarter {
                 .setTaskQueue(SampleConfig.CALLER_TASK_QUEUE)
                 .build());
     CredentialContext.callWith(
-        new CredentialEnvelope(jwt, intent), () -> WorkflowClient.start(workflow::transfer, input));
+        new CredentialEnvelope(jwt), () -> WorkflowClient.start(workflow::transfer, input));
     TransferService.TransferOutput output = workflow.transfer(input);
     logger.info(
         "Transfer {} {} for {}",

@@ -18,26 +18,32 @@ replay-proof, and it does not protect against compromised Workers.
 Client                     Caller Workflow Worker            Temporal / Nexus           Handler Worker
   |  start(args)             |                                   |                          |
   |  header = HPKE(wf.pub,   |                                   |                          |
-  |    jwt+intent,           |                                   |                          |
+  |    jwt,                  |                                   |                          |
   |    ns|type|wid|D(args))  |                                   |                          |
   |------------------------->| open with wf.priv, recompute      |                          |
   |                          | D(args) from received ciphertexts |                          |
   |                          |                                   |                          |
   |                          | Nexus input ciphertext C          |                          |
   |                          | header = HPKE(nexus.pub,          |                          |
-  |                          |   jwt+intent,                     |                          |
+  |                          |   jwt,                            |                          |
   |                          |   endpoint|svc|op|D(C))           |                          |
   |                          |---------------------------------->|------------------------->|
   |                          |                                   |  route from dispatch,    |
   |                          |                                   |  D(C) from received C,   |
   |                          |                                   |  open with nexus.priv,   |
-  |                          |                                   |  verify JWT, check       |
-  |                          |                                   |  input against intent    |
+  |                          |                                   |  verify JWT, authorize   |
+  |                          |                                   |  principal against input |
 ```
 
 `D(...)` is the **args digest**: SHA-256 over the transmitted argument ciphertexts, their positions, and their count.
-Binding the credential to it means the credential only opens next to the exact arguments it was sent with. Nothing
-hashes or canonicalizes the business input, so serialization does not need to be deterministic.
+Every header is bound to the digest of the arguments on its own hop: the client binds the start header to the start
+argument ciphertexts, and the caller Worker binds the Nexus header to the Nexus input ciphertext. The credential only
+opens next to the exact arguments it was sent with. Nothing hashes or canonicalizes the business input, so
+serialization does not need to be deterministic.
+
+The two digests are independent. The Nexus input is a new value computed by Workflow code and encrypted by the caller
+Worker with a fresh nonce, so the client cannot bind the credential to it in advance. See
+[Authorization and steering](#authorization-and-steering).
 
 ### Keys
 
@@ -92,7 +98,7 @@ Temporal header "end-user-credential":
 Nexus header "x-temporal-end-user-credential":
   v1.<base64url HPKE(..., context = frame("nexus-credential", v1, endpoint, service, operation, D(input)))>
 
-plaintext = frame("credential-envelope", v1, compactJwt, intent)
+plaintext = frame("credential-envelope", v1, compactJwt)
 ```
 
 `frame` is a length-prefixed encoding. The context is passed to Tink as HPKE `info`, which is mixed into the key
@@ -124,26 +130,18 @@ Workflow task, and a missing or mismatched header is rejected by the receiver. T
 ### Authorization and steering
 
 The handler gets the route from the actual Nexus request, never from custom headers. It decrypts the credential,
-validates the JWT (signature, algorithm, issuer, audience, type, `exp`, `nbf`), then:
+validates the JWT (signature, algorithm, issuer, audience, type, `exp`, `nbf`), then authorizes the principal against
+the input: the token's scope is required, the token subject and tenant are authoritative, and the input's `userId` and
+`tenantId` are only assertions to check.
 
-- authorizes the principal against the input: the token subject and tenant are authoritative, and the input's
-  `userId` and `tenantId` are only assertions to check;
-- requires the input to fall within the **intent** the client sealed next to the JWT (exact payment ID and
-  beneficiary, maximum amount).
+The Nexus args digest proves only that the caller Worker produced the input, not that the end user wanted that input.
+Nothing links the start arguments to the Nexus input, so signals, updates, and activity results can steer a caller
+Workflow into sending different inputs under the user's credential, as long as the handler's authorization allows
+them. Scoping the credential to a specific action needs a separate mechanism, such as:
 
-The args digest proves only that the caller Worker produced the input. Signals, updates, and activity results can
-steer a caller Workflow into choosing different inputs. The intent bounds that: the Workflow carries it unchanged and
-cannot alter it.
-
-The intent protects a user from having their own Workflow steered; it does not constrain a user acting with their
-own token. Anyone holding a valid token and a public key can seal any intent they like, so the intent is never a
-substitute for server-side authorization. `TransferIntentPolicy` checks scope, subject, and tenant independently of
-the intent for this reason.
-
-Authorizing the steering messages themselves needs a separate mechanism, such as:
-
-- **identity-provider-issued intent**, for example RFC 9396 `authorization_details` or transaction tokens, which also
-  survive a caller Worker compromise (recommended for production);
+- **identity-provider-issued, action-scoped tokens**, for example RFC 9396 `authorization_details` or transaction
+  tokens, which the handler checks against the input and which also survive a caller Worker compromise (recommended
+  for production);
 - **authenticated steering messages** that carry the sender's own credential to the handler;
 - **Temporal-layer restrictions** on who may signal or update these Workflows;
 - **provenance discipline**, deriving Nexus input only from start arguments (a review rule, not a control).
@@ -158,7 +156,7 @@ invalid credential is `UNAUTHENTICATED`, and a valid identity without permission
 | Workflow replay | Interceptors decrypt again; regenerated ciphertexts are not compared by Temporal. |
 | Nexus retry | Same input and request ID; resolves to the same backing Workflow. |
 | Exact replay of a Nexus input/header pair from another caller | Attaches to the same backing Workflow while it runs; refused once it has closed. No second effect. |
-| Exact replay of a start into a new run of the same ID | Re-runs the victim's own arguments and intent; its Nexus calls are exact replays. Bounded by JWT expiry. |
+| Exact replay of a start into a new run of the same ID | Re-runs the victim's own arguments; its Nexus calls are exact replays. Bounded by JWT expiry. |
 
 The backing Workflow ID is derived from the verified principal and the payment ID, never from the Nexus request ID.
 Including the principal stops another user with identical input from attaching to someone else's transfer. Workflow

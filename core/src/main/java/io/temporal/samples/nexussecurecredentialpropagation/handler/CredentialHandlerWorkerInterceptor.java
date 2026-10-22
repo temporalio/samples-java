@@ -10,7 +10,6 @@ import io.temporal.common.interceptors.NexusOperationOutboundCallsInterceptor;
 import io.temporal.common.interceptors.WorkerInterceptorBase;
 import io.temporal.samples.nexussecurecredentialpropagation.common.ArgsDigest;
 import io.temporal.samples.nexussecurecredentialpropagation.common.CredentialEnvelope;
-import io.temporal.samples.nexussecurecredentialpropagation.common.CredentialIntent;
 import io.temporal.samples.nexussecurecredentialpropagation.common.EndUserPrincipal;
 import io.temporal.samples.nexussecurecredentialpropagation.common.SecureCredentialHeaders;
 import java.security.GeneralSecurityException;
@@ -18,7 +17,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,15 +33,15 @@ public class CredentialHandlerWorkerInterceptor extends WorkerInterceptorBase {
 
   private final HybridDecrypt nexusCredentialDecrypt;
   private final JwtVerifier jwtVerifier;
-  private final Map<String, IntentPolicy<?>> policies;
+  private final Map<String, AuthorizationPolicy<?>> policies;
 
   /**
-   * @param policies intent policy per protected route, keyed by {@code service/operation}
+   * @param policies authorization policy per protected route, keyed by {@code service/operation}
    */
   public CredentialHandlerWorkerInterceptor(
       HybridDecrypt nexusCredentialDecrypt,
       JwtVerifier jwtVerifier,
-      Map<String, IntentPolicy<?>> policies) {
+      Map<String, AuthorizationPolicy<?>> policies) {
     this.nexusCredentialDecrypt = nexusCredentialDecrypt;
     this.jwtVerifier = jwtVerifier;
     this.policies = Collections.unmodifiableMap(new HashMap<>(policies));
@@ -76,7 +74,7 @@ public class CredentialHandlerWorkerInterceptor extends WorkerInterceptorBase {
       OperationContext context = input.getOperationContext();
       String route = context.getService() + "/" + context.getOperation();
       String header = context.getHeaders().get(SecureCredentialHeaders.NEXUS_HEADER);
-      IntentPolicy<?> policy = policies.get(route);
+      AuthorizationPolicy<?> policy = policies.get(route);
       if (policy == null) {
         if (header != null) {
           throw reject(
@@ -101,7 +99,7 @@ public class CredentialHandlerWorkerInterceptor extends WorkerInterceptorBase {
         ArgsDigest.Received received,
         String route,
         String header,
-        IntentPolicy<?> policy) {
+        AuthorizationPolicy<?> policy) {
       OperationContext context = input.getOperationContext();
       if (endpoint == null || endpoint.isEmpty()) {
         // Servers before 1.30 do not report the endpoint; fail closed instead of weakening the
@@ -129,14 +127,9 @@ public class CredentialHandlerWorkerInterceptor extends WorkerInterceptorBase {
         throw reject(HandlerException.ErrorType.UNAUTHENTICATED, route, e.getMessage());
       }
 
-      Optional<CredentialIntent.RouteGrant> grant =
-          envelope.getIntent().grantFor(endpoint, context.getService(), context.getOperation());
-      if (!grant.isPresent()) {
-        throw reject(HandlerException.ErrorType.UNAUTHORIZED, route, "route outside intent");
-      }
       try {
-        authorize(policy, principal, grant.get(), input.getInput());
-      } catch (IntentPolicy.AuthorizationDeniedException e) {
+        authorize(policy, principal, input.getInput());
+      } catch (AuthorizationPolicy.AuthorizationDeniedException e) {
         throw reject(HandlerException.ErrorType.UNAUTHORIZED, route, e.getMessage());
       }
       return principal;
@@ -144,15 +137,12 @@ public class CredentialHandlerWorkerInterceptor extends WorkerInterceptorBase {
   }
 
   private static <T> void authorize(
-      IntentPolicy<T> policy,
-      EndUserPrincipal principal,
-      CredentialIntent.RouteGrant grant,
-      Object input)
-      throws IntentPolicy.AuthorizationDeniedException {
+      AuthorizationPolicy<T> policy, EndUserPrincipal principal, Object input)
+      throws AuthorizationPolicy.AuthorizationDeniedException {
     if (!policy.inputType().isInstance(input)) {
-      throw new IntentPolicy.AuthorizationDeniedException("Unexpected input type");
+      throw new AuthorizationPolicy.AuthorizationDeniedException("Unexpected input type");
     }
-    policy.authorize(principal, grant, policy.inputType().cast(input));
+    policy.authorize(principal, policy.inputType().cast(input));
   }
 
   private static HandlerException reject(

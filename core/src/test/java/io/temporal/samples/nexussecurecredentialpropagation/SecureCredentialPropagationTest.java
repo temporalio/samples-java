@@ -39,14 +39,13 @@ import io.temporal.samples.nexussecurecredentialpropagation.caller.CredentialWor
 import io.temporal.samples.nexussecurecredentialpropagation.caller.TransferWorkflow;
 import io.temporal.samples.nexussecurecredentialpropagation.caller.TransferWorkflowImpl;
 import io.temporal.samples.nexussecurecredentialpropagation.common.CredentialEnvelope;
-import io.temporal.samples.nexussecurecredentialpropagation.common.CredentialIntent;
 import io.temporal.samples.nexussecurecredentialpropagation.common.DemoIdentityProvider;
 import io.temporal.samples.nexussecurecredentialpropagation.common.SampleConfig;
 import io.temporal.samples.nexussecurecredentialpropagation.common.SampleKeysets;
 import io.temporal.samples.nexussecurecredentialpropagation.common.SecureCredentialHeaders;
 import io.temporal.samples.nexussecurecredentialpropagation.handler.CredentialHandlerWorkerInterceptor;
 import io.temporal.samples.nexussecurecredentialpropagation.handler.JwtVerifier;
-import io.temporal.samples.nexussecurecredentialpropagation.handler.TransferIntentPolicy;
+import io.temporal.samples.nexussecurecredentialpropagation.handler.TransferAuthorizationPolicy;
 import io.temporal.samples.nexussecurecredentialpropagation.handler.TransferNexusServiceImpl;
 import io.temporal.samples.nexussecurecredentialpropagation.service.TransferService;
 import io.temporal.samples.nexussecurecredentialpropagation.tools.VerifyCredentialBinding;
@@ -64,7 +63,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -113,7 +111,7 @@ public class SecureCredentialPropagationTest {
                                     DemoIdentityProvider.HANDLER_AUDIENCE),
                                 Collections.singletonMap(
                                     TransferService.NAME + "/" + TransferService.TRANSFER,
-                                    new TransferIntentPolicy())),
+                                    new TransferAuthorizationPolicy())),
                             // Registered last: outermost inbound, innermost outbound.
                             new CredentialCallerWorkerInterceptor(
                                 keys.workflowCredentialDecrypt(),
@@ -180,7 +178,7 @@ public class SecureCredentialPropagationTest {
   @Test
   public void transfersOnBehalfOfVerifiedPrincipal() {
     TransferService.TransferInput input = transferInput("p-1");
-    TransferService.TransferOutput output = runTransfer("caller-1", input, credentialFor(input));
+    TransferService.TransferOutput output = runTransfer("caller-1", input, aliceCredential());
     assertEquals("SETTLED", output.getStatus());
     assertEquals("alice", output.getApprovedFor());
   }
@@ -188,7 +186,7 @@ public class SecureCredentialPropagationTest {
   @Test
   public void historiesContainNoPlaintextCredential() {
     TransferService.TransferInput input = transferInput("p-plain");
-    CredentialEnvelope credential = credentialFor(input);
+    CredentialEnvelope credential = aliceCredential();
     runTransfer("caller-plain", input, credential);
 
     String jwt = credential.getCompactJwt();
@@ -211,7 +209,7 @@ public class SecureCredentialPropagationTest {
         client.newWorkflowStub(
             TestWorkflows.SteerableTransferWorkflow.class, callerOptions("caller-sws"));
     CredentialContext.callWith(
-        credentialFor(input),
+        aliceCredential(),
         () -> {
           BatchRequest request = client.newSignalWithStartRequest();
           request.add(workflow::transfer, input);
@@ -237,7 +235,7 @@ public class SecureCredentialPropagationTest {
                         .WORKFLOW_ID_CONFLICT_POLICY_FAIL)
                 .build());
     CredentialContext.callWith(
-        credentialFor(input),
+        aliceCredential(),
         () ->
             WorkflowClient.startUpdateWithStart(
                 workflow::ack,
@@ -267,7 +265,7 @@ public class SecureCredentialPropagationTest {
                         .build())
                 .build());
     CredentialContext.callWith(
-        credentialFor(input), () -> WorkflowClient.start(workflow::transfer, input));
+        aliceCredential(), () -> WorkflowClient.start(workflow::transfer, input));
     TransferService.TransferOutput output =
         client.newUntypedWorkflowStub("caller-can").getResult(TransferService.TransferOutput.class);
     assertEquals("SETTLED", output.getStatus());
@@ -281,7 +279,7 @@ public class SecureCredentialPropagationTest {
   public void childWorkflowsDoNotReceiveTheCredential() {
     TestWorkflows.ParentWorkflow parent =
         client.newWorkflowStub(TestWorkflows.ParentWorkflow.class, callerOptions("parent"));
-    CredentialContext.callWith(credentialFor(transferInput("p-child")), () -> parent.run("child"));
+    CredentialContext.callWith(aliceCredential(), () -> parent.run("child"));
     assertTrue(
         startedEvent("parent").getHeader().containsFields(SecureCredentialHeaders.WORKFLOW_HEADER));
     assertFalse(
@@ -295,7 +293,7 @@ public class SecureCredentialPropagationTest {
         client.newWorkflowStub(
             TestWorkflows.CancellingTransferWorkflow.class, callerOptions("caller-cancel"));
     String result =
-        CredentialContext.callWith(credentialFor(input), () -> workflow.transferThenCancel(input));
+        CredentialContext.callWith(aliceCredential(), () -> workflow.transferThenCancel(input));
     assertTrue(result.startsWith("cancelled:"), result);
 
     String backingId = TransferNexusServiceImpl.resourceId(principal("alice"), input);
@@ -312,7 +310,7 @@ public class SecureCredentialPropagationTest {
   @Test
   public void verifierConfirmsBindingInRealHistory() {
     TransferService.TransferInput input = transferInput("p-verify");
-    runTransfer("caller-verify", input, credentialFor(input));
+    runTransfer("caller-verify", input, aliceCredential());
 
     List<VerifyCredentialBinding.Result> results =
         verifier().verify(NAMESPACE, "caller-verify", events("caller-verify"));
@@ -334,7 +332,7 @@ public class SecureCredentialPropagationTest {
   @Test
   public void verifierDetectsSubstitutedArguments() {
     TransferService.TransferInput input = transferInput("p-verify-tamper");
-    runTransfer("caller-verify-tamper", input, credentialFor(input));
+    runTransfer("caller-verify-tamper", input, aliceCredential());
 
     List<HistoryEvent> history = new ArrayList<>(events("caller-verify-tamper"));
     HistoryEvent started = history.get(0);
@@ -364,9 +362,7 @@ public class SecureCredentialPropagationTest {
     TestWorkflows.TwoArgWorkflow workflow =
         client.newWorkflowStub(TestWorkflows.TwoArgWorkflow.class, callerOptions("two-args"));
     assertEquals(
-        "a,b",
-        CredentialContext.callWith(
-            credentialFor(transferInput("p-args")), () -> workflow.join("a", "b")));
+        "a,b", CredentialContext.callWith(aliceCredential(), () -> workflow.join("a", "b")));
 
     WorkflowExecutionStartedEventAttributes victim = startedEvent("two-args");
     List<Payload> args = victim.getInput().getPayloadsList();
@@ -428,8 +424,7 @@ public class SecureCredentialPropagationTest {
             RuntimeException.class,
             () ->
                 CredentialContext.callWith(
-                    credentialFor(transferInput("p-noargs")),
-                    () -> WorkflowClient.start(workflow::run)));
+                    aliceCredential(), () -> WorkflowClient.start(workflow::run)));
     assertTrue(hasCause(e, IllegalArgumentException.class), () -> chain(e));
   }
 
@@ -454,7 +449,7 @@ public class SecureCredentialPropagationTest {
             RuntimeException.class,
             () ->
                 CredentialContext.callWith(
-                    credentialFor(input), () -> WorkflowClient.start(workflow::transfer, input)));
+                    aliceCredential(), () -> WorkflowClient.start(workflow::transfer, input)));
     assertTrue(hasCause(e, IllegalStateException.class));
   }
 
@@ -467,7 +462,7 @@ public class SecureCredentialPropagationTest {
     TransferWorkflow victim =
         client.newWorkflowStub(TransferWorkflow.class, callerOptions("victim-running"));
     CredentialContext.callWith(
-        credentialFor(input), () -> WorkflowClient.start(victim::transfer, input));
+        aliceCredential(), () -> WorkflowClient.start(victim::transfer, input));
     String victimToken = awaitStartedToken("victim-running");
     NexusOperationScheduledEventAttributes scheduled = scheduledEvent("victim-running");
 
@@ -479,7 +474,7 @@ public class SecureCredentialPropagationTest {
   @Test
   public void exactNexusReplayAfterCompletionCausesNoSecondEffect() {
     TransferService.TransferInput input = transferInput("p-replay");
-    runTransfer("victim-replay", input, credentialFor(input));
+    runTransfer("victim-replay", input, aliceCredential());
     NexusOperationScheduledEventAttributes victim = scheduledEvent("victim-replay");
 
     TestWorkflows.AttackerHeaderInterceptor.HEADERS.putAll(victim.getNexusHeaderMap());
@@ -492,8 +487,8 @@ public class SecureCredentialPropagationTest {
   public void nexusHeaderCannotBePairedWithAnotherInput() {
     TransferService.TransferInput inputA = transferInput("p-a");
     TransferService.TransferInput inputB = transferInput("p-b");
-    runTransfer("victim-a", inputA, credentialFor(inputA));
-    runTransfer("victim-b", inputB, credentialFor(inputB));
+    runTransfer("victim-a", inputA, aliceCredential());
+    runTransfer("victim-b", inputB, aliceCredential());
 
     TestWorkflows.AttackerHeaderInterceptor.HEADERS.putAll(
         scheduledEvent("victim-a").getNexusHeaderMap());
@@ -505,7 +500,7 @@ public class SecureCredentialPropagationTest {
   @Test
   public void exactNexusPairCannotMoveToAnotherEndpoint() {
     TransferService.TransferInput input = transferInput("p-route");
-    runTransfer("victim-route", input, credentialFor(input));
+    runTransfer("victim-route", input, aliceCredential());
     NexusOperationScheduledEventAttributes victim = scheduledEvent("victim-route");
 
     TestWorkflows.AttackerHeaderInterceptor.HEADERS.putAll(victim.getNexusHeaderMap());
@@ -516,7 +511,7 @@ public class SecureCredentialPropagationTest {
   @Test
   public void nexusInputWithoutCredentialIsRejected() {
     TransferService.TransferInput input = transferInput("p-nocred");
-    runTransfer("victim-nocred", input, credentialFor(input));
+    runTransfer("victim-nocred", input, aliceCredential());
     assertEquals(
         "rejected:UNAUTHENTICATED",
         attack(SampleConfig.ENDPOINT, scheduledEvent("victim-nocred").getInput()));
@@ -526,32 +521,12 @@ public class SecureCredentialPropagationTest {
   // Authorization.
 
   @Test
-  public void inputOutsideTheIntentIsUnauthorized() {
-    TransferService.TransferInput approved = transferInput("p-intent");
-    TransferService.TransferInput steered =
-        new TransferService.TransferInput("acme", "alice", "p-intent", "mallory", 25_00);
-    assertEquals(
-        HandlerException.ErrorType.UNAUTHORIZED,
-        transferFailure("caller-intent", steered, credentialFor(approved)));
-  }
-
-  @Test
-  public void amountAboveTheIntentIsUnauthorized() {
-    TransferService.TransferInput approved = transferInput("p-amount");
-    TransferService.TransferInput steered =
-        new TransferService.TransferInput("acme", "alice", "p-amount", "bob", 99_00);
-    assertEquals(
-        HandlerException.ErrorType.UNAUTHORIZED,
-        transferFailure("caller-amount", steered, credentialFor(approved)));
-  }
-
-  @Test
   public void subjectMismatchIsUnauthorized() {
     TransferService.TransferInput input =
         new TransferService.TransferInput("acme", "bob", "p-subject", "bob", 25_00);
     assertEquals(
         HandlerException.ErrorType.UNAUTHORIZED,
-        transferFailure("caller-subject", input, credentialFor(input)));
+        transferFailure("caller-subject", input, aliceCredential()));
   }
 
   @Test
@@ -567,7 +542,7 @@ public class SecureCredentialPropagationTest {
             Duration.ofMinutes(5));
     assertEquals(
         HandlerException.ErrorType.UNAUTHENTICATED,
-        transferFailure("caller-aud", input, new CredentialEnvelope(jwt, intentFor(input))));
+        transferFailure("caller-aud", input, new CredentialEnvelope(jwt)));
   }
 
   // ---------------------------------------------------------------------------------------------
@@ -577,24 +552,10 @@ public class SecureCredentialPropagationTest {
     return new TransferService.TransferInput("acme", "alice", paymentId, "bob", 25_00);
   }
 
-  private static CredentialIntent intentFor(TransferService.TransferInput input) {
-    Map<String, String> constraints = new HashMap<>();
-    constraints.put(TransferService.CONSTRAINT_PAYMENT_ID, input.getPaymentId());
-    constraints.put(TransferService.CONSTRAINT_BENEFICIARY, input.getBeneficiary());
-    constraints.put(TransferService.CONSTRAINT_MAX_AMOUNT_CENTS, "5000");
-    return new CredentialIntent(
-        Collections.singletonList(
-            new CredentialIntent.RouteGrant(
-                SampleConfig.ENDPOINT,
-                TransferService.NAME,
-                TransferService.TRANSFER,
-                constraints)));
-  }
-
-  /** A credential for alice, approving exactly the given input. */
-  private CredentialEnvelope credentialFor(TransferService.TransferInput input) {
+  /** A credential for alice with the scope the handler requires. */
+  private CredentialEnvelope aliceCredential() {
     String jwt = idp.issue("alice", "acme", TransferService.REQUIRED_SCOPE, Duration.ofMinutes(5));
-    return new CredentialEnvelope(jwt, intentFor(input));
+    return new CredentialEnvelope(jwt);
   }
 
   private static io.temporal.samples.nexussecurecredentialpropagation.common.EndUserPrincipal

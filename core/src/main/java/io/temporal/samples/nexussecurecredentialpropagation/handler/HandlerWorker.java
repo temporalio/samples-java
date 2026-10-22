@@ -31,7 +31,8 @@ public class HandlerWorker {
                 DemoIdentityProvider.ISSUER,
                 DemoIdentityProvider.HANDLER_AUDIENCE),
             Collections.singletonMap(
-                TransferService.NAME + "/" + TransferService.TRANSFER, new TransferIntentPolicy()));
+                TransferService.NAME + "/" + TransferService.TRANSFER,
+                new TransferAuthorizationPolicy()));
 
     WorkerFactory factory =
         WorkerFactory.newInstance(

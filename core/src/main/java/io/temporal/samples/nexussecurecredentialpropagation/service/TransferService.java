@@ -11,15 +11,6 @@ public interface TransferService {
   String NAME = "TransferService";
   String TRANSFER = "transfer";
 
-  /** Intent constraint: the exact payment ID the user approved. */
-  String CONSTRAINT_PAYMENT_ID = "paymentId";
-
-  /** Intent constraint: the exact beneficiary the user approved. */
-  String CONSTRAINT_BENEFICIARY = "beneficiary";
-
-  /** Intent constraint: the maximum amount, in cents, the user approved. */
-  String CONSTRAINT_MAX_AMOUNT_CENTS = "maxAmountCents";
-
   /** Scope the end user's token must carry. */
   String REQUIRED_SCOPE = "payments:transfer";
 

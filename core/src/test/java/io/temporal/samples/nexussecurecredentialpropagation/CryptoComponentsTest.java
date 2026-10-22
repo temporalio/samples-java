@@ -21,16 +21,15 @@ import io.temporal.payload.context.WorkflowSerializationContext;
 import io.temporal.samples.nexussecurecredentialpropagation.common.ArgsDigest;
 import io.temporal.samples.nexussecurecredentialpropagation.common.ContextAwareTinkPayloadCodec;
 import io.temporal.samples.nexussecurecredentialpropagation.common.CredentialEnvelope;
-import io.temporal.samples.nexussecurecredentialpropagation.common.CredentialIntent;
 import io.temporal.samples.nexussecurecredentialpropagation.common.DemoIdentityProvider;
 import io.temporal.samples.nexussecurecredentialpropagation.common.EndUserPrincipal;
 import io.temporal.samples.nexussecurecredentialpropagation.common.Frame;
 import io.temporal.samples.nexussecurecredentialpropagation.common.SampleKeysets;
 import io.temporal.samples.nexussecurecredentialpropagation.common.SecureCredentialHeaders;
-import io.temporal.samples.nexussecurecredentialpropagation.handler.IntentPolicy;
+import io.temporal.samples.nexussecurecredentialpropagation.handler.AuthorizationPolicy;
 import io.temporal.samples.nexussecurecredentialpropagation.handler.JwtVerifier;
 import io.temporal.samples.nexussecurecredentialpropagation.handler.TokenProbe;
-import io.temporal.samples.nexussecurecredentialpropagation.handler.TransferIntentPolicy;
+import io.temporal.samples.nexussecurecredentialpropagation.handler.TransferAuthorizationPolicy;
 import io.temporal.samples.nexussecurecredentialpropagation.handler.TransferNexusServiceImpl;
 import io.temporal.samples.nexussecurecredentialpropagation.service.TransferService;
 import java.nio.file.Path;
@@ -40,9 +39,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -60,7 +57,7 @@ public class CryptoComponentsTest {
   public void setUp() throws Exception {
     keys = SampleKeysets.fromDirectory(keyDir);
     keys.generate();
-    envelope = new CredentialEnvelope("header.payload.signature", intent("5000"));
+    envelope = new CredentialEnvelope("header.payload.signature");
     ArgsDigest.take();
   }
 
@@ -173,9 +170,6 @@ public class CryptoComponentsTest {
     byte[] bytes = envelope.toBytes();
     CredentialEnvelope decoded = CredentialEnvelope.fromBytes(bytes);
     assertEquals(envelope.getCompactJwt(), decoded.getCompactJwt());
-    assertEquals(
-        envelope.getIntent().getGrants().get(0).getConstraints(),
-        decoded.getIntent().getGrants().get(0).getConstraints());
     assertThrows(
         GeneralSecurityException.class,
         () -> CredentialEnvelope.fromBytes(Arrays.copyOf(bytes, bytes.length + 1)));
@@ -350,37 +344,32 @@ public class CryptoComponentsTest {
   // Authorization and idempotency.
 
   @Test
-  public void intentPolicyEnforcesPrincipalAndConstraints() throws Exception {
-    TransferIntentPolicy policy = new TransferIntentPolicy();
+  public void authorizationPolicyEnforcesPrincipal() throws Exception {
+    TransferAuthorizationPolicy policy = new TransferAuthorizationPolicy();
     EndUserPrincipal alice =
         new EndUserPrincipal(
             DemoIdentityProvider.ISSUER,
             "alice",
             "acme",
             Collections.singleton(TransferService.REQUIRED_SCOPE));
-    CredentialIntent.RouteGrant grant = intent("5000").getGrants().get(0);
-
-    policy.authorize(alice, grant, transfer("acme", "alice", "p-1", "bob", 50_00));
+    policy.authorize(alice, transfer("acme", "alice", "p-1", "bob", 50_00));
 
     List<TransferService.TransferInput> denied =
         Arrays.asList(
             transfer("other", "alice", "p-1", "bob", 10_00),
             transfer("acme", "bob", "p-1", "bob", 10_00),
-            transfer("acme", "alice", "p-2", "bob", 10_00),
-            transfer("acme", "alice", "p-1", "mallory", 10_00),
-            transfer("acme", "alice", "p-1", "bob", 50_01),
             transfer("acme", "alice", "p-1", "bob", 0));
     for (TransferService.TransferInput input : denied) {
       assertThrows(
-          IntentPolicy.AuthorizationDeniedException.class,
-          () -> policy.authorize(alice, grant, input));
+          AuthorizationPolicy.AuthorizationDeniedException.class,
+          () -> policy.authorize(alice, input));
     }
 
     EndUserPrincipal noScope =
         new EndUserPrincipal(DemoIdentityProvider.ISSUER, "alice", "acme", Collections.emptySet());
     assertThrows(
-        IntentPolicy.AuthorizationDeniedException.class,
-        () -> policy.authorize(noScope, grant, transfer("acme", "alice", "p-1", "bob", 10_00)));
+        AuthorizationPolicy.AuthorizationDeniedException.class,
+        () -> policy.authorize(noScope, transfer("acme", "alice", "p-1", "bob", 10_00)));
   }
 
   @Test
@@ -415,17 +404,6 @@ public class CryptoComponentsTest {
   }
 
   // Helpers.
-
-  private static CredentialIntent intent(String maxAmountCents) {
-    Map<String, String> constraints = new HashMap<>();
-    constraints.put(TransferService.CONSTRAINT_PAYMENT_ID, "p-1");
-    constraints.put(TransferService.CONSTRAINT_BENEFICIARY, "bob");
-    constraints.put(TransferService.CONSTRAINT_MAX_AMOUNT_CENTS, maxAmountCents);
-    return new CredentialIntent(
-        Collections.singletonList(
-            new CredentialIntent.RouteGrant(
-                "ep", TransferService.NAME, TransferService.TRANSFER, constraints)));
-  }
 
   private static TransferService.TransferInput transfer(
       String tenant, String user, String paymentId, String beneficiary, long amountCents) {
