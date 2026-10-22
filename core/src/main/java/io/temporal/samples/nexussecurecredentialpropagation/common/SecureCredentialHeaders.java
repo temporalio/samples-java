@@ -10,7 +10,7 @@ import java.security.GeneralSecurityException;
 import java.util.Base64;
 
 /**
- * Wire formats and associated data for the credential headers.
+ * Wire formats and HPKE context info for the credential headers.
  *
  * <p>Every header carries an HPKE ciphertext of a {@link CredentialEnvelope} encrypted to the
  * receiving hop. The HPKE context info binds it to the hop's context and, where available, to the

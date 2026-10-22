@@ -95,7 +95,10 @@ Nexus header "x-temporal-end-user-credential":
 plaintext = frame("credential-envelope", v1, compactJwt, intent)
 ```
 
-`frame` is a length-prefixed encoding. The context is visible to anyone who can read history; only the plaintext is
+`frame` is a length-prefixed encoding. The context is passed to Tink as HPKE `info`, which is mixed into the key
+derivation (Tink's HPKE uses empty AEAD associated data). It is never transmitted: the receiver rebuilds it from the
+dispatched route, its Workflow info, and the argument ciphertexts it received, and a different context derives a
+different key, so decryption fails. Its components are visible to anyone who can read history; only the plaintext is
 secret.
 
 The Java SDK builds the continue-as-new header before encoding the new run's arguments, so continue-as-new headers
@@ -226,8 +229,8 @@ Nexus header contain only ciphertext.
 
 ### Verify the binding
 
-The args digest is not a field in the header; it is authenticated associated data that the receiver recomputes. To
-check the binding in a real history, run the verifier against the caller namespace:
+The args digest is not a field in the header; it is part of the HPKE `info` that the receiver recomputes. To check
+the binding in a real history, run the verifier against the caller namespace:
 
 ```
 ./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexussecurecredentialpropagation.tools.VerifyCredentialBinding \

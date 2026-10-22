@@ -29,7 +29,7 @@ import java.util.List;
  * digest from the event's input ciphertexts, or using {@code firstExecutionRunId} for
  * continue-as-new headers), opens the header with it, and confirms that the same context with one
  * bit changed is rejected. It also confirms the digest never appears in the header bytes: the
- * digest is authenticated associated data, not a transmitted field.
+ * digest is part of the HPKE {@code info} mixed into key derivation, not a transmitted field.
  *
  * <p>Opening a header requires the receivers' private keys, so this is an operator debugging tool.
  * It prints only the subject and issuer of each credential, never the token.

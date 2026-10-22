@@ -6,7 +6,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 
 /**
- * Unambiguous length-prefixed encoding used for associated data, digests, and envelopes.
+ * Unambiguous length-prefixed encoding used for associated data, HPKE context info, digests, and
+ * envelopes.
  *
  * <p>Every field is written as a 4-byte big-endian length followed by its bytes, so no two
  * different field sequences produce the same encoding.
