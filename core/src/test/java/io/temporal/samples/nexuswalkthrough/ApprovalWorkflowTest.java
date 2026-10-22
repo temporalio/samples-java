@@ -58,8 +58,7 @@ public class ApprovalWorkflowTest {
         approval::runApproval,
         new RequestApprovalInput("standing-desk", "dana@example.com", 1250.00));
 
-    SubmitDecisionOutput ack =
-        approval.submitDecision(SubmitDecisionInput.Decision.DECISION_APPROVED);
+    SubmitDecisionOutput ack = approval.submitDecision(SubmitDecisionInput.Decision.APPROVED);
     assertEquals("APPROVED", ack.getRecorded().getValue());
     assertEquals(0, ack.getRemindersSent());
 
@@ -78,8 +77,7 @@ public class ApprovalWorkflowTest {
     approval.remindApprover();
     approval.remindApprover();
 
-    SubmitDecisionOutput ack =
-        approval.submitDecision(SubmitDecisionInput.Decision.DECISION_DENIED);
+    SubmitDecisionOutput ack = approval.submitDecision(SubmitDecisionInput.Decision.DENIED);
     assertEquals("DENIED", ack.getRecorded().getValue());
     assertEquals(2, ack.getRemindersSent());
   }
@@ -102,7 +100,7 @@ public class ApprovalWorkflowTest {
     assertEquals(1, pending.getRemindersSent());
     assertEquals(1, pending.getNotesAttached());
 
-    approval.submitDecision(SubmitDecisionInput.Decision.DECISION_APPROVED);
+    approval.submitDecision(SubmitDecisionInput.Decision.APPROVED);
     WorkflowStub.fromTyped(approval).getResult(RequestApprovalOutput.class);
 
     GetApprovalStatusOutput decided = approval.getApprovalStatus();
@@ -121,8 +119,7 @@ public class ApprovalWorkflowTest {
         approval::runApproval, new RequestApprovalInput("laptop-dock", "dana@example.com", 750.00));
 
     approval.attachContext("Approved in the Q3 ergonomics budget");
-    SubmitDecisionOutput ack =
-        approval.submitDecision(SubmitDecisionInput.Decision.DECISION_APPROVED);
+    SubmitDecisionOutput ack = approval.submitDecision(SubmitDecisionInput.Decision.APPROVED);
 
     assertEquals("APPROVED", ack.getRecorded().getValue());
   }
@@ -137,12 +134,12 @@ public class ApprovalWorkflowTest {
     WorkflowClient.start(
         approval::runApproval, new RequestApprovalInput("desk-lamp", "dana@example.com", 600.00));
 
-    approval.submitDecision(SubmitDecisionInput.Decision.DECISION_APPROVED);
+    approval.submitDecision(SubmitDecisionInput.Decision.APPROVED);
 
     WorkflowUpdateException failure =
         assertThrows(
             WorkflowUpdateException.class,
-            () -> approval.submitDecision(SubmitDecisionInput.Decision.DECISION_DENIED));
+            () -> approval.submitDecision(SubmitDecisionInput.Decision.DENIED));
     assertTrue(failure.getCause().getMessage().contains("already decided"));
   }
 }

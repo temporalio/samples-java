@@ -7,8 +7,9 @@
 # Every Operation input and output is an object type rather than a bare value. An object can grow an
 # optional field later without breaking the wire format; a bare string cannot.
 #
-# This file lives outside generatedservice/, because nexgen clears its output directory on every run
-# - a contract kept in the output directory would be deleted the first time you regenerate.
+# This file lives outside generatedservice/ so that the directory holds only generated code. nexgen
+# overwrites the files it generates there but never deletes any, so remove a stale file yourself
+# when you rename or remove a type.
 # @@@SNIPSTART samples-java-nexus-walkthrough-contract
 nexusrpc: "1.0.0"
 $schema: https://json-schema.org/draft/2020-12/schema

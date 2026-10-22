@@ -111,7 +111,7 @@ public class ApprovalCallerWorkflowImpl implements ApprovalCallerWorkflow {
     // -------------------------------------------------------------------------------------------
     SubmitDecisionOutput ack =
         approvalService.submitDecision(
-            new SubmitDecisionInput(itemId, SubmitDecisionInput.Decision.DECISION_APPROVED));
+            new SubmitDecisionInput(itemId, SubmitDecisionInput.Decision.APPROVED));
     logger.info(
         "submitDecision -> recorded={} after {} reminder(s)",
         ack.getRecorded().getValue(),
