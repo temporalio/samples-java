@@ -228,6 +228,23 @@ To run any of the SpringBoot samples in your Temporal Cloud namespace:
 
 3. Follow the previous section from step 2
 
+### Running Google ADK samples
+
+The [Google ADK samples](googleadk) use the Public Preview
+[`io.temporal:google-adk`](https://github.com/temporalio/ai-integrations/tree/main/java/google-adk)
+integration. They cover a basic agent, Activity tools, parallel agents, MCP, human approval, and a
+conversation that continues as new. The module requires Temporal Java SDK 1.40.0 or later.
+
+Run the Worker and a sample in separate terminals after starting `temporal server start-dev`:
+
+```bash
+export GOOGLE_API_KEY=your_key
+./gradlew :googleadk:worker
+./gradlew :googleadk:starter --args='basic'
+```
+
+See the [sample README](googleadk/README.md) for the other scenarios and credential-free tests.
+
 ### Running Spring AI Samples
 
 The Spring AI samples demonstrate the [Temporal Spring AI integration](https://github.com/temporalio/sdk-java/tree/master/temporal-spring-ai), which makes Spring AI agents durable on Temporal — model calls run as Temporal Activities recorded in Workflow history, and tools are dispatched per their type so they fit Workflow execution.

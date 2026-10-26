@@ -1,0 +1,8 @@
+<configuration>
+  <!-- Keep stdout available for the echo server's MCP stdio protocol. -->
+  <appender name="STDERR" class="ch.qos.logback.core.ConsoleAppender">
+    <target>System.err</target>
+    <encoder><pattern>%d{HH:mm:ss} %-5level %logger{36} - %msg%n</pattern></encoder>
+  </appender>
+  <root level="WARN"><appender-ref ref="STDERR" /></root>
+</configuration>
