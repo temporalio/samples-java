@@ -39,6 +39,19 @@ class ChatWorkflowTest {
           WorkflowClient.start(
               workflow::chat,
               new ChatInput(null, List.of("one", "two", "three", "four"), false, ""));
+      // Synchronize on the Run transition before querying the next Run, so Queries
+      // cannot race the test service's Continue-As-New command.
+      AdkTestEnvironment.await(
+          () ->
+              test
+                  .client
+                  .fetchHistory(firstRun.getWorkflowId(), firstRun.getRunId())
+                  .getEvents()
+                  .stream()
+                  .anyMatch(
+                      event ->
+                          event.getEventType()
+                              == EventType.EVENT_TYPE_WORKFLOW_EXECUTION_CONTINUED_AS_NEW));
       AdkTestEnvironment.await(() -> workflow.lastReply().equals("turns=4"));
       workflow.message("five");
       AdkTestEnvironment.await(() -> workflow.lastReply().equals("turns=5"));
