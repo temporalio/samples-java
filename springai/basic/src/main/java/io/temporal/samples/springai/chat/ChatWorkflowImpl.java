@@ -8,7 +8,7 @@ import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInit;
 import java.time.Duration;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.PromptChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
@@ -78,12 +78,16 @@ public class ChatWorkflowImpl implements ChatWorkflow {
     // - Activity stubs (weatherTool) become durable AI tools
     // - plain workflow tool classes (stringTools) execute directly in workflow
     // - @SideEffectTool classes (timestampTools) are wrapped in sideEffect()
-    // - PromptChatMemoryAdvisor maintains conversation history
+    // - MessageChatMemoryAdvisor maintains conversation history
     this.chatClient =
         TemporalChatClient.builder(activityChatModel)
             .defaultSystem(systemPrompt)
             .defaultTools(weatherTool, stringTools, timestampTools)
-            .defaultAdvisors(PromptChatMemoryAdvisor.builder(chatMemory).build())
+            .defaultAdvisors(
+                advisors ->
+                    advisors
+                        .advisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
+                        .param(ChatMemory.CONVERSATION_ID, Workflow.getInfo().getWorkflowId()))
             .build();
   }
 

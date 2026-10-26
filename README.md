@@ -230,7 +230,9 @@ To run any of the SpringBoot samples in your Temporal Cloud namespace:
 
 ### Running Spring AI Samples
 
-The Spring AI samples demonstrate the [Temporal Spring AI integration](https://github.com/temporalio/sdk-java/tree/master/temporal-spring-ai), which makes Spring AI agents durable on Temporal — model calls run as Temporal Activities recorded in Workflow history, and tools are dispatched per their type so they fit Workflow execution.
+The Spring AI samples demonstrate the [Temporal Spring AI integration](https://github.com/temporalio/ai-integrations/tree/main/java/spring-ai), which makes Spring AI agents durable on Temporal — model calls run as Temporal Activities recorded in Workflow history, and tools are dispatched per their type so they fit Workflow execution.
+
+These samples use the Public Preview `io.temporal:spring-ai:0.1.1` package with Spring AI 2.0.1, Spring Boot 4.0.8, and Temporal Java SDK 1.40.0. Java 17 or later is required. Spring AI 1 / Spring Boot 3 applications should remain on `io.temporal:temporal-spring-ai:1.40.x`. Spring AI 1 Workflow histories cannot replay on the new integration; complete existing executions or use separate Worker deployments when upgrading.
 
 Each sample is its own Spring Boot application with an interactive CLI. Run from the main repo dir:
 
@@ -242,7 +244,7 @@ Each sample is its own Spring Boot application with an interactive CLI. Run from
 All samples need an `OPENAI_API_KEY` environment variable; some need additional setup (see each sample's source for details).
 
 More info on each sample:
-- [**Basic**](/springai/basic): Chat workflow with three tool flavors — activity-backed (`WeatherActivity`), plain workflow tools (`StringTools`), and `@SideEffectTool` (`TimestampTools`) — plus a `PromptChatMemoryAdvisor` for conversation history.
+- [**Basic**](/springai/basic): Chat workflow with three tool flavors — activity-backed (`WeatherActivity`), plain workflow tools (`StringTools`), and `@SideEffectTool` (`TimestampTools`) — plus a `MessageChatMemoryAdvisor` for conversation history.
 - [**MCP**](/springai/mcp): Connects to a Model Context Protocol server and exposes its tools to the AI through Temporal activities. Defaults to the filesystem MCP server.
 - [**Multi-Model**](/springai/multimodel): Two providers in one workflow (OpenAI and Anthropic), per-model `ActivityOptions` overrides via a Spring bean, plus a route that exercises Anthropic's extended-thinking mode through provider-specific `ChatOptions` pass-through. Requires `ANTHROPIC_API_KEY` in addition to `OPENAI_API_KEY`.
 - [**RAG**](/springai/rag): Vector store + embeddings for retrieval-augmented generation. Add documents, then ask questions; the workflow searches the vector store and grounds the answer in the retrieved context.

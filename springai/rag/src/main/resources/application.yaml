@@ -5,6 +5,7 @@ spring:
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}
+      max-retries: 0
       chat:
         options:
           model: gpt-4o-mini

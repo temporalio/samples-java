@@ -8,7 +8,7 @@ import io.temporal.workflow.Workflow;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.PromptChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.InMemoryChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
@@ -74,8 +74,12 @@ public class McpWorkflowImpl implements McpWorkflow {
                 When asked to perform file operations, use your tools.
                 Always confirm what you did after completing an operation.
                 """)
-            .defaultToolCallbacks(mcpTools)
-            .defaultAdvisors(PromptChatMemoryAdvisor.builder(chatMemory).build())
+            .defaultTools(mcpTools.toArray())
+            .defaultAdvisors(
+                advisors ->
+                    advisors
+                        .advisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
+                        .param(ChatMemory.CONVERSATION_ID, Workflow.getInfo().getWorkflowId()))
             .build();
 
     initialized = true;
@@ -95,7 +99,7 @@ public class McpWorkflowImpl implements McpWorkflow {
 
     messageCount++;
 
-    // PromptChatMemoryAdvisor automatically handles conversation history
+    // MessageChatMemoryAdvisor automatically handles conversation history
     lastResponse = chatClient.prompt().user(message).call().content();
   }
 
