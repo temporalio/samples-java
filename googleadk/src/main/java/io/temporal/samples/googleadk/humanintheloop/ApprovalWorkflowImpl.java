@@ -70,6 +70,8 @@ public class ApprovalWorkflowImpl implements ApprovalWorkflow {
 
   @Override
   public void decide(boolean confirmed) {
-    decision = confirmed;
+    if (!pending.isEmpty() && decision == null) {
+      decision = confirmed;
+    }
   }
 }

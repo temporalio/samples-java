@@ -8,6 +8,7 @@ It contains the following modules:
 * [SpringBoot](/springboot): showcases SpringBoot autoconfig integration.
 * [SpringBoot Basic](/springboot-basic): Minimal sample showing SpringBoot autoconfig integration without any extra external dependencies.
 * [Spring AI](/springai): demonstrates the Temporal Spring AI integration — durable AI agents with chat models, tools, MCP servers, vector stores, and embeddings.
+* [Google ADK](/googleadk): native ADK agents with durable conversations, tools, MCP, human approval, structured output, and asynchronous tool completion; runnable with a local fake or Gemini.
 * [Lambda Worker](/lambda-worker): demonstrates running a Temporal Java Worker inside AWS Lambda.
 
 ## Learn more about Temporal and Java SDK
@@ -232,15 +233,15 @@ To run any of the SpringBoot samples in your Temporal Cloud namespace:
 
 The [Google ADK samples](googleadk) use the Public Preview
 [`io.temporal:google-adk`](https://github.com/temporalio/ai-integrations/tree/main/java/google-adk)
-integration. They cover a basic agent, Activity tools, parallel agents, MCP, human approval, and a
-conversation that continues as new. The module requires Temporal Java SDK 1.40.0 or later.
+integration. They cover durable conversations, Workflow and Activity tools, parallel agents, MCP,
+human approval, structured output, and asynchronous tool completion. The module requires Temporal
+Java SDK 1.40.0 or later.
 
 Run the Worker and a sample in separate terminals after starting `temporal server start-dev`:
 
 ```bash
-export GOOGLE_API_KEY=your_key
-./gradlew :googleadk:worker
-./gradlew :googleadk:starter --args='basic'
+ADK_MODEL_MODE=offline ./gradlew :googleadk:worker
+temporal workflow execute --type ToolsWorkflow --task-queue google-adk-samples --input '"What is the weather in Chicago?"'
 ```
 
 See the [sample README](googleadk/README.md) for the other scenarios and credential-free tests.

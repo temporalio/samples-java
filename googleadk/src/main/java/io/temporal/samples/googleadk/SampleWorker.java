@@ -1,5 +1,6 @@
 package io.temporal.samples.googleadk;
 
+import com.google.adk.models.BaseLlm;
 import com.google.adk.models.Gemini;
 import com.google.genai.Client;
 import com.google.genai.types.HttpOptions;
@@ -11,52 +12,50 @@ import io.temporal.samples.googleadk.basic.BasicWorkflowImpl;
 import io.temporal.samples.googleadk.chat.ChatWorkflowImpl;
 import io.temporal.samples.googleadk.humanintheloop.ApprovalWorkflowImpl;
 import io.temporal.samples.googleadk.humanintheloop.OrderActivitiesImpl;
+import io.temporal.samples.googleadk.longrunning.LongRunningWorkflowImpl;
+import io.temporal.samples.googleadk.longrunning.ReportActivitiesImpl;
 import io.temporal.samples.googleadk.mcp.EchoMcpServer;
 import io.temporal.samples.googleadk.mcp.McpWorkflowImpl;
 import io.temporal.samples.googleadk.multiagent.MultiAgentWorkflowImpl;
+import io.temporal.samples.googleadk.structuredoutput.StructuredOutputWorkflowImpl;
 import io.temporal.samples.googleadk.tools.ToolsWorkflowImpl;
 import io.temporal.samples.googleadk.tools.WeatherActivitiesImpl;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
+import java.util.function.Supplier;
 
-/** One worker hosts all six samples; real model credentials are used only here. */
 public final class SampleWorker {
   private SampleWorker() {}
 
   public static void main(String[] args) {
+    String mode = System.getenv().getOrDefault("ADK_MODEL_MODE", "live");
+    if (!mode.equals("offline") && !mode.equals("live")) {
+      throw new IllegalArgumentException("ADK_MODEL_MODE must be offline or live.");
+    }
     // @@@SNIPSTART java-google-adk-worker
-    // Client reads GOOGLE_API_KEY or the Vertex AI environment variables on the worker.
-    // One HTTP attempt disables native retries so Temporal Activities own retries.
     Client modelClient =
-        Client.builder()
-            .httpOptions(
-                HttpOptions.builder()
-                    .retryOptions(HttpRetryOptions.builder().attempts(1).build())
-                    .build())
-            .build();
+        mode.equals("live")
+            ? Client.builder()
+                .httpOptions(
+                    HttpOptions.builder()
+                        .retryOptions(HttpRetryOptions.builder().attempts(1).build())
+                        .build())
+                .build()
+            : null;
     GoogleAdkPlugin plugin =
-        GoogleAdkPlugin.newBuilder()
-            .model(
-                AgentSupport.MODEL,
-                () -> Gemini.builder().modelName(AgentSupport.MODEL).apiClient(modelClient).build())
-            .mcpToolset("echo", EchoMcpServer::toolset)
-            .build();
+        plugin(
+            modelClient == null
+                ? OfflineModel::new
+                : () ->
+                    Gemini.builder().modelName(AgentSupport.MODEL).apiClient(modelClient).build());
     WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
     WorkflowClient client =
         WorkflowClient.newInstance(
             service, WorkflowClientOptions.newBuilder().setPlugins(plugin).build());
     WorkerFactory factory = WorkerFactory.newInstance(client);
     Worker worker = factory.newWorker(AgentSupport.TASK_QUEUE);
-    worker.registerWorkflowImplementationTypes(
-        BasicWorkflowImpl.class,
-        ToolsWorkflowImpl.class,
-        MultiAgentWorkflowImpl.class,
-        McpWorkflowImpl.class,
-        ApprovalWorkflowImpl.class,
-        ChatWorkflowImpl.class);
-    worker.registerActivitiesImplementations(
-        new WeatherActivitiesImpl(), new OrderActivitiesImpl());
+    register(worker);
     factory.start();
     // @@@SNIPEND
     Runtime.getRuntime()
@@ -65,8 +64,35 @@ public final class SampleWorker {
                 () -> {
                   factory.shutdown();
                   factory.awaitTermination(10, java.util.concurrent.TimeUnit.SECONDS);
-                  modelClient.close();
+                  if (modelClient != null) {
+                    modelClient.close();
+                  }
                   service.shutdown();
                 }));
+    System.out.println("Google ADK Worker: " + mode + " model, queue " + AgentSupport.TASK_QUEUE);
+  }
+
+  // @@@SNIPSTART java-google-adk-worker-plugin
+  public static GoogleAdkPlugin plugin(Supplier<BaseLlm> models) {
+    return GoogleAdkPlugin.newBuilder()
+        .model(AgentSupport.MODEL, models)
+        .mcpToolset("echo", EchoMcpServer::toolset)
+        .build();
+  }
+
+  // @@@SNIPEND
+
+  public static void register(Worker worker) {
+    worker.registerWorkflowImplementationTypes(
+        BasicWorkflowImpl.class,
+        ToolsWorkflowImpl.class,
+        MultiAgentWorkflowImpl.class,
+        McpWorkflowImpl.class,
+        ApprovalWorkflowImpl.class,
+        ChatWorkflowImpl.class,
+        StructuredOutputWorkflowImpl.class,
+        LongRunningWorkflowImpl.class);
+    worker.registerActivitiesImplementations(
+        new WeatherActivitiesImpl(), new OrderActivitiesImpl(), new ReportActivitiesImpl());
   }
 }

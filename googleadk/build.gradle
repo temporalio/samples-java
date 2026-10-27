@@ -1,6 +1,7 @@
 // ADK samples consume the independently versioned integration from Maven Central.
 dependencies {
     implementation 'io.temporal:google-adk:0.1.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation('io.temporal:temporal-sdk') {
         version {
             strictly '[1.40.0,2.0['

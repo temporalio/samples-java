@@ -3,8 +3,8 @@ package io.temporal.samples.googleadk;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.google.adk.models.BaseLlm;
 import com.google.adk.models.LlmRequest;
-import com.google.genai.types.FunctionResponse;
 import io.temporal.api.history.v1.HistoryEvent;
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
@@ -13,7 +13,6 @@ import io.temporal.client.WorkflowStub;
 import io.temporal.common.WorkflowExecutionHistory;
 import io.temporal.googleadk.GoogleAdkPlugin;
 import io.temporal.googleadk.testing.ScriptedModel;
-import io.temporal.samples.googleadk.mcp.EchoMcpServer;
 import io.temporal.testing.TestEnvironmentOptions;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
@@ -21,6 +20,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.BooleanSupplier;
 
 /** Tests use the published scripted model and an in-process Temporal Service. */
@@ -28,19 +28,18 @@ final class AdkTestEnvironment implements AutoCloseable {
   final TestWorkflowEnvironment environment;
   final WorkflowClient client;
   final Worker worker;
-  private final ScriptedModel model;
+  final String taskQueue = "google-adk-test-" + UUID.randomUUID();
+  private final BaseLlm model;
 
-  AdkTestEnvironment(ScriptedModel model, Class<?>... workflows) {
+  AdkTestEnvironment(BaseLlm model, Class<?>... workflows) {
     this.model = model;
-    GoogleAdkPlugin plugin =
-        GoogleAdkPlugin.newBuilder()
-            .model(AgentSupport.MODEL, model)
-            .mcpToolset("echo", EchoMcpServer::toolset)
-            .build();
+    GoogleAdkPlugin plugin = SampleWorker.plugin(() -> model);
     environment = newEnvironment(plugin);
     client = environment.getWorkflowClient();
-    worker = environment.newWorker(AgentSupport.TASK_QUEUE);
-    worker.registerWorkflowImplementationTypes(workflows);
+    worker = environment.newWorker(taskQueue);
+    if (workflows.length > 0) {
+      worker.registerWorkflowImplementationTypes(workflows);
+    }
   }
 
   private static TestWorkflowEnvironment newEnvironment(GoogleAdkPlugin plugin) {
@@ -54,7 +53,8 @@ final class AdkTestEnvironment implements AutoCloseable {
     return client.newWorkflowStub(
         type,
         WorkflowOptions.newBuilder()
-            .setTaskQueue(AgentSupport.TASK_QUEUE)
+            .setTaskQueue(taskQueue)
+            .setWorkflowId("google-adk-test-" + UUID.randomUUID())
             .setWorkflowExecutionTimeout(Duration.ofMinutes(2))
             .build());
   }
@@ -64,7 +64,7 @@ final class AdkTestEnvironment implements AutoCloseable {
   }
 
   void replay(WorkflowExecutionHistory history, Class<?> implementation) throws Exception {
-    int requests = model.requests().size();
+    int requests = model instanceof ScriptedModel scripted ? scripted.requests().size() : 0;
     // A new Worker proves replay works without cached Workflow or ADK session state.
     GoogleAdkPlugin plugin = GoogleAdkPlugin.newBuilder().model(AgentSupport.MODEL, model).build();
     try (TestWorkflowEnvironment replay = newEnvironment(plugin)) {
@@ -72,7 +72,9 @@ final class AdkTestEnvironment implements AutoCloseable {
       replayWorker.registerWorkflowImplementationTypes(implementation);
       replayWorker.replayWorkflowExecution(history);
     }
-    assertEquals(requests, model.requests().size(), "replay must not call the model again");
+    if (model instanceof ScriptedModel scripted) {
+      assertEquals(requests, scripted.requests().size(), "replay must not call the model again");
+    }
   }
 
   static List<String> activities(WorkflowExecutionHistory history) {
@@ -83,13 +85,7 @@ final class AdkTestEnvironment implements AutoCloseable {
   }
 
   static Optional<Map<String, Object>> functionResponse(LlmRequest request, String name) {
-    return request.contents().stream()
-        .flatMap(content -> content.parts().orElse(List.of()).stream())
-        .flatMap(part -> part.functionResponse().stream())
-        .filter(response -> response.name().orElse("").equals(name))
-        .map(FunctionResponse::response)
-        .flatMap(Optional::stream)
-        .reduce((first, last) -> last);
+    return OfflineModel.functionResponse(request, name);
   }
 
   static void await(BooleanSupplier ready) throws InterruptedException {

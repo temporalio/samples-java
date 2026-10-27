@@ -2,6 +2,7 @@ package io.temporal.samples.googleadk.tools;
 
 import com.google.adk.agents.LlmAgent;
 import com.google.adk.runner.Runner;
+import com.google.adk.tools.FunctionTool;
 import com.google.genai.types.Content;
 import com.google.genai.types.Part;
 import io.temporal.activity.ActivityOptions;
@@ -28,8 +29,12 @@ public class ToolsWorkflowImpl implements ToolsWorkflow {
         LlmAgent.builder()
             .name("weather_assistant")
             .model(TemporalModel.create(AgentSupport.MODEL))
-            .instruction("Use getWeather to answer questions about the weather.")
-            .tools(ActivityTools.create(weather, "getWeather"))
+            .instruction(
+                "Use getWeather for conditions and Celsius temperature, then toFahrenheit to"
+                    + " convert the temperature. Report the conditions and both temperatures.")
+            .tools(
+                ActivityTools.create(weather, "getWeather"),
+                FunctionTool.create(TemperatureTools.class, "toFahrenheit"))
             .build();
     Runner runner = TemporalAdk.runnerBuilder().appName("tools").agent(agent).build();
     return AgentSupport.lastText(
