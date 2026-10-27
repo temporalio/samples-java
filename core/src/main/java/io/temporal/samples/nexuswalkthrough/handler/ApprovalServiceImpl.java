@@ -1,7 +1,6 @@
 package io.temporal.samples.nexuswalkthrough.handler;
 
-import io.nexusrpc.handler.OperationHandler;
-import io.nexusrpc.handler.OperationImpl;
+import io.nexusrpc.OperationException;
 import io.nexusrpc.handler.ServiceImpl;
 import io.temporal.api.enums.v1.WorkflowIdConflictPolicy;
 import io.temporal.client.BatchRequest;
@@ -11,8 +10,10 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.client.WorkflowUpdateStage;
 import io.temporal.common.RetryOptions;
-import io.temporal.nexus.TemporalOperationHandler;
+import io.temporal.nexus.TemporalNexusClient;
+import io.temporal.nexus.TemporalOperation;
 import io.temporal.nexus.TemporalOperationResult;
+import io.temporal.nexus.TemporalOperationStartContext;
 import io.temporal.samples.nexuswalkthrough.generatedservice.ApprovalService;
 import io.temporal.samples.nexuswalkthrough.generatedservice.AttachApprovalContextInput;
 import io.temporal.samples.nexuswalkthrough.generatedservice.GetApprovalStatusInput;
@@ -42,8 +43,8 @@ import java.time.Duration;
  *   <li>STEP 9 - notifyRequester, backed by a Standalone Activity
  * </ul>
  *
- * <p>Every one of them uses {@link TemporalOperationHandler}, so an Operation can later gain a
- * message or change its backing without changing shape.
+ * <p>Every one of them is a {@link TemporalOperation}, so an Operation can later gain a message or
+ * change its backing without changing shape.
  */
 @ServiceImpl(service = ApprovalService.class)
 public class ApprovalServiceImpl {
@@ -70,19 +71,18 @@ public class ApprovalServiceImpl {
   // only for server retries of one request.
   // ===============================================================================================
   // @@@SNIPSTART samples-java-nexus-walkthrough-request-approval
-  @OperationImpl
-  public OperationHandler<RequestApprovalInput, RequestApprovalOutput> requestApproval() {
-    return TemporalOperationHandler.create(
-        (ctx, client, input) ->
-            client.startWorkflow(
-                ApprovalWorkflow.class,
-                ApprovalWorkflow::runApproval,
-                input,
-                WorkflowOptions.newBuilder()
-                    .setWorkflowId(ApprovalWorkflowId.forItem(input.getItemId()))
-                    .setWorkflowIdConflictPolicy(
-                        WorkflowIdConflictPolicy.WORKFLOW_ID_CONFLICT_POLICY_USE_EXISTING)
-                    .build()));
+  @TemporalOperation
+  public TemporalOperationResult<RequestApprovalOutput> requestApproval(
+      TemporalOperationStartContext ctx, TemporalNexusClient client, RequestApprovalInput input) {
+    return client.startWorkflow(
+        ApprovalWorkflow.class,
+        ApprovalWorkflow::runApproval,
+        input,
+        WorkflowOptions.newBuilder()
+            .setWorkflowId(ApprovalWorkflowId.forItem(input.getItemId()))
+            .setWorkflowIdConflictPolicy(
+                WorkflowIdConflictPolicy.WORKFLOW_ID_CONFLICT_POLICY_USE_EXISTING)
+            .build());
   }
 
   // @@@SNIPEND
@@ -104,17 +104,14 @@ public class ApprovalServiceImpl {
   // purchase that never had an approval fails as not found.
   // ===============================================================================================
   // @@@SNIPSTART samples-java-nexus-walkthrough-remind-approver
-  @OperationImpl
-  public OperationHandler<RemindApproverInput, Void> remindApprover() {
-    return TemporalOperationHandler.create(
-        (ctx, client, input) -> {
-          client
-              .getWorkflowClient()
-              .newWorkflowStub(
-                  ApprovalWorkflow.class, ApprovalWorkflowId.forItem(input.getItemId()))
-              .remindApprover();
-          return TemporalOperationResult.sync(null);
-        });
+  @TemporalOperation
+  public TemporalOperationResult<Void> remindApprover(
+      TemporalOperationStartContext ctx, TemporalNexusClient client, RemindApproverInput input) {
+    client
+        .getWorkflowClient()
+        .newWorkflowStub(ApprovalWorkflow.class, ApprovalWorkflowId.forItem(input.getItemId()))
+        .remindApprover();
+    return TemporalOperationResult.sync(null);
   }
 
   // @@@SNIPEND
@@ -135,16 +132,14 @@ public class ApprovalServiceImpl {
   // expires and the Workflow's history is gone.
   // ===============================================================================================
   // @@@SNIPSTART samples-java-nexus-walkthrough-get-approval-status
-  @OperationImpl
-  public OperationHandler<GetApprovalStatusInput, GetApprovalStatusOutput> getApprovalStatus() {
-    return TemporalOperationHandler.create(
-        (ctx, client, input) ->
-            TemporalOperationResult.sync(
-                client
-                    .getWorkflowClient()
-                    .newWorkflowStub(
-                        ApprovalWorkflow.class, ApprovalWorkflowId.forItem(input.getItemId()))
-                    .getApprovalStatus()));
+  @TemporalOperation
+  public TemporalOperationResult<GetApprovalStatusOutput> getApprovalStatus(
+      TemporalOperationStartContext ctx, TemporalNexusClient client, GetApprovalStatusInput input) {
+    return TemporalOperationResult.sync(
+        client
+            .getWorkflowClient()
+            .newWorkflowStub(ApprovalWorkflow.class, ApprovalWorkflowId.forItem(input.getItemId()))
+            .getApprovalStatus());
   }
 
   // @@@SNIPEND
@@ -164,26 +159,26 @@ public class ApprovalServiceImpl {
   // one per Operation invocation, though a handler could still combine it with sync side effects.
   // ===============================================================================================
   // @@@SNIPSTART samples-java-nexus-walkthrough-submit-decision
-  @OperationImpl
-  public OperationHandler<SubmitDecisionInput, SubmitDecisionOutput> submitDecision() {
-    return TemporalOperationHandler.create(
-        (ctx, client, input) ->
-            client.startWorkflowUpdate(
-                ApprovalWorkflow.class,
-                ApprovalWorkflowId.forItem(input.getItemId()),
-                ApprovalWorkflow::submitDecision,
-                input.getDecision(),
-                UpdateOptions.<SubmitDecisionOutput>newBuilder()
-                    .setResultClass(SubmitDecisionOutput.class)
-                    // The Update to invoke has to be named explicitly; the method reference above
-                    // supplies the argument types but not the wire name.
-                    .setUpdateName(ApprovalWorkflow.SUBMIT_DECISION_UPDATE)
-                    // An Update-backed Operation must wait for the ACCEPTED stage. The Operation
-                    // completes later, when the Update completes, through the completion callback.
-                    // Any other stage is rejected with "nexus op workflow updates only support
-                    // WorkflowUpdateStageAccepted for async updates".
-                    .setWaitForStage(WorkflowUpdateStage.ACCEPTED)
-                    .build()));
+  @TemporalOperation
+  public TemporalOperationResult<SubmitDecisionOutput> submitDecision(
+      TemporalOperationStartContext ctx, TemporalNexusClient client, SubmitDecisionInput input)
+      throws OperationException {
+    return client.startWorkflowUpdate(
+        ApprovalWorkflow.class,
+        ApprovalWorkflowId.forItem(input.getItemId()),
+        ApprovalWorkflow::submitDecision,
+        input.getDecision(),
+        UpdateOptions.<SubmitDecisionOutput>newBuilder()
+            .setResultClass(SubmitDecisionOutput.class)
+            // The Update to invoke has to be named explicitly; the method reference above
+            // supplies the argument types but not the wire name.
+            .setUpdateName(ApprovalWorkflow.SUBMIT_DECISION_UPDATE)
+            // An Update-backed Operation must wait for the ACCEPTED stage. The Operation
+            // completes later, when the Update completes, through the completion callback.
+            // Any other stage is rejected with "nexus op workflow updates only support
+            // WorkflowUpdateStageAccepted for async updates".
+            .setWaitForStage(WorkflowUpdateStage.ACCEPTED)
+            .build());
   }
 
   // @@@SNIPEND
@@ -204,30 +199,30 @@ public class ApprovalServiceImpl {
   // Like remindApprover this is sync messaging, so it completes during the handler call.
   // ===============================================================================================
   // @@@SNIPSTART samples-java-nexus-walkthrough-attach-context
-  @OperationImpl
-  public OperationHandler<AttachApprovalContextInput, Void> attachApprovalContext() {
-    return TemporalOperationHandler.create(
-        (ctx, client, input) -> {
-          WorkflowClient workflowClient = client.getWorkflowClient();
-          ApprovalWorkflow stub =
-              workflowClient.newWorkflowStub(
-                  ApprovalWorkflow.class,
-                  WorkflowOptions.newBuilder()
-                      .setWorkflowId(ApprovalWorkflowId.forItem(input.getItemId()))
-                      .setTaskQueue(HandlerWorker.DEFAULT_TASK_QUEUE_NAME)
-                      .build());
+  @TemporalOperation
+  public TemporalOperationResult<Void> attachApprovalContext(
+      TemporalOperationStartContext ctx,
+      TemporalNexusClient client,
+      AttachApprovalContextInput input) {
+    WorkflowClient workflowClient = client.getWorkflowClient();
+    ApprovalWorkflow stub =
+        workflowClient.newWorkflowStub(
+            ApprovalWorkflow.class,
+            WorkflowOptions.newBuilder()
+                .setWorkflowId(ApprovalWorkflowId.forItem(input.getItemId()))
+                .setTaskQueue(HandlerWorker.DEFAULT_TASK_QUEUE_NAME)
+                .build());
 
-          // signalWithStart delivers the Signal, starting the Workflow first if it is not already
-          // running. When the approval already exists, only the Signal is delivered.
-          BatchRequest request = workflowClient.newSignalWithStartRequest();
-          request.add(stub::attachContext, input.getNote());
-          request.add(
-              stub::runApproval,
-              new RequestApprovalInput(input.getItemId(), input.getRequester(), input.getAmount()));
-          workflowClient.signalWithStart(request);
+    // signalWithStart delivers the Signal, starting the Workflow first if it is not already
+    // running. When the approval already exists, only the Signal is delivered.
+    BatchRequest request = workflowClient.newSignalWithStartRequest();
+    request.add(stub::attachContext, input.getNote());
+    request.add(
+        stub::runApproval,
+        new RequestApprovalInput(input.getItemId(), input.getRequester(), input.getAmount()));
+    workflowClient.signalWithStart(request);
 
-          return TemporalOperationResult.sync(null);
-        });
+    return TemporalOperationResult.sync(null);
   }
 
   // @@@SNIPEND
@@ -235,7 +230,7 @@ public class ApprovalServiceImpl {
   // ===============================================================================================
   // STEP 9 - An Activity-backed Operation, using a Standalone Activity.
   //
-  // Use TemporalOperationHandler as with every other Operation, but start an Activity instead of a
+  // Use @TemporalOperation as with every other Operation, but start an Activity instead of a
   // Workflow. The Operation starts an Activity Execution with no parent Workflow and completes when
   // the Activity returns.
   //
@@ -253,25 +248,24 @@ public class ApprovalServiceImpl {
   // sample keeps them on one Worker for simplicity.
   // ===============================================================================================
   // @@@SNIPSTART samples-java-nexus-walkthrough-notify-requester
-  @OperationImpl
-  public OperationHandler<NotifyRequesterInput, NotifyRequesterOutput> notifyRequester() {
-    return TemporalOperationHandler.create(
-        (ctx, client, input) ->
-            client.startActivity(
-                ApprovalActivities.class,
-                ApprovalActivities::notifyRequester,
-                input.getRequester(),
-                input.getDecision(),
-                StartActivityOptions.newBuilder()
-                    // Deriving the Activity Id from the request Id keeps a retried Nexus start
-                    // request targeting the same Activity Execution instead of sending a second
-                    // notification.
-                    .setId("notify-" + ctx.getRequestId())
-                    .setTaskQueue(HandlerWorker.DEFAULT_TASK_QUEUE_NAME)
-                    .setStartToCloseTimeout(Duration.ofSeconds(10))
-                    .setScheduleToCloseTimeout(Duration.ofMinutes(5))
-                    .setRetryOptions(RetryOptions.newBuilder().setMaximumAttempts(3).build())
-                    .build()));
+  @TemporalOperation
+  public TemporalOperationResult<NotifyRequesterOutput> notifyRequester(
+      TemporalOperationStartContext ctx, TemporalNexusClient client, NotifyRequesterInput input) {
+    return client.startActivity(
+        ApprovalActivities.class,
+        ApprovalActivities::notifyRequester,
+        input.getRequester(),
+        input.getDecision(),
+        StartActivityOptions.newBuilder()
+            // Deriving the Activity Id from the request Id keeps a retried Nexus start
+            // request targeting the same Activity Execution instead of sending a second
+            // notification.
+            .setId("notify-" + ctx.getRequestId())
+            .setTaskQueue(HandlerWorker.DEFAULT_TASK_QUEUE_NAME)
+            .setStartToCloseTimeout(Duration.ofSeconds(10))
+            .setScheduleToCloseTimeout(Duration.ofMinutes(5))
+            .setRetryOptions(RetryOptions.newBuilder().setMaximumAttempts(3).build())
+            .build());
   }
   // @@@SNIPEND
 }

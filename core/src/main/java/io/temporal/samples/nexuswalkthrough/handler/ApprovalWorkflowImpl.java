@@ -79,9 +79,8 @@ public class ApprovalWorkflowImpl implements ApprovalWorkflow {
   }
 
   // STEP 7 - Query handler. Returns what is already in memory and changes nothing. Once the
-  // decision
-  // is recorded, pending is false, but the decision itself is not here: it is requestApproval's
-  // result.
+  // decision is recorded, pending is false, but the decision itself is not here:
+  // it is requestApproval's result.
   @Override
   public GetApprovalStatusOutput getApprovalStatus() {
     return new GetApprovalStatusOutput(decision == null, remindersSent, notes.size());
