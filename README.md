@@ -241,8 +241,12 @@ Run the Worker and a sample in separate terminals after starting `temporal serve
 
 ```bash
 ADK_MODEL_MODE=offline ./gradlew :googleadk:worker
-temporal workflow execute --type ToolsWorkflow --task-queue google-adk-samples --input '"What is the weather in Chicago?"'
+./gradlew :googleadk:starter
 ```
+
+The default starter launches Agent Chat and prints its Workflow ID. Use the
+[chat commands](googleadk/src/main/java/io/temporal/samples/googleadk/chat/README.md) to send messages,
+query replies, and finish the conversation.
 
 See the [sample README](googleadk/README.md) for the other scenarios and credential-free tests.
 

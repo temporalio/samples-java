@@ -82,12 +82,20 @@ class ChatWorkflowTest {
 
   @Test
   void finishDrainsThePendingMessages() throws Exception {
-    ScriptedModel model = countingModel();
+    // @@@SNIPSTART java-google-adk-chat-test
+    ScriptedModel model =
+        ScriptedModel.of(
+            AgentSupport.MODEL,
+            ScriptedModel.text("First reply"),
+            ScriptedModel.text("Last reply"));
     try (AdkTestEnvironment test = new AdkTestEnvironment(model, ChatWorkflowImpl.class)) {
       test.environment.start();
       ChatWorkflow workflow = test.workflow(ChatWorkflow.class);
-      assertEquals("turns=2", workflow.chat(new ChatInput(null, List.of("one", "two"), true, "")));
+      assertEquals(
+          "Last reply", workflow.chat(new ChatInput(null, List.of("one", "two"), true, "")));
+      assertEquals(2, model.requests().size());
       test.replay(test.history(workflow), ChatWorkflowImpl.class);
     }
+    // @@@SNIPEND
   }
 }

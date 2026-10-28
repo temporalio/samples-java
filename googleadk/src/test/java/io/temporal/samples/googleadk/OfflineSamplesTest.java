@@ -1,17 +1,17 @@
 package io.temporal.samples.googleadk;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowStub;
-import io.temporal.samples.googleadk.basic.BasicWorkflow;
 import io.temporal.samples.googleadk.chat.ChatInput;
 import io.temporal.samples.googleadk.chat.ChatWorkflow;
 import io.temporal.samples.googleadk.humanintheloop.ApprovalWorkflow;
 import io.temporal.samples.googleadk.longrunning.LongRunningWorkflow;
 import io.temporal.samples.googleadk.mcp.McpWorkflow;
 import io.temporal.samples.googleadk.multiagent.MultiAgentWorkflow;
+import io.temporal.samples.googleadk.observability.ObservabilityWorkflow;
+import io.temporal.samples.googleadk.streaming.StreamingWorkflow;
 import io.temporal.samples.googleadk.structuredoutput.StructuredOutputWorkflow;
 import io.temporal.samples.googleadk.structuredoutput.TravelPlan;
 import io.temporal.samples.googleadk.tools.ToolsWorkflow;
@@ -26,7 +26,10 @@ class OfflineSamplesTest {
     try (AdkTestEnvironment test = new AdkTestEnvironment(new OfflineModel())) {
       SampleWorker.register(test.worker);
       test.environment.start();
-      assertTrue(test.workflow(BasicWorkflow.class).ask("Hello").contains("Hello"));
+      assertEquals(
+          "Chicago is sunny.",
+          test.workflow(ObservabilityWorkflow.class).observe("What's the weather in Chicago?"));
+      assertEquals(3, test.workflow(StreamingWorkflow.class).stream("Say hello.").size());
       assertEquals(
           "Chicago is sunny: 20 C / 68.0 F.",
           test.workflow(ToolsWorkflow.class).ask("What's the weather in Chicago?"));

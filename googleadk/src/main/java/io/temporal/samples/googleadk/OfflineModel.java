@@ -20,6 +20,12 @@ public final class OfflineModel extends BaseLlm {
 
   @Override
   public Flowable<LlmResponse> generateContent(LlmRequest request, boolean stream) {
+    if (stream) {
+      return Flowable.just(
+          text("Hello ").toBuilder().partial(true).turnComplete(false).build(),
+          text("from ADK").toBuilder().partial(true).turnComplete(false).build(),
+          text("Hello from ADK"));
+    }
     return Flowable.just(respond(request));
   }
 
@@ -28,6 +34,9 @@ public final class OfflineModel extends BaseLlm {
       Optional<Map<String, Object>> weather = functionResponse(request, "getWeather");
       if (weather.isEmpty()) {
         return call("getWeather", Map.of("city", "Chicago"));
+      }
+      if (!request.tools().containsKey("toFahrenheit")) {
+        return text("Chicago is " + weather.get().get("conditions") + ".");
       }
       Optional<Map<String, Object>> converted = functionResponse(request, "toFahrenheit");
       if (converted.isEmpty()) {

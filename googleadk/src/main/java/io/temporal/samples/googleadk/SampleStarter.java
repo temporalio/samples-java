@@ -4,14 +4,19 @@ import io.temporal.client.WorkflowClient;
 import io.temporal.client.WorkflowClientOptions;
 import io.temporal.client.WorkflowOptions;
 import io.temporal.googleadk.GoogleAdkPlugin;
-import io.temporal.samples.googleadk.basic.BasicWorkflow;
 import io.temporal.samples.googleadk.chat.ChatInput;
 import io.temporal.samples.googleadk.chat.ChatWorkflow;
 import io.temporal.samples.googleadk.humanintheloop.ApprovalWorkflow;
 import io.temporal.samples.googleadk.mcp.McpWorkflow;
 import io.temporal.samples.googleadk.multiagent.MultiAgentWorkflow;
+import io.temporal.samples.googleadk.observability.ObservabilityWorkflow;
+import io.temporal.samples.googleadk.streaming.ModelChunk;
+import io.temporal.samples.googleadk.streaming.StreamingWorkflow;
 import io.temporal.samples.googleadk.tools.ToolsWorkflow;
 import io.temporal.serviceclient.WorkflowServiceStubs;
+import io.temporal.workflowstreams.WorkflowStreamClient;
+import io.temporal.workflowstreams.WorkflowStreamItem;
+import io.temporal.workflowstreams.WorkflowStreamSubscription;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -21,8 +26,7 @@ public final class SampleStarter {
 
   public static void main(String[] args) {
     if (args.length == 0) {
-      throw new IllegalArgumentException(
-          "Choose basic, tools, multiagent, mcp, approval, chat, pending, decide, result, message, reply, or finish.");
+      args = new String[] {"chat"};
     }
     WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
     try {
@@ -40,11 +44,34 @@ public final class SampleStarter {
               .setWorkflowId(id)
               .build();
       switch (args[0]) {
-        case "basic":
-          // @@@SNIPSTART java-google-adk-starter
-          BasicWorkflow workflow = client.newWorkflowStub(BasicWorkflow.class, options);
-          System.out.println(workflow.ask("What does Durable Execution mean?"));
-          // @@@SNIPEND
+        case "streaming":
+          StreamingWorkflow streaming = client.newWorkflowStub(StreamingWorkflow.class, options);
+          WorkflowClient.start(streaming::stream, "Say hello.");
+          try (WorkflowStreamClient output = WorkflowStreamClient.newInstance(client, id);
+              WorkflowStreamSubscription subscription = output.topic("model").subscribe(0)) {
+            for (WorkflowStreamItem item : subscription) {
+              ModelChunk chunk =
+                  client
+                      .getOptions()
+                      .getDataConverter()
+                      .fromPayload(item.getPayload(), ModelChunk.class, ModelChunk.class);
+              System.out.println(chunk.kind() + ": " + chunk.text());
+              if (chunk.kind().equals("complete")) {
+                streaming.acknowledge();
+                break;
+              }
+            }
+          }
+          System.out.println(
+              "Workflow result: "
+                  + io.temporal.client.WorkflowStub.fromTyped(streaming)
+                      .getResult(java.util.List.class));
+          break;
+        case "observability":
+          System.out.println(
+              client
+                  .newWorkflowStub(ObservabilityWorkflow.class, options)
+                  .observe("What's the weather in Chicago?"));
           break;
         case "tools":
           System.out.println(
@@ -68,9 +95,11 @@ public final class SampleStarter {
           System.out.println("Workflow ID: " + id);
           break;
         case "chat":
+          // @@@SNIPSTART java-google-adk-starter
           ChatWorkflow chat = client.newWorkflowStub(ChatWorkflow.class, options);
           WorkflowClient.start(chat::chat, ChatInput.empty());
           System.out.println("Workflow ID: " + id);
+          // @@@SNIPEND
           break;
         case "pending":
           requireArgs(args, 2);

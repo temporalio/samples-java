@@ -16,6 +16,7 @@ import io.temporal.googleadk.testing.ScriptedModel;
 import io.temporal.testing.TestEnvironmentOptions;
 import io.temporal.testing.TestWorkflowEnvironment;
 import io.temporal.worker.Worker;
+import io.temporal.worker.WorkerFactoryOptions;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -30,11 +31,17 @@ final class AdkTestEnvironment implements AutoCloseable {
   final Worker worker;
   final String taskQueue = "google-adk-test-" + UUID.randomUUID();
   private final BaseLlm model;
+  private final WorkerFactoryOptions workerOptions;
 
   AdkTestEnvironment(BaseLlm model, Class<?>... workflows) {
+    this(model, WorkerFactoryOptions.newBuilder().build(), workflows);
+  }
+
+  AdkTestEnvironment(BaseLlm model, WorkerFactoryOptions workerOptions, Class<?>... workflows) {
     this.model = model;
+    this.workerOptions = workerOptions;
     GoogleAdkPlugin plugin = SampleWorker.plugin(() -> model);
-    environment = newEnvironment(plugin);
+    environment = newEnvironment(plugin, workerOptions);
     client = environment.getWorkflowClient();
     worker = environment.newWorker(taskQueue);
     if (workflows.length > 0) {
@@ -42,9 +49,11 @@ final class AdkTestEnvironment implements AutoCloseable {
     }
   }
 
-  private static TestWorkflowEnvironment newEnvironment(GoogleAdkPlugin plugin) {
+  private static TestWorkflowEnvironment newEnvironment(
+      GoogleAdkPlugin plugin, WorkerFactoryOptions workerOptions) {
     return TestWorkflowEnvironment.newInstance(
         TestEnvironmentOptions.newBuilder()
+            .setWorkerFactoryOptions(workerOptions)
             .setWorkflowClientOptions(WorkflowClientOptions.newBuilder().setPlugins(plugin).build())
             .build());
   }
@@ -67,7 +76,7 @@ final class AdkTestEnvironment implements AutoCloseable {
     int requests = model instanceof ScriptedModel scripted ? scripted.requests().size() : 0;
     // A new Worker proves replay works without cached Workflow or ADK session state.
     GoogleAdkPlugin plugin = GoogleAdkPlugin.newBuilder().model(AgentSupport.MODEL, model).build();
-    try (TestWorkflowEnvironment replay = newEnvironment(plugin)) {
+    try (TestWorkflowEnvironment replay = newEnvironment(plugin, workerOptions)) {
       Worker replayWorker = replay.newWorker("replay");
       replayWorker.registerWorkflowImplementationTypes(implementation);
       replayWorker.replayWorkflowExecution(history);

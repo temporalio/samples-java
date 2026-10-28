@@ -1,10 +1,10 @@
-package io.temporal.samples.googleadk.basic;
+package io.temporal.samples.googleadk.observability;
 
 import io.temporal.workflow.WorkflowInterface;
 import io.temporal.workflow.WorkflowMethod;
 
 @WorkflowInterface
-public interface BasicWorkflow {
+public interface ObservabilityWorkflow {
   @WorkflowMethod
-  String ask(String question);
+  String observe(String prompt);
 }
