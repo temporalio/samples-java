@@ -38,8 +38,7 @@ GOOGLE_API_KEY=your_key ADK_MODEL_MODE=live ./gradlew :googleadk:worker
 `live` is the default. Offline mode uses a deliberately small, stateless scripted `BaseLlm` for these
 scenarios, including fixed Chicago weather and travel examples. It makes no provider requests and
 needs no key. Live mode constructs Gemini only on the Worker and disables GenAI's HTTP retries so
-Temporal Activities own retries. Stop the Worker before switching modes. Set `ADK_TRACING=console` to export Temporal operation spans;
-see the [observability sample](src/main/java/io/temporal/samples/googleadk/observability) for details.
+Temporal Activities own retries. Stop the Worker before switching modes.
 
 Both modes run the same Worker registration, plugin, Workflows, Activities, messages, and result
 path. The MCP scenario launches the real Java stdio server in both modes. Offline mode still needs
@@ -65,16 +64,15 @@ to send messages, query replies, and finish the conversation.
 | Agent Chat | [chat](src/main/java/io/temporal/samples/googleadk/chat) | Signals queue turns; Queries expose replies; a session snapshot and pending messages survive Continue-As-New. |
 | Tools | [tools](src/main/java/io/temporal/samples/googleadk/tools) | A nondeterministic weather observation runs in an Activity; a pure temperature conversion runs in the Workflow. |
 | MCP | [mcp](src/main/java/io/temporal/samples/googleadk/mcp) | List and call a bundled stateless Java stdio server through Activities. |
-| Streaming | [streaming](src/main/java/io/temporal/samples/googleadk/streaming) | Publish buffered ADK SSE chunks through Workflow Streams after the model Activity completes; finish with or without a subscriber. |
+| Streaming | Unsupported | Plugin 0.1.0 buffers SSE responses until the model Activity completes; it cannot deliver output through Workflow Streams while the Activity is running. See [#257](https://github.com/temporalio/ai-integrations/issues/257). |
 | Human in the Loop | [humanintheloop](src/main/java/io/temporal/samples/googleadk/humanintheloop) | A Signal approves or rejects ADK's pending tool confirmation; cancellation ends the durable wait. |
 | Structured Output | [structuredoutput](src/main/java/io/temporal/samples/googleadk/structuredoutput) | ADK supplies the model's output schema; the Workflow validates JSON and returns a typed `TravelPlan` or a non-retryable failure. |
 | Multi-Agent | [multiagent](src/main/java/io/temporal/samples/googleadk/multiagent) | ADK's `ParallelAgent` starts planner and reviewer model Activities concurrently on Workflow threads. |
 | Sandboxes | Unsupported | The plugin does not durably manage an agent-facing code execution environment. ADK code executors that perform host I/O cannot run on the Workflow thread. |
-| Observability | [observability](src/main/java/io/temporal/samples/googleadk/observability) | Export linked Temporal model/tool Activity spans with OpenTelemetry and suppress replayed Workflow spans. Native ADK global tracing remains unsupported for replay-safe use. |
+| Observability | Unsupported | Native ADK tracing has no replay suppression; installing an OpenTelemetry SDK can export duplicate agent/model/tool spans during replay. See [#258](https://github.com/temporalio/ai-integrations/issues/258). |
 
 The plugin's [documented limits](https://github.com/temporalio/ai-integrations/blob/java/google-adk/v0.1.0/java/google-adk/README.md#limitations)
 still apply to live token forwarding, agent-facing code execution, and native ADK global tracing.
-The streaming and observability READMEs explain the boundaries the samples exercise.
 
 Start with [Agent Chat](src/main/java/io/temporal/samples/googleadk/chat); it is the introductory sample.
 The suite also includes:
@@ -105,18 +103,17 @@ the conversation snapshot itself still grows and must fit Temporal's payload lim
 ```
 
 Tests use the published `ScriptedModel` or the same `OfflineModel` as the runnable Worker, and
-`TestWorkflowEnvironment`. They need no provider credentials, external Temporal Service, or telemetry
-backend. The MCP tests launch the bundled local subprocess.
+`TestWorkflowEnvironment`. They need no provider credentials or external Temporal Service.
+The MCP tests launch the bundled local subprocess.
 
 Each supported scenario has a targeted test command in its README. Tests assert Activity scheduling,
 retry behavior, function results, confirmation decisions and cancellation, schema rejection,
-correlated callback completion, session/queue recovery across Continue-As-New, streamed chunk delivery,
-and OpenTelemetry export without replay duplicates. Recorded histories
+correlated callback completion, and session/queue recovery across Continue-As-New. Recorded histories
 replay on a fresh Worker without repeating model or tool calls. `OfflineSamplesTest` runs every
 scenario with `SampleWorker.register` and the actual offline provider.
 
-The `:googleadk:starter` task starts Agent Chat by default. It also accepts `streaming`, `observability`,
-`tools`, `multiagent`, `mcp`, `approval`, and `chat`, and their message commands. The scenario READMEs use Temporal CLI directly.
+The `:googleadk:starter` task starts Agent Chat by default. It also accepts `tools`, `multiagent`,
+`mcp`, `approval`, and `chat`, and their message commands. The scenario READMEs use Temporal CLI directly.
 External Java clients that exchange ADK `Session` or `Content` payloads must also register
 `GoogleAdkPlugin` to use its payload converter; ordinary CLI JSON inputs need no Java client.
 

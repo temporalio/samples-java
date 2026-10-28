@@ -9,14 +9,8 @@ import io.temporal.samples.googleadk.chat.ChatWorkflow;
 import io.temporal.samples.googleadk.humanintheloop.ApprovalWorkflow;
 import io.temporal.samples.googleadk.mcp.McpWorkflow;
 import io.temporal.samples.googleadk.multiagent.MultiAgentWorkflow;
-import io.temporal.samples.googleadk.observability.ObservabilityWorkflow;
-import io.temporal.samples.googleadk.streaming.ModelChunk;
-import io.temporal.samples.googleadk.streaming.StreamingWorkflow;
 import io.temporal.samples.googleadk.tools.ToolsWorkflow;
 import io.temporal.serviceclient.WorkflowServiceStubs;
-import io.temporal.workflowstreams.WorkflowStreamClient;
-import io.temporal.workflowstreams.WorkflowStreamItem;
-import io.temporal.workflowstreams.WorkflowStreamSubscription;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -44,35 +38,6 @@ public final class SampleStarter {
               .setWorkflowId(id)
               .build();
       switch (args[0]) {
-        case "streaming":
-          StreamingWorkflow streaming = client.newWorkflowStub(StreamingWorkflow.class, options);
-          WorkflowClient.start(streaming::stream, "Say hello.");
-          try (WorkflowStreamClient output = WorkflowStreamClient.newInstance(client, id);
-              WorkflowStreamSubscription subscription = output.topic("model").subscribe(0)) {
-            for (WorkflowStreamItem item : subscription) {
-              ModelChunk chunk =
-                  client
-                      .getOptions()
-                      .getDataConverter()
-                      .fromPayload(item.getPayload(), ModelChunk.class, ModelChunk.class);
-              System.out.println(chunk.kind() + ": " + chunk.text());
-              if (chunk.kind().equals("complete")) {
-                streaming.acknowledge();
-                break;
-              }
-            }
-          }
-          System.out.println(
-              "Workflow result: "
-                  + io.temporal.client.WorkflowStub.fromTyped(streaming)
-                      .getResult(java.util.List.class));
-          break;
-        case "observability":
-          System.out.println(
-              client
-                  .newWorkflowStub(ObservabilityWorkflow.class, options)
-                  .observe("What's the weather in Chicago?"));
-          break;
         case "tools":
           System.out.println(
               client

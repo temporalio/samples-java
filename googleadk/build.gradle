@@ -2,12 +2,6 @@
 dependencies {
     implementation 'io.temporal:google-adk:0.1.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
-    implementation 'io.temporal:temporal-workflowstreams:1.40.0'
-    implementation 'io.temporal:temporal-opentracing:1.40.0'
-    implementation platform('io.opentelemetry:opentelemetry-bom:1.51.0')
-    implementation 'io.opentelemetry:opentelemetry-sdk'
-    implementation 'io.opentelemetry:opentelemetry-exporter-logging'
-    implementation 'io.opentelemetry:opentelemetry-opentracing-shim'
     implementation('io.temporal:temporal-sdk') {
         version {
             strictly '[1.40.0,2.0['
@@ -26,7 +20,6 @@ dependencies {
 
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
-    testImplementation 'io.opentelemetry:opentelemetry-sdk-testing'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     errorproneJavac 'com.google.errorprone:javac:9+181-r4173-1'

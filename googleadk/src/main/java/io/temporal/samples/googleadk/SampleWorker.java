@@ -16,16 +16,12 @@ import io.temporal.samples.googleadk.longrunning.ReportActivitiesImpl;
 import io.temporal.samples.googleadk.mcp.EchoMcpServer;
 import io.temporal.samples.googleadk.mcp.McpWorkflowImpl;
 import io.temporal.samples.googleadk.multiagent.MultiAgentWorkflowImpl;
-import io.temporal.samples.googleadk.observability.ObservabilityWorkflowImpl;
-import io.temporal.samples.googleadk.observability.SampleTelemetry;
-import io.temporal.samples.googleadk.streaming.StreamingWorkflowImpl;
 import io.temporal.samples.googleadk.structuredoutput.StructuredOutputWorkflowImpl;
 import io.temporal.samples.googleadk.tools.ToolsWorkflowImpl;
 import io.temporal.samples.googleadk.tools.WeatherActivitiesImpl;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
-import io.temporal.worker.WorkerFactoryOptions;
 import java.util.function.Supplier;
 
 public final class SampleWorker {
@@ -56,14 +52,7 @@ public final class SampleWorker {
     WorkflowClient client =
         WorkflowClient.newInstance(
             service, WorkflowClientOptions.newBuilder().setPlugins(plugin).build());
-    SampleTelemetry telemetry =
-        "console".equals(System.getenv("ADK_TRACING")) ? SampleTelemetry.console() : null;
-    WorkerFactory factory =
-        WorkerFactory.newInstance(
-            client,
-            telemetry == null
-                ? WorkerFactoryOptions.newBuilder().build()
-                : telemetry.workerOptions());
+    WorkerFactory factory = WorkerFactory.newInstance(client);
     Worker worker = factory.newWorker(AgentSupport.TASK_QUEUE);
     register(worker);
     factory.start();
@@ -77,7 +66,6 @@ public final class SampleWorker {
                   if (modelClient != null) {
                     modelClient.close();
                   }
-                  if (telemetry != null) telemetry.close();
                   service.shutdown();
                 }));
     System.out.println("Google ADK Worker: " + mode + " model, queue " + AgentSupport.TASK_QUEUE);
@@ -100,8 +88,6 @@ public final class SampleWorker {
         McpWorkflowImpl.class,
         ApprovalWorkflowImpl.class,
         ChatWorkflowImpl.class,
-        StreamingWorkflowImpl.class,
-        ObservabilityWorkflowImpl.class,
         StructuredOutputWorkflowImpl.class,
         LongRunningWorkflowImpl.class);
     worker.registerActivitiesImplementations(
