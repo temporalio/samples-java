@@ -8,7 +8,7 @@ It contains the following modules:
 * [SpringBoot](/springboot): showcases SpringBoot autoconfig integration.
 * [SpringBoot Basic](/springboot-basic): Minimal sample showing SpringBoot autoconfig integration without any extra external dependencies.
 * [Spring AI](/springai): demonstrates the Temporal Spring AI integration — durable AI agents with chat models, tools, MCP servers, vector stores, and embeddings.
-* [Google ADK](/googleadk): native ADK agents with durable conversations, tools, MCP, human approval, structured output, and asynchronous tool completion; runnable with a local fake or Gemini.
+* [Google ADK](/googleadk): native ADK agents with durable conversations, tools, MCP, human approval, structured output, and asynchronous tool completion.
 * [Lambda Worker](/lambda-worker): demonstrates running a Temporal Java Worker inside AWS Lambda.
 
 ## Learn more about Temporal and Java SDK
