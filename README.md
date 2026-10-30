@@ -162,6 +162,8 @@ Load client configuration from TOML files with programmatic overrides.
 
 - [**Set up OpenTracing and/or OpenTelemetry with Jaeger**](/core/src/main/java/io/temporal/samples/tracing): Demonstrates how to set up OpenTracing and/or OpenTelemetry and view traces using Jaeger.
 
+- [**OpenTelemetry v2**](/opentelemetry-v2): Demonstrates replay-safe tracing with the experimental `temporal-opentelemetry-v2` plugin and Jaeger.
+
 #### Encryption Support
 
 - [**Encrypted Payloads**](/core/src/main/java/io/temporal/samples/encryptedpayloads): Demonstrates how to use simple codec to encrypt and decrypt payloads.
