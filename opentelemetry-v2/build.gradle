@@ -1,0 +1,27 @@
+repositories {
+    // temporal-opentelemetry-v2 is not released yet. Publish it with
+    // ./gradlew publishToMavenLocal from sdk-java.
+    mavenLocal()
+}
+
+ext {
+    temporalOtelV2Version = '1.41.0-SNAPSHOT'
+}
+
+dependencies {
+    implementation "io.temporal:temporal-sdk:$temporalOtelV2Version"
+    implementation "io.temporal:temporal-envconfig:$temporalOtelV2Version"
+    implementation "io.temporal:temporal-opentelemetry-v2:$temporalOtelV2Version"
+    implementation "io.opentelemetry:opentelemetry-exporter-otlp"
+    runtimeOnly group: 'ch.qos.logback', name: 'logback-classic', version: '1.5.6'
+
+    dependencies {
+        errorproneJavac('com.google.errorprone:javac:9+181-r4173-1')
+        errorprone('com.google.errorprone:error_prone_core:2.28.0')
+    }
+}
+
+task execute(type: JavaExec) {
+    mainClass = findProperty("mainClass") ?: ""
+    classpath = sourceSets.main.runtimeClasspath
+}
