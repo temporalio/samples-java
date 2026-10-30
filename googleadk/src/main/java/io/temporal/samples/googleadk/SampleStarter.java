@@ -24,7 +24,6 @@ public final class SampleStarter {
     }
     WorkflowServiceStubs service = WorkflowServiceStubs.newLocalServiceStubs();
     try {
-      // Register the plugin on external clients too, so Queries/Signals use the same converter.
       WorkflowClient client =
           WorkflowClient.newInstance(
               service,
@@ -88,9 +87,10 @@ public final class SampleStarter {
           break;
         case "message":
           requireArgs(args, 3);
-          client
-              .newWorkflowStub(ChatWorkflow.class, args[1])
-              .message(String.join(" ", Arrays.copyOfRange(args, 2, args.length)));
+          System.out.println(
+              client
+                  .newWorkflowStub(ChatWorkflow.class, args[1])
+                  .message(String.join(" ", Arrays.copyOfRange(args, 2, args.length))));
           break;
         case "reply":
           requireArgs(args, 2);

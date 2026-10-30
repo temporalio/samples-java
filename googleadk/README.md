@@ -1,7 +1,7 @@
 # Google ADK on Temporal
 
 Run native [Google ADK Java](https://github.com/google/adk-java) agents durably with
-[`io.temporal:google-adk:0.1.0`](https://central.sonatype.com/artifact/io.temporal/google-adk).
+[`io.temporal:google-adk:0.1.1`](https://central.sonatype.com/artifact/io.temporal/google-adk).
 The integration is **Public Preview**; APIs and configuration may change before General Availability.
 
 Model calls and MCP operations run as Temporal Activities. Agent orchestration, deterministic function
@@ -55,23 +55,23 @@ Start with Agent Chat in that third terminal:
 ```
 
 The starter prints the Workflow ID. Follow the [chat commands](src/main/java/io/temporal/samples/googleadk/chat)
-to send messages, query replies, and finish the conversation.
+to send Updates, receive their replies, and finish the conversation.
 
 ## Coverage
 
 | Category | Scenario | Durable behavior |
 | --- | --- | --- |
-| Agent Chat | [chat](src/main/java/io/temporal/samples/googleadk/chat) | Signals queue turns; Queries expose replies; a session snapshot and pending messages survive Continue-As-New. |
+| Agent Chat | [chat](src/main/java/io/temporal/samples/googleadk/chat) | Updates return each turn's reply; accepted turns finish before a session snapshot carries the conversation through Continue-As-New. |
 | Tools | [tools](src/main/java/io/temporal/samples/googleadk/tools) | A nondeterministic weather observation runs in an Activity; a pure temperature conversion runs in the Workflow. |
 | MCP | [mcp](src/main/java/io/temporal/samples/googleadk/mcp) | List and call a bundled stateless Java stdio server through Activities. |
-| Streaming | Unsupported | Plugin 0.1.0 buffers SSE responses until the model Activity completes; it cannot deliver output through Workflow Streams while the Activity is running. See [#257](https://github.com/temporalio/ai-integrations/issues/257). |
+| Streaming | Unsupported | Plugin 0.1.1 buffers SSE responses until the model Activity completes; it cannot deliver output through Workflow Streams while the Activity is running. See [#257](https://github.com/temporalio/ai-integrations/issues/257). |
 | Human in the Loop | [humanintheloop](src/main/java/io/temporal/samples/googleadk/humanintheloop) | A Signal approves or rejects ADK's pending tool confirmation; cancellation ends the durable wait. |
 | Structured Output | [structuredoutput](src/main/java/io/temporal/samples/googleadk/structuredoutput) | ADK supplies the model's output schema; the Workflow validates JSON and returns a typed `TravelPlan` or a non-retryable failure. |
 | Multi-Agent | [multiagent](src/main/java/io/temporal/samples/googleadk/multiagent) | ADK's `ParallelAgent` starts planner and reviewer model Activities concurrently on Workflow threads. |
 | Sandboxes | Unsupported | The plugin does not durably manage an agent-facing code execution environment. ADK code executors that perform host I/O cannot run on the Workflow thread. |
 | Observability | Unsupported | Native ADK tracing has no replay suppression; installing an OpenTelemetry SDK can export duplicate agent/model/tool spans during replay. See [#258](https://github.com/temporalio/ai-integrations/issues/258). |
 
-The plugin's [documented limits](https://github.com/temporalio/ai-integrations/blob/java/google-adk/v0.1.0/java/google-adk/README.md#limitations)
+The plugin's [documented limits](https://github.com/temporalio/ai-integrations/blob/java/google-adk/v0.1.1/java/google-adk/README.md#limitations)
 still apply to live token forwarding, agent-facing code execution, and native ADK global tracing.
 
 Start with [Agent Chat](src/main/java/io/temporal/samples/googleadk/chat); it is the introductory sample.
@@ -92,9 +92,10 @@ decision for a pending batch wins. Rejection never schedules `ShipOrder`.
 ## Continue a conversation as new
 
 See [chat](src/main/java/io/temporal/samples/googleadk/chat) for CLI commands. After three turns the
-Workflow exports its ADK session and carries queued messages and the latest reply into a new Run.
-`finish` drains queued messages and returns the last reply. Continue-As-New bounds each Run's history;
-the conversation snapshot itself still grows and must fit Temporal's payload limits.
+Workflow waits for accepted Updates to finish, exports its ADK session, and carries the session and
+latest reply into a new Run. `finish` rejects new messages, drains accepted Updates, and returns the
+last reply. Continue-As-New bounds each Run's history; the conversation snapshot itself still grows
+and must fit Temporal's payload limits.
 
 ## Test without provider credentials
 
@@ -108,8 +109,9 @@ The MCP tests launch the bundled local subprocess.
 
 Each supported scenario has a targeted test command in its README. Tests assert Activity scheduling,
 retry behavior, function results, confirmation decisions and cancellation, schema rejection,
-correlated callback completion, and session/queue recovery across Continue-As-New. Recorded histories
-replay on a fresh Worker without repeating model or tool calls. `OfflineSamplesTest` runs every
+correlated callback completion, Update replies and concurrency, and session recovery across
+Continue-As-New. Recorded histories replay on a fresh Worker without repeating model or tool calls.
+`OfflineSamplesTest` runs every
 scenario with `SampleWorker.register` and the actual offline provider.
 
 The `:googleadk:starter` task starts Agent Chat by default. It also accepts `tools`, `multiagent`,

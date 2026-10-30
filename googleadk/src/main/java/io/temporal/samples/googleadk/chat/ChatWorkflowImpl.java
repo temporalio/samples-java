@@ -11,41 +11,50 @@ import io.temporal.googleadk.session.Sessions;
 import io.temporal.samples.googleadk.AgentSupport;
 import io.temporal.workflow.Workflow;
 import io.temporal.workflow.WorkflowInit;
-import java.util.ArrayList;
-import java.util.List;
+import io.temporal.workflow.WorkflowLock;
 
+// @@@SNIPSTART java-google-adk-chat-workflow
 public class ChatWorkflowImpl implements ChatWorkflow {
-  private final List<String> messages = new ArrayList<>();
+  private final WorkflowLock turnLock = Workflow.newWorkflowLock();
+  private final Runner runner;
   private boolean finished;
-  private String reply = "";
+  private String reply;
+  private int turns;
 
   @WorkflowInit
   public ChatWorkflowImpl(ChatInput input) {
-    messages.addAll(input.messages());
-    finished = input.finished();
     reply = input.lastReply();
-  }
-
-  // @@@SNIPSTART java-google-adk-chat-workflow
-  @Override
-  public String chat(ChatInput input) {
     LlmAgent agent =
         LlmAgent.builder()
             .name("chat_assistant")
             .model(TemporalModel.create(AgentSupport.MODEL))
             .instruction("Answer concisely, remembering the earlier turns in this conversation.")
             .build();
-    Runner runner = TemporalAdk.runnerBuilder().appName("chat").agent(agent).build();
+    runner = TemporalAdk.runnerBuilder().appName("chat").agent(agent).build();
     if (input.session() != null) {
       Sessions.importSession(runner.sessionService(), input.session());
     }
-    int turns = 0;
-    while (!finished || !messages.isEmpty()) {
-      Workflow.await(() -> finished || !messages.isEmpty());
-      if (messages.isEmpty()) {
-        break;
-      }
-      String text = messages.remove(0);
+  }
+
+  @Override
+  public String chat(ChatInput input) {
+    Workflow.await(
+        () ->
+            finished || turns >= 3 || (turns > 0 && Workflow.getInfo().isContinueAsNewSuggested()));
+    Workflow.await(Workflow::isEveryHandlerFinished);
+    if (!finished) {
+      Session snapshot =
+          Sessions.exportSession(
+              runner.sessionService(), "chat", AgentSupport.USER, AgentSupport.SESSION);
+      Workflow.continueAsNew(new ChatInput(snapshot, reply));
+    }
+    return reply;
+  }
+
+  @Override
+  public String message(String text) {
+    turnLock.lock();
+    try {
       reply =
           AgentSupport.lastText(
               TemporalAdk.run(
@@ -53,22 +62,21 @@ public class ChatWorkflowImpl implements ChatWorkflow {
                   AgentSupport.USER,
                   AgentSupport.SESSION,
                   Content.fromParts(Part.fromText(text))));
-      // Use a small threshold to make Continue-As-New easy to observe in this sample.
-      if (++turns == 3 && !finished) {
-        Session snapshot =
-            Sessions.exportSession(
-                runner.sessionService(), "chat", AgentSupport.USER, AgentSupport.SESSION);
-        Workflow.continueAsNew(new ChatInput(snapshot, List.copyOf(messages), finished, reply));
-      }
+      turns++;
+      return reply;
+    } finally {
+      turnLock.unlock();
     }
-    return reply;
   }
 
-  // @@@SNIPEND
-
   @Override
-  public void message(String text) {
-    messages.add(text);
+  public void validateMessage(String text) {
+    if (finished) {
+      throw new IllegalStateException("The conversation is finishing.");
+    }
+    if (text == null || text.isBlank()) {
+      throw new IllegalArgumentException("The message must not be blank.");
+    }
   }
 
   @Override
@@ -81,3 +89,4 @@ public class ChatWorkflowImpl implements ChatWorkflow {
     return reply;
   }
 }
+// @@@SNIPEND

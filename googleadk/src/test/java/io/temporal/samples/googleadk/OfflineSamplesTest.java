@@ -34,10 +34,12 @@ class OfflineSamplesTest {
       assertEquals(
           new TravelPlan("Chicago", 2, List.of("Walk the lakefront", "Visit a museum")),
           test.workflow(StructuredOutputWorkflow.class).plan("Plan two days in Chicago."));
-      assertEquals(
-          "turns=2; latest: two",
-          test.workflow(ChatWorkflow.class)
-              .chat(new ChatInput(null, List.of("one", "two"), true, "")));
+      ChatWorkflow chat = test.workflow(ChatWorkflow.class);
+      WorkflowClient.start(chat::chat, ChatInput.empty());
+      assertEquals("turns=1; latest: one", chat.message("one"));
+      assertEquals("turns=2; latest: two", chat.message("two"));
+      chat.finish();
+      assertEquals("turns=2; latest: two", WorkflowStub.fromTyped(chat).getResult(String.class));
 
       ApprovalWorkflow approval = test.workflow(ApprovalWorkflow.class);
       WorkflowClient.start(approval::fulfill, "Ship demo-order.");

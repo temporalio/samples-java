@@ -246,7 +246,7 @@ ADK_MODEL_MODE=offline ./gradlew :googleadk:worker
 
 The default starter launches Agent Chat and prints its Workflow ID. Use the
 [chat commands](googleadk/src/main/java/io/temporal/samples/googleadk/chat/README.md) to send messages,
-query replies, and finish the conversation.
+receive each Update's reply, and finish the conversation.
 
 See the [sample README](googleadk/README.md) for the other scenarios and credential-free tests.
 
