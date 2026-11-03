@@ -21,7 +21,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class NexusStandaloneActivityTest {
-  private static final String DEV_SERVER_VERSION = "v1.7.4-standalone-nexus-operations";
+  private static final String DEV_SERVER_VERSION = "v1.10.0";
 
   private static TestWorkflowEnvironment testEnv;
   private static Endpoint endpoint;
