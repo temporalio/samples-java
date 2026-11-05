@@ -1,6 +1,7 @@
 rootProject.name = 'temporal-java-samples'
 
 include 'core'
+include 'googleadk'
 include 'springai:basic'
 include 'springai:mcp'
 include 'springai:multimodel'
