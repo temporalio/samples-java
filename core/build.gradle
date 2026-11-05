@@ -43,6 +43,9 @@ dependencies {
     implementation("software.amazon.awssdk:kms")
     implementation("software.amazon.awssdk:dynamodb")
 
+    // Used in the Nexus secure credential propagation sample
+    implementation 'com.google.crypto.tink:tink:1.23.0'
+
     // we don't update it to 2.1.0 because 2.1.0 requires Java 11
     implementation 'com.codingrodent:jackson-json-crypto:1.1.0'
 

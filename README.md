@@ -182,6 +182,8 @@ Load client configuration from TOML files with programmatic overrides.
 
 - [**Context/Header Propagation**](/core/src/main/java/io/temporal/samples/nexuscontextpropagation): Demonstrates how to propagate context through Nexus operation headers.
 
+- [**Secure Credential Propagation**](/core/src/main/java/io/temporal/samples/nexussecurecredentialpropagation): Demonstrates how to propagate an end-user JWT from a client through a Workflow to a Nexus handler, encrypted to each hop and bound to its arguments, without exposing it in history.
+
 - [**Nexus Messaging**](/core/src/main/java/io/temporal/samples/nexusmessaging): Demonstrates how to send signal, update and query messages through Nexus.
   This contains two samples, one sending messages to an existing workflow and a second that creates a workflow through Nexus
   and sends messages to it.
