@@ -17,7 +17,6 @@ import io.temporal.samples.nexusserializationcontext.caller.CallerWorker;
 import io.temporal.samples.nexusserializationcontext.caller.EndpointResults;
 import io.temporal.samples.nexusserializationcontext.handler.CompressedEncryptedHandlerWorker;
 import io.temporal.samples.nexusserializationcontext.handler.EncryptedHandlerWorker;
-import io.temporal.samples.nexusserializationcontext.propagation.NexusEndpointContextPropagator;
 import io.temporal.samples.nexusserializationcontext.service.AsyncEchoService;
 import io.temporal.samples.nexusserializationcontext.service.SyncEchoService;
 import org.junit.jupiter.api.Test;
@@ -180,55 +179,6 @@ class NexusCodecTest {
     assertThrows(
         PayloadCodecException.class,
         () -> handlerA.fromPayload(requestB, String.class, String.class));
-  }
-
-  @Test
-  void propagatedEndpointAppearsOnEncryptedAsyncWorkflowResult() {
-    NexusEndpointContextPropagator propagator = new NexusEndpointContextPropagator();
-    try {
-      propagator.setCurrentContext(null);
-      DataConverter handlerA =
-          CompressedEncryptedHandlerWorker.dataConverter()
-              .withContext(new WorkflowSerializationContext("handler-a", "echo-workflow"));
-      DataConverter handlerB =
-          EncryptedHandlerWorker.dataConverter()
-              .withContext(new WorkflowSerializationContext("handler-b", "echo-workflow"));
-
-      Payload resultA =
-          asyncResultFor(
-              propagator,
-              handlerA,
-              SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT,
-              SampleConfig.KEY_A_ID);
-      Payload resultB =
-          asyncResultFor(
-              propagator, handlerB, SampleConfig.ENCRYPTED_ENDPOINT, SampleConfig.KEY_B_ID);
-      assertTrue(resultA.getData().size() < resultB.getData().size());
-    } finally {
-      propagator.setCurrentContext(null);
-    }
-  }
-
-  private static Payload asyncResultFor(
-      NexusEndpointContextPropagator propagator,
-      DataConverter handler,
-      String endpoint,
-      String keyId) {
-    propagator.setCurrentContext(endpoint);
-    var header = propagator.serializeContext(propagator.getCurrentContext());
-    propagator.setCurrentContext(null);
-    propagator.setCurrentContext(propagator.deserializeContext(header));
-
-    String message = "reply ".repeat(100);
-    Payload result = handler.toPayload(message).orElseThrow();
-    assertEquals(
-        endpoint, result.getMetadataOrThrow(SampleConfig.ENDPOINT_METADATA_KEY).toStringUtf8());
-    assertEquals(keyId, result.getMetadataOrThrow(AesGcmCodec.KEY_ID_METADATA_KEY).toStringUtf8());
-    assertEquals(
-        message, converterFor(endpoint, true).fromPayload(result, String.class, String.class));
-    assertEquals(message, handler.fromPayload(result, String.class, String.class));
-    propagator.setCurrentContext(null);
-    return result;
   }
 
   private static DataConverter converterFor(String endpoint) {

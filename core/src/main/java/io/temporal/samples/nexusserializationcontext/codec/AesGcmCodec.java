@@ -9,7 +9,6 @@ import io.temporal.payload.codec.PayloadCodecException;
 import io.temporal.payload.context.NexusSerializationContext;
 import io.temporal.payload.context.SerializationContext;
 import io.temporal.samples.nexusserializationcontext.SampleConfig;
-import io.temporal.samples.nexusserializationcontext.propagation.NexusEndpointContextPropagator;
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
@@ -19,7 +18,6 @@ import javax.annotation.Nonnull;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
-import org.apache.commons.lang.StringUtils;
 
 /** Encrypts payloads with a configured key and includes endpoint metadata when available. */
 public final class AesGcmCodec implements PayloadCodec {
@@ -58,8 +56,6 @@ public final class AesGcmCodec implements PayloadCodec {
   @Override
   @Nonnull
   public List<Payload> encode(@Nonnull List<Payload> payloads) {
-    String endpointName =
-        StringUtils.defaultIfBlank(endpoint, NexusEndpointContextPropagator.currentEndpoint());
     List<Payload> encoded = new ArrayList<>(payloads.size());
     for (Payload payload : payloads) {
       Payload.Builder encrypted =
@@ -69,9 +65,9 @@ public final class AesGcmCodec implements PayloadCodec {
                   ByteString.copyFromUtf8(NexusEncoding.AES_GCM.encodingName()))
               .putMetadata(KEY_ID_METADATA_KEY, ByteString.copyFromUtf8(keyId))
               .setData(ByteString.copyFrom(encrypt(payload.toByteArray())));
-      if (StringUtils.isNotBlank(endpointName)) {
+      if (endpoint != null && !endpoint.isEmpty()) {
         encrypted.putMetadata(
-            SampleConfig.ENDPOINT_METADATA_KEY, ByteString.copyFromUtf8(endpointName));
+            SampleConfig.ENDPOINT_METADATA_KEY, ByteString.copyFromUtf8(endpoint));
       }
       encoded.add(encrypted.build());
     }

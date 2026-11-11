@@ -36,32 +36,31 @@ The caller workflow's input and final result use `encryption-key-id: key-c`; the
 have endpoint metadata. The starter uses the same converter as the caller worker, so it
 can decode the final result before printing it.
 
-`NexusSerializationContext` works end to end for synchronous Nexus operations.
-For an asynchronous operation, the handler's final result is serialized as a workflow
-result and does not receive `NexusSerializationContext`. We plan to add
-`NexusSerializationContext` support for asynchronous operation results in the Java SDK.
-Until then, the sample's `NexusEndpointInterceptor` captures the endpoint when the
-handler starts the backing `EchoWorkflow`. `NexusEndpointContextPropagator` saves it in
-the workflow headers and restores it on the workflow thread. Each handler's codec uses
-its fixed key to encrypt the workflow result and includes the propagated endpoint name
-in the outer payload metadata. This propagation is needed for the endpoint metadata;
-the handler already knows which key to use. When the result reaches the caller, the SDK
-supplies `NexusSerializationContext` to decode it.
+For synchronous operations, the SDK supplies `NexusSerializationContext` when decoding
+inputs and encoding results. For asynchronous operations backed by `EchoWorkflow`, the
+handler's SDK sends the context when starting the workflow, and the server stores it.
+The workflow worker receives that context and uses it to encode the workflow's result
+for the Nexus caller. Other workflow payloads keep their normal workflow context.
 
-This endpoint propagation covers asynchronous operations backed by workflows. If the
-endpoint is not propagated, the result remains encrypted with the handler's fixed key
-but lacks the endpoint name in its metadata.
+The sample's `AesGcmCodec.withContext` reads the endpoint directly from this context
+and includes it in the encrypted result's metadata. No custom interceptor or workflow
+header propagation is needed. The SDK-side codec chooses the key; the server carries
+the context without access to encryption keys.
 
 The hard-coded keys are only for this local example. For production encryption,
 use a secure key store, as in the
 [AWS Encryption SDK sample](../keymanagementencryption/awsencryptionsdk/README.md).
 
-Requires Java SDK 1.40.0 or later and Temporal Server 1.30.0 or later with Nexus enabled
-so the handler can read the endpoint name.
+## Prerequisites
+
+Use a Temporal Server that supports Nexus serialization-context propagation for
+workflow-backed asynchronous operations. For local development, download
+[Temporal CLI `v1.9.3-nexus-serialization-context`](https://github.com/temporalio/cli/releases/tag/v1.9.3-nexus-serialization-context)
+and add its `temporal` binary to your `PATH`. Its dev server includes this support.
 
 ## Run locally
 
-Start a Temporal dev server:
+Start the dev server:
 
 ```bash
 temporal server start-dev
