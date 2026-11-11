@@ -20,7 +20,7 @@ import software.amazon.awssdk.services.s3.S3AsyncClient;
  */
 public final class StorageConfig {
 
-  static final String S3_ENDPOINT = "http://127.0.0.1:5000";
+  static final int S3_PORT = 5000;
   static final String S3_BUCKET = "temporal-payloads";
   static final String S3_ACCESS_KEY = "test";
   static final String S3_SECRET_KEY = "test";
@@ -29,9 +29,13 @@ public final class StorageConfig {
 
   /** Adds the zlib codec and S3 external storage to the given client options. */
   public static WorkflowClientOptions withExternalStorage(WorkflowClientOptions options) {
+    return withExternalStorage(options, S3_PORT);
+  }
+
+  static WorkflowClientOptions withExternalStorage(WorkflowClientOptions options, int s3Port) {
     S3AsyncClient s3Client =
         S3AsyncClient.builder()
-            .endpointOverride(URI.create(S3_ENDPOINT))
+            .endpointOverride(URI.create("http://127.0.0.1:" + s3Port))
             .region(Region.US_EAST_1)
             .credentialsProvider(
                 StaticCredentialsProvider.create(

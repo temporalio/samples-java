@@ -11,6 +11,16 @@ import org.gaul.s3proxy.blobstore.BlobStore;
 public class S3Mock {
 
   public static void main(String[] args) throws Exception {
+    S3Proxy proxy = start(StorageConfig.S3_PORT);
+    System.out.println(
+        "Mock S3 listening on http://127.0.0.1:"
+            + proxy.getPort()
+            + ", bucket "
+            + StorageConfig.S3_BUCKET);
+  }
+
+  /** Starts the server on the given port, or on a free one if the port is 0. */
+  static S3Proxy start(int port) throws Exception {
     BlobStore blobStore = BlobStores.create("transient", new Properties());
     blobStore.createContainer(StorageConfig.S3_BUCKET);
 
@@ -21,13 +31,12 @@ public class S3Mock {
                 AuthenticationType.AWS_V2_OR_V4,
                 StorageConfig.S3_ACCESS_KEY,
                 StorageConfig.S3_SECRET_KEY)
-            .endpoint(URI.create(StorageConfig.S3_ENDPOINT))
+            .endpoint(URI.create("http://127.0.0.1:" + port))
             .build();
     proxy.start();
-    System.out.println(
-        "Mock S3 listening on "
-            + StorageConfig.S3_ENDPOINT
-            + ", bucket "
-            + StorageConfig.S3_BUCKET);
+    while (!"STARTED".equals(proxy.getState())) {
+      Thread.sleep(10);
+    }
+    return proxy;
   }
 }
