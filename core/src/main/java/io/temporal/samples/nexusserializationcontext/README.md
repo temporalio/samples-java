@@ -112,3 +112,16 @@ Encrypted endpoint sync result: Hello from Nexus
 Compressed and encrypted endpoint async result: Hello from Nexus
 Encrypted endpoint async result: Hello from Nexus
 ```
+
+## Test
+
+Run the codec tests and integration test:
+
+```bash
+./gradlew :core:test --tests 'io.temporal.samples.nexusserializationcontext.*'
+```
+
+The integration test downloads and starts the dev-server version listed above,
+runs synchronous and workflow-backed asynchronous calls through both endpoints,
+and checks the recorded Nexus context and encrypted async-result metadata in
+workflow history. It stops the server and workers when finished.
