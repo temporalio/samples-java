@@ -28,6 +28,7 @@
         </encoder>
     </appender>
     <logger name="io.grpc.netty" level="INFO"/>
+    <logger name="org.gaul" level="WARN"/>
     <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>

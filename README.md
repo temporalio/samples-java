@@ -113,6 +113,8 @@ See the README.md file in each main sample directory for cut/paste Gradle comman
 
 - [**Worker Versioning**](/core/src/main/java/io/temporal/samples/workerversioning): Demonstrates how to use worker versioning to manage workflow code changes.
 
+- [**External Storage**](/core/src/main/java/io/temporal/samples/externalstorage): Demonstrates offloading large payloads to S3 with a compression codec and a mock S3 server.
+
 - [**Environment Configuration**](/core/src/main/java/io/temporal/samples/envconfig):
 Load client configuration from TOML files with programmatic overrides.
 
