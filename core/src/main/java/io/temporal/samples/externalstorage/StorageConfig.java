@@ -20,34 +20,46 @@ import software.amazon.awssdk.services.s3.S3AsyncClient;
  */
 public final class StorageConfig {
 
-  static final int S3_PORT = 5000;
-  static final String S3_BUCKET = "temporal-payloads";
-  static final String S3_ACCESS_KEY = "test";
-  static final String S3_SECRET_KEY = "test";
+  /** Set to a bucket name to use real S3 instead of the local mock. */
+  static final String BUCKET_ENV_VAR = "EXTERNAL_STORAGE_S3_BUCKET";
+
+  static final int MOCK_PORT = 9100;
+  static final String MOCK_BUCKET = "temporal-payloads";
+  static final String MOCK_ACCESS_KEY = "test";
+  static final String MOCK_SECRET_KEY = "test";
 
   private StorageConfig() {}
 
   /** Adds the zlib codec and S3 external storage to the given client options. */
   public static WorkflowClientOptions withExternalStorage(WorkflowClientOptions options) {
-    return withExternalStorage(options, S3_PORT);
+    String bucket = System.getenv(BUCKET_ENV_VAR);
+    if (bucket != null && !bucket.isEmpty()) {
+      // Region and credentials come from the usual AWS configuration, such as environment
+      // variables or ~/.aws.
+      return withExternalStorage(options, S3AsyncClient.create(), bucket);
+    }
+    return withExternalStorage(options, mockS3Client(MOCK_PORT), MOCK_BUCKET);
   }
 
-  static WorkflowClientOptions withExternalStorage(WorkflowClientOptions options, int s3Port) {
-    S3AsyncClient s3Client =
-        S3AsyncClient.builder()
-            .endpointOverride(URI.create("http://127.0.0.1:" + s3Port))
-            .region(Region.US_EAST_1)
-            .credentialsProvider(
-                StaticCredentialsProvider.create(
-                    AwsBasicCredentials.create(S3_ACCESS_KEY, S3_SECRET_KEY)))
-            // Virtual-hosted addressing would need temporal-payloads.127.0.0.1 to resolve.
-            .forcePathStyle(true)
-            .build();
+  /** A client for the local mock S3 server started by {@link S3Mock}. */
+  static S3AsyncClient mockS3Client(int port) {
+    return S3AsyncClient.builder()
+        .endpointOverride(URI.create("http://127.0.0.1:" + port))
+        .region(Region.US_EAST_1)
+        .credentialsProvider(
+            StaticCredentialsProvider.create(
+                AwsBasicCredentials.create(MOCK_ACCESS_KEY, MOCK_SECRET_KEY)))
+        // Virtual-hosted addressing would need temporal-payloads.127.0.0.1 to resolve.
+        .forcePathStyle(true)
+        .build();
+  }
 
+  static WorkflowClientOptions withExternalStorage(
+      WorkflowClientOptions options, S3AsyncClient s3Client, String bucket) {
     S3StorageDriver driver =
         S3StorageDriver.newBuilder()
             .setClient(new S3AsyncClientAdapter(s3Client))
-            .setBucket(S3_BUCKET)
+            .setBucket(bucket)
             .build();
 
     return WorkflowClientOptions.newBuilder(options)

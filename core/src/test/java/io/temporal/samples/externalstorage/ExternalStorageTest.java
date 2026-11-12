@@ -38,7 +38,9 @@ public class ExternalStorageTest {
           .setActivityImplementations(new OrderActivitiesImpl())
           .setWorkflowClientOptions(
               StorageConfig.withExternalStorage(
-                  WorkflowClientOptions.newBuilder().build(), s3Mock.getPort()))
+                  WorkflowClientOptions.newBuilder().build(),
+                  StorageConfig.mockS3Client(s3Mock.getPort()),
+                  StorageConfig.MOCK_BUCKET))
           .build();
 
   @Test

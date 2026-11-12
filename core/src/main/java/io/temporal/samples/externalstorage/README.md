@@ -15,12 +15,13 @@ The codec compresses each payload, and the SDK then compares the compressed size
 reference. The workflow's own input and result are a few bytes and stay inline.
 
 A mock S3 server ([S3Mock.java](S3Mock.java)), built on [S3Proxy](https://github.com/gaul/s3proxy),
-is included, so the sample runs locally without an AWS account or Docker.
+is included, so the sample runs locally without an AWS account or Docker. To use real S3 instead,
+see [Using real S3](#using-real-s3).
 
 ## Running this sample
 
 1. `temporal server start-dev` to start the Temporal server.
-2. In another terminal, start the mock S3 server. It listens on `127.0.0.1:5000`, serves the
+2. In another terminal, start the mock S3 server. It listens on `127.0.0.1:9100`, serves the
    `temporal-payloads` bucket, and keeps objects in memory until it stops.
 
    ```bash
@@ -77,7 +78,7 @@ configuration, so it needs no other setup.
 S3StorageDriver driver =
     S3StorageDriver.newBuilder()
         .setClient(new S3AsyncClientAdapter(s3Client))
-        .setBucket("temporal-payloads")
+        .setBucket(bucket)
         .build();
 
 WorkflowClientOptions.newBuilder(options)
@@ -103,8 +104,19 @@ Decoding reverses these steps, retrieving from S3 and then decompressing.
 Every process that reads or writes this workflow's payloads must use the same codec and external
 storage configuration, so each can read what the others wrote.
 
-To use real S3, drop the endpoint override, credentials, and path-style setting from
-`StorageConfig.java` and let the AWS SDK load its configuration from the environment instead.
+### Using real S3
+
+Set `EXTERNAL_STORAGE_S3_BUCKET` to your bucket's name in the worker's and the starter's terminals,
+and skip the mock S3 server:
+
+```bash
+export EXTERNAL_STORAGE_S3_BUCKET=<your-bucket>
+```
+
+The S3 client then takes its region and credentials from the usual AWS configuration, such as the
+`AWS_REGION` and `AWS_PROFILE` environment variables or `~/.aws`. Set the variable in both
+terminals: a worker and a starter that disagree would write payloads where the other can't read
+them.
 
 ### Why a codec
 
