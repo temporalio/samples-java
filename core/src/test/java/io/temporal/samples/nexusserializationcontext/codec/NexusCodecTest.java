@@ -51,7 +51,8 @@ class NexusCodecTest {
   void callerWorkflowPayloadsUseTheirOwnKey() {
     DataConverter converter =
         CallerWorker.dataConverter()
-            .withContext(new WorkflowSerializationContext("nexus-serialization", "caller-id"));
+            .withContext(
+                new WorkflowSerializationContext("nexus-serialization-caller", "caller-id"));
     EndpointResults results =
         new EndpointResults(
             "reply compressed-encrypted-1",

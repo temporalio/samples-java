@@ -6,6 +6,7 @@ through four endpoints. `CompressedEncryptedHandlerWorker` compresses and then
 encrypts Nexus payloads. `EncryptedHandlerWorker` encrypts without
 compression. Each handler selects between its own key 1 and key 2 using
 the endpoint in the Nexus context.
+The caller and each handler run in separate namespaces.
 
 | Endpoint | Encryption key | Nexus payload encoding |
 |---|---|---|
@@ -73,13 +74,23 @@ Keep this prerelease binary separate from your stable CLI. The commands below us
 
 ## Run locally
 
-The caller and both handlers share the `nexus-serialization` namespace. Each worker
-polls its own task queue; both endpoints for a handler target that handler's queue.
+The caller and each handler use separate namespaces. Each worker polls a task queue
+with the same name as its namespace. Both endpoints for a handler target that handler's
+namespace and task queue.
+
+| Worker | Namespace and task queue |
+|---|---|
+| Caller | `nexus-serialization-caller` |
+| Compressed/encrypted handler | `nexus-serialization-compressed-encrypted-handler` |
+| Encrypted handler | `nexus-serialization-encrypted-handler` |
 
 Start the dev server:
 
 ```bash
-./temporal server start-dev --namespace nexus-serialization
+./temporal server start-dev \
+  --namespace nexus-serialization-caller \
+  --namespace nexus-serialization-compressed-encrypted-handler \
+  --namespace nexus-serialization-encrypted-handler
 ```
 
 Create two endpoints for each handler worker:
@@ -87,19 +98,19 @@ Create two endpoints for each handler worker:
 ```bash
 ./temporal operator nexus endpoint create \
   --name nexus-serialization-compressed-encrypted-1 \
-  --target-namespace nexus-serialization \
+  --target-namespace nexus-serialization-compressed-encrypted-handler \
   --target-task-queue nexus-serialization-compressed-encrypted-handler
 ./temporal operator nexus endpoint create \
   --name nexus-serialization-compressed-encrypted-2 \
-  --target-namespace nexus-serialization \
+  --target-namespace nexus-serialization-compressed-encrypted-handler \
   --target-task-queue nexus-serialization-compressed-encrypted-handler
 ./temporal operator nexus endpoint create \
   --name nexus-serialization-encrypted-1 \
-  --target-namespace nexus-serialization \
+  --target-namespace nexus-serialization-encrypted-handler \
   --target-task-queue nexus-serialization-encrypted-handler
 ./temporal operator nexus endpoint create \
   --name nexus-serialization-encrypted-2 \
-  --target-namespace nexus-serialization \
+  --target-namespace nexus-serialization-encrypted-handler \
   --target-task-queue nexus-serialization-encrypted-handler
 ```
 
@@ -107,22 +118,22 @@ Run each of the following in its own terminal from the repository root:
 
 ```bash
 ./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexusserializationcontext.handler.CompressedEncryptedHandlerWorker \
-  --args="-namespace nexus-serialization"
+  --args="-namespace nexus-serialization-compressed-encrypted-handler"
 ```
 
 ```bash
 ./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexusserializationcontext.handler.EncryptedHandlerWorker \
-  --args="-namespace nexus-serialization"
+  --args="-namespace nexus-serialization-encrypted-handler"
 ```
 
 ```bash
 ./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexusserializationcontext.caller.CallerWorker \
-  --args="-namespace nexus-serialization"
+  --args="-namespace nexus-serialization-caller"
 ```
 
 ```bash
 ./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexusserializationcontext.caller.CallerStarter \
-  --args="-namespace nexus-serialization"
+  --args="-namespace nexus-serialization-caller"
 ```
 
 The starter prints a sync result and an async result for each endpoint. All eight
