@@ -19,7 +19,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 public class EncryptedHandlerWorker {
-  private static final String TASK_QUEUE = "nexus-serialization-handler-b";
+  private static final String TASK_QUEUE = "nexus-serialization-encrypted-handler";
 
   public static void main(String[] args) {
     WorkflowClient client =
@@ -35,15 +35,15 @@ public class EncryptedHandlerWorker {
 
   public static DataConverter dataConverter() {
     SecretKey key1 =
-        new SecretKeySpec(SampleConfig.HANDLER_B_KEY_1.getBytes(StandardCharsets.UTF_8), "AES");
+        new SecretKeySpec(SampleConfig.ENCRYPTED_KEY_1.getBytes(StandardCharsets.UTF_8), "AES");
     SecretKey key2 =
-        new SecretKeySpec(SampleConfig.HANDLER_B_KEY_2.getBytes(StandardCharsets.UTF_8), "AES");
-    PayloadCodec key1Encryption = new AesGcmCodec(SampleConfig.HANDLER_B_KEY_1_ID, key1);
-    PayloadCodec key2Encryption = new AesGcmCodec(SampleConfig.HANDLER_B_KEY_2_ID, key2);
+        new SecretKeySpec(SampleConfig.ENCRYPTED_KEY_2.getBytes(StandardCharsets.UTF_8), "AES");
+    PayloadCodec key1Encryption = new AesGcmCodec(SampleConfig.ENCRYPTED_KEY_1_ID, key1);
+    PayloadCodec key2Encryption = new AesGcmCodec(SampleConfig.ENCRYPTED_KEY_2_ID, key2);
     Map<String, PayloadCodec> nexusEndpointCodecs =
         Map.of(
-            SampleConfig.HANDLER_B_1_ENDPOINT, key1Encryption,
-            SampleConfig.HANDLER_B_2_ENDPOINT, key2Encryption);
+            SampleConfig.ENCRYPTED_1_ENDPOINT, key1Encryption,
+            SampleConfig.ENCRYPTED_2_ENDPOINT, key2Encryption);
     // Ordinary workflow inputs use this handler's key 1, regardless of the Nexus endpoint.
     PayloadCodec handlerWorkflowEncryption = key1Encryption;
     return new CodecDataConverter(

@@ -1,11 +1,11 @@
 package io.temporal.samples.nexusserializationcontext.caller;
 
 public record EndpointResults(
-    String handlerA1SyncResult,
-    String handlerB1SyncResult,
-    String handlerA2SyncResult,
-    String handlerB2SyncResult,
-    String handlerA1AsyncResult,
-    String handlerB1AsyncResult,
-    String handlerA2AsyncResult,
-    String handlerB2AsyncResult) {}
+    String compressedEncrypted1SyncResult,
+    String encrypted1SyncResult,
+    String compressedEncrypted2SyncResult,
+    String encrypted2SyncResult,
+    String compressedEncrypted1AsyncResult,
+    String encrypted1AsyncResult,
+    String compressedEncrypted2AsyncResult,
+    String encrypted2AsyncResult) {}

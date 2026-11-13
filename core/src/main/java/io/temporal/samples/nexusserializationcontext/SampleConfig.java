@@ -1,21 +1,25 @@
 package io.temporal.samples.nexusserializationcontext;
 
 public final class SampleConfig {
-  public static final String HANDLER_A_1_ENDPOINT = "handler-a-1";
-  public static final String HANDLER_B_1_ENDPOINT = "handler-b-1";
-  public static final String HANDLER_A_2_ENDPOINT = "handler-a-2";
-  public static final String HANDLER_B_2_ENDPOINT = "handler-b-2";
+  public static final String COMPRESSED_ENCRYPTED_1_ENDPOINT =
+      "nexus-serialization-compressed-encrypted-1";
+  public static final String ENCRYPTED_1_ENDPOINT = "nexus-serialization-encrypted-1";
+  public static final String COMPRESSED_ENCRYPTED_2_ENDPOINT =
+      "nexus-serialization-compressed-encrypted-2";
+  public static final String ENCRYPTED_2_ENDPOINT = "nexus-serialization-encrypted-2";
   public static final String ENDPOINT_METADATA_KEY = "nexus-endpoint-name";
-  public static final String HANDLER_A_KEY_1_ID = "handler-a-1";
-  public static final String HANDLER_B_KEY_1_ID = "handler-b-1";
-  public static final String HANDLER_A_KEY_2_ID = "handler-a-2";
-  public static final String HANDLER_B_KEY_2_ID = "handler-b-2";
+  public static final String COMPRESSED_ENCRYPTED_KEY_1_ID = "compressed-encrypted-1";
+  public static final String ENCRYPTED_KEY_1_ID = "encrypted-1";
+  public static final String COMPRESSED_ENCRYPTED_KEY_2_ID = "compressed-encrypted-2";
+  public static final String ENCRYPTED_KEY_2_ID = "encrypted-2";
+  public static final String CALLER_WORKFLOW_KEY_ID = "caller-workflow";
 
-  // Four distinct, hard-coded keys for this local sample only.
-  public static final String HANDLER_A_KEY_1 = "handler-a-key-01";
-  public static final String HANDLER_B_KEY_1 = "handler-b-key-01";
-  public static final String HANDLER_A_KEY_2 = "handler-a-key-02";
-  public static final String HANDLER_B_KEY_2 = "handler-b-key-02";
+  // Hard-coded keys are only for this local sample.
+  public static final String COMPRESSED_ENCRYPTED_KEY_1 = "handler-a-key-01";
+  public static final String ENCRYPTED_KEY_1 = "handler-b-key-01";
+  public static final String COMPRESSED_ENCRYPTED_KEY_2 = "handler-a-key-02";
+  public static final String ENCRYPTED_KEY_2 = "handler-b-key-02";
+  public static final String CALLER_WORKFLOW_KEY = "sample-key-C-123";
 
   private SampleConfig() {}
 }

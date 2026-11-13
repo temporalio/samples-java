@@ -2,32 +2,33 @@
 
 This sample uses `NexusSerializationContext` to select an encryption key for each Nexus
 endpoint. The caller invokes synchronous and workflow-backed asynchronous operations
-through four endpoints. Handler A (`CompressedEncryptedHandlerWorker`) compresses and
-then encrypts Nexus payloads. Handler B (`EncryptedHandlerWorker`) encrypts without
+through four endpoints. `CompressedEncryptedHandlerWorker` compresses and then
+encrypts Nexus payloads. `EncryptedHandlerWorker` encrypts without
 compression. Each handler selects between its own key 1 and key 2 using
 the endpoint in the Nexus context.
 
 | Endpoint | Encryption key | Nexus payload encoding |
 |---|---|---|
-| `handler-a-1` | `HANDLER_A_KEY_1` | zlib, then AES-GCM |
-| `handler-b-1` | `HANDLER_B_KEY_1` | AES-GCM |
-| `handler-a-2` | `HANDLER_A_KEY_2` | zlib, then AES-GCM |
-| `handler-b-2` | `HANDLER_B_KEY_2` | AES-GCM |
+| `nexus-serialization-compressed-encrypted-1` | `COMPRESSED_ENCRYPTED_KEY_1` | zlib, then AES-GCM |
+| `nexus-serialization-encrypted-1` | `ENCRYPTED_KEY_1` | AES-GCM |
+| `nexus-serialization-compressed-encrypted-2` | `COMPRESSED_ENCRYPTED_KEY_2` | zlib, then AES-GCM |
+| `nexus-serialization-encrypted-2` | `ENCRYPTED_KEY_2` | AES-GCM |
 
-These are four distinct 128-bit AES keys. Compression runs before encryption;
+These four endpoint keys are distinct 128-bit AES keys. Compression runs before encryption;
 decoding decrypts before decompressing. AES-GCM authenticates the ciphertext.
 The AES-GCM and zlib codecs are implemented in this sample; Nexus supplies the endpoint
 context used to select them.
 
 Each worker configures `NexusCodec` with an endpoint-to-codec map and a default codec
-for ordinary workflow payloads. The sample reuses key 1 for workflow payloads
-to keep the example to four keys:
+for ordinary workflow payloads. The caller uses a separate `CALLER_WORKFLOW_KEY` for
+its own input and final result, keeping those payloads independent of the keys shared
+with Nexus handlers. Each handler reuses its key 1 for backing workflow inputs.
 
 | Ordinary workflow payload | Encryption key |
 |---|---|
-| Caller workflow input and final result | `HANDLER_A_KEY_1` |
-| Handler A backing workflow inputs | `HANDLER_A_KEY_1` |
-| Handler B backing workflow inputs | `HANDLER_B_KEY_1` |
+| Caller workflow input and final result | `CALLER_WORKFLOW_KEY` |
+| Compressed/encrypted handler workflow inputs | `COMPRESSED_ENCRYPTED_KEY_1` |
+| Encrypted handler workflow inputs | `ENCRYPTED_KEY_1` |
 
 These workflow payloads use AES-GCM without compression or endpoint metadata.
 An async Nexus result uses the key and compression chain selected by its endpoint,
@@ -51,8 +52,8 @@ payloads, `nexus-endpoint-name` metadata. For example:
 
 ```text
 encoding: binary/nexus-aes-gcm
-encryption-key-id: handler-a-1
-nexus-endpoint-name: handler-a-1
+encryption-key-id: compressed-encrypted-1
+nexus-endpoint-name: nexus-serialization-compressed-encrypted-1
 ```
 
 A Codec Server can use that metadata to select the key and decompression chain without
@@ -85,21 +86,21 @@ Create two endpoints for each handler worker:
 
 ```bash
 ./temporal operator nexus endpoint create \
-  --name handler-a-1 \
+  --name nexus-serialization-compressed-encrypted-1 \
   --target-namespace nexus-serialization \
-  --target-task-queue nexus-serialization-handler-a
+  --target-task-queue nexus-serialization-compressed-encrypted-handler
 ./temporal operator nexus endpoint create \
-  --name handler-a-2 \
+  --name nexus-serialization-compressed-encrypted-2 \
   --target-namespace nexus-serialization \
-  --target-task-queue nexus-serialization-handler-a
+  --target-task-queue nexus-serialization-compressed-encrypted-handler
 ./temporal operator nexus endpoint create \
-  --name handler-b-1 \
+  --name nexus-serialization-encrypted-1 \
   --target-namespace nexus-serialization \
-  --target-task-queue nexus-serialization-handler-b
+  --target-task-queue nexus-serialization-encrypted-handler
 ./temporal operator nexus endpoint create \
-  --name handler-b-2 \
+  --name nexus-serialization-encrypted-2 \
   --target-namespace nexus-serialization \
-  --target-task-queue nexus-serialization-handler-b
+  --target-task-queue nexus-serialization-encrypted-handler
 ```
 
 Run each of the following in its own terminal from the repository root:

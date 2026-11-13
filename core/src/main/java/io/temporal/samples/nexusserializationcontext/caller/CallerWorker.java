@@ -34,35 +34,40 @@ public class CallerWorker {
   }
 
   public static DataConverter dataConverter() {
-    SecretKey handlerAKey1 =
-        new SecretKeySpec(SampleConfig.HANDLER_A_KEY_1.getBytes(StandardCharsets.UTF_8), "AES");
-    SecretKey handlerBKey1 =
-        new SecretKeySpec(SampleConfig.HANDLER_B_KEY_1.getBytes(StandardCharsets.UTF_8), "AES");
-    SecretKey handlerAKey2 =
-        new SecretKeySpec(SampleConfig.HANDLER_A_KEY_2.getBytes(StandardCharsets.UTF_8), "AES");
-    SecretKey handlerBKey2 =
-        new SecretKeySpec(SampleConfig.HANDLER_B_KEY_2.getBytes(StandardCharsets.UTF_8), "AES");
-    PayloadCodec handlerAKey1Encryption =
-        new AesGcmCodec(SampleConfig.HANDLER_A_KEY_1_ID, handlerAKey1);
-    PayloadCodec handlerBKey1Encryption =
-        new AesGcmCodec(SampleConfig.HANDLER_B_KEY_1_ID, handlerBKey1);
-    PayloadCodec handlerAKey2Encryption =
-        new AesGcmCodec(SampleConfig.HANDLER_A_KEY_2_ID, handlerAKey2);
-    PayloadCodec handlerBKey2Encryption =
-        new AesGcmCodec(SampleConfig.HANDLER_B_KEY_2_ID, handlerBKey2);
+    SecretKey compressedEncryptedKey1 =
+        new SecretKeySpec(
+            SampleConfig.COMPRESSED_ENCRYPTED_KEY_1.getBytes(StandardCharsets.UTF_8), "AES");
+    SecretKey encryptedKey1 =
+        new SecretKeySpec(SampleConfig.ENCRYPTED_KEY_1.getBytes(StandardCharsets.UTF_8), "AES");
+    SecretKey compressedEncryptedKey2 =
+        new SecretKeySpec(
+            SampleConfig.COMPRESSED_ENCRYPTED_KEY_2.getBytes(StandardCharsets.UTF_8), "AES");
+    SecretKey encryptedKey2 =
+        new SecretKeySpec(SampleConfig.ENCRYPTED_KEY_2.getBytes(StandardCharsets.UTF_8), "AES");
+    SecretKey callerWorkflowKey =
+        new SecretKeySpec(SampleConfig.CALLER_WORKFLOW_KEY.getBytes(StandardCharsets.UTF_8), "AES");
+    PayloadCodec compressedEncryptedKey1Encryption =
+        new AesGcmCodec(SampleConfig.COMPRESSED_ENCRYPTED_KEY_1_ID, compressedEncryptedKey1);
+    PayloadCodec encryptedKey1Encryption =
+        new AesGcmCodec(SampleConfig.ENCRYPTED_KEY_1_ID, encryptedKey1);
+    PayloadCodec compressedEncryptedKey2Encryption =
+        new AesGcmCodec(SampleConfig.COMPRESSED_ENCRYPTED_KEY_2_ID, compressedEncryptedKey2);
+    PayloadCodec encryptedKey2Encryption =
+        new AesGcmCodec(SampleConfig.ENCRYPTED_KEY_2_ID, encryptedKey2);
     // ChainCodec encodes last to first: compress, then encrypt.
     Map<String, PayloadCodec> nexusEndpointCodecs =
         Map.of(
-            SampleConfig.HANDLER_A_1_ENDPOINT,
-            new ChainCodec(List.of(handlerAKey1Encryption, new ZlibCodec())),
-            SampleConfig.HANDLER_B_1_ENDPOINT,
-            handlerBKey1Encryption,
-            SampleConfig.HANDLER_A_2_ENDPOINT,
-            new ChainCodec(List.of(handlerAKey2Encryption, new ZlibCodec())),
-            SampleConfig.HANDLER_B_2_ENDPOINT,
-            handlerBKey2Encryption);
-    // Reuse handler A's key 1 for the caller's workflow payloads.
-    PayloadCodec callerWorkflowEncryption = handlerAKey1Encryption;
+            SampleConfig.COMPRESSED_ENCRYPTED_1_ENDPOINT,
+            new ChainCodec(List.of(compressedEncryptedKey1Encryption, new ZlibCodec())),
+            SampleConfig.ENCRYPTED_1_ENDPOINT,
+            encryptedKey1Encryption,
+            SampleConfig.COMPRESSED_ENCRYPTED_2_ENDPOINT,
+            new ChainCodec(List.of(compressedEncryptedKey2Encryption, new ZlibCodec())),
+            SampleConfig.ENCRYPTED_2_ENDPOINT,
+            encryptedKey2Encryption);
+    // Ordinary caller workflow payloads use a separate key from Nexus payloads.
+    PayloadCodec callerWorkflowEncryption =
+        new AesGcmCodec(SampleConfig.CALLER_WORKFLOW_KEY_ID, callerWorkflowKey);
     return new CodecDataConverter(
         DefaultDataConverter.newDefaultInstance(),
         List.of(new NexusCodec(nexusEndpointCodecs, callerWorkflowEncryption)));

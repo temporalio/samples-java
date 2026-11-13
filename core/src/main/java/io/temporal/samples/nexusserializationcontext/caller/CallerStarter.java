@@ -19,20 +19,28 @@ public class CallerStarter {
 
     EndpointResults results = workflow.echoThroughEndpoints("Hello from Nexus");
     System.out.println(
-        SampleConfig.HANDLER_A_1_ENDPOINT + " sync result: " + results.handlerA1SyncResult());
+        SampleConfig.COMPRESSED_ENCRYPTED_1_ENDPOINT
+            + " sync result: "
+            + results.compressedEncrypted1SyncResult());
     System.out.println(
-        SampleConfig.HANDLER_A_1_ENDPOINT + " async result: " + results.handlerA1AsyncResult());
+        SampleConfig.COMPRESSED_ENCRYPTED_1_ENDPOINT
+            + " async result: "
+            + results.compressedEncrypted1AsyncResult());
     System.out.println(
-        SampleConfig.HANDLER_B_1_ENDPOINT + " sync result: " + results.handlerB1SyncResult());
+        SampleConfig.ENCRYPTED_1_ENDPOINT + " sync result: " + results.encrypted1SyncResult());
     System.out.println(
-        SampleConfig.HANDLER_B_1_ENDPOINT + " async result: " + results.handlerB1AsyncResult());
+        SampleConfig.ENCRYPTED_1_ENDPOINT + " async result: " + results.encrypted1AsyncResult());
     System.out.println(
-        SampleConfig.HANDLER_A_2_ENDPOINT + " sync result: " + results.handlerA2SyncResult());
+        SampleConfig.COMPRESSED_ENCRYPTED_2_ENDPOINT
+            + " sync result: "
+            + results.compressedEncrypted2SyncResult());
     System.out.println(
-        SampleConfig.HANDLER_A_2_ENDPOINT + " async result: " + results.handlerA2AsyncResult());
+        SampleConfig.COMPRESSED_ENCRYPTED_2_ENDPOINT
+            + " async result: "
+            + results.compressedEncrypted2AsyncResult());
     System.out.println(
-        SampleConfig.HANDLER_B_2_ENDPOINT + " sync result: " + results.handlerB2SyncResult());
+        SampleConfig.ENCRYPTED_2_ENDPOINT + " sync result: " + results.encrypted2SyncResult());
     System.out.println(
-        SampleConfig.HANDLER_B_2_ENDPOINT + " async result: " + results.handlerB2AsyncResult());
+        SampleConfig.ENCRYPTED_2_ENDPOINT + " async result: " + results.encrypted2AsyncResult());
   }
 }

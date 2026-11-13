@@ -22,42 +22,46 @@ import org.junit.jupiter.api.Test;
 class NexusCodecTest {
   @Test
   void callerAndHandlersUseTheKeyForEachEndpoint() {
-    DataConverter handlerA = CompressedEncryptedHandlerWorker.dataConverter();
-    DataConverter handlerB = EncryptedHandlerWorker.dataConverter();
+    DataConverter compressedEncryptedHandler = CompressedEncryptedHandlerWorker.dataConverter();
+    DataConverter encryptedHandler = EncryptedHandlerWorker.dataConverter();
 
     assertEndpointRoundTrip(
-        handlerA, SampleConfig.HANDLER_A_1_ENDPOINT, SampleConfig.HANDLER_A_KEY_1_ID);
+        compressedEncryptedHandler,
+        SampleConfig.COMPRESSED_ENCRYPTED_1_ENDPOINT,
+        SampleConfig.COMPRESSED_ENCRYPTED_KEY_1_ID);
     assertEndpointRoundTrip(
-        handlerA, SampleConfig.HANDLER_A_2_ENDPOINT, SampleConfig.HANDLER_A_KEY_2_ID);
+        compressedEncryptedHandler,
+        SampleConfig.COMPRESSED_ENCRYPTED_2_ENDPOINT,
+        SampleConfig.COMPRESSED_ENCRYPTED_KEY_2_ID);
     assertEndpointRoundTrip(
-        handlerB, SampleConfig.HANDLER_B_1_ENDPOINT, SampleConfig.HANDLER_B_KEY_1_ID);
+        encryptedHandler, SampleConfig.ENCRYPTED_1_ENDPOINT, SampleConfig.ENCRYPTED_KEY_1_ID);
     assertEndpointRoundTrip(
-        handlerB, SampleConfig.HANDLER_B_2_ENDPOINT, SampleConfig.HANDLER_B_KEY_2_ID);
+        encryptedHandler, SampleConfig.ENCRYPTED_2_ENDPOINT, SampleConfig.ENCRYPTED_KEY_2_ID);
   }
 
   @Test
-  void handlerACompressesBeforeEncryptingWithEitherKey() {
+  void compressesBeforeEncryptingWithEitherKey() {
     assertCompressionReducesPayload(
-        SampleConfig.HANDLER_A_1_ENDPOINT, SampleConfig.HANDLER_B_1_ENDPOINT);
+        SampleConfig.COMPRESSED_ENCRYPTED_1_ENDPOINT, SampleConfig.ENCRYPTED_1_ENDPOINT);
     assertCompressionReducesPayload(
-        SampleConfig.HANDLER_A_2_ENDPOINT, SampleConfig.HANDLER_B_2_ENDPOINT);
+        SampleConfig.COMPRESSED_ENCRYPTED_2_ENDPOINT, SampleConfig.ENCRYPTED_2_ENDPOINT);
   }
 
   @Test
-  void callerWorkflowPayloadsReuseHandlerAKey1() {
+  void callerWorkflowPayloadsUseTheirOwnKey() {
     DataConverter converter =
         CallerWorker.dataConverter()
             .withContext(new WorkflowSerializationContext("nexus-serialization", "caller-id"));
     EndpointResults results =
         new EndpointResults(
-            "reply A1",
-            "reply B1",
-            "reply A2",
-            "reply B2",
-            "async reply A1",
-            "async reply B1",
-            "async reply A2",
-            "async reply B2");
+            "reply compressed-encrypted-1",
+            "reply encrypted-1",
+            "reply compressed-encrypted-2",
+            "reply encrypted-2",
+            "async reply compressed-encrypted-1",
+            "async reply encrypted-1",
+            "async reply compressed-encrypted-2",
+            "async reply encrypted-2");
     Payload input = converter.toPayload("Hello from Nexus").orElseThrow();
     Payload result = converter.toPayload(results).orElseThrow();
 
@@ -65,7 +69,10 @@ class NexusCodecTest {
         NexusEncoding.AES_GCM.encodingName(),
         input.getMetadataOrThrow(EncodingKeys.METADATA_ENCODING_KEY).toStringUtf8());
     assertEquals(
-        SampleConfig.HANDLER_A_KEY_1_ID,
+        SampleConfig.CALLER_WORKFLOW_KEY_ID,
+        input.getMetadataOrThrow(AesGcmCodec.KEY_ID_METADATA_KEY).toStringUtf8());
+    assertEquals(
+        SampleConfig.CALLER_WORKFLOW_KEY_ID,
         result.getMetadataOrThrow(AesGcmCodec.KEY_ID_METADATA_KEY).toStringUtf8());
     assertFalse(input.containsMetadata(SampleConfig.ENDPOINT_METADATA_KEY));
     assertFalse(result.containsMetadata(SampleConfig.ENDPOINT_METADATA_KEY));
