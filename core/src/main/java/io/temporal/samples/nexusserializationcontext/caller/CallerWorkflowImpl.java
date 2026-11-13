@@ -12,29 +12,50 @@ import java.time.Duration;
 public class CallerWorkflowImpl implements CallerWorkflow {
   @Override
   public EndpointResults echoThroughEndpoints(String message) {
-    SyncEchoService compressedEncryptedService =
-        serviceFor(SyncEchoService.class, SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT);
-    SyncEchoService encryptedService =
-        serviceFor(SyncEchoService.class, SampleConfig.ENCRYPTED_ENDPOINT);
-    AsyncEchoService compressedEncryptedAsyncService =
-        serviceFor(AsyncEchoService.class, SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT);
-    AsyncEchoService encryptedAsyncService =
-        serviceFor(AsyncEchoService.class, SampleConfig.ENCRYPTED_ENDPOINT);
+    SyncEchoService handlerA1SyncService =
+        serviceFor(SyncEchoService.class, SampleConfig.HANDLER_A_1_ENDPOINT);
+    SyncEchoService handlerB1SyncService =
+        serviceFor(SyncEchoService.class, SampleConfig.HANDLER_B_1_ENDPOINT);
+    SyncEchoService handlerA2SyncService =
+        serviceFor(SyncEchoService.class, SampleConfig.HANDLER_A_2_ENDPOINT);
+    SyncEchoService handlerB2SyncService =
+        serviceFor(SyncEchoService.class, SampleConfig.HANDLER_B_2_ENDPOINT);
+    AsyncEchoService handlerA1AsyncService =
+        serviceFor(AsyncEchoService.class, SampleConfig.HANDLER_A_1_ENDPOINT);
+    AsyncEchoService handlerB1AsyncService =
+        serviceFor(AsyncEchoService.class, SampleConfig.HANDLER_B_1_ENDPOINT);
+    AsyncEchoService handlerA2AsyncService =
+        serviceFor(AsyncEchoService.class, SampleConfig.HANDLER_A_2_ENDPOINT);
+    AsyncEchoService handlerB2AsyncService =
+        serviceFor(AsyncEchoService.class, SampleConfig.HANDLER_B_2_ENDPOINT);
 
-    // Start all operations before awaiting results. Each result keeps its endpoint context.
-    NexusOperationHandle<String> compressedEncryptedSync =
-        Workflow.startNexusOperation(compressedEncryptedService::echo, message);
-    NexusOperationHandle<String> encryptedSync =
-        Workflow.startNexusOperation(encryptedService::echo, message);
-    NexusOperationHandle<String> compressedEncryptedAsync =
-        Workflow.startNexusOperation(compressedEncryptedAsyncService::echoAsync, message);
-    NexusOperationHandle<String> encryptedAsync =
-        Workflow.startNexusOperation(encryptedAsyncService::echoAsync, message);
+    // Start all eight operations before awaiting results. Each keeps its endpoint context.
+    NexusOperationHandle<String> handlerA1Sync =
+        Workflow.startNexusOperation(handlerA1SyncService::echo, message);
+    NexusOperationHandle<String> handlerA1Async =
+        Workflow.startNexusOperation(handlerA1AsyncService::echoAsync, message);
+    NexusOperationHandle<String> handlerB1Sync =
+        Workflow.startNexusOperation(handlerB1SyncService::echo, message);
+    NexusOperationHandle<String> handlerB1Async =
+        Workflow.startNexusOperation(handlerB1AsyncService::echoAsync, message);
+    NexusOperationHandle<String> handlerA2Sync =
+        Workflow.startNexusOperation(handlerA2SyncService::echo, message);
+    NexusOperationHandle<String> handlerA2Async =
+        Workflow.startNexusOperation(handlerA2AsyncService::echoAsync, message);
+    NexusOperationHandle<String> handlerB2Sync =
+        Workflow.startNexusOperation(handlerB2SyncService::echo, message);
+    NexusOperationHandle<String> handlerB2Async =
+        Workflow.startNexusOperation(handlerB2AsyncService::echoAsync, message);
+
     return new EndpointResults(
-        compressedEncryptedSync.getResult().get(),
-        encryptedSync.getResult().get(),
-        compressedEncryptedAsync.getResult().get(),
-        encryptedAsync.getResult().get());
+        handlerA1Sync.getResult().get(),
+        handlerB1Sync.getResult().get(),
+        handlerA2Sync.getResult().get(),
+        handlerB2Sync.getResult().get(),
+        handlerA1Async.getResult().get(),
+        handlerB1Async.getResult().get(),
+        handlerA2Async.getResult().get(),
+        handlerB2Async.getResult().get());
   }
 
   private static <T> T serviceFor(Class<T> serviceClass, String endpoint) {

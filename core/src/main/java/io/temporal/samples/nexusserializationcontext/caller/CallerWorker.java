@@ -34,25 +34,37 @@ public class CallerWorker {
   }
 
   public static DataConverter dataConverter() {
-    SecretKey keyA =
-        new SecretKeySpec(SampleConfig.KEY_A_VALUE.getBytes(StandardCharsets.UTF_8), "AES");
-    SecretKey keyB =
-        new SecretKeySpec(SampleConfig.KEY_B_VALUE.getBytes(StandardCharsets.UTF_8), "AES");
-    SecretKey keyC =
-        new SecretKeySpec(SampleConfig.KEY_C_VALUE.getBytes(StandardCharsets.UTF_8), "AES");
+    SecretKey handlerAKey1 =
+        new SecretKeySpec(SampleConfig.HANDLER_A_KEY_1.getBytes(StandardCharsets.UTF_8), "AES");
+    SecretKey handlerBKey1 =
+        new SecretKeySpec(SampleConfig.HANDLER_B_KEY_1.getBytes(StandardCharsets.UTF_8), "AES");
+    SecretKey handlerAKey2 =
+        new SecretKeySpec(SampleConfig.HANDLER_A_KEY_2.getBytes(StandardCharsets.UTF_8), "AES");
+    SecretKey handlerBKey2 =
+        new SecretKeySpec(SampleConfig.HANDLER_B_KEY_2.getBytes(StandardCharsets.UTF_8), "AES");
+    PayloadCodec handlerAKey1Encryption =
+        new AesGcmCodec(SampleConfig.HANDLER_A_KEY_1_ID, handlerAKey1);
+    PayloadCodec handlerBKey1Encryption =
+        new AesGcmCodec(SampleConfig.HANDLER_B_KEY_1_ID, handlerBKey1);
+    PayloadCodec handlerAKey2Encryption =
+        new AesGcmCodec(SampleConfig.HANDLER_A_KEY_2_ID, handlerAKey2);
+    PayloadCodec handlerBKey2Encryption =
+        new AesGcmCodec(SampleConfig.HANDLER_B_KEY_2_ID, handlerBKey2);
     // ChainCodec encodes last to first: compress, then encrypt.
-    PayloadCodec compressedEncrypted =
-        new ChainCodec(List.of(new AesGcmCodec(SampleConfig.KEY_A_ID, keyA), new ZlibCodec()));
-    PayloadCodec encrypted = new AesGcmCodec(SampleConfig.KEY_B_ID, keyB);
+    Map<String, PayloadCodec> nexusEndpointCodecs =
+        Map.of(
+            SampleConfig.HANDLER_A_1_ENDPOINT,
+            new ChainCodec(List.of(handlerAKey1Encryption, new ZlibCodec())),
+            SampleConfig.HANDLER_B_1_ENDPOINT,
+            handlerBKey1Encryption,
+            SampleConfig.HANDLER_A_2_ENDPOINT,
+            new ChainCodec(List.of(handlerAKey2Encryption, new ZlibCodec())),
+            SampleConfig.HANDLER_B_2_ENDPOINT,
+            handlerBKey2Encryption);
+    // Reuse handler A's key 1 for the caller's workflow payloads.
+    PayloadCodec callerWorkflowEncryption = handlerAKey1Encryption;
     return new CodecDataConverter(
         DefaultDataConverter.newDefaultInstance(),
-        List.of(
-            new NexusCodec(
-                Map.of(
-                    SampleConfig.COMPRESSED_ENCRYPTED_ENDPOINT,
-                    compressedEncrypted,
-                    SampleConfig.ENCRYPTED_ENDPOINT,
-                    encrypted),
-                new AesGcmCodec(SampleConfig.KEY_C_ID, keyC))));
+        List.of(new NexusCodec(nexusEndpointCodecs, callerWorkflowEncryption)));
   }
 }
