@@ -1,0 +1,45 @@
+// ADK samples consume the independently versioned integration from Maven Central.
+dependencies {
+    implementation 'io.temporal:google-adk:0.1.1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation('io.temporal:temporal-sdk') {
+        version {
+            strictly '[1.40.0,2.0['
+            prefer '1.40.0'
+        }
+    }
+    testImplementation('io.temporal:temporal-testing') {
+        version {
+            strictly '[1.40.0,2.0['
+            prefer '1.40.0'
+        }
+    }
+    implementation 'io.modelcontextprotocol.sdk:mcp:2.0.0'
+    implementation 'io.modelcontextprotocol.sdk:mcp-json-jackson3:2.0.0'
+    runtimeOnly 'ch.qos.logback:logback-classic:1.5.18'
+
+    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    errorproneJavac 'com.google.errorprone:javac:9+181-r4173-1'
+    errorprone 'com.google.errorprone:error_prone_core:2.28.0'
+}
+
+tasks.register('worker', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.temporal.samples.googleadk.SampleWorker'
+}
+
+tasks.register('starter', JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'io.temporal.samples.googleadk.SampleStarter'
+}
+
+test {
+    // Gradle's test worker uses its own bootstrap classpath. The MCP subprocess
+    // needs the sample application's classpath, just as it has in the worker task.
+    doFirst {
+        systemProperty 'googleadk.echo.classpath', sourceSets.main.runtimeClasspath.asPath
+    }
+}
