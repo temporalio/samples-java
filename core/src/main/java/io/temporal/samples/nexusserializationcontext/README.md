@@ -8,12 +8,12 @@ compression. Each handler selects between its own key 1 and key 2 using
 the endpoint in the Nexus context.
 The caller and each handler run in separate namespaces.
 
-| Endpoint | Encryption key | Nexus payload encoding |
-|---|---|---|
-| `nexus-serialization-compressed-encrypted-1` | `COMPRESSED_ENCRYPTED_KEY_1` | zlib, then AES-GCM |
-| `nexus-serialization-encrypted-1` | `ENCRYPTED_KEY_1` | AES-GCM |
-| `nexus-serialization-compressed-encrypted-2` | `COMPRESSED_ENCRYPTED_KEY_2` | zlib, then AES-GCM |
-| `nexus-serialization-encrypted-2` | `ENCRYPTED_KEY_2` | AES-GCM |
+| Handler | Endpoint | Encryption key | Nexus payload encoding |
+|---|---|---|---|
+| `CompressedEncryptedHandlerWorker` | `nexus-serialization-compressed-encrypted-1` | `COMPRESSED_ENCRYPTED_KEY_1` | zlib, then AES-GCM |
+| `CompressedEncryptedHandlerWorker` | `nexus-serialization-compressed-encrypted-2` | `COMPRESSED_ENCRYPTED_KEY_2` | zlib, then AES-GCM |
+| `EncryptedHandlerWorker` | `nexus-serialization-encrypted-1` | `ENCRYPTED_KEY_1` | AES-GCM |
+| `EncryptedHandlerWorker` | `nexus-serialization-encrypted-2` | `ENCRYPTED_KEY_2` | AES-GCM |
 
 These four endpoint keys are distinct 128-bit AES keys. Compression runs before encryption;
 decoding decrypts before decompressing. AES-GCM authenticates the ciphertext.
