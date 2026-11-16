@@ -10,12 +10,12 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 /**
- * Selects an endpoint codec for synchronous and asynchronous Nexus payloads. The caller's own
- * workflow payloads use a separate codec.
+ * Selects an endpoint codec for synchronous and asynchronous Nexus payloads. Ordinary workflow
+ * payloads use a separate codec.
  */
 public final class NexusCodec implements PayloadCodec {
   private final Map<String, PayloadCodec> codecsByEndpoint;
-  // The caller workflow has no Nexus endpoint, so Key C encrypts its input and final result.
+  // Payloads without Nexus context use the local workflow codec.
   private final PayloadCodec workflowCodec;
 
   public NexusCodec(Map<String, PayloadCodec> codecsByEndpoint, PayloadCodec workflowCodec) {
@@ -29,7 +29,7 @@ public final class NexusCodec implements PayloadCodec {
     if (context instanceof NexusSerializationContext nexusContext) {
       return codecFor(nexusContext.getEndpoint()).withContext(context);
     }
-    // Caller workflow input and result have no Nexus endpoint; use the caller's Key C codec.
+    // Ordinary workflow payloads use the worker's configured default codec.
     return workflowCodec.withContext(context);
   }
 
