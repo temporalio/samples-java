@@ -1,0 +1,21 @@
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Used by the logs sample. -->
+    <appender name="OpenTelemetry"
+              class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender"/>
+
+    <logger name="io.temporal.samples.opentelemetryv2.logs" additivity="false">
+        <appender-ref ref="OpenTelemetry"/>
+    </logger>
+    <logger name="io.grpc" level="WARN"/>
+    <logger name="io.netty" level="WARN"/>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>
