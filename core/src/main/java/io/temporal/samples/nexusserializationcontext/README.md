@@ -60,9 +60,8 @@ nexus-endpoint-name: nexus-serialization-compressed-encrypted-1
 A Codec Server can use that metadata to select the key and decompression chain without
 SDK context. Ordinary workflow payloads have a key ID but no endpoint metadata or compression.
 
-The hard-coded keys are only for this local example. For production encryption,
-use a secure key store, as in the
-[AWS Encryption SDK sample](../keymanagementencryption/awsencryptionsdk/README.md).
+The AES-GCM codec and hard-coded keys are for this example. Use an established encryption
+implementation and secure key storage for production.
 
 ## Prerequisites
 
