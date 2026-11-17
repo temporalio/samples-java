@@ -48,6 +48,8 @@ public final class AesGcmCodec implements PayloadCodec {
   @Nonnull
   public PayloadCodec withContext(@Nonnull SerializationContext context) {
     if (context instanceof NexusSerializationContext nexusSerializationContext) {
+      // Return a lightweight context-bound codec without mutating the shared instance.
+      // Reuse the key; keep each operation's endpoint on its own codec instance.
       return new AesGcmCodec(keyId, key, nexusSerializationContext.getEndpoint());
     }
     return this;
