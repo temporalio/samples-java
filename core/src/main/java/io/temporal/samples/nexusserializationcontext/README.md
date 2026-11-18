@@ -14,19 +14,19 @@ The caller and each handler run in separate namespaces.
 | Encrypted | `nexus-serialization-encrypted-1` | `encrypted-1` | AES-GCM |
 | Encrypted | `nexus-serialization-encrypted-2` | `encrypted-2` | AES-GCM |
 
-These four endpoint keys are distinct 128-bit AES keys. Compression runs before encryption;
-decoding decrypts before decompressing. AES-GCM authenticates the ciphertext.
-The AES-GCM and zlib codecs are implemented in this sample; Nexus supplies the endpoint
-context used to select them.
+Each endpoint uses a different 128-bit AES key. This sample implements the AES-GCM
+and zlib codecs.
 
-`NexusCodec` uses an endpoint-to-codec map and a default codec for ordinary workflow
-payloads. To use this pattern, wrap the codec in a `CodecDataConverter` and configure it
-through `WorkflowClientOptions.Builder.setDataConverter` on the caller and handler
-clients. Both sides need matching keys and encodings for each endpoint.
+`NexusCodec` uses the endpoint from the Nexus context to select a codec. It uses a default
+codec for ordinary workflow payloads. Add `NexusCodec` to the default data converter with
+`CodecDataConverter`, then pass the result to
+`WorkflowClientOptions.Builder.setDataConverter` for the caller and handler clients.
 
-The caller uses a separate key for its own input and final result, keeping those
-payloads independent of the keys shared with Nexus handlers. Each handler reuses its
-key 1 for backing workflow inputs.
+Because AES-GCM uses symmetric encryption, the caller and handler share a secret key
+for each endpoint. This sample uses that key for both requests and results.
+
+The caller uses a separate key for its workflow input and final result. Each handler
+reuses its key 1 for backing workflow inputs.
 
 | Ordinary workflow payload | Default key ID |
 |---|---|
@@ -63,11 +63,12 @@ encryption-key-id: compressed-encrypted-1
 nexus-endpoint-name: nexus-serialization-compressed-encrypted-1
 ```
 
-These labels identify the key and endpoint; they do not contain the key material.
+The metadata identifies the key and endpoint. The key material stays in the codec
+configuration.
 Ordinary workflow payloads have a key ID but no endpoint metadata or compression.
 
-The AES-GCM codec and hard-coded keys are for this example. Use an established encryption
-implementation and secure key storage for production.
+The AES-GCM codec and hard-coded keys are for this example. For production, use an
+established encryption implementation and secure key storage.
 
 ## Prerequisites
 
