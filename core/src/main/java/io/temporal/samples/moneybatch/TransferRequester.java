@@ -42,7 +42,7 @@ public class TransferRequester {
         workflowClient.newWorkflowStub(AccountTransferWorkflow.class, options);
     // Signal with start sends a signal to a workflow starting it if not yet running
     BatchRequest request = workflowClient.newSignalWithStartRequest();
-    request.add(transferWorkflow::deposit, to, BATCH_SIZE);
+    request.add(transferWorkflow::deposit, to, BATCH_SIZE, new BatchState());
     request.add(transferWorkflow::withdraw, from, reference, amountCents);
     workflowClient.signalWithStart(request);
 
