@@ -149,6 +149,12 @@ Start the caller workflow in another terminal:
 The starter prints a sync result and an async result for each endpoint. All eight
 results should be `Hello from Nexus`.
 
+To see what Temporal stored, open the latest caller workflow in the
+[Temporal UI](http://localhost:8233) under the `nexus-serialization-caller` namespace.
+In **History**, check **Input** on a **Nexus Operation Scheduled** event and **Result**
+on its **Nexus Operation Completed** event. The payload data is encrypted and shown in
+Base64. Look for `encryption-key-id` in the payload metadata to compare endpoints.
+
 The run creates five workflow executions: one caller and four async backing workflows.
 The four sync operations return directly from their handlers.
 
