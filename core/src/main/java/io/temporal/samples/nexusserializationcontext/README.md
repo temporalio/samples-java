@@ -2,51 +2,57 @@
 
 This sample uses `NexusSerializationContext` to select an encryption key for each Nexus
 endpoint. The caller invokes synchronous and workflow-backed asynchronous operations
-through four endpoints. `CompressedEncryptedHandlerWorker` compresses and then
-encrypts Nexus payloads. `EncryptedHandlerWorker` encrypts without
-compression. Each handler selects between its own key 1 and key 2 using
-the endpoint in the Nexus context.
+through four endpoints. `CompressedEncryptedHandlerWorker` compresses and then encrypts
+Nexus payloads. `EncryptedHandlerWorker` encrypts without compression. Each handler selects
+between its own key 1 and key 2 using the endpoint in the Nexus context.
 The caller and each handler run in separate namespaces.
 
-| Handler | Endpoint | Encryption key | Nexus payload encoding |
+| Handler worker | Endpoint | Key ID | Nexus payload encoding |
 |---|---|---|---|
-| `CompressedEncryptedHandlerWorker` | `nexus-serialization-compressed-encrypted-1` | `COMPRESSED_ENCRYPTED_KEY_1` | zlib, then AES-GCM |
-| `CompressedEncryptedHandlerWorker` | `nexus-serialization-compressed-encrypted-2` | `COMPRESSED_ENCRYPTED_KEY_2` | zlib, then AES-GCM |
-| `EncryptedHandlerWorker` | `nexus-serialization-encrypted-1` | `ENCRYPTED_KEY_1` | AES-GCM |
-| `EncryptedHandlerWorker` | `nexus-serialization-encrypted-2` | `ENCRYPTED_KEY_2` | AES-GCM |
+| Compressed/encrypted | `nexus-serialization-compressed-encrypted-1` | `compressed-encrypted-1` | zlib, then AES-GCM |
+| Compressed/encrypted | `nexus-serialization-compressed-encrypted-2` | `compressed-encrypted-2` | zlib, then AES-GCM |
+| Encrypted | `nexus-serialization-encrypted-1` | `encrypted-1` | AES-GCM |
+| Encrypted | `nexus-serialization-encrypted-2` | `encrypted-2` | AES-GCM |
 
-These four endpoint keys are distinct 128-bit AES keys. Compression runs before encryption;
-decoding decrypts before decompressing. AES-GCM authenticates the ciphertext.
-The AES-GCM and zlib codecs are implemented in this sample; Nexus supplies the endpoint
-context used to select them.
+Each endpoint uses a different 128-bit AES key. This sample implements the AES-GCM
+and zlib codecs.
 
-Each worker configures `NexusCodec` with an endpoint-to-codec map and a default codec
-for ordinary workflow payloads. The caller uses a separate `CALLER_WORKFLOW_KEY` for
-its own input and final result, keeping those payloads independent of the keys shared
-with Nexus handlers. Each handler reuses its key 1 for backing workflow inputs.
+`NexusCodec` uses the endpoint from the Nexus context to select a codec. It uses a default
+codec for ordinary workflow payloads. Add `NexusCodec` to the default data converter with
+`CodecDataConverter`, then pass the result to
+`WorkflowClientOptions.Builder.setDataConverter` for the caller and handler clients.
 
-| Ordinary workflow payload | Encryption key |
+Because AES-GCM uses symmetric encryption, the caller and handler share a secret key
+for each endpoint. This sample uses that key for both requests and results.
+
+The caller uses a separate key for its workflow input and final result.
+For this example, each handler reuses its endpoint-1 key for backing workflow inputs.
+
+| Ordinary workflow payload | Default key ID |
 |---|---|
-| Caller workflow input and final result | `CALLER_WORKFLOW_KEY` |
-| Compressed/encrypted handler workflow inputs | `COMPRESSED_ENCRYPTED_KEY_1` |
-| Encrypted handler workflow inputs | `ENCRYPTED_KEY_1` |
+| Caller workflow input and final result | `caller-workflow` |
+| Compressed/encrypted handler's backing workflow inputs | `compressed-encrypted-1` |
+| Encrypted handler's backing workflow inputs | `encrypted-1` |
 
 These workflow payloads use AES-GCM without compression or endpoint metadata.
 An async Nexus result uses the key and compression chain selected by its endpoint,
 even when that differs from the backing workflow's input encryption.
 
-For synchronous operations, the SDK supplies Nexus context when decoding inputs and
-encoding results. When an asynchronous handler starts `EchoWorkflow`, the SDK includes
-the Nexus endpoint, service, and operation in the workflow-start request. The server
-stores these fields in the `WorkflowExecutionStarted` history event. The worker SDK
-restores the Nexus context from that event when encoding the workflow's result, so
-`NexusCodec` can select the endpoint's codec and key from the worker's local configuration.
-The workflow's input still uses ordinary workflow context; this sample's default codec
-encrypts it with that handler's key 1.
+The SDK supplies Nexus context when encoding and decoding operation requests and
+results. For workflow-backed asynchronous operations, it preserves that context in
+workflow history and restores it when encoding the result. A call through endpoint 2
+can therefore return a result encrypted with key 2, as the caller expects, even though
+the backing workflow's input uses the handler's default key 1.
 
 The caller starts all eight operations before waiting for their results. Each operation
 keeps its own endpoint context, even when operations for different keys are in flight.
 No custom interceptor or workflow-header propagation is required.
+
+A workflow execution produces one serialized result, shared by all Nexus operations
+attached to it. Operations that need differently encrypted results therefore need
+separate workflow executions. This sample starts a backing workflow for each async
+operation, using its Nexus request ID as the workflow ID suffix. Retrying the same
+request uses the same workflow ID.
 
 The outer encrypted payload includes `encoding`, `encryption-key-id`, and, for Nexus
 payloads, `nexus-endpoint-name` metadata. For example:
@@ -57,12 +63,15 @@ encryption-key-id: compressed-encrypted-1
 nexus-endpoint-name: nexus-serialization-compressed-encrypted-1
 ```
 
-A Codec Server can use that metadata to select the key and decompression chain without
-SDK context. Ordinary workflow payloads have a key ID but no endpoint metadata or compression.
+The metadata identifies the key and endpoint. The key material stays in the codec
+configuration.
+Ordinary workflow payloads have a key ID but no endpoint metadata or compression.
 
-The hard-coded keys are only for this local example. For production encryption,
-use a secure key store, as in the
-[AWS Encryption SDK sample](../keymanagementencryption/awsencryptionsdk/README.md).
+The codec decrypts payloads marked `binary/nexus-aes-gcm`. It leaves other encodings,
+such as plaintext JSON, for the normal payload converter.
+
+The AES-GCM codec and hard-coded keys are for this example. For production, use an
+established encryption implementation and secure key storage.
 
 ## Prerequisites
 
@@ -84,7 +93,7 @@ namespace and task queue.
 | Compressed/encrypted handler | `nexus-serialization-compressed-encrypted-handler` |
 | Encrypted handler | `nexus-serialization-encrypted-handler` |
 
-Start the dev server:
+Start the server in its own terminal and leave it running:
 
 ```bash
 ./temporal server start-dev \
@@ -93,7 +102,7 @@ Start the dev server:
   --namespace nexus-serialization-encrypted-handler
 ```
 
-Create two endpoints for each handler worker:
+In another terminal, create two endpoints for each handler worker:
 
 ```bash
 ./temporal operator nexus endpoint create \
@@ -114,7 +123,7 @@ Create two endpoints for each handler worker:
   --target-task-queue nexus-serialization-encrypted-handler
 ```
 
-Run each of the following in its own terminal from the repository root:
+Run each worker in its own terminal and leave all three running alongside the server:
 
 ```bash
 ./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexusserializationcontext.handler.CompressedEncryptedHandlerWorker \
@@ -131,13 +140,20 @@ Run each of the following in its own terminal from the repository root:
   --args="-namespace nexus-serialization-caller"
 ```
 
+Start the caller workflow in another terminal:
+
 ```bash
 ./gradlew -q :core:execute -PmainClass=io.temporal.samples.nexusserializationcontext.caller.CallerStarter \
   --args="-namespace nexus-serialization-caller"
 ```
 
+### Output
+
 The starter prints a sync result and an async result for each endpoint. All eight
 results should be `Hello from Nexus`.
+
+The run creates five workflow executions: one caller and four async backing workflows.
+The four sync operations return directly from their handlers.
 
 ## Test
 
