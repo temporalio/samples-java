@@ -25,8 +25,8 @@ codec for ordinary workflow payloads. Add `NexusCodec` to the default data conve
 Because AES-GCM uses symmetric encryption, the caller and handler share a secret key
 for each endpoint. This sample uses that key for both requests and results.
 
-The caller uses a separate key for its workflow input and final result. Each handler
-reuses its key 1 for backing workflow inputs.
+The caller uses a separate key for its workflow input and final result.
+For this example, each handler reuses its endpoint-1 key for backing workflow inputs.
 
 | Ordinary workflow payload | Default key ID |
 |---|---|
@@ -66,6 +66,9 @@ nexus-endpoint-name: nexus-serialization-compressed-encrypted-1
 The metadata identifies the key and endpoint. The key material stays in the codec
 configuration.
 Ordinary workflow payloads have a key ID but no endpoint metadata or compression.
+
+The codec decrypts payloads marked `binary/nexus-aes-gcm`. It leaves other encodings,
+such as plaintext JSON, for the normal payload converter.
 
 The AES-GCM codec and hard-coded keys are for this example. For production, use an
 established encryption implementation and secure key storage.

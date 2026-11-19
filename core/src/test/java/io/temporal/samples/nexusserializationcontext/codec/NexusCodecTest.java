@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.google.protobuf.ByteString;
 import io.temporal.api.common.v1.Payload;
 import io.temporal.common.converter.DataConverter;
+import io.temporal.common.converter.DefaultDataConverter;
 import io.temporal.common.converter.EncodingKeys;
 import io.temporal.payload.codec.PayloadCodecException;
 import io.temporal.payload.context.NexusSerializationContext;
@@ -179,6 +180,22 @@ class NexusCodecTest {
     }
   }
 
+  @Test
+  void compressedEndpointRejectsEncryptedPayloadWithoutCompression() {
+    DataConverter converter = converterFor(SampleConfig.COMPRESSED_ENCRYPTED_1_ENDPOINT);
+    AesGcmCodec encryptionOnly =
+        new AesGcmCodec(
+            SampleConfig.COMPRESSED_ENCRYPTED_KEY_1_ID,
+            new SecretKeySpec("handler-a-key-01".getBytes(StandardCharsets.UTF_8), "AES"));
+    Payload plain = DefaultDataConverter.newDefaultInstance().toPayload("hello").orElseThrow();
+    Payload encrypted = encryptionOnly.encode(List.of(plain)).get(0);
+    PayloadCodecException error =
+        assertThrows(
+            PayloadCodecException.class,
+            () -> converter.fromPayload(encrypted, String.class, String.class));
+    assertEquals("Expected a Nexus zlib payload", error.getMessage());
+  }
+
   private static void assertWorkflowDefault(DataConverter converter, String keyId, String key)
       throws Exception {
     Payload input = converter.toPayload("hello").orElseThrow();
@@ -196,6 +213,8 @@ class NexusCodecTest {
     assertEncryptionMetadata(request, endpoint, keyId);
     assertEncryptedWithKey(request, key);
     assertEquals("hello", contextualHandler.fromPayload(request, String.class, String.class));
+    Payload plain = DefaultDataConverter.newDefaultInstance().toPayload("plain").orElseThrow();
+    assertEquals("plain", contextualHandler.fromPayload(plain, String.class, String.class));
 
     Payload result = contextualHandler.toPayload("reply").orElseThrow();
     assertEncryptionMetadata(result, endpoint, keyId);

@@ -5,13 +5,11 @@ import io.temporal.client.WorkflowClientOptions;
 import io.temporal.common.converter.CodecDataConverter;
 import io.temporal.common.converter.DataConverter;
 import io.temporal.common.converter.DefaultDataConverter;
-import io.temporal.payload.codec.ChainCodec;
 import io.temporal.payload.codec.PayloadCodec;
 import io.temporal.samples.nexus.options.ClientOptions;
 import io.temporal.samples.nexusserializationcontext.SampleConfig;
 import io.temporal.samples.nexusserializationcontext.codec.AesGcmCodec;
 import io.temporal.samples.nexusserializationcontext.codec.NexusCodec;
-import io.temporal.samples.nexusserializationcontext.codec.ZlibCodec;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
 import java.nio.charset.StandardCharsets;
@@ -47,22 +45,21 @@ public class CallerWorker {
     SecretKey callerWorkflowKey =
         new SecretKeySpec(SampleConfig.CALLER_WORKFLOW_KEY.getBytes(StandardCharsets.UTF_8), "AES");
     PayloadCodec compressedEncryptedKey1Encryption =
-        new AesGcmCodec(SampleConfig.COMPRESSED_ENCRYPTED_KEY_1_ID, compressedEncryptedKey1);
+        new AesGcmCodec(SampleConfig.COMPRESSED_ENCRYPTED_KEY_1_ID, compressedEncryptedKey1, true);
     PayloadCodec encryptedKey1Encryption =
         new AesGcmCodec(SampleConfig.ENCRYPTED_KEY_1_ID, encryptedKey1);
     PayloadCodec compressedEncryptedKey2Encryption =
-        new AesGcmCodec(SampleConfig.COMPRESSED_ENCRYPTED_KEY_2_ID, compressedEncryptedKey2);
+        new AesGcmCodec(SampleConfig.COMPRESSED_ENCRYPTED_KEY_2_ID, compressedEncryptedKey2, true);
     PayloadCodec encryptedKey2Encryption =
         new AesGcmCodec(SampleConfig.ENCRYPTED_KEY_2_ID, encryptedKey2);
-    // ChainCodec encodes last to first: compress, then encrypt.
     Map<String, PayloadCodec> nexusEndpointCodecs =
         Map.of(
             SampleConfig.COMPRESSED_ENCRYPTED_1_ENDPOINT,
-            new ChainCodec(List.of(compressedEncryptedKey1Encryption, new ZlibCodec())),
+            compressedEncryptedKey1Encryption,
             SampleConfig.ENCRYPTED_1_ENDPOINT,
             encryptedKey1Encryption,
             SampleConfig.COMPRESSED_ENCRYPTED_2_ENDPOINT,
-            new ChainCodec(List.of(compressedEncryptedKey2Encryption, new ZlibCodec())),
+            compressedEncryptedKey2Encryption,
             SampleConfig.ENCRYPTED_2_ENDPOINT,
             encryptedKey2Encryption);
     // Ordinary caller workflow payloads use a separate key from Nexus payloads.

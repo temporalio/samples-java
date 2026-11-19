@@ -27,20 +27,25 @@ public final class AesGcmCodec implements PayloadCodec {
   private static final int NONCE_LENGTH = 12;
   private static final int TAG_LENGTH_BITS = 128;
   private static final SecureRandom RANDOM = new SecureRandom();
+  private static final ZlibCodec ZLIB = new ZlibCodec();
 
   private final String keyId;
   private final SecretKey key;
+  private final boolean compress;
   private final String endpoint;
 
   public AesGcmCodec(String keyId, SecretKey key) {
-    this.keyId = keyId;
-    this.key = key;
-    this.endpoint = null;
+    this(keyId, key, false);
   }
 
-  private AesGcmCodec(String keyId, SecretKey key, String endpoint) {
+  public AesGcmCodec(String keyId, SecretKey key, boolean compress) {
+    this(keyId, key, compress, null);
+  }
+
+  private AesGcmCodec(String keyId, SecretKey key, boolean compress, String endpoint) {
     this.keyId = keyId;
     this.key = key;
+    this.compress = compress;
     this.endpoint = endpoint;
   }
 
@@ -49,8 +54,8 @@ public final class AesGcmCodec implements PayloadCodec {
   public PayloadCodec withContext(@Nonnull SerializationContext context) {
     if (context instanceof NexusSerializationContext nexusSerializationContext) {
       // Return a lightweight context-bound codec without mutating the shared instance.
-      // Reuse the key; keep each operation's endpoint on its own codec instance.
-      return new AesGcmCodec(keyId, key, nexusSerializationContext.getEndpoint());
+      // Reuse the key. Keep each operation's endpoint on its own codec instance.
+      return new AesGcmCodec(keyId, key, compress, nexusSerializationContext.getEndpoint());
     }
     return this;
   }
@@ -59,7 +64,7 @@ public final class AesGcmCodec implements PayloadCodec {
   @Nonnull
   public List<Payload> encode(@Nonnull List<Payload> payloads) {
     List<Payload> encoded = new ArrayList<>(payloads.size());
-    for (Payload payload : payloads) {
+    for (Payload payload : compress ? ZLIB.encode(payloads) : payloads) {
       Payload.Builder encrypted =
           Payload.newBuilder()
               .putMetadata(
@@ -86,7 +91,8 @@ public final class AesGcmCodec implements PayloadCodec {
               .getMetadataOrDefault(EncodingKeys.METADATA_ENCODING_KEY, ByteString.EMPTY)
               .toStringUtf8();
       if (!NexusEncoding.AES_GCM.encodingName().equals(encoding)) {
-        throw new PayloadCodecException("Expected an AES-GCM payload");
+        decoded.add(payload);
+        continue;
       }
       String payloadKeyId =
           payload.getMetadataOrDefault(KEY_ID_METADATA_KEY, ByteString.EMPTY).toStringUtf8();
@@ -94,7 +100,12 @@ public final class AesGcmCodec implements PayloadCodec {
         throw new PayloadCodecException("Unexpected encryption key ID: " + payloadKeyId);
       }
       try {
-        decoded.add(Payload.parseFrom(decrypt(payload.getData().toByteArray())));
+        Payload plaintext = Payload.parseFrom(decrypt(payload.getData().toByteArray()));
+        if (compress) {
+          decoded.addAll(ZLIB.decode(List.of(plaintext)));
+        } else {
+          decoded.add(plaintext);
+        }
       } catch (InvalidProtocolBufferException e) {
         throw new PayloadCodecException(e);
       }
